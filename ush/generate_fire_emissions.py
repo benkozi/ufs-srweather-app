@@ -16,7 +16,7 @@ import fire_emiss_tools as femmi_tools
 import HWP_tools
 import interp_tools as i_tools
 from generate_fire_emissions_logging import GEWLOG
-
+import esmpy as ESMF
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Workflow
@@ -121,6 +121,9 @@ if __name__ == '__main__':
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         print('')
         GEWLOG.info('before generate_emiss_workflow')
+        manager = ESMF.Manager(debug=True)
+        GEWLOG.info(str(manager.local_pet))
+        GEWLOG.info(str(manager.pet_count))
         generate_emiss_workflow(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
         GEWLOG.info('after generate_emiss_workflow')
         print('')
