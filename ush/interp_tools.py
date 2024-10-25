@@ -97,8 +97,12 @@ def creates_st_fields(grid_in, grid_out, intp_dir, rave_avail_hours):
         GEWLOG.info(f'interp_tools.creates_st_fields: src_latt.shape={src_latt.shape}')
         GEWLOG.info(f'interp_tools.creates_st_fields: tgt_latt.shape={tgt_latt.shape}')
 
+        small_grid1 = ESMF.Grid(np.array(100, 200), staggerloc=[ESMF.StaggerLoc.CENTER, ESMF.StaggerLoc.CORNER], coord_sys=ESMF.CoordSys.SPH_DEG)
+        small_grid2 = ESMF.Grid(np.array(200, 100), staggerloc=[ESMF.StaggerLoc.CENTER, ESMF.StaggerLoc.CORNER], coord_sys=ESMF.CoordSys.SPH_DEG)
+
         GEWLOG.info('interp_tools.creates_st_fields: before grid creation')
         srcgrid = ESMF.Grid(np.array(src_latt.shape), staggerloc=[ESMF.StaggerLoc.CENTER, ESMF.StaggerLoc.CORNER], coord_sys=ESMF.CoordSys.SPH_DEG)
+        GEWLOG.info('created srcgrid')
         tgtgrid = ESMF.Grid(np.array(tgt_latt.shape), staggerloc=[ESMF.StaggerLoc.CENTER, ESMF.StaggerLoc.CORNER], coord_sys=ESMF.CoordSys.SPH_DEG)
         GEWLOG.info('interp_tools.creates_st_fields: after grid creation')
 
