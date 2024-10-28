@@ -8,6 +8,8 @@
 #                                                                       #
 #########################################################################
 
+import faulthandler; faulthandler.enable()
+
 import sys
 import os
 import time
