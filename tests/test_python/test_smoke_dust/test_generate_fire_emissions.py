@@ -19,31 +19,31 @@ logger.setLevel(logging.DEBUG)  # tdk:set to info
 
 @dataclass
 class GenerateEmissWorkflowArgs:
-    staticdir: str
-    ravedir: str
-    intp_dir: str
+    staticdir: Path
+    ravedir: Path
+    intp_dir: Path
     predef_grid: str
     ebb_dcycle_flag: str
     restart_interval: str
     persistence: str
     cdate: str
-    data: str
+    data: Path
 
     @classmethod
-    def create(cls, basedir: Path) -> "GenerateEmissWorkflowArgs":
-        return cls(staticdir=str(basedir / 'staticdir'),
-                   ravedir=str(basedir / 'ravedir'),
-                   intp_dir=str(basedir / 'intpdir'),
+    def create(cls, rootdir: Path) -> "GenerateEmissWorkflowArgs":
+        return cls(staticdir=rootdir / 'staticdir',
+                   ravedir=rootdir / 'ravedir',
+                   intp_dir=rootdir / 'intpdir',
                    predef_grid='RRFS_NA_3km',  # tdk: test with other grid
                    ebb_dcycle_flag='1',  # tdk: test with 2
                    restart_interval='6 12 18 24',
                    persistence='TRUE',  # tdk: test with false
                    cdate='2019072200',
-                   data=str(basedir / 'data')
+                   data=rootdir / 'data'
                    )
 
     def as_script_args(self) -> Tuple:
-        return self.staticdir, self.ravedir, self.intp_dir, self.predef_grid, self.ebb_dcycle_flag, self.restart_interval, self.persistence
+        return str(self.staticdir), str(self.ravedir), str(self.intp_dir), self.predef_grid, self.ebb_dcycle_flag, self.restart_interval, self.persistence
 
     @contextmanager
     def run_context(self) -> Dict[str, str]:
