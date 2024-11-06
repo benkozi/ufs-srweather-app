@@ -30,16 +30,16 @@ class GenerateEmissWorkflowArgs:
     data: Path
 
     @classmethod
-    def create(cls, rootdir: Path) -> "GenerateEmissWorkflowArgs":
-        return cls(staticdir=rootdir / 'staticdir',
-                   ravedir=rootdir / 'ravedir',
-                   intp_dir=rootdir / 'intpdir',
-                   predef_grid='RRFS_NA_3km',  # tdk: test with other grid
+    def create(cls, comin: Path, comout: Path) -> "GenerateEmissWorkflowArgs":
+        return cls(staticdir=comin / 'RRFS_CONUS_3km',
+                   ravedir=comout / 'ravedir',
+                   intp_dir=comout / 'intp_dir',
+                   predef_grid='RRFS_CONUS_3km',  # tdk: test with other grid RRFS_NA_3km
                    ebb_dcycle_flag='1',  # tdk: test with 2
                    restart_interval='6 12 18 24',
                    persistence='TRUE',  # tdk: test with false
                    cdate='2019072200',
-                   data=rootdir / 'data'
+                   data=comout / 'data'
                    )
 
     def as_script_args(self) -> Tuple:
@@ -48,7 +48,7 @@ class GenerateEmissWorkflowArgs:
     @contextmanager
     def run_context(self) -> Dict[str, str]:
         l = logger.getChild('run_context')
-        dirs = [self.staticdir, self.ravedir, self.intp_dir, self.data]
+        dirs = [self.ravedir, self.intp_dir, self.data]
         for ii in dirs:
             l.debug(f'creating directory: {ii}')
             os.mkdir(ii)
@@ -57,7 +57,7 @@ class GenerateEmissWorkflowArgs:
         orig = {k: os.environ.get(k) for k in env_vars.keys()}
         try:
             os.environ['CDATE'] = self.cdate
-            os.environ['DATA'] = self.data
+            os.environ['DATA'] = str(self.data)
             yield env_vars
         finally:
             for k, v in orig.items():
@@ -79,8 +79,9 @@ class TestGenerateFireEmissions(unittest.TestCase):
         shutil.rmtree(self._temp_dir)
 
     def test(self) -> None:
-        main_args = GenerateEmissWorkflowArgs.create(self._temp_dir)
+        main_args = GenerateEmissWorkflowArgs.create(Path('/opt/data-root'), self._temp_dir)
         logger.debug(main_args)
         main_path = self._ushdir / "generate_fire_emissions.py"
         with main_args.run_context() as _:
             subprocess.check_call(['python3', main_path] + list(main_args.as_script_args()))
+        tdk
