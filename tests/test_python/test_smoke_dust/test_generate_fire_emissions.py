@@ -32,7 +32,7 @@ class GenerateEmissWorkflowArgs:
     @classmethod
     def create(cls, comin: Path, comout: Path) -> "GenerateEmissWorkflowArgs":
         return cls(staticdir=comin / 'RRFS_CONUS_3km',
-                   ravedir=comout / 'ravedir',
+                   ravedir=comin / 'RAVE_fire',
                    intp_dir=comout / 'intp_dir',
                    predef_grid='RRFS_CONUS_3km',  # tdk: test with other grid RRFS_NA_3km
                    ebb_dcycle_flag='1',  # tdk: test with 2
@@ -48,7 +48,7 @@ class GenerateEmissWorkflowArgs:
     @contextmanager
     def run_context(self) -> Dict[str, str]:
         l = logger.getChild('run_context')
-        dirs = [self.ravedir, self.intp_dir, self.data]
+        dirs = [self.intp_dir, self.data]
         for ii in dirs:
             l.debug(f'creating directory: {ii}')
             os.mkdir(ii)
@@ -84,4 +84,3 @@ class TestGenerateFireEmissions(unittest.TestCase):
         main_path = self._ushdir / "generate_fire_emissions.py"
         with main_args.run_context() as _:
             subprocess.check_call(['python3', main_path] + list(main_args.as_script_args()))
-        tdk
