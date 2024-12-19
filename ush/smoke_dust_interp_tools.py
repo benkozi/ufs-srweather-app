@@ -136,6 +136,7 @@ def check_for_raw_rave(
     rave_avail_hours = []
     rave_nonavail_hours_test = []
     for date in intp_non_avail_hours:
+        #tdk: may need to use 13km slug if lower resolution data is desired
         wildcard_name = f"*-3km*{date}*{date}59590*.nc"
         name_retro = f"*3km*{date}*{date}*.nc"
         matching_files = [
