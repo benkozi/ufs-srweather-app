@@ -55,13 +55,15 @@ def generate_emiss_workflow(
     nwges_dir = os.environ["DATA"]
     vars_emis = ["FRP_MEAN", "FRE"]
     #tdk: need dimensions for all grids
-    cols, rows = (2700, 3950) if predef_grid == "RRFS_NA_3km" else (1092, 1820)
+    # cols, rows = (2700, 3950) if predef_grid == "RRFS_NA_3km" else (1092, 1820)
     if predef_grid == "RRFS_NA_3km":
         cols, rows = 2700, 3950
     elif predef_grid == "RRFS_CONUS_3km":
         cols, rows = 1092, 1820
     elif predef_grid == "RRFS_CONUS_25km":
         cols, rows = 131, 219
+    elif predef_grid == "RRFS_CONUS_13km":
+        cols, rows = 252, 420
     else:
         raise NotImplementedError(f"Unknown predefined grid type: {predef_grid}")
     print("PREDEF GRID", predef_grid, "cols,rows", cols, rows)
