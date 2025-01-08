@@ -31,7 +31,7 @@ class GenerateEmissWorkflowArgs:
 
     @classmethod
     def create(cls, comin: Path, comout: Path) -> "GenerateEmissWorkflowArgs":
-        return cls(staticdir=comin / 'RRFS_CONUS_3km',
+        return cls(staticdir=comin / 'RRFS_CONUS_25km', #tdk: test with other grids
                    # ravedir=comin / 'RAVE_fire',
                    ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'), #tdk: make this configurable
                    intp_dir=comout / 'intp_dir',
