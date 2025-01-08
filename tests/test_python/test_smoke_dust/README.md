@@ -1,0 +1,1 @@
+This package tests smoke and dust `ush` scripts.
