@@ -83,4 +83,4 @@ class TestGenerateFireEmissions(unittest.TestCase):
         logger.debug(main_args)
         main_path = self._ushdir / "smoke_dust_generate_fire_emissions.py"
         with main_args.run_context() as _:
-            subprocess.check_call(['python3', main_path] + list(main_args.as_script_args()))
+            subprocess.check_call(['/scratch2/NAGAPE/epic/Ben.Koziol/miniconda/envs/regrid-wrapper/bin/python3.11', main_path] + list(main_args.as_script_args())) #tdk: figure out python runtime
