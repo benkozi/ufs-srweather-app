@@ -32,7 +32,8 @@ class GenerateEmissWorkflowArgs:
     @classmethod
     def create(cls, comin: Path, comout: Path) -> "GenerateEmissWorkflowArgs":
         return cls(staticdir=comin / 'RRFS_CONUS_3km',
-                   ravedir=comin / 'RAVE_fire',
+                   # ravedir=comin / 'RAVE_fire',
+                   ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'), #tdk: make this configurable
                    intp_dir=comout / 'intp_dir',
                    predef_grid='RRFS_CONUS_25km',  # tdk: test with all grids
                    ebb_dcycle_flag='1',  # tdk: test with 2
@@ -79,7 +80,8 @@ class TestGenerateFireEmissions(unittest.TestCase):
         shutil.rmtree(self._temp_dir)
 
     def test(self) -> None:
-        main_args = GenerateEmissWorkflowArgs.create(Path('/opt/data-root'), self._temp_dir)
+        comin = Path("/scratch2/NAGAPE/epic/Ben.Koziol/tmp-smoke-fix-dir") #tdk: needs to point to an actual fixed file directory location
+        main_args = GenerateEmissWorkflowArgs.create(comin, self._temp_dir)
         logger.debug(main_args)
         main_path = self._ushdir / "smoke_dust_generate_fire_emissions.py"
         with main_args.run_context() as _:
