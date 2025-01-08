@@ -81,6 +81,6 @@ class TestGenerateFireEmissions(unittest.TestCase):
     def test(self) -> None:
         main_args = GenerateEmissWorkflowArgs.create(Path('/opt/data-root'), self._temp_dir)
         logger.debug(main_args)
-        main_path = self._ushdir / "generate_fire_emissions.py"
+        main_path = self._ushdir / "smoke_dust_generate_fire_emissions.py"
         with main_args.run_context() as _:
             subprocess.check_call(['python3', main_path] + list(main_args.as_script_args()))
