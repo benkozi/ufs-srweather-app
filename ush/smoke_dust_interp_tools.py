@@ -366,6 +366,7 @@ def generate_regridder(
     if not use_dummy_emiss:
         try:
             print("Generating regridder.")
+            import pdb;pdb.set_trace()
             regridder = ESMF.RegridFromFile(srcfield, tgtfield, weightfile)
             print("Regridder generated successfully.")
         except ValueError as e:
