@@ -112,7 +112,7 @@ else
   #
 
   #tdk:remove when directories can be properly configured
-  if [ "${PREDEF_GRID_NAME}" = "RRFS_CONUS_25km" ] || [ "${PREDEF_GRID_NAME}" = "RRFS_CONUS_13km" ]; then
+  if [ "${PREDEF_GRID_NAME}" = "RRFS_CONUS_25km" ] || [ "${PREDEF_GRID_NAME}" = "RRFS_CONUS_13km" ] || [ "${PREDEF_GRID_NAME}" = "RRFS_NA_13km" ]; then
     echo "using RRFS_CONUS_25km grid; switching FIXsmoke directory"
     FIXsmoke="/scratch2/NAGAPE/epic/Ben.Koziol/tmp-smoke-fix-dir" #hera
 #    FIXsmoke="/home/bwkoziol/tmp-smoke-dust-fixed-files" #orion

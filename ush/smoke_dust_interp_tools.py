@@ -512,7 +512,7 @@ def interpolate_rave(
                                     src_QA = xr.where(
                                         ds_togrid["FRE"] > 1000, src_rate, 0.0
                                     )
-                                    srcfield.data[...] = src_QA[0, :, :]
+                                    srcfield.data[...] = src_QA[0, :, :] #tdk: this is where we adjust via QC flag
                                     tgtfield = regridder(srcfield, tgtfield)
                                     masked_tgt_data = mask_edges(
                                         tgtfield.data, mask_width=1

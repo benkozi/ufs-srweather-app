@@ -64,6 +64,8 @@ def generate_emiss_workflow(
         cols, rows = 131, 219
     elif predef_grid == "RRFS_CONUS_13km":
         cols, rows = 252, 420
+    elif predef_grid == "RRFS_NA_13km":
+        cols, rows = 623, 912
     else:
         raise NotImplementedError(f"Unknown predefined grid type: {predef_grid}")
     print("PREDEF GRID", predef_grid, "cols,rows", cols, rows)
