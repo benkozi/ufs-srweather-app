@@ -32,16 +32,16 @@ class GenerateEmissWorkflowArgs:
     @classmethod
     def create(cls, comin: Path, comout: Path) -> "GenerateEmissWorkflowArgs":
         return cls(
-            # staticdir=comin / 'RRFS_NA_13km',  # tdk: test with other grids
+            staticdir=comin / 'RRFS_NA_13km',  # tdk: test with other grids
             # staticdir=comin / 'RRFS_CONUS_25km', #tdk: test with other grids
-            staticdir=comin / 'RRFS_CONUS_13km', #tdk: test with other grids
+            # staticdir=comin / 'RRFS_CONUS_13km', #tdk: test with other grids
             # ravedir=comin / 'RAVE_fire',
             ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'),
             # tdk: make this configurable
             intp_dir=comout / 'intp_dir',
-            # predef_grid='RRFS_NA_13km',  # tdk: test with all grids
+            predef_grid='RRFS_NA_13km',  # tdk: test with all grids
             # predef_grid='RRFS_CONUS_25km',  # tdk: test with all grids
-            predef_grid='RRFS_CONUS_13km',  # tdk: test with all grids
+            # predef_grid='RRFS_CONUS_13km',  # tdk: test with all grids
             ebb_dcycle_flag='1',  # tdk: test with 2
             restart_interval='6 12 18 24',
             persistence='TRUE',  # tdk: test with false
