@@ -366,8 +366,7 @@ def generate_regridder(
     if not use_dummy_emiss:
         try:
             print("Generating regridder.")
-            # regridder = ESMF.RegridFromFile(srcfield, tgtfield, weightfile)
-            regridder = ESMF.RegridFromFile(srcfield, tgtfield, "/scratch2/NAGAPE/epic/Ben.Koziol/tmp-smoke-fix-dir/RRFS_CONUS_25km/weight_file.nc")
+            regridder = ESMF.RegridFromFile(srcfield, tgtfield, weightfile)
             print("Regridder generated successfully.")
         except ValueError as e:
             print(f"Regridder failed due to a ValueError: {e}.")
