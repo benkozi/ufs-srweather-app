@@ -19,6 +19,7 @@ except ImportError:
     # esmpy version 8.3.1 is required on Orion/Hercules
     import ESMF
 
+ESMF.Manager(debug=True)
 
 def date_range(current_day: str, ebb_dcycle: int, persistence: str) -> Index:
     """
