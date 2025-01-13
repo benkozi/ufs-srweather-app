@@ -301,6 +301,22 @@ class SmokeDustPreprocessor:
                 ),
             )
             src_gwrap = src_nc2grid.create_grid_wrapper()
+
+            self.log("creating destination grid from RRFS grid file")
+            dst_nc2grid = NcToGrid(
+                path=self._context.grid_out,
+                spec=GridSpec(
+                    x_center="grid_lont",
+                    y_center="grid_latt",
+                    x_dim=("grid_xt",),
+                    y_dim=("grid_yt",),
+                    x_corner="grid_lon",
+                    y_corner="grid_lat",
+                    x_corner_dim=("grid_x",),
+                    y_corner_dim=("grid_y",),
+                ),
+            )
+            dst_gwrap = dst_nc2grid.create_grid_wrapper()
             import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
