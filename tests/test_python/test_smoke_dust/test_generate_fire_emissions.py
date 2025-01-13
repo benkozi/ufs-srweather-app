@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Tuple, Dict
 
-from ush.smoke_dust_generate_fire_emissions import generate_emiss_workflow
+from smoke_dust_generate_fire_emissions import generate_emiss_workflow
 
 logger = logging.getLogger('test_generate_fire_emissions')
 handler = logging.StreamHandler(stream=sys.stdout)
