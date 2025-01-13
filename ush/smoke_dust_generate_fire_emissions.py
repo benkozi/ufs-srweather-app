@@ -30,7 +30,7 @@ import smoke_dust_interp_tools as i_tools
 import datetime as dt
 
 from smoke_dust_interpolation import NcToGrid, GridSpec, NcToField
-from ush.smoke_dust_interpolation import open_nc, create_sd_coordinate_variable
+from smoke_dust_interpolation import open_nc, create_sd_coordinate_variable
 
 
 @unique
@@ -309,21 +309,7 @@ class SmokeDustPreprocessor:
             raise NotImplementedError("is_first_day is not yet implemented")
         else:
             #tdk: need try/catch to use dummy emissions if regridding fails or no rave data is available
-            self.log("creating source grid from RAVE file")
-            src_nc2grid = NcToGrid(
-                path=self._context.grid_in,
-                spec=GridSpec(
-                    x_center="grid_lont",
-                    y_center="grid_latt",
-                    x_dim=("grid_xt",),
-                    y_dim=("grid_yt",),
-                    x_corner="grid_lon",
-                    y_corner="grid_lat",
-                    x_corner_dim=("grid_x",),
-                    y_corner_dim=("grid_y",),
-                ),
-            )
-            src_gwrap = src_nc2grid.create_grid_wrapper()
+
 
             self.log("creating destination grid from RRFS grid file")
             dst_nc2grid = NcToGrid(
@@ -367,6 +353,22 @@ class SmokeDustPreprocessor:
 
                 for field_name in self._context.vars_emis:
                     if first:
+                        self.log("creating source grid from RAVE file")
+                        src_nc2grid = NcToGrid(
+                            path=self._context.grid_in,
+                            spec=GridSpec(
+                                x_center="grid_lont",
+                                y_center="grid_latt",
+                                x_dim=("grid_xt",),
+                                y_dim=("grid_yt",),
+                                x_corner="grid_lon",
+                                y_corner="grid_lat",
+                                x_corner_dim=("grid_x",),
+                                y_corner_dim=("grid_y",),
+                            ),
+                        )
+                        src_gwrap = src_nc2grid.create_grid_wrapper()
+
                         self.log("creating source field")
                         src_nc2field = NcToField(path=row['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('time',))
                         src_fwrap = src_nc2field.create_field_wrapper()
