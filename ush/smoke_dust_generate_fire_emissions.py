@@ -274,6 +274,9 @@ class SmokeDustPreprocessor:
         df = pd.DataFrame(data={'forecast_dates': self.forecast_dates,'rave_interpolated': intp_path, 'rave_raw': rave_to_forecast})
         return df
 
+    @property
+    def is_first_day(self) -> bool:
+        return self.forecast_metadata['rave_interpolated'].isnull().all() and self.forecast_metadata['rave_raw'].isnull().all()
 
     def run(self) -> None:
         raise NotImplementedError
