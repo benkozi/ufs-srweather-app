@@ -326,6 +326,7 @@ def generate_emiss_workflow(
 
     processor = SmokeDustPreprocessor(args)
     _ = processor.intp_non_avail_hours #tdk:rm
+    _ = processor.rave_metadata
     import pdb;pdb.set_trace()
     tdk
 
