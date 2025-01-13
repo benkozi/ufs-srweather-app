@@ -286,6 +286,7 @@ class SmokeDustPreprocessor:
             #tdk: implement creation of dummy emissions file
             raise NotImplementedError("is_first_day is not yet implemented")
         else:
+            #tdk: need try/catch to use dummy emissions if regridding fails or no rave data is available
             self.log("creating source grid from RAVE file")
             src_nc2grid = NcToGrid(
                 path=self._context.grid_in,
@@ -317,7 +318,14 @@ class SmokeDustPreprocessor:
                 ),
             )
             dst_gwrap = dst_nc2grid.create_grid_wrapper()
-            import pdb;pdb.set_trace()
+
+            # Select which RAVE files need to be interpolated
+            rave_to_interpolate = self.forecast_metadata[self.forecast_metadata['rave_interpolated'].isnull() & ~self.forecast_metadata['rave_raw'].isnull()]
+
+            for row in rave_to_interpolate.iterrows():
+                for field_name in self._context.vars_emis:
+
+                    import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
         raise NotImplementedError
