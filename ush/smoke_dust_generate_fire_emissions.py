@@ -335,7 +335,7 @@ class SmokeDustPreprocessor:
                 grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
             self.log(f"grid_out_shape={grid_out_shape}")
 
-            first = False
+            first = True
             for row in rave_to_interpolate.iterrows():
                 self.log(f"processing RAVE interpolation row: {row}")
 
