@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import fnmatch
 #########################################################################
 #                                                                       #
 # Python script for fire emissions preprocessing from RAVE FRP and FRE  #
@@ -244,10 +244,30 @@ class SmokeDustPreprocessor:
         if self._rave_metadata is not None:
             return self._rave_metadata
 
-        for path in self._context.ravedir.iterdir():
-            import pdb;pdb.set_trace()
+        intp_path = []
+        rave_to_forecast = []
+        for date in self.forecast_dates:
+            file_path = Path(self._context.intp_dir) / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+            if file_path.exists() and file_path.is_file():
+                try:
+                    resolved = file_path.resolve(strict=True)
+                except FileNotFoundError:
+                    continue
+                else:
+                    intp_path.append(resolved)
+            else:
+                intp_path.append(None)
 
+            wildcard_name = f"*-3km*{date}*{date}59590*.nc"
+            name_retro = f"*3km*{date}*{date}*.nc" #tdk:ja: what is this for?
+            for rave_path in self._context.ravedir.iterdir():
 
+                if fnmatch.fnmatch(str(rave_path), wildcard_name) or fnmatch.fnmatch(str(rave_path), name_retro):
+                    rave_to_forecast.append(rave_path)
+                else:
+                    rave_to_forecast.append(None)
+
+        import pdb;pdb.set_trace()
 
 
     def run(self) -> None:
@@ -325,7 +345,7 @@ def generate_emiss_workflow(
     """
 
     processor = SmokeDustPreprocessor(args)
-    _ = processor.intp_non_avail_hours #tdk:rm
+    # _ = processor.intp_non_avail_hours #tdk:rm
     _ = processor.rave_metadata
     import pdb;pdb.set_trace()
     tdk
