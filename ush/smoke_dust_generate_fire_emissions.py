@@ -339,8 +339,8 @@ class SmokeDustPreprocessor:
             for row in rave_to_interpolate.iterrows():
                 self.log(f"processing RAVE interpolation row: {row}")
 
-                import pdb;pdb.set_trace()
-                output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{row['forecast_date']}00_{row['forecast_date']}59.nc"
+                forecast_date = row[1]['forecast_date']
+                output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
                 self.log(f"creating output file: {output_file_path}")
                 with open_nc(output_file_path, "w") as ds:
                     ds.createDimension("time", 1)
@@ -371,7 +371,7 @@ class SmokeDustPreprocessor:
                         src_gwrap = src_nc2grid.create_grid_wrapper()
 
                         self.log("creating source field")
-                        src_nc2field = NcToField(path=row['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('time',))
+                        src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('time',))
                         src_fwrap = src_nc2field.create_field_wrapper()
                         first = False
 
