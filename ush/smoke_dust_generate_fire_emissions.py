@@ -260,12 +260,13 @@ class SmokeDustPreprocessor:
 
             wildcard_name = f"*-3km*{date}*{date}59590*.nc"
             name_retro = f"*3km*{date}*{date}*.nc" #tdk:ja: what is this for?
+            found = False
             for rave_path in self._context.ravedir.iterdir():
-
                 if fnmatch.fnmatch(str(rave_path), wildcard_name) or fnmatch.fnmatch(str(rave_path), name_retro):
                     rave_to_forecast.append(rave_path)
-                else:
-                    rave_to_forecast.append(None)
+                    break
+            if not found:
+                rave_to_forecast.append(None)
 
         import pdb;pdb.set_trace()
 
