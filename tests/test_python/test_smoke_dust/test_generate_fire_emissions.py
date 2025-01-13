@@ -104,7 +104,7 @@ class TestGenerateFireEmissions(unittest.TestCase):
             "/scratch2/NAGAPE/epic/Ben.Koziol/tmp-smoke-fix-dir") # tdk: needs to point to an actual fixed file directory location
         # comin = Path(self._temp_dir)
 
-        main_args = GenerateEmissWorkflowArgs.create(comin, self._temp_dir)
+        main_args = GenerateEmissWorkflowArgs.create(comin, "/home/Benjamin.Koziol/htmp/comout")
         logger.debug(main_args)
         main_path = self._ushdir / "smoke_dust_generate_fire_emissions.py"
         with main_args.run_context() as _:
