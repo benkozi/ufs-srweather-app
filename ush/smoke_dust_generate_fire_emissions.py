@@ -377,11 +377,11 @@ class SmokeDustPreprocessor:
                         src_fwrap = src_nc2field.create_field_wrapper()
                         first = False
 
-                    #tdk: make this smoother
+                    #tdk: make this smoother; automatically fill masked data maybe
                     data = src_fwrap.value.data
                     match field_name:
                         case "FRP_MEAN":
-                            data[:] = np.where(data == -1.0, data, 0.0)
+                            data[:] = np.where(data == -1.0, 0.0, data)
                         case _:
                             raise NotImplementedError(field_name)
 
