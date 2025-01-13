@@ -10,6 +10,7 @@ import fnmatch
 
 import os
 import sys
+from collections import namedtuple
 from dataclasses import dataclass
 from enum import unique, StrEnum, IntEnum
 import logging
@@ -17,6 +18,7 @@ import logging.config
 from pathlib import Path
 from typing import Tuple, List
 
+import netCDF4
 import pandas as pd
 from mpi4py import MPI
 from pandas import Index
@@ -27,7 +29,8 @@ import smoke_dust_interp_tools as i_tools
 
 import datetime as dt
 
-from smoke_dust_interpolation import NcToGrid, GridSpec
+from smoke_dust_interpolation import NcToGrid, GridSpec, NcToField
+from ush.smoke_dust_interpolation import open_nc, create_sd_coordinate_variable
 
 
 @unique
@@ -189,32 +192,32 @@ class SmokeDustPreprocessor:
         # self._intp_avail_hours = None
         self._forecast_metadata = None
 
-    @property
-    def forecast_dates(self) -> pd.DatetimeIndex:
-        if self._forecast_dates is not None:
-            return self._forecast_dates
-
-        fcst_datetime = dt.datetime.strptime(self._context.current_day, "%Y%m%d%H")
-        match self._context.ebb_dcycle_flag:
-            case EbbDCycle.ONE:
-                if self._context.persistence:
-                    self.log("Creating emissions for persistence method where satellite FRP persist from previous day")
-                    start_datetime = fcst_datetime - dt.timedelta(days=1)
-                else:
-                    self.log("Creating emissions using current date satellite FRP")
-                    start_datetime = fcst_datetime
-            case EbbDCycle.TWO:
-                self.log("Creating emissions for modulated persistence by Wildfire potential")
-                start_datetime = fcst_datetime - dt.timedelta(days=1, hours=1)
-            case _:
-                raise NotImplementedError(self._context.ebb_dcycle_flag)
-        forecast_dates = pd.date_range(start=start_datetime, periods=24, freq="h").strftime(
-                    "%Y%m%d%H"
-                )
-        self.log(f"forecast_dates={forecast_dates}", level=logging.DEBUG)
-        self._forecast_dates = forecast_dates
-        return self._forecast_dates
-
+    # @property
+    # def forecast_dates(self) -> pd.DatetimeIndex:
+    #     if self._forecast_dates is not None:
+    #         return self._forecast_dates
+    #
+    #     fcst_datetime = dt.datetime.strptime(self._context.current_day, "%Y%m%d%H")
+    #     match self._context.ebb_dcycle_flag:
+    #         case EbbDCycle.ONE:
+    #             if self._context.persistence:
+    #                 self.log("Creating emissions for persistence method where satellite FRP persist from previous day")
+    #                 start_datetime = fcst_datetime - dt.timedelta(days=1)
+    #             else:
+    #                 self.log("Creating emissions using current date satellite FRP")
+    #                 start_datetime = fcst_datetime
+    #         case EbbDCycle.TWO:
+    #             self.log("Creating emissions for modulated persistence by Wildfire potential")
+    #             start_datetime = fcst_datetime - dt.timedelta(days=1, hours=1)
+    #         case _:
+    #             raise NotImplementedError(self._context.ebb_dcycle_flag)
+    #     forecast_dates = pd.date_range(start=start_datetime, periods=24, freq="h").strftime(
+    #                 "%Y%m%d%H"
+    #             )
+    #     self.log(f"forecast_dates={forecast_dates}", level=logging.DEBUG)
+    #     self._forecast_dates = forecast_dates
+    #     return self._forecast_dates
+    #
     # @property
     # def intp_avail_hours(self) -> pd.DatetimeIndex:
     #     if self._intp_avail_hours is not None: #tdk:rm
@@ -246,9 +249,28 @@ class SmokeDustPreprocessor:
         if self._forecast_metadata is not None:
             return self._forecast_metadata
 
+        # Create forecast times
+        fcst_datetime = dt.datetime.strptime(self._context.current_day, "%Y%m%d%H")
+        match self._context.ebb_dcycle_flag:
+            case EbbDCycle.ONE:
+                if self._context.persistence:
+                    self.log("Creating emissions for persistence method where satellite FRP persist from previous day")
+                    start_datetime = fcst_datetime - dt.timedelta(days=1)
+                else:
+                    self.log("Creating emissions using current date satellite FRP")
+                    start_datetime = fcst_datetime
+            case EbbDCycle.TWO:
+                self.log("Creating emissions for modulated persistence by Wildfire potential")
+                start_datetime = fcst_datetime - dt.timedelta(days=1, hours=1)
+            case _:
+                raise NotImplementedError(self._context.ebb_dcycle_flag)
+        forecast_dates = pd.date_range(start=start_datetime, periods=24, freq="h").strftime(
+            "%Y%m%d%H"
+        )
+
         intp_path = []
         rave_to_forecast = []
-        for date in self.forecast_dates:
+        for date in forecast_dates:
             # Check for pre-existing interpolated RAVE data
             file_path = Path(self._context.intp_dir) / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
             if file_path.exists() and file_path.is_file():
@@ -273,7 +295,7 @@ class SmokeDustPreprocessor:
             if not found:
                 rave_to_forecast.append(None)
 
-        df = pd.DataFrame(data={'forecast_dates': self.forecast_dates,'rave_interpolated': intp_path, 'rave_raw': rave_to_forecast})
+        df = pd.DataFrame(data={'forecast_date': forecast_dates,'rave_interpolated': intp_path, 'rave_raw': rave_to_forecast})
         return df
 
     @property
@@ -322,8 +344,33 @@ class SmokeDustPreprocessor:
             # Select which RAVE files need to be interpolated
             rave_to_interpolate = self.forecast_metadata[self.forecast_metadata['rave_interpolated'].isnull() & ~self.forecast_metadata['rave_raw'].isnull()]
 
+            # Get the shape of the output grid
+            with open_nc(self._context.grid_out) as ds:
+                grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
+            self.log(f"grid_out_shape={grid_out_shape}")
+
+            first = False
             for row in rave_to_interpolate.iterrows():
+                self.log(f"processing RAVE interpolation row: {row}")
+
+                output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{row['forecast_date']}00_{row['forecast_date']}59.nc"
+                self.log(f"creating output file: {output_file_path}")
+                with open_nc(output_file_path, "w") as ds:
+                    ds.createDimension("time", 1)
+                    ds.createDimension("lat", grid_out_shape[0])
+                    ds.createDimension("lon", grid_out_shape[1])
+                    setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
+                    setattr(ds, "TIME_RANGE", "1 hour")
+
+                    create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
+                    create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
+
                 for field_name in self._context.vars_emis:
+                    if first:
+                        self.log("creating source field")
+                        src_nc2field = NcToField(path=row['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('time',))
+                        src_fwrap = src_nc2field.create_field_wrapper()
+                        first = False
 
                     import pdb;pdb.set_trace()
 
@@ -477,9 +524,9 @@ def generate_emiss_workflow(
     # intp_avail_hours, intp_non_avail_hours, inp_files_2use = (
     #     i_tools.check_for_intp_rave(intp_dir, fcst_dates, rave_to_intp)
     # )
-    # rave_avail, rave_avail_hours, rave_nonavail_hours_test, first_day = (
-    #     i_tools.check_for_raw_rave(RAVE, intp_non_avail_hours, intp_avail_hours)
-    # )
+    rave_avail, rave_avail_hours, rave_nonavail_hours_test, first_day = (
+        i_tools.check_for_raw_rave(RAVE, intp_non_avail_hours, intp_avail_hours)
+    )
     srcfield, tgtfield, tgt_latt, tgt_lont, srcgrid, tgtgrid, src_latt, tgt_area = (
         i_tools.creates_st_fields(grid_in, grid_out)
     )

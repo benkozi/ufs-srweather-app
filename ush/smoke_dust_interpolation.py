@@ -33,6 +33,27 @@ def open_nc(
     finally:
         ds.close()
 
+def create_sd_coordinate_variable(
+    fout: nc.Dataset, varname: str, long_name: str, units: str, fill_value_str: str, fill_value_float: float
+) -> None:
+    """
+    Store a 2D variable (latitude/longitude) in the file.
+    #tdk: docs
+    Args:
+        fout: Dataset to update
+        varname: Variable name to create
+        var: Variable data to store
+        long_name: Variable long name
+        units: Variable units
+        fval: Variable fill value
+    """
+    var_out = fout.createVariable(varname, "f4", ("lat", "lon"), fill_value=fill_value_float)
+    var_out.units = units
+    var_out.long_name = long_name
+    var_out.standard_name = varname
+    var_out.FillValue = fill_value_str
+    var_out.coordinates = "geolat geolon"
+
 
 HasNcAttrsType = Union[nc.Dataset, nc.Variable]
 
