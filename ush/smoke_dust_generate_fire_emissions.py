@@ -8,11 +8,147 @@
 #                                                                       #
 #########################################################################
 
-import sys
 import os
+import sys
+from dataclasses import dataclass
+from enum import unique, StrEnum, IntEnum
+import logging
+from pathlib import Path
+from typing import Tuple, List
+
 import smoke_dust_fire_emiss_tools as femmi_tools
 import smoke_dust_hwp_tools as hwp_tools
 import smoke_dust_interp_tools as i_tools
+
+
+@unique
+class PredefinedGrid(StrEnum): ...
+
+
+@unique
+class EbbDCycle(IntEnum):
+    ONE = 1
+    TWO = 2
+
+
+# @unique
+# class RaveQaFilter(StrEnum):
+#     NONE = "NONE"
+#     HIGH = "HIGH"
+
+
+@unique
+class LogLevel(StrEnum):
+    INFO = "INFO"
+    DEBUG = "DEBUG"
+
+
+@dataclass
+class SmokeDustContext:
+    staticdir: Path
+    ravedir: Path
+    intp_dir: Path
+    predef_grid: PredefinedGrid
+    ebb_dcycle_flag: EbbDCycle
+    restart_interval: Tuple[int, ...]
+    persistence: bool
+    exit_on_error: bool
+    log_level: LogLevel
+    # rave_qa_flag_filter: RaveQaFilter
+
+    current_day: str
+    nwges_dir: Path
+
+    beta: float = 0.3
+    fg_to_ug: float = 1e6
+    to_s: int = 3600
+    vars_emis = ["FRP_MEAN", "FRE"]
+
+    @classmethod
+    def create_from_args(cls, args: List[str]) -> "SmokeDustContext":
+        print(f"create_from_args:args={args}", flush=True)
+
+        # Extract local arguments from args before converting values
+        (
+            l_staticdir,
+            l_ravedir,
+            l_intp_dir,
+            l_predef_grid,
+            l_restart_interval,
+            l_persistence,
+            l_exit_on_error,
+            l_log_level,
+        ) = args
+
+        # Format environment-level variables
+        current_day: str = os.environ["CDATE"]
+        nwges_dir = cls._format_read_path_(os.environ["DATA"])
+
+        # Convert to expected types
+        kwds = dict(
+            staticdir=cls._format_read_path_(l_staticdir),
+            ravedir=cls._format_read_path_(l_ravedir),
+            intp_dir=cls._format_write_path_(l_intp_dir),
+            predef_grid=PredefinedGrid(l_predef_grid),
+            ebb_dcycle_flag=EbbDCycle(int(l_predef_grid)),
+            restart_interval=[int(num) for num in l_restart_interval.split(" ")],
+            persistence=cls._str_to_bool_(l_persistence),
+            exit_on_error=cls._str_to_bool_(l_exit_on_error),
+            log_level=getattr(logging, l_log_level),
+            current_day=current_day,
+            nwges_dir=nwges_dir,
+        )
+
+        return cls(**kwds)
+
+    @staticmethod
+    def _format_read_path_(value: str) -> Path:
+        path = Path(value)
+        errors = []
+        if not path.exists():
+            errors.append(f"path does not exist: {path}")
+        if not os.access(path, os.R_OK):
+            errors.append(f"path is not readable: {path}")
+        if not path.is_dir():
+            errors.append(f"path is not a directory: {path}")
+        if len(errors) > 0:
+            raise OSError(errors)
+        return path
+
+    @staticmethod
+    def _format_write_path_(value: str) -> Path:
+        path = Path(value)
+        errors = []
+        if not path.exists():
+            errors.append(f"path does not exist: {path}")
+        if not os.access(path, os.W_OK):
+            errors.append(f"path is not writable: {path}")
+        if not path.is_dir():
+            errors.append(f"path is not a directory: {path}")
+        if len(errors) > 0:
+            raise OSError(errors)
+        return path
+
+    @staticmethod
+    def _str_to_bool_(value: str) -> bool:
+        value = value.lower()
+        if value in ["true", "t", "1"]:
+            return True
+        elif value in ["false", "f", "0"]:
+            return False
+        raise NotImplementedError(f"boolean string not recognized: {value}")
+
+
+class SmokeDustPreprocessor:
+
+    def __init__(self, args: List[str]) -> None:
+        self._context = SmokeDustContext.create_from_args(args)
+
+    def run(self) -> None:
+        raise NotImplementedError
+
+    def finalize(self) -> None:
+        raise NotImplementedError
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -54,7 +190,7 @@ def generate_emiss_workflow(
     #   nwges_dir = os.environ.get("NWGES_DIR")
     nwges_dir = os.environ["DATA"]
     vars_emis = ["FRP_MEAN", "FRE"]
-    #tdk: need dimensions for all grids
+    # tdk: need dimensions for all grids
     # cols, rows = (2700, 3950) if predef_grid == "RRFS_NA_3km" else (1092, 1820)
     if predef_grid == "RRFS_NA_3km":
         cols, rows = 2700, 3950

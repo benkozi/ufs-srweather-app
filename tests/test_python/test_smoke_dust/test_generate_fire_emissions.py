@@ -32,15 +32,15 @@ class GenerateEmissWorkflowArgs:
     @classmethod
     def create(cls, comin: Path, comout: Path) -> "GenerateEmissWorkflowArgs":
         return cls(
-            staticdir=comin / 'RRFS_NA_13km',  # tdk: test with other grids
-            # staticdir=comin / 'RRFS_CONUS_25km', #tdk: test with other grids
+            # staticdir=comin / 'RRFS_NA_13km',  # tdk: test with other grids
+            staticdir=comin / 'RRFS_CONUS_25km',  # tdk: test with other grids
             # staticdir=comin / 'RRFS_CONUS_13km', #tdk: test with other grids
-            # ravedir=comin / 'RAVE_fire',
-            ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'),
+            ravedir=comin / 'RAVE_fire',
+            # ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'),
             # tdk: make this configurable
             intp_dir=comout / 'intp_dir',
-            predef_grid='RRFS_NA_13km',  # tdk: test with all grids
-            # predef_grid='RRFS_CONUS_25km',  # tdk: test with all grids
+            # predef_grid='RRFS_NA_13km',  # tdk: test with all grids
+            predef_grid='RRFS_CONUS_25km',  # tdk: test with all grids
             # predef_grid='RRFS_CONUS_13km',  # tdk: test with all grids
             ebb_dcycle_flag='1',  # tdk: test with 2
             restart_interval='6 12 18 24',
@@ -87,12 +87,15 @@ class TestGenerateFireEmissions(unittest.TestCase):
         shutil.rmtree(self._temp_dir)
 
     def test(self) -> None:
-        comin = Path(
-            "/scratch2/NAGAPE/epic/Ben.Koziol/tmp-smoke-fix-dir")  # tdk: needs to point to an actual fixed file directory location
+        # comin = Path(
+        #     "/scratch2/NAGAPE/epic/Ben.Koziol/tmp-smoke-fix-dir") # tdk: needs to point to an actual fixed file directory location
+        comin = Path(self._temp_dir)
         main_args = GenerateEmissWorkflowArgs.create(comin, self._temp_dir)
         logger.debug(main_args)
         main_path = self._ushdir / "smoke_dust_generate_fire_emissions.py"
         with main_args.run_context() as _:
+            python = "python3"
+            # python = '/scratch2/NAGAPE/epic/Ben.Koziol/miniconda/envs/regrid-wrapper/bin/python3.11'
             subprocess.check_call(
-                ['/scratch2/NAGAPE/epic/Ben.Koziol/miniconda/envs/regrid-wrapper/bin/mpirun','-n', '1',  '/scratch2/NAGAPE/epic/Ben.Koziol/miniconda/envs/regrid-wrapper/bin/python3.11', main_path] + list(
+                [python, main_path] + list(
                     main_args.as_script_args()))  # tdk: figure out python runtime
