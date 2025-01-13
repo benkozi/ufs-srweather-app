@@ -32,6 +32,8 @@ import datetime as dt
 from smoke_dust_interpolation import NcToGrid, GridSpec, NcToField
 from smoke_dust_interpolation import open_nc, create_sd_coordinate_variable
 
+import numpy as np
+
 
 @unique
 class PredefinedGrid(StrEnum):
@@ -374,6 +376,16 @@ class SmokeDustPreprocessor:
                         src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('time',))
                         src_fwrap = src_nc2field.create_field_wrapper()
                         first = False
+
+                    #tdk: make this smoother
+                    data = src_fwrap.value.data
+                    match field_name:
+                        case "FRP_MEAN":
+                            data[:] = np.where(data == -1.0, data, 0.0)
+                        case _:
+                            raise NotImplementedError(field_name)
+
+                    self.log(f"{field_name} before regridding: {dict(mean=data.mean(), min=data.min(), max=data.max())}")
 
                     import pdb;pdb.set_trace()
 

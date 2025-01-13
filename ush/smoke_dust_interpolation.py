@@ -55,6 +55,27 @@ def create_sd_coordinate_variable(
     var_out.coordinates = "geolat geolon"
 
 
+def create_sd_variable(
+    fout: nc.Dataset, varname: str, long_name: str, units: str, fill_value_str: str, fill_value_float: float
+) -> None:
+    """
+    Store a 3D variable (time, latitude/longitude) in the file.
+    #tdk: doc
+    Args:
+        fout: Dataset to update
+        varname: Name of the variable to create
+        long_name: Long name of the variable to create
+        units: Units of the variable to create
+        fval: Fill value of the variable to create
+    """
+    var_out = fout.createVariable(varname, "f4", ("time", "lat", "lon"), fill_value=fill_value_float)
+    var_out.units = units
+    var_out.long_name = long_name
+    var_out.standard_name = long_name
+    var_out.FillValue = fill_value_str
+    var_out.coordinates = "time geolat geolon"
+
+
 HasNcAttrsType = Union[nc.Dataset, nc.Variable]
 
 
