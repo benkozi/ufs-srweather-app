@@ -67,10 +67,12 @@ class GenerateEmissWorkflowArgs:
     @contextmanager
     def run_context(self) -> Dict[str, str]:
         l = logger.getChild('run_context')
-        dirs = [self.intp_dir, self.data, self.staticdir, self.ravedir]
-        for ii in dirs:
-            l.debug(f'creating directory: {ii}')
-            os.mkdir(ii)
+
+        # dirs = [self.intp_dir, self.data, self.staticdir, self.ravedir]
+        # for ii in dirs:
+        #     l.debug(f'creating directory: {ii}')
+        #     os.mkdir(ii)
+
         env_vars = {'CDATE': self.cdate, 'DATA': self.data}
         l.debug(f'setting environment variables: {env_vars}')
         orig = {k: os.environ.get(k) for k in env_vars.keys()}
