@@ -185,6 +185,7 @@ class SmokeDustPreprocessor:
 
         self._forecast_dates = None
         self._intp_avail_hours = None
+        self._rave_metadata = None
 
     @property
     def forecast_dates(self) -> pd.DatetimeIndex:
@@ -229,13 +230,24 @@ class SmokeDustPreprocessor:
                     intp_avail_hours.append(date)
         self._intp_avail_hours = pd.DatetimeIndex(intp_avail_hours)
         self.log(
-            f"Available interpolated files for hours: {self._intp_avail_hours}, Non available interpolated files for hours: {self.intp_non_avail_hours}"
+            f"Available interpolated files for hours: {self._intp_avail_hours}"
         )
+        self.log(f"Non-available interpolated files for hours: {self.intp_non_avail_hours}")
         return self._intp_avail_hours
 
     @property
     def intp_non_avail_hours(self) -> pd.DatetimeIndex:
         return self.forecast_dates[~self.forecast_dates.isin(self.intp_avail_hours)]
+
+    @property
+    def rave_metadata(self) -> Tuple[Path, ...]:
+        if self._rave_metadata is not None:
+            return self._rave_metadata
+
+        for path in self._context.ravedir.iterdir():
+            import pdb;pdb.set_trace()
+
+
 
 
     def run(self) -> None:
@@ -379,10 +391,11 @@ def generate_emiss_workflow(
     # ----------------------------------------------------------------------
     # Sort raw RAVE, create source and target filelds, and compute emissions
     # ----------------------------------------------------------------------
-    fcst_dates = i_tools.date_range(current_day, ebb_dcycle, persistence) #tdk:done
-    intp_avail_hours, intp_non_avail_hours, inp_files_2use = (
-        i_tools.check_for_intp_rave(intp_dir, fcst_dates, rave_to_intp)
-    )
+
+    # fcst_dates = i_tools.date_range(current_day, ebb_dcycle, persistence)
+    # intp_avail_hours, intp_non_avail_hours, inp_files_2use = (
+    #     i_tools.check_for_intp_rave(intp_dir, fcst_dates, rave_to_intp)
+    # )
     rave_avail, rave_avail_hours, rave_nonavail_hours_test, first_day = (
         i_tools.check_for_raw_rave(RAVE, intp_non_avail_hours, intp_avail_hours)
     )
