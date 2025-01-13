@@ -27,6 +27,8 @@ import smoke_dust_interp_tools as i_tools
 
 import datetime as dt
 
+from smoke_dust_interpolation import NcToGrid, GridSpec
+
 
 @unique
 class PredefinedGrid(StrEnum):
@@ -279,7 +281,27 @@ class SmokeDustPreprocessor:
         return self.forecast_metadata['rave_interpolated'].isnull().all() and self.forecast_metadata['rave_raw'].isnull().all()
 
     def run(self) -> None:
-        raise NotImplementedError
+        self.log(f"is_first_day={self.is_first_day}")
+        if self.is_first_day:
+            #tdk: implement creation of dummy emissions file
+            raise NotImplementedError("is_first_day is not yet implemented")
+        else:
+            self.log("creating source grid from RAVE file")
+            src_nc2grid = NcToGrid(
+                path=self._context.grid_in,
+                spec=GridSpec(
+                    x_center="grid_lont",
+                    y_center="grid_latt",
+                    x_dim=("grid_xt",),
+                    y_dim=("grid_yt",),
+                    x_corner="grid_lon",
+                    y_corner="grid_lat",
+                    x_corner_dim=("grid_x",),
+                    y_corner_dim=("grid_y",),
+                ),
+            )
+            src_gwrap = src_nc2grid.create_grid_wrapper()
+            import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
         raise NotImplementedError
@@ -291,7 +313,7 @@ class SmokeDustPreprocessor:
             stacklevel: int = 2,
     ):
         if exc_info is not None:
-            level = logging.DEBUG
+            level = logging.ERROR
         self._logger.log(level, msg, exc_info=exc_info, stacklevel=stacklevel)
         if exc_info is not None and self._context.exit_on_error:
             raise exc_info
@@ -353,10 +375,16 @@ def generate_emiss_workflow(
     """
 
     processor = SmokeDustPreprocessor(args)
-    # _ = processor.intp_non_avail_hours #tdk:rm
-    fm = processor.forecast_metadata
+    try:
+        # _ = processor.intp_non_avail_hours #tdk:rm
+        # fm = processor.forecast_metadata
+        # import pdb;pdb.set_trace()
+        # tdk
+        processor.run()
+    except Exception as e:
+        processor.log("unhandled error", exc_info=e)
+
     import pdb;pdb.set_trace()
-    tdk
 
     # ----------------------------------------------------------------------
     # Import envs from workflow and get the pre-defined grid
@@ -425,9 +453,9 @@ def generate_emiss_workflow(
     # intp_avail_hours, intp_non_avail_hours, inp_files_2use = (
     #     i_tools.check_for_intp_rave(intp_dir, fcst_dates, rave_to_intp)
     # )
-    rave_avail, rave_avail_hours, rave_nonavail_hours_test, first_day = (
-        i_tools.check_for_raw_rave(RAVE, intp_non_avail_hours, intp_avail_hours)
-    )
+    # rave_avail, rave_avail_hours, rave_nonavail_hours_test, first_day = (
+    #     i_tools.check_for_raw_rave(RAVE, intp_non_avail_hours, intp_avail_hours)
+    # )
     srcfield, tgtfield, tgt_latt, tgt_lont, srcgrid, tgtgrid, src_latt, tgt_area = (
         i_tools.creates_st_fields(grid_in, grid_out)
     )
