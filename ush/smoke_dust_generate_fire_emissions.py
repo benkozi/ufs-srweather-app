@@ -18,6 +18,7 @@ import logging.config
 from pathlib import Path
 from typing import Tuple, List
 
+import esmpy
 import netCDF4
 import pandas as pd
 from mpi4py import MPI
@@ -30,7 +31,7 @@ import smoke_dust_interp_tools as i_tools
 import datetime as dt
 
 from smoke_dust_interpolation import NcToGrid, GridSpec, NcToField
-from smoke_dust_interpolation import open_nc, create_sd_coordinate_variable
+from smoke_dust_interpolation import open_nc, create_sd_coordinate_variable, create_sd_variable
 
 import numpy as np
 
@@ -353,8 +354,20 @@ class SmokeDustPreprocessor:
 
                     create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
                     create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
+                    create_sd_variable(ds, "frp_avg_hr", "Mean Fire Radiative Power", "MW", fill_value_str="0.f", fill_value_float=0.0)
 
                 for field_name in self._context.vars_emis:
+
+                    # tdk: clean this up
+                    match field_name:
+                        case "FRP_MEAN":
+                            dst_field_name = "frp_avg_hr"
+                        case _:
+                            raise NotImplementedError(field_name)
+
+                    dst_nc2field = NcToField(path=output_file_path, name=dst_field_name, gwrap=dst_gwrap, dim_time=('time',))
+                    dst_fwrap = dst_nc2field.create_field_wrapper()
+
                     if first:
                         self.log("creating source grid from RAVE file")
                         src_nc2grid = NcToGrid(
@@ -375,6 +388,7 @@ class SmokeDustPreprocessor:
                         self.log("creating source field")
                         src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('time',))
                         src_fwrap = src_nc2field.create_field_wrapper()
+                        regridder = esmpy.RegridFromFile(src_fwrap.value, dst_fwrap.value, filename=str(self._context.weightfile))
                         first = False
 
                     #tdk: make this smoother; automatically fill masked data maybe
@@ -385,7 +399,7 @@ class SmokeDustPreprocessor:
                         case _:
                             raise NotImplementedError(field_name)
 
-                    self.log(f"{field_name} before regridding: {dict(mean=data.mean(), min=data.min(), max=data.max())}")
+                    self.log(f"{field_name} before regridding: {dict(mean=data.mean(), min=data.min(), max=data.max(), sum=data.sum())}")
 
                     import pdb;pdb.set_trace()
 
@@ -412,7 +426,9 @@ class SmokeDustPreprocessor:
             "disable_existing_loggers": False,
             "formatters": {
                 "plain": {
-                    "format": f"[%(name)s][%(levelname)s][%(asctime)s][%(pathname)s:%(lineno)d][%(process)d][%(thread)d][{rank}]: %(message)s"
+                    # Uncomment to report the full path to the file
+                    # "format": f"[%(name)s][%(levelname)s][%(asctime)s][%(pathname)s:%(lineno)d][%(process)d][%(thread)d][{rank}]: %(message)s"
+                    "format": f"[%(name)s][%(levelname)s][%(asctime)s][%(filename)s:%(lineno)d][%(process)d][%(thread)d][{rank}]: %(message)s"
                 },
             },
             "handlers": {
