@@ -184,8 +184,8 @@ class SmokeDustPreprocessor:
         self.log(f"initialization complete. context={self._context}")
 
         self._forecast_dates = None
-        self._intp_avail_hours = None
-        self._rave_metadata = None
+        # self._intp_avail_hours = None
+        self._forecast_metadata = None
 
     @property
     def forecast_dates(self) -> pd.DatetimeIndex:
@@ -213,40 +213,41 @@ class SmokeDustPreprocessor:
         self._forecast_dates = forecast_dates
         return self._forecast_dates
 
-    @property
-    def intp_avail_hours(self) -> pd.DatetimeIndex:
-        if self._intp_avail_hours is not None:
-            return self._intp_avail_hours
+    # @property
+    # def intp_avail_hours(self) -> pd.DatetimeIndex:
+    #     if self._intp_avail_hours is not None: #tdk:rm
+    #         return self._intp_avail_hours
+    #
+    #     intp_avail_hours = []
+    #     for date in self.forecast_dates:
+    #         file_path = Path(self._context.intp_dir) / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+    #         if file_path.exists() and file_path.is_file():
+    #             try:
+    #                 _ = file_path.resolve(strict=True)
+    #             except FileNotFoundError:
+    #                 continue
+    #             else:
+    #                 intp_avail_hours.append(date)
+    #     self._intp_avail_hours = pd.DatetimeIndex(intp_avail_hours)
+    #     self.log(
+    #         f"Available interpolated files for hours: {self._intp_avail_hours}"
+    #     )
+    #     self.log(f"Non-available interpolated files for hours: {self.intp_non_avail_hours}")
+    #     return self._intp_avail_hours
+    #
+    # @property
+    # def intp_non_avail_hours(self) -> pd.DatetimeIndex:
+    #     return self.forecast_dates[~self.forecast_dates.isin(self.intp_avail_hours)]
 
-        intp_avail_hours = []
-        for date in self.forecast_dates:
-            file_path = Path(self._context.intp_dir) / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
-            if file_path.exists() and file_path.is_file():
-                try:
-                    _ = file_path.resolve(strict=True)
-                except FileNotFoundError:
-                    continue
-                else:
-                    intp_avail_hours.append(date)
-        self._intp_avail_hours = pd.DatetimeIndex(intp_avail_hours)
-        self.log(
-            f"Available interpolated files for hours: {self._intp_avail_hours}"
-        )
-        self.log(f"Non-available interpolated files for hours: {self.intp_non_avail_hours}")
-        return self._intp_avail_hours
-
     @property
-    def intp_non_avail_hours(self) -> pd.DatetimeIndex:
-        return self.forecast_dates[~self.forecast_dates.isin(self.intp_avail_hours)]
-
-    @property
-    def rave_metadata(self) -> Tuple[Path, ...]:
-        if self._rave_metadata is not None:
-            return self._rave_metadata
+    def forecast_metadata(self) -> pd.DataFrame:
+        if self._forecast_metadata is not None:
+            return self._forecast_metadata
 
         intp_path = []
         rave_to_forecast = []
         for date in self.forecast_dates:
+            # Check for pre-existing interpolated RAVE data
             file_path = Path(self._context.intp_dir) / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
             if file_path.exists() and file_path.is_file():
                 try:
@@ -258,6 +259,7 @@ class SmokeDustPreprocessor:
             else:
                 intp_path.append(None)
 
+            # Check for raw RAVE data
             wildcard_name = f"*-3km*{date}*{date}59590*.nc"
             name_retro = f"*3km*{date}*{date}*.nc" #tdk:ja: what is this for?
             found = False
@@ -269,7 +271,8 @@ class SmokeDustPreprocessor:
             if not found:
                 rave_to_forecast.append(None)
 
-        import pdb;pdb.set_trace()
+        df = pd.DataFrame(data={'forecast_dates': self.forecast_dates,'rave_interpolated': intp_path, 'rave_raw': rave_to_forecast})
+        return df
 
 
     def run(self) -> None:
@@ -348,7 +351,7 @@ def generate_emiss_workflow(
 
     processor = SmokeDustPreprocessor(args)
     # _ = processor.intp_non_avail_hours #tdk:rm
-    _ = processor.rave_metadata
+    fm = processor.forecast_metadata
     import pdb;pdb.set_trace()
     tdk
 
