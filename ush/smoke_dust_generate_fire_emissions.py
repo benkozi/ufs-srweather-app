@@ -264,6 +264,7 @@ class SmokeDustPreprocessor:
             for rave_path in self._context.ravedir.iterdir():
                 if fnmatch.fnmatch(str(rave_path), wildcard_name) or fnmatch.fnmatch(str(rave_path), name_retro):
                     rave_to_forecast.append(rave_path)
+                    found = True
                     break
             if not found:
                 rave_to_forecast.append(None)
