@@ -13,16 +13,28 @@ import sys
 from dataclasses import dataclass
 from enum import unique, StrEnum, IntEnum
 import logging
+import logging.config
 from pathlib import Path
 from typing import Tuple, List
+
+import pandas as pd
+from mpi4py import MPI
+from pandas import Index
 
 import smoke_dust_fire_emiss_tools as femmi_tools
 import smoke_dust_hwp_tools as hwp_tools
 import smoke_dust_interp_tools as i_tools
 
+import datetime as dt
+
 
 @unique
-class PredefinedGrid(StrEnum): ...
+class PredefinedGrid(StrEnum):
+    RRFS_CONUS_25km = "RRFS_CONUS_25km"
+    RRFS_CONUS_13km = "RRFS_CONUS_13km"
+    RRFS_CONUS_3km = "RRFS_CONUS_3km"
+    RRFS_NA_3km = "RRFS_NA_3km"
+    RRFS_NA_13km = "RRFS_NA_13km"
 
 
 @unique
@@ -64,6 +76,30 @@ class SmokeDustContext:
     to_s: int = 3600
     vars_emis = ["FRP_MEAN", "FRE"]
 
+    @property
+    def veg_map(self) -> Path:
+        return self.staticdir / "veg_map.nc"
+
+    @property
+    def rave_to_intp(self) -> str:
+        return self.predef_grid.value + "_intp_"
+
+    @property
+    def grid_in(self) -> Path:
+        return self.staticdir / "grid_in.nc"
+
+    @property
+    def weightfile(self) -> Path:
+        return self.staticdir / "weight_file.nc"
+
+    @property
+    def grid_out(self) -> Path:
+        return self.staticdir / "ds_out_base.nc"
+
+    @property
+    def hourly_hwpdir(self) -> Path:
+        return self.nwges_dir / "hourly_hwpdir.nc"
+
     @classmethod
     def create_from_args(cls, args: List[str]) -> "SmokeDustContext":
         print(f"create_from_args:args={args}", flush=True)
@@ -74,6 +110,7 @@ class SmokeDustContext:
             l_ravedir,
             l_intp_dir,
             l_predef_grid,
+            l_ebb_dcycle_flag,
             l_restart_interval,
             l_persistence,
             l_exit_on_error,
@@ -90,7 +127,7 @@ class SmokeDustContext:
             ravedir=cls._format_read_path_(l_ravedir),
             intp_dir=cls._format_write_path_(l_intp_dir),
             predef_grid=PredefinedGrid(l_predef_grid),
-            ebb_dcycle_flag=EbbDCycle(int(l_predef_grid)),
+            ebb_dcycle_flag=EbbDCycle(int(l_ebb_dcycle_flag)),
             restart_interval=[int(num) for num in l_restart_interval.split(" ")],
             persistence=cls._str_to_bool_(l_persistence),
             exit_on_error=cls._str_to_bool_(l_exit_on_error),
@@ -143,6 +180,63 @@ class SmokeDustPreprocessor:
 
     def __init__(self, args: List[str]) -> None:
         self._context = SmokeDustContext.create_from_args(args)
+        self._logger = self._init_logging_()
+        self.log(f"initialization complete. context={self._context}")
+
+        self._forecast_dates = None
+        self._intp_avail_hours = None
+
+    @property
+    def forecast_dates(self) -> pd.DatetimeIndex:
+        if self._forecast_dates is not None:
+            return self._forecast_dates
+
+        fcst_datetime = dt.datetime.strptime(self._context.current_day, "%Y%m%d%H")
+        match self._context.ebb_dcycle_flag:
+            case EbbDCycle.ONE:
+                if self._context.persistence:
+                    self.log("Creating emissions for persistence method where satellite FRP persist from previous day")
+                    start_datetime = fcst_datetime - dt.timedelta(days=1)
+                else:
+                    self.log("Creating emissions using current date satellite FRP")
+                    start_datetime = fcst_datetime
+            case EbbDCycle.TWO:
+                self.log("Creating emissions for modulated persistence by Wildfire potential")
+                start_datetime = fcst_datetime - dt.timedelta(days=1, hours=1)
+            case _:
+                raise NotImplementedError(self._context.ebb_dcycle_flag)
+        forecast_dates = pd.date_range(start=start_datetime, periods=24, freq="h").strftime(
+                    "%Y%m%d%H"
+                )
+        self.log(f"forecast_dates={forecast_dates}", level=logging.DEBUG)
+        self._forecast_dates = forecast_dates
+        return self._forecast_dates
+
+    @property
+    def intp_avail_hours(self) -> pd.DatetimeIndex:
+        if self._intp_avail_hours is not None:
+            return self._intp_avail_hours
+
+        intp_avail_hours = []
+        for date in self.forecast_dates:
+            file_path = Path(self._context.intp_dir) / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+            if file_path.exists() and file_path.is_file():
+                try:
+                    _ = file_path.resolve(strict=True)
+                except FileNotFoundError:
+                    continue
+                else:
+                    intp_avail_hours.append(date)
+        self._intp_avail_hours = pd.DatetimeIndex(intp_avail_hours)
+        self.log(
+            f"Available interpolated files for hours: {self._intp_avail_hours}, Non available interpolated files for hours: {self.intp_non_avail_hours}"
+        )
+        return self._intp_avail_hours
+
+    @property
+    def intp_non_avail_hours(self) -> pd.DatetimeIndex:
+        return self.forecast_dates[~self.forecast_dates.isin(self.intp_avail_hours)]
+
 
     def run(self) -> None:
         raise NotImplementedError
@@ -150,18 +244,60 @@ class SmokeDustPreprocessor:
     def finalize(self) -> None:
         raise NotImplementedError
 
+    def log(self,
+            msg,
+            level=logging.INFO,
+            exc_info: Exception = None,
+            stacklevel: int = 2,
+    ):
+        if exc_info is not None:
+            level = logging.DEBUG
+        self._logger.log(level, msg, exc_info=exc_info, stacklevel=stacklevel)
+        if exc_info is not None and self._context.exit_on_error:
+            raise exc_info
+
+    def _init_logging_(self) -> logging.Logger:
+        project_name = "smoke-dust-preprocessor"
+        rank = MPI.COMM_WORLD.Get_rank()
+        logging_config: dict = {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "plain": {
+                    "format": f"[%(name)s][%(levelname)s][%(asctime)s][%(pathname)s:%(lineno)d][%(process)d][%(thread)d][{rank}]: %(message)s"
+                },
+            },
+            "handlers": {
+                "default": {
+                    "formatter": "plain",
+                    "class": "logging.StreamHandler",
+                    "stream": "ext://sys.stdout",
+                    "filters": [],
+                },
+            },
+            "loggers": {
+                project_name: {
+                    "handlers": ["default"],
+                    "level": self._context.log_level,
+                },
+            },
+        }
+        logging.config.dictConfig(logging_config)
+        return logging.getLogger(project_name)
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Workflow
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def generate_emiss_workflow(
-    staticdir: str,
-    ravedir: str,
-    intp_dir: str,
-    predef_grid: str,
-    ebb_dcycle_flag: str,
-    restart_interval: str,
-    persistence: str,
+    args: List[str]
+    # staticdir: str, #tdk:rm
+    # ravedir: str,
+    # intp_dir: str,
+    # predef_grid: str,
+    # ebb_dcycle_flag: str,
+    # restart_interval: str,
+    # persistence: str,
 ) -> None:
     """
     Prepares fire-related ICs. This is the main function that handles data movement and interpolation.
@@ -175,6 +311,11 @@ def generate_emiss_workflow(
         restart_interval: Indicates if restart files should be copied. The actual interval values are not used
         persistence: If ``TRUE``, use satellite observations from the previous day. Otherwise, use observations from the same day.
     """
+
+    processor = SmokeDustPreprocessor(args)
+    _ = processor.intp_non_avail_hours #tdk:rm
+    import pdb;pdb.set_trace()
+    tdk
 
     # ----------------------------------------------------------------------
     # Import envs from workflow and get the pre-defined grid
@@ -238,7 +379,7 @@ def generate_emiss_workflow(
     # ----------------------------------------------------------------------
     # Sort raw RAVE, create source and target filelds, and compute emissions
     # ----------------------------------------------------------------------
-    fcst_dates = i_tools.date_range(current_day, ebb_dcycle, persistence)
+    fcst_dates = i_tools.date_range(current_day, ebb_dcycle, persistence) #tdk:done
     intp_avail_hours, intp_non_avail_hours, inp_files_2use = (
         i_tools.check_for_intp_rave(intp_dir, fcst_dates, rave_to_intp)
     )
@@ -363,14 +504,17 @@ if __name__ == "__main__":
     print("Welcome to interpolating RAVE and processing fire emissions!")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("")
+    # generate_emiss_workflow( #tdk:rm
+    #     sys.argv[1],
+    #     sys.argv[2],
+    #     sys.argv[3],
+    #     sys.argv[4],
+    #     sys.argv[5],
+    #     sys.argv[6],
+    #     sys.argv[7],
+    # )
     generate_emiss_workflow(
-        sys.argv[1],
-        sys.argv[2],
-        sys.argv[3],
-        sys.argv[4],
-        sys.argv[5],
-        sys.argv[6],
-        sys.argv[7],
+        sys.argv[1:]
     )
     print("")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
