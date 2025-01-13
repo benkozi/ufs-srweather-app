@@ -339,6 +339,7 @@ class SmokeDustPreprocessor:
             for row in rave_to_interpolate.iterrows():
                 self.log(f"processing RAVE interpolation row: {row}")
 
+                import pdb;pdb.set_trace()
                 output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{row['forecast_date']}00_{row['forecast_date']}59.nc"
                 self.log(f"creating output file: {output_file_path}")
                 with open_nc(output_file_path, "w") as ds:
