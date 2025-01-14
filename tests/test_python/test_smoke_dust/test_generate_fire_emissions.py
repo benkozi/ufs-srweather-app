@@ -106,7 +106,7 @@ class TestGenerateFireEmissions(unittest.TestCase):
         # comin = Path(self._temp_dir)
 
         # comout = "/home/Benjamin.Koziol/htmp/comout" #hera
-        comout = "/home/bwkoziol/comout" #orion
+        comout = "/home/bwkoziol/htmp/comout" #orion
         main_args = GenerateEmissWorkflowArgs.create(comin, Path(comout))
         logger.debug(main_args)
         main_path = self._ushdir / "smoke_dust_generate_fire_emissions.py"
