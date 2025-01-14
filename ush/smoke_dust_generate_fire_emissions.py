@@ -197,6 +197,7 @@ class SmokeDustPreprocessor:
         # self._forecast_dates = None
         # self._intp_avail_hours = None
         self._forecast_metadata = None
+        self._grid_out_shape = None
 
     # @property
     # def forecast_dates(self) -> pd.DatetimeIndex:
@@ -309,6 +310,17 @@ class SmokeDustPreprocessor:
     def is_first_day(self) -> bool:
         return self.forecast_metadata['rave_interpolated'].isnull().all() and self.forecast_metadata['rave_raw'].isnull().all()
 
+    @property
+    def grid_out_shape(self) -> Tuple[int, int]:
+        if self._grid_out_shape is not None:
+            return self._grid_out_shape
+        with open_nc(self._context.grid_out) as ds:
+            grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
+        self.log(f"grid_out_shape={grid_out_shape}")
+        self._grid_out_shape = grid_out_shape
+        return self._grid_out_shape
+
+
     def run(self) -> None:
         self.log(f"is_first_day={self.is_first_day}")
         if self.is_first_day:
@@ -317,6 +329,7 @@ class SmokeDustPreprocessor:
         else:
             #tdk: need try/catch to use dummy emissions if regridding fails or no rave data is available
             self._run_interpolation_()
+            self._run_average_frp_()
             import pdb;pdb.set_trace()
 
     def _run_interpolation_(self):
@@ -363,18 +376,13 @@ class SmokeDustPreprocessor:
                 dst_output_gwrap.dims.value[0].name = ('lon',)
                 dst_output_gwrap.dims.value[1].name = ('lat',)
 
-                # Get the shape of the output grid
-                with open_nc(self._context.grid_out) as ds:
-                    grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
-                self.log(f"grid_out_shape={grid_out_shape}")
-
             forecast_date = row_data['forecast_date']
             output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
             self.log(f"creating output file: {output_file_path}")
             with open_nc(output_file_path, "w") as ds:
                 ds.createDimension("t", 1)  # tdk: need to handle the none time dimension
-                ds.createDimension("lat", grid_out_shape[0])
-                ds.createDimension("lon", grid_out_shape[1])
+                ds.createDimension("lat", self.grid_out_shape[0])
+                ds.createDimension("lon", self.grid_out_shape[1])
                 setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
                 setattr(ds, "TIME_RANGE", "1 hour")
 
@@ -472,6 +480,11 @@ class SmokeDustPreprocessor:
         self.log(f"writing regrid metadata: {regrid_metadata_path}")
         df = pd.DataFrame(data=regrid_metadata)
         df.to_csv(regrid_metadata_path, index=False)
+
+    def _run_average_frp_(self):
+        self.log("averaging FRP")
+
+        import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
         raise NotImplementedError
