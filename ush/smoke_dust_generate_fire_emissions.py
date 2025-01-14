@@ -316,8 +316,6 @@ class SmokeDustPreprocessor:
             raise NotImplementedError("is_first_day is not yet implemented")
         else:
             #tdk: need try/catch to use dummy emissions if regridding fails or no rave data is available
-
-
             self.log("creating destination grid from RRFS grid file")
             dst_nc2grid = NcToGrid(
                 path=self._context.grid_out,
@@ -353,9 +351,10 @@ class SmokeDustPreprocessor:
             first = True
             regrid_metadata = []
             for row in rave_to_interpolate.iterrows():
-                self.log(f"processing RAVE interpolation row: {row[0]}, {row[1].to_dict()}")
+                row_data = row[1]
+                self.log(f"processing RAVE interpolation row: {row[0]}, {row_data.to_dict()}")
 
-                forecast_date = row[1]['forecast_date']
+                forecast_date = row_data['forecast_date']
                 output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
                 self.log(f"creating output file: {output_file_path}")
                 with open_nc(output_file_path, "w") as ds:
@@ -422,7 +421,6 @@ class SmokeDustPreprocessor:
                         case _:
                             raise NotImplementedError(field_name)
 
-                    row_data = deepcopy(row[1].to_dict())
                     row_data["rave_interpolated"] = output_file_path
                     row_data["field_name_dst"] = dst_field_name
                     row_data['field_name_rave'] = field_name
@@ -448,6 +446,7 @@ class SmokeDustPreprocessor:
         self.log(f"writing regrid metadata: {regrid_metadata_path}")
         df = pd.DataFrame(data=regrid_metadata)
         df.to_csv(regrid_metadata_path, index=False)
+        import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
         raise NotImplementedError
