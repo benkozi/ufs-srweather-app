@@ -437,7 +437,7 @@ class SmokeDustPreprocessor:
 
                     # Mask edges to reduce model edge effects
                     mask_edges(dst_data)
-                    dst_summary_masked = dict(mean=dst_data.nanmean(), min=dst_data.nanmin(), max=dst_data.nanmax(), sum=dst_data.nansum(), origin="dst_masked", n=dst_data.size)
+                    dst_summary_masked = dict(mean=np.nanmean(dst_data), min=np.nanmin(dst_data), max=np.nanmax(dst_data), sum=np.nansum(dst_data), origin="dst_masked", n=dst_data.size)
                     self.log(f"{field_name} after masking: {dst_summary_masked}")
                     regrid_metadata.append(row_data | dst_summary_masked)
 
