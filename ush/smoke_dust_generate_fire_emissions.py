@@ -37,6 +37,7 @@ from smoke_dust_interpolation import open_nc, create_sd_coordinate_variable, cre
 import numpy as np
 
 from smoke_dust_interp_tools import mask_edges
+import xarray as xr
 
 
 @unique
@@ -483,8 +484,22 @@ class SmokeDustPreprocessor:
 
     def _run_average_frp_(self):
         self.log("averaging FRP")
+        #tdk: need fail-over option to return empty arrays
 
-        import pdb;pdb.set_trace()
+        frp_daily = np.zeros(self.grid_out_shape)
+        ebb_smoke_total = []
+        frp_avg_hr = []
+
+        with xr.open_dataset(self._context.veg_map) as ds:
+            emiss_factor = ds['emiss_factor'].values
+        with xr.open_dataset(self._context.grid_out) as ds:
+            target_area = ds['area'].values
+
+        for row_idx, row_df in self.forecast_metadata.iterrows():
+            with xr.open_dataset(row_df['rave_interpolated']) as ds:
+                fre = ds['FRE'][0, :, :].values
+                frp_avg_hr = ds['frp_avg_hr'][0, :, :].values
+                import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
         raise NotImplementedError
