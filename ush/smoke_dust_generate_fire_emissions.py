@@ -11,6 +11,7 @@ import fnmatch
 import os
 import sys
 from collections import namedtuple
+from copy import copy
 from dataclasses import dataclass
 from enum import unique, StrEnum, IntEnum
 import logging
@@ -329,6 +330,14 @@ class SmokeDustPreprocessor:
                 ),
             )
             dst_gwrap = dst_nc2grid.create_grid_wrapper()
+
+            # We are translating metadata and some structure for the destination grid.
+            dst_output_gwrap = copy(dst_gwrap)
+            dst_output_gwrap.corner_dims = None
+            dst_output_gwrap.dims[0].name = ('lon',)
+            dst_output_gwrap.dims[1].name = ('lat',)
+
+            import pdb;pdb.set_trace()
 
             # Select which RAVE files need to be interpolated
             rave_to_interpolate = self.forecast_metadata[self.forecast_metadata['rave_interpolated'].isnull() & ~self.forecast_metadata['rave_raw'].isnull()]
