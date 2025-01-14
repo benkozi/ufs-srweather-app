@@ -334,6 +334,7 @@ class SmokeDustPreprocessor:
             # We are translating metadata and some structure for the destination grid.
             dst_output_gwrap = copy(dst_gwrap)
             dst_output_gwrap.corner_dims = None
+            dst_output_gwrap.spec = GridSpec(x_center="geolon",y_center="geolat", x_dim=('lon',), y_dim=('lat',))
             dst_output_gwrap.dims = deepcopy(dst_gwrap.dims)
             dst_output_gwrap.dims.value[0].name = ('lon',)
             dst_output_gwrap.dims.value[1].name = ('lat',)
