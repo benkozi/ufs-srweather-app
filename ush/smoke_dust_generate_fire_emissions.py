@@ -303,7 +303,7 @@ class SmokeDustPreprocessor:
             if not found:
                 rave_to_forecast.append(None)
 
-        df = pd.DataFrame(data={'forecast_date': forecast_dates,'rave_interpolated': intp_path, 'rave_raw': rave_to_forecast, 'processed_emissions': None})
+        df = pd.DataFrame(data={'forecast_date': forecast_dates,'rave_interpolated': intp_path, 'rave_raw': rave_to_forecast})
         self._forecast_metadata = df
         return df
 
@@ -575,6 +575,14 @@ class SmokeDustPreprocessor:
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
+            create_sd_variable(
+                ds_out, "frp_avg_hr", "mean Fire Radiative Power", "MW", "0.f", 0.
+            )
+            ds_out.variables["frp_avg_hr"][:] = frp_avg_reshaped
+            create_sd_variable(
+                ds_out, "ebb_smoke_hr", "EBB emissions", "ug m-2 s-1", "0.f", 0.
+            )
+            ds_out.variables["ebb_smoke_hr"][:] = ebb_total_reshaped
         import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
