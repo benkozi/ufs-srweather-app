@@ -424,12 +424,12 @@ class SmokeDustPreprocessor:
                     row_data["rave_interpolated"] = output_file_path
                     row_data["field_name_dst"] = dst_field_name
                     row_data['field_name_rave'] = field_name
-                    src_summary = dict(mean=src_data.mean(), min=src_data.min(), max=src_data.max(), sum=src_data.sum())
+                    src_summary = dict(mean=src_data.mean(), min=src_data.min(), max=src_data.max(), sum=src_data.sum(), origin="src", n=src_data.size)
                     regrid_metadata.append(row_data | src_summary)
                     self.log(f"{field_name} before regridding: {src_summary}")
                     dst_field = regridder(src_fwrap.value, dst_fwrap.value)
                     dst_data = dst_field.data
-                    dst_summary = dict(mean=dst_data.mean(), min=dst_data.min(), max=dst_data.max(), sum=dst_data.sum())
+                    dst_summary = dict(mean=dst_data.mean(), min=dst_data.min(), max=dst_data.max(), sum=dst_data.sum(), origin="dst", n=dst_data.size)
                     regrid_metadata.append(row_data | dst_summary)
                     self.log(f"{field_name} after regridding: {dst_summary}")
 
@@ -439,7 +439,6 @@ class SmokeDustPreprocessor:
         self.log(f"writing regrid metadata: {regrid_metadata_path}")
         df = pd.DataFrame(data=regrid_metadata)
         df.to_csv(regrid_metadata_path, index=False)
-        import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
         raise NotImplementedError
