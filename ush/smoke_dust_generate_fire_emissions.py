@@ -415,7 +415,6 @@ class SmokeDustPreprocessor:
                         case "FRP_MEAN":
                             data[:] = np.where(data == -1.0, 0.0, data)
                         case "FRE":
-                            #tdk: handle missing values like FRP_MEAN
                             data[:] = np.where(data > 1000., data, 0.0)
                         case _:
                             raise NotImplementedError(field_name)
@@ -427,7 +426,7 @@ class SmokeDustPreprocessor:
 
                     dst_fwrap.fill_nc_variable(output_file_path)
 
-                    import pdb;pdb.set_trace()
+        import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
         raise NotImplementedError
