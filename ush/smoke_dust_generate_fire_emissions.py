@@ -321,15 +321,18 @@ class SmokeDustPreprocessor:
 
     def _run_interpolation_(self):
         #tdk:last: refactor to method
-        first = True
-        regrid_metadata = []
+
 
         # Select which RAVE files need to be interpolated
         rave_to_interpolate = self.forecast_metadata[
             self.forecast_metadata['rave_interpolated'].isnull() & ~self.forecast_metadata['rave_raw'].isnull()]
 
-        import pdb; pdb.set_trace()
+        if len(rave_to_interpolate) == 0:
+            self.log("all rave files have been interpolated")
+            return
 
+        first = True
+        regrid_metadata = []
         for row in rave_to_interpolate.iterrows():
             row_data = row[1]
             row_dict = row_data.to_dict()
