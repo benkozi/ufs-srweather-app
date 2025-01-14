@@ -400,7 +400,7 @@ class SmokeDustPreprocessor:
                         src_gwrap = src_nc2grid.create_grid_wrapper()
 
                         self.log("creating source field")
-                        src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('t',))
+                        src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('time',))
                         src_fwrap = src_nc2field.create_field_wrapper()
                         regridder = esmpy.RegridFromFile(src_fwrap.value, dst_fwrap.value, filename=str(self._context.weightfile))
                         first = False
