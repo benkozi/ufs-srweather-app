@@ -565,6 +565,8 @@ class SmokeDustPreprocessor:
             case _:
                 raise NotImplementedError(self._context.ebb_dcycle_flag)
 
+        np.nan_to_num(frp_avg_reshaped, copy=False, nan=0.0)
+
         self.log(f"frp_avg_reshaped nan count={np.isnan(frp_avg_reshaped).sum()}")
         self.log(f"ebb_total_reshaped nan count={np.isnan(ebb_total_reshaped).sum()}")
 
