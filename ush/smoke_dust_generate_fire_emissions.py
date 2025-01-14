@@ -339,8 +339,6 @@ class SmokeDustPreprocessor:
             dst_output_gwrap.dims.value[0].name = ('lon',)
             dst_output_gwrap.dims.value[1].name = ('lat',)
 
-            import pdb;pdb.set_trace()
-
             # Select which RAVE files need to be interpolated
             rave_to_interpolate = self.forecast_metadata[self.forecast_metadata['rave_interpolated'].isnull() & ~self.forecast_metadata['rave_raw'].isnull()]
 
@@ -368,6 +366,8 @@ class SmokeDustPreprocessor:
                     create_sd_variable(ds, "frp_avg_hr", "Mean Fire Radiative Power", "MW", fill_value_str="0.f", fill_value_float=0.0)
                     create_sd_variable(ds, "FRE", "FRE", "MJ", fill_value_str="0.f", fill_value_float=0.0)
 
+                dst_output_gwrap.fill_nc_variables(output_file_path)
+
                 for field_name in self._context.vars_emis:
 
                     # tdk: clean this up
@@ -379,7 +379,7 @@ class SmokeDustPreprocessor:
                         case _:
                             raise NotImplementedError(field_name)
 
-                    dst_nc2field = NcToField(path=output_file_path, name=dst_field_name, gwrap=dst_gwrap, dim_time=('t',))
+                    dst_nc2field = NcToField(path=output_file_path, name=dst_field_name, gwrap=dst_output_gwrap, dim_time=('t',))
                     dst_fwrap = dst_nc2field.create_field_wrapper()
 
                     if first:
