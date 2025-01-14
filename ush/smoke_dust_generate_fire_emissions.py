@@ -570,7 +570,7 @@ class SmokeDustPreprocessor:
 
         emissions_path = self._context.intp_dir / f"SMOKE_RRFS_data_{self._context.current_day}00.nc"
         self.log(f"creating emissions file: {emissions_path}")
-        with open_nc(emissions_path, "w", parallel=False) as ds_out:
+        with open_nc(emissions_path, "w", parallel=False, clobber=True) as ds_out:
             self._create_template_emissions_file_(ds_out)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
