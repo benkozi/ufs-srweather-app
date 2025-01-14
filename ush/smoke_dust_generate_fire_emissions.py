@@ -300,6 +300,7 @@ class SmokeDustPreprocessor:
                 rave_to_forecast.append(None)
 
         df = pd.DataFrame(data={'forecast_date': forecast_dates,'rave_interpolated': intp_path, 'rave_raw': rave_to_forecast})
+        self._forecast_metadata = df
         return df
 
     @property
