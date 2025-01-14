@@ -562,6 +562,9 @@ class SmokeDustPreprocessor:
                 case _:
                     raise NotImplementedError(self._context.ebb_dcycle_flag)
 
+        #tdk:ja: should there be nans?
+        self.log(f"frp_avg_reshaped nan count={np.isnan(frp_avg_reshaped).sum()}")
+        self.log(f"ebb_total_reshaped nan count={np.isnan(ebb_total_reshaped).sum()}")
         import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
