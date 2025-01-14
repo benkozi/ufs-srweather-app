@@ -303,7 +303,7 @@ class SmokeDustPreprocessor:
             if not found:
                 rave_to_forecast.append(None)
 
-        df = pd.DataFrame(data={'forecast_date': forecast_dates,'rave_interpolated': intp_path, 'rave_raw': rave_to_forecast})
+        df = pd.DataFrame(data={'forecast_date': forecast_dates,'rave_interpolated': intp_path, 'rave_raw': rave_to_forecast, 'processed_emissions': None})
         self._forecast_metadata = df
         return df
 
@@ -503,6 +503,7 @@ class SmokeDustPreprocessor:
                 frp = ds['frp_avg_hr'][0, :, :].values
 
                 match self._context.ebb_dcycle_flag:
+                    #tdk:ja: can we give these cycles more explanatory names?
                     case EbbDCycle.ONE:
                         frp_avg_hr.append(frp)
                         ebb_hourly = (fre * emiss_factor * self._context.beta * self._context.fg_to_ug) / (
@@ -524,6 +525,7 @@ class SmokeDustPreprocessor:
             ctr += 1
 
         if ctr > 0:
+            self.log("reshaping arrays")
             match self._context.ebb_dcycle_flag:
                 case EbbDCycle.ONE:
                     frp_avg_reshaped = np.stack(frp_avg_hr, axis=0)
