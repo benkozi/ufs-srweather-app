@@ -496,7 +496,7 @@ class SmokeDustPreprocessor:
             target_area = ds['area'].values
 
         for row_idx, row_df in self.forecast_metadata.iterrows():
-            self.log(f"processing emissions: {row_df.dict()}")
+            self.log(f"processing emissions: {row_df.to_dict()}")
             with xr.open_dataset(row_df['rave_interpolated']) as ds:
                 fre = ds['FRE'][0, :, :].values
                 frp = ds['frp_avg_hr'][0, :, :].values
