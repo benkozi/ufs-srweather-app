@@ -350,7 +350,7 @@ class SmokeDustPreprocessor:
 
             first = True
             for row in rave_to_interpolate.iterrows():
-                self.log(f"processing RAVE interpolation row: {row}")
+                self.log(f"processing RAVE interpolation row: {row[0]}, {row[1].to_dict()}")
 
                 forecast_date = row[1]['forecast_date']
                 output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
@@ -400,9 +400,11 @@ class SmokeDustPreprocessor:
                         )
                         src_gwrap = src_nc2grid.create_grid_wrapper()
 
-                        self.log("creating source field")
-                        src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('time',))
-                        src_fwrap = src_nc2field.create_field_wrapper()
+                    self.log("creating source field")
+                    src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('time',))
+                    src_fwrap = src_nc2field.create_field_wrapper()
+
+                    if first:
                         self.log("creating regridder")
                         regridder = esmpy.RegridFromFile(src_fwrap.value, dst_fwrap.value, filename=str(self._context.weightfile))
                         first = False
@@ -422,6 +424,8 @@ class SmokeDustPreprocessor:
                     dst_field = regridder(src_fwrap.value, dst_fwrap.value)
                     dst_data = dst_field.data
                     self.log(f"{field_name} after regridding: {dict(mean=dst_data.mean(), min=dst_data.min(), max=dst_data.max(), sum=dst_data.sum())}")
+
+                    dst_fwrap.fill_nc_variable(output_file_path)
 
                     import pdb;pdb.set_trace()
 
