@@ -402,7 +402,6 @@ class SmokeDustPreprocessor:
                         self.log("creating source field")
                         src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('time',))
                         src_fwrap = src_nc2field.create_field_wrapper()
-                        import pdb;pdb.set_trace()
                         regridder = esmpy.RegridFromFile(src_fwrap.value, dst_fwrap.value, filename=str(self._context.weightfile))
                         first = False
 
@@ -419,6 +418,7 @@ class SmokeDustPreprocessor:
 
                     self.log(f"{field_name} before regridding: {dict(mean=data.mean(), min=data.min(), max=data.max(), sum=data.sum())}")
                     dst_field = regridder(src_fwrap.value, dst_fwrap.value)
+                    self.log(f"{field_name} after regridding: {dict(mean=data.mean(), min=data.min(), max=data.max(), sum=data.sum())}")
 
                     import pdb;pdb.set_trace()
 
