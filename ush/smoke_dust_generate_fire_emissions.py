@@ -496,10 +496,32 @@ class SmokeDustPreprocessor:
             target_area = ds['area'].values
 
         for row_idx, row_df in self.forecast_metadata.iterrows():
+            self.log(f"processing emissions: {row_df.dict()}")
             with xr.open_dataset(row_df['rave_interpolated']) as ds:
                 fre = ds['FRE'][0, :, :].values
-                frp_avg_hr = ds['frp_avg_hr'][0, :, :].values
-                import pdb;pdb.set_trace()
+                frp = ds['frp_avg_hr'][0, :, :].values
+
+                match self._context.ebb_dcycle_flag:
+                    case EbbDCycle.ONE:
+                        frp_avg_hr.append(frp)
+                        ebb_hourly = (fre * emiss_factor * self._context.beta * self._context.fg_to_ug) / (
+                                target_area * self._context.to_s
+                        )
+                        ebb_smoke_total.append(
+                            np.where(frp > 0, ebb_hourly, 0)
+                        )
+                    case EbbDCycle.TWO:
+                        ebb_hourly = (
+                                fre * emiss_factor * self._context.beta * self._context.fg_to_ug / target_area
+                        )
+                        ebb_smoke_total.append(
+                            np.where(frp > 0, ebb_hourly, 0).ravel()
+                        )
+                        frp_daily += np.where(frp > 0, frp, 0).ravel()
+                    case _:
+                        raise NotImplementedError(self._context.ebb_dcycle_flag)
+
+            import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
         raise NotImplementedError
