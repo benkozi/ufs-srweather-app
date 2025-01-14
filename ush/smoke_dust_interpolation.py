@@ -382,7 +382,7 @@ class NcToField(BaseModel):
                 ndbounds = None
                 target_dims = self.gwrap.dims
             else:
-                ndbounds = (get_nc_dimension(ds, self.dim_time).size,)
+                ndbounds = (len(get_nc_dimension(ds, self.dim_time)),)
                 time_dim = Dimension(
                     name=self.dim_time,
                     size=ndbounds[0],

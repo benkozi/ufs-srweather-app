@@ -477,7 +477,7 @@ class SmokeDustPreprocessor:
         df.to_csv(regrid_metadata_path, index=False)
 
     def _create_template_emissions_file_(self, ds):
-        ds.createDimension("t", 1)  # tdk: need to handle the none time dimension
+        ds.createDimension("t", None)
         ds.createDimension("lat", self.grid_out_shape[0])
         ds.createDimension("lon", self.grid_out_shape[1])
         setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
