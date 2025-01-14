@@ -18,7 +18,7 @@ def open_nc(
     path: Path,
     mode: Literal["r", "w", "a"] = "r",
     clobber: bool = False,
-    parallel: bool = True,
+    parallel: bool = False, #tdk: test with true when not on orion
 ) -> nc.Dataset:
     ds = nc.Dataset(
         path,
