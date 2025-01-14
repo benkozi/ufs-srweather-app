@@ -194,7 +194,7 @@ class SmokeDustPreprocessor:
         self._logger = self._init_logging_()
         self.log(f"initialization complete. context={self._context}")
 
-        self._forecast_dates = None
+        # self._forecast_dates = None
         # self._intp_avail_hours = None
         self._forecast_metadata = None
 
@@ -316,138 +316,150 @@ class SmokeDustPreprocessor:
             raise NotImplementedError("is_first_day is not yet implemented")
         else:
             #tdk: need try/catch to use dummy emissions if regridding fails or no rave data is available
-            self.log("creating destination grid from RRFS grid file")
-            dst_nc2grid = NcToGrid(
-                path=self._context.grid_out,
-                spec=GridSpec(
-                    x_center="grid_lont",
-                    y_center="grid_latt",
-                    x_dim=("grid_xt",),
-                    y_dim=("grid_yt",),
-                    x_corner="grid_lon",
-                    y_corner="grid_lat",
-                    x_corner_dim=("grid_x",),
-                    y_corner_dim=("grid_y",),
-                ),
-            )
-            dst_gwrap = dst_nc2grid.create_grid_wrapper()
+            self._run_interpolation_()
+            import pdb;pdb.set_trace()
 
-            # We are translating metadata and some structure for the destination grid.
-            dst_output_gwrap = copy(dst_gwrap)
-            dst_output_gwrap.corner_dims = None
-            dst_output_gwrap.spec = GridSpec(x_center="geolon",y_center="geolat", x_dim=('lon',), y_dim=('lat',))
-            dst_output_gwrap.dims = deepcopy(dst_gwrap.dims)
-            dst_output_gwrap.dims.value[0].name = ('lon',)
-            dst_output_gwrap.dims.value[1].name = ('lat',)
+    def _run_interpolation_(self):
+        #tdk:last: refactor to method
+        self.log("creating destination grid from RRFS grid file")
+        dst_nc2grid = NcToGrid(
+            path=self._context.grid_out,
+            spec=GridSpec(
+                x_center="grid_lont",
+                y_center="grid_latt",
+                x_dim=("grid_xt",),
+                y_dim=("grid_yt",),
+                x_corner="grid_lon",
+                y_corner="grid_lat",
+                x_corner_dim=("grid_x",),
+                y_corner_dim=("grid_y",),
+            ),
+        )
+        dst_gwrap = dst_nc2grid.create_grid_wrapper()
+        # We are translating metadata and some structure for the destination grid.
+        dst_output_gwrap = copy(dst_gwrap)
+        dst_output_gwrap.corner_dims = None
+        dst_output_gwrap.spec = GridSpec(x_center="geolon", y_center="geolat", x_dim=('lon',), y_dim=('lat',))
+        dst_output_gwrap.dims = deepcopy(dst_gwrap.dims)
+        dst_output_gwrap.dims.value[0].name = ('lon',)
+        dst_output_gwrap.dims.value[1].name = ('lat',)
+        # Select which RAVE files need to be interpolated
+        rave_to_interpolate = self.forecast_metadata[
+            self.forecast_metadata['rave_interpolated'].isnull() & ~self.forecast_metadata['rave_raw'].isnull()]
+        # Get the shape of the output grid
+        with open_nc(self._context.grid_out) as ds:
+            grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
+        self.log(f"grid_out_shape={grid_out_shape}")
+        first = True
+        regrid_metadata = []
+        for row in rave_to_interpolate.iterrows():
+            row_data = row[1]
+            row_dict = row_data.to_dict()
+            self.log(f"processing RAVE interpolation row: {row[0]}, {row_data}")
 
-            # Select which RAVE files need to be interpolated
-            rave_to_interpolate = self.forecast_metadata[self.forecast_metadata['rave_interpolated'].isnull() & ~self.forecast_metadata['rave_raw'].isnull()]
+            forecast_date = row_data['forecast_date']
+            output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
+            self.log(f"creating output file: {output_file_path}")
+            with open_nc(output_file_path, "w") as ds:
+                ds.createDimension("t", 1)  # tdk: need to handle the none time dimension
+                ds.createDimension("lat", grid_out_shape[0])
+                ds.createDimension("lon", grid_out_shape[1])
+                setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
+                setattr(ds, "TIME_RANGE", "1 hour")
 
-            # Get the shape of the output grid
-            with open_nc(self._context.grid_out) as ds:
-                grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
-            self.log(f"grid_out_shape={grid_out_shape}")
+                create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
+                create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
+                create_sd_variable(ds, "frp_avg_hr", "Mean Fire Radiative Power", "MW", fill_value_str="0.f",
+                                   fill_value_float=0.0)
+                create_sd_variable(ds, "FRE", "FRE", "MJ", fill_value_str="0.f", fill_value_float=0.0)
 
-            first = True
-            regrid_metadata = []
-            for row in rave_to_interpolate.iterrows():
-                row_data = row[1]
-                self.log(f"processing RAVE interpolation row: {row[0]}, {row_data.to_dict()}")
+            dst_output_gwrap.fill_nc_variables(output_file_path)
 
-                forecast_date = row_data['forecast_date']
-                output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
-                self.log(f"creating output file: {output_file_path}")
-                with open_nc(output_file_path, "w") as ds:
-                    ds.createDimension("t", 1) #tdk: need to handle the none time dimension
-                    ds.createDimension("lat", grid_out_shape[0])
-                    ds.createDimension("lon", grid_out_shape[1])
-                    setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
-                    setattr(ds, "TIME_RANGE", "1 hour")
+            for field_name in self._context.vars_emis:
 
-                    create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
-                    create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
-                    create_sd_variable(ds, "frp_avg_hr", "Mean Fire Radiative Power", "MW", fill_value_str="0.f", fill_value_float=0.0)
-                    create_sd_variable(ds, "FRE", "FRE", "MJ", fill_value_str="0.f", fill_value_float=0.0)
+                # tdk: clean this up
+                match field_name:
+                    case "FRP_MEAN":
+                        dst_field_name = "frp_avg_hr"
+                    case "FRE":
+                        dst_field_name = "FRE"
+                    case _:
+                        raise NotImplementedError(field_name)
 
-                dst_output_gwrap.fill_nc_variables(output_file_path)
+                dst_nc2field = NcToField(path=output_file_path, name=dst_field_name, gwrap=dst_output_gwrap,
+                                         dim_time=('t',))
+                dst_fwrap = dst_nc2field.create_field_wrapper()
 
-                for field_name in self._context.vars_emis:
+                if first:
+                    self.log("creating source grid from RAVE file")
+                    src_nc2grid = NcToGrid(
+                        path=self._context.grid_in,
+                        spec=GridSpec(
+                            x_center="grid_lont",
+                            y_center="grid_latt",
+                            x_dim=("grid_xt",),
+                            y_dim=("grid_yt",),
+                            x_corner="grid_lon",
+                            y_corner="grid_lat",
+                            x_corner_dim=("grid_x",),
+                            y_corner_dim=("grid_y",),
+                        ),
+                    )
+                    src_gwrap = src_nc2grid.create_grid_wrapper()
 
-                    # tdk: clean this up
-                    match field_name:
-                        case "FRP_MEAN":
-                            dst_field_name = "frp_avg_hr"
-                        case "FRE":
-                            dst_field_name = "FRE"
-                        case _:
-                            raise NotImplementedError(field_name)
+                self.log("creating source field")
+                src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time=('time',))
+                src_fwrap = src_nc2field.create_field_wrapper()
 
-                    dst_nc2field = NcToField(path=output_file_path, name=dst_field_name, gwrap=dst_output_gwrap, dim_time=('t',))
-                    dst_fwrap = dst_nc2field.create_field_wrapper()
+                if first:
+                    self.log("creating regridder")
+                    regridder = esmpy.RegridFromFile(src_fwrap.value, dst_fwrap.value,
+                                                     filename=str(self._context.weightfile))
+                    first = False
 
-                    if first:
-                        self.log("creating source grid from RAVE file")
-                        src_nc2grid = NcToGrid(
-                            path=self._context.grid_in,
-                            spec=GridSpec(
-                                x_center="grid_lont",
-                                y_center="grid_latt",
-                                x_dim=("grid_xt",),
-                                y_dim=("grid_yt",),
-                                x_corner="grid_lon",
-                                y_corner="grid_lat",
-                                x_corner_dim=("grid_x",),
-                                y_corner_dim=("grid_y",),
-                            ),
-                        )
-                        src_gwrap = src_nc2grid.create_grid_wrapper()
+                # tdk: make this smoother; automatically fill masked data maybe
+                src_data = src_fwrap.value.data
+                match field_name:
+                    case "FRP_MEAN":
+                        src_data[:] = np.where(src_data == -1.0, 0.0, src_data)
+                    case "FRE":
+                        src_data[:] = np.where(src_data > 1000., src_data, 0.0)
+                    case _:
+                        raise NotImplementedError(field_name)
 
-                    self.log("creating source field")
-                    src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time = ('time',))
-                    src_fwrap = src_nc2field.create_field_wrapper()
+                row_dict["rave_interpolated"] = output_file_path
+                row_dict["field_name_dst"] = dst_field_name
+                row_dict['field_name_rave'] = field_name
+                src_summary = dict(mean=src_data.mean(), min=src_data.min(), max=src_data.max(), sum=src_data.sum(),
+                                   origin="src", n=src_data.size)
+                regrid_metadata.append(row_dict | src_summary)
+                self.log(f"{field_name} before regridding: {src_summary}", level=logging.DEBUG)
 
-                    if first:
-                        self.log("creating regridder")
-                        regridder = esmpy.RegridFromFile(src_fwrap.value, dst_fwrap.value, filename=str(self._context.weightfile))
-                        first = False
+                # Execute the ESMF regridding
+                dst_field = regridder(src_fwrap.value, dst_fwrap.value)
 
-                    #tdk: make this smoother; automatically fill masked data maybe
-                    src_data = src_fwrap.value.data
-                    match field_name:
-                        case "FRP_MEAN":
-                            src_data[:] = np.where(src_data == -1.0, 0.0, src_data)
-                        case "FRE":
-                            src_data[:] = np.where(src_data > 1000., src_data, 0.0)
-                        case _:
-                            raise NotImplementedError(field_name)
+                dst_data = dst_field.data
+                dst_summary = dict(mean=dst_data.mean(), min=dst_data.min(), max=dst_data.max(), sum=dst_data.sum(),
+                                   origin="dst", n=dst_data.size)
+                regrid_metadata.append(row_dict | dst_summary)
+                self.log(f"{field_name} after regridding: {dst_summary}", level=logging.DEBUG)
 
-                    row_data["rave_interpolated"] = output_file_path
-                    row_dict = row_data.to_dict()
-                    row_dict["field_name_dst"] = dst_field_name
-                    row_dict['field_name_rave'] = field_name
-                    src_summary = dict(mean=src_data.mean(), min=src_data.min(), max=src_data.max(), sum=src_data.sum(), origin="src", n=src_data.size)
-                    regrid_metadata.append(row_dict | src_summary)
-                    self.log(f"{field_name} before regridding: {src_summary}")
-                    dst_field = regridder(src_fwrap.value, dst_fwrap.value)
-                    dst_data = dst_field.data
-                    dst_summary = dict(mean=dst_data.mean(), min=dst_data.min(), max=dst_data.max(), sum=dst_data.sum(), origin="dst", n=dst_data.size)
-                    regrid_metadata.append(row_dict | dst_summary)
-                    self.log(f"{field_name} after regridding: {dst_summary}")
+                # Mask edges to reduce model edge effects
+                mask_edges(dst_data)
+                dst_summary_masked = dict(mean=np.nanmean(dst_data), min=np.nanmin(dst_data), max=np.nanmax(dst_data),
+                                          sum=np.nansum(dst_data), origin="dst_masked", n=dst_data.size)
+                self.log(f"{field_name} after masking: {dst_summary_masked}", level=logging.DEBUG)
+                regrid_metadata.append(row_dict | dst_summary_masked)
 
-                    # Mask edges to reduce model edge effects
-                    mask_edges(dst_data)
-                    dst_summary_masked = dict(mean=np.nanmean(dst_data), min=np.nanmin(dst_data), max=np.nanmax(dst_data), sum=np.nansum(dst_data), origin="dst_masked", n=dst_data.size)
-                    self.log(f"{field_name} after masking: {dst_summary_masked}")
-                    regrid_metadata.append(row_dict | dst_summary_masked)
+                # Persist the destination field
+                dst_fwrap.fill_nc_variable(output_file_path)
 
-                    # Persist the destination field
-                    dst_fwrap.fill_nc_variable(output_file_path)
-
+                # Update the forecast metadata with the interpolated RAVE file data
+                self.forecast_metadata.loc[row[0], 'rave_interpolated'] = output_file_path
         regrid_metadata_path = self._context.intp_dir / "regrid_metadata.csv"
         self.log(f"writing regrid metadata: {regrid_metadata_path}")
         df = pd.DataFrame(data=regrid_metadata)
         df.to_csv(regrid_metadata_path, index=False)
-        import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
         raise NotImplementedError
