@@ -321,41 +321,49 @@ class SmokeDustPreprocessor:
 
     def _run_interpolation_(self):
         #tdk:last: refactor to method
-        self.log("creating destination grid from RRFS grid file")
-        dst_nc2grid = NcToGrid(
-            path=self._context.grid_out,
-            spec=GridSpec(
-                x_center="grid_lont",
-                y_center="grid_latt",
-                x_dim=("grid_xt",),
-                y_dim=("grid_yt",),
-                x_corner="grid_lon",
-                y_corner="grid_lat",
-                x_corner_dim=("grid_x",),
-                y_corner_dim=("grid_y",),
-            ),
-        )
-        dst_gwrap = dst_nc2grid.create_grid_wrapper()
-        # We are translating metadata and some structure for the destination grid.
-        dst_output_gwrap = copy(dst_gwrap)
-        dst_output_gwrap.corner_dims = None
-        dst_output_gwrap.spec = GridSpec(x_center="geolon", y_center="geolat", x_dim=('lon',), y_dim=('lat',))
-        dst_output_gwrap.dims = deepcopy(dst_gwrap.dims)
-        dst_output_gwrap.dims.value[0].name = ('lon',)
-        dst_output_gwrap.dims.value[1].name = ('lat',)
+        first = True
+        regrid_metadata = []
+
         # Select which RAVE files need to be interpolated
         rave_to_interpolate = self.forecast_metadata[
             self.forecast_metadata['rave_interpolated'].isnull() & ~self.forecast_metadata['rave_raw'].isnull()]
-        # Get the shape of the output grid
-        with open_nc(self._context.grid_out) as ds:
-            grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
-        self.log(f"grid_out_shape={grid_out_shape}")
-        first = True
-        regrid_metadata = []
+
+        import pdb; pdb.set_trace()
+
         for row in rave_to_interpolate.iterrows():
             row_data = row[1]
             row_dict = row_data.to_dict()
             self.log(f"processing RAVE interpolation row: {row[0]}, {row_data}")
+
+            if first:
+                self.log("creating destination grid from RRFS grid file")
+                dst_nc2grid = NcToGrid(
+                    path=self._context.grid_out,
+                    spec=GridSpec(
+                        x_center="grid_lont",
+                        y_center="grid_latt",
+                        x_dim=("grid_xt",),
+                        y_dim=("grid_yt",),
+                        x_corner="grid_lon",
+                        y_corner="grid_lat",
+                        x_corner_dim=("grid_x",),
+                        y_corner_dim=("grid_y",),
+                    ),
+                )
+                dst_gwrap = dst_nc2grid.create_grid_wrapper()
+
+                # We are translating metadata and some structure for the destination grid.
+                dst_output_gwrap = copy(dst_gwrap)
+                dst_output_gwrap.corner_dims = None
+                dst_output_gwrap.spec = GridSpec(x_center="geolon", y_center="geolat", x_dim=('lon',), y_dim=('lat',))
+                dst_output_gwrap.dims = deepcopy(dst_gwrap.dims)
+                dst_output_gwrap.dims.value[0].name = ('lon',)
+                dst_output_gwrap.dims.value[1].name = ('lat',)
+
+                # Get the shape of the output grid
+                with open_nc(self._context.grid_out) as ds:
+                    grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
+                self.log(f"grid_out_shape={grid_out_shape}")
 
             forecast_date = row_data['forecast_date']
             output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
@@ -456,6 +464,7 @@ class SmokeDustPreprocessor:
 
                 # Update the forecast metadata with the interpolated RAVE file data
                 self.forecast_metadata.loc[row[0], 'rave_interpolated'] = output_file_path
+
         regrid_metadata_path = self._context.intp_dir / "regrid_metadata.csv"
         self.log(f"writing regrid metadata: {regrid_metadata_path}")
         df = pd.DataFrame(data=regrid_metadata)
