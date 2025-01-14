@@ -323,6 +323,7 @@ class SmokeDustPreprocessor:
 
 
     def run(self) -> None:
+        self.log("run: entering")
         self.log(f"is_first_day={self.is_first_day}")
         if self.is_first_day:
             #tdk: implement creation of dummy emissions file
@@ -330,8 +331,14 @@ class SmokeDustPreprocessor:
         else:
             #tdk: need try/catch to use dummy emissions if regridding fails or no rave data is available
             self._run_interpolation_()
-            self._run_average_frp_()
-            import pdb;pdb.set_trace()
+            match self._context.ebb_dcycle_flag:
+                case EbbDCycle.ONE:
+                    self._run_average_frp_()
+                case EbbDCycle.TWO:
+                    self._run_emissions_forecast()
+                case _:
+                    raise NotImplementedError(self._context.ebb_dcycle_flag)
+        self.log("run: exiting")
 
     def _run_interpolation_(self):
         #tdk:last: refactor to method
@@ -476,16 +483,6 @@ class SmokeDustPreprocessor:
         df = pd.DataFrame(data=regrid_metadata)
         df.to_csv(regrid_metadata_path, index=False)
 
-    def _create_template_emissions_file_(self, ds):
-        ds.createDimension("t", None)
-        ds.createDimension("lat", self.grid_out_shape[0])
-        ds.createDimension("lon", self.grid_out_shape[1])
-        setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
-        setattr(ds, "TIME_RANGE", "1 hour")
-
-        create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
-        create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
-
     def _run_average_frp_(self):
         self.log("averaging FRP")
         #tdk: need fail-over option to return empty arrays
@@ -586,6 +583,20 @@ class SmokeDustPreprocessor:
             )
             ds_out.variables["ebb_smoke_hr"][:] = ebb_total_reshaped
         import pdb;pdb.set_trace()
+
+    def _run_emissions_forecast_(self) -> None:
+        self.log("running emissions forecast")
+        import pdb;pdb.set_trace()
+
+    def _create_template_emissions_file_(self, ds):
+        ds.createDimension("t", None)
+        ds.createDimension("lat", self.grid_out_shape[0])
+        ds.createDimension("lon", self.grid_out_shape[1])
+        setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
+        setattr(ds, "TIME_RANGE", "1 hour")
+
+        create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
+        create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
 
     def finalize(self) -> None:
         raise NotImplementedError
