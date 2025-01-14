@@ -381,14 +381,8 @@ class SmokeDustPreprocessor:
             output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
             self.log(f"creating output file: {output_file_path}")
             with open_nc(output_file_path, "w") as ds:
-                ds.createDimension("t", 1)  # tdk: need to handle the none time dimension
-                ds.createDimension("lat", self.grid_out_shape[0])
-                ds.createDimension("lon", self.grid_out_shape[1])
-                setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
-                setattr(ds, "TIME_RANGE", "1 hour")
+                self._create_template_emissions_file_(ds)
 
-                create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
-                create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
                 create_sd_variable(ds, "frp_avg_hr", "Mean Fire Radiative Power", "MW", fill_value_str="0.f",
                                    fill_value_float=0.0)
                 create_sd_variable(ds, "FRE", "FRE", "MJ", fill_value_str="0.f", fill_value_float=0.0)
@@ -482,6 +476,16 @@ class SmokeDustPreprocessor:
         df = pd.DataFrame(data=regrid_metadata)
         df.to_csv(regrid_metadata_path, index=False)
 
+    def _create_template_emissions_file_(self, ds):
+        ds.createDimension("t", 1)  # tdk: need to handle the none time dimension
+        ds.createDimension("lat", self.grid_out_shape[0])
+        ds.createDimension("lon", self.grid_out_shape[1])
+        setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
+        setattr(ds, "TIME_RANGE", "1 hour")
+
+        create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
+        create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
+
     def _run_average_frp_(self):
         self.log("averaging FRP")
         #tdk: need fail-over option to return empty arrays
@@ -495,7 +499,6 @@ class SmokeDustPreprocessor:
         with xr.open_dataset(self._context.grid_out) as ds:
             target_area = ds['area'].values
 
-        ctr = 0
         for row_idx, row_df in self.forecast_metadata.iterrows():
             self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
             with xr.open_dataset(row_df['rave_interpolated']) as ds:
@@ -522,51 +525,56 @@ class SmokeDustPreprocessor:
                         frp_daily += np.where(frp > 0, frp, 0).ravel()
                     case _:
                         raise NotImplementedError(self._context.ebb_dcycle_flag)
-            ctr += 1
 
-        if ctr > 0:
-            self.log("reshaping arrays")
-            match self._context.ebb_dcycle_flag:
-                case EbbDCycle.ONE:
-                    frp_avg_reshaped = np.stack(frp_avg_hr, axis=0)
-                    ebb_total_reshaped = np.stack(ebb_smoke_total, axis=0)
-                case EbbDCycle.TWO:
-                    summed_array = np.sum(np.array(ebb_smoke_total), axis=0)
-                    num_zeros = len(ebb_smoke_total) - np.sum(
-                        [arr == 0 for arr in ebb_smoke_total], axis=0
-                    )
-                    safe_zero_count = np.where(num_zeros == 0, 1, num_zeros)
-                    result_array = np.array(
-                        [
-                            (
-                                summed_array[i] / 2
-                                if safe_zero_count[i] == 1
-                                else summed_array[i] / safe_zero_count[i]
-                            )
-                            for i in range(len(safe_zero_count))
-                        ]
-                    )
-                    result_array[num_zeros == 0] = summed_array[num_zeros == 0]
-                    ebb_total = result_array.reshape(self.grid_out_shape)
-                    ebb_total_reshaped = ebb_total / 3600
-                    temp_frp = np.array(
-                        [
-                            (
-                                frp_daily[i] / 2
-                                if safe_zero_count[i] == 1
-                                else frp_daily[i] / safe_zero_count[i]
-                            )
-                            for i in range(len(safe_zero_count))
-                        ]
-                    )
-                    temp_frp[num_zeros == 0] = frp_daily[num_zeros == 0]
-                    frp_avg_reshaped = temp_frp.reshape(*self.grid_out_shape)
-                case _:
-                    raise NotImplementedError(self._context.ebb_dcycle_flag)
+        self.log("reshaping arrays")
+        match self._context.ebb_dcycle_flag:
+            case EbbDCycle.ONE:
+                frp_avg_reshaped = np.stack(frp_avg_hr, axis=0)
+                ebb_total_reshaped = np.stack(ebb_smoke_total, axis=0)
+            case EbbDCycle.TWO:
+                summed_array = np.sum(np.array(ebb_smoke_total), axis=0)
+                num_zeros = len(ebb_smoke_total) - np.sum(
+                    [arr == 0 for arr in ebb_smoke_total], axis=0
+                )
+                safe_zero_count = np.where(num_zeros == 0, 1, num_zeros)
+                result_array = np.array(
+                    [
+                        (
+                            summed_array[i] / 2
+                            if safe_zero_count[i] == 1
+                            else summed_array[i] / safe_zero_count[i]
+                        )
+                        for i in range(len(safe_zero_count))
+                    ]
+                )
+                result_array[num_zeros == 0] = summed_array[num_zeros == 0]
+                ebb_total = result_array.reshape(self.grid_out_shape)
+                ebb_total_reshaped = ebb_total / 3600
+                temp_frp = np.array(
+                    [
+                        (
+                            frp_daily[i] / 2
+                            if safe_zero_count[i] == 1
+                            else frp_daily[i] / safe_zero_count[i]
+                        )
+                        for i in range(len(safe_zero_count))
+                    ]
+                )
+                temp_frp[num_zeros == 0] = frp_daily[num_zeros == 0]
+                frp_avg_reshaped = temp_frp.reshape(*self.grid_out_shape)
+            case _:
+                raise NotImplementedError(self._context.ebb_dcycle_flag)
 
-        #tdk:ja: should there be nans?
         self.log(f"frp_avg_reshaped nan count={np.isnan(frp_avg_reshaped).sum()}")
         self.log(f"ebb_total_reshaped nan count={np.isnan(ebb_total_reshaped).sum()}")
+
+        emissions_path = self._context.intp_dir / f"SMOKE_RRFS_data_{self._context.current_day}00.nc"
+        self.log(f"creating emissions file: {emissions_path}")
+        with open_nc(emissions_path, "w", parallel=False) as ds_out:
+            self._create_template_emissions_file_(ds_out)
+            with open_nc(self._context.grid_out, parallel=False) as ds_src:
+                ds_out.variables["geolat"][:] = ds_src.variables["geolat"][:]
+                ds_out.variables["geolon"][:] = ds_src.variables["geolon"][:]
         import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
