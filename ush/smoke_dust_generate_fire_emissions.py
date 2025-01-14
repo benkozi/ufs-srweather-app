@@ -422,22 +422,23 @@ class SmokeDustPreprocessor:
                             raise NotImplementedError(field_name)
 
                     row_data["rave_interpolated"] = output_file_path
-                    row_data["field_name_dst"] = dst_field_name
-                    row_data['field_name_rave'] = field_name
+                    row_dict = row_data.to_dict()
+                    row_dict["field_name_dst"] = dst_field_name
+                    row_dict['field_name_rave'] = field_name
                     src_summary = dict(mean=src_data.mean(), min=src_data.min(), max=src_data.max(), sum=src_data.sum(), origin="src", n=src_data.size)
-                    regrid_metadata.append(row_data | src_summary)
+                    regrid_metadata.append(row_dict | src_summary)
                     self.log(f"{field_name} before regridding: {src_summary}")
                     dst_field = regridder(src_fwrap.value, dst_fwrap.value)
                     dst_data = dst_field.data
                     dst_summary = dict(mean=dst_data.mean(), min=dst_data.min(), max=dst_data.max(), sum=dst_data.sum(), origin="dst", n=dst_data.size)
-                    regrid_metadata.append(row_data | dst_summary)
+                    regrid_metadata.append(row_dict | dst_summary)
                     self.log(f"{field_name} after regridding: {dst_summary}")
 
                     # Mask edges to reduce model edge effects
                     mask_edges(dst_data)
                     dst_summary_masked = dict(mean=np.nanmean(dst_data), min=np.nanmin(dst_data), max=np.nanmax(dst_data), sum=np.nansum(dst_data), origin="dst_masked", n=dst_data.size)
                     self.log(f"{field_name} after masking: {dst_summary_masked}")
-                    regrid_metadata.append(row_data | dst_summary_masked)
+                    regrid_metadata.append(row_dict | dst_summary_masked)
 
                     # Persist the destination field
                     dst_fwrap.fill_nc_variable(output_file_path)
