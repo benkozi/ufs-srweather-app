@@ -355,7 +355,7 @@ class SmokeDustPreprocessor:
                 output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
                 self.log(f"creating output file: {output_file_path}")
                 with open_nc(output_file_path, "w") as ds:
-                    ds.createDimension("t", None)
+                    ds.createDimension("t", 1) #tdk: need to handle the none time dimension
                     ds.createDimension("lat", grid_out_shape[0])
                     ds.createDimension("lon", grid_out_shape[1])
                     setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
