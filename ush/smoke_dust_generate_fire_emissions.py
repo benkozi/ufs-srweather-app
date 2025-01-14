@@ -573,8 +573,8 @@ class SmokeDustPreprocessor:
         with open_nc(emissions_path, "w", parallel=False) as ds_out:
             self._create_template_emissions_file_(ds_out)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
-                ds_out.variables["geolat"][:] = ds_src.variables["geolat"][:]
-                ds_out.variables["geolon"][:] = ds_src.variables["geolon"][:]
+                ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
+                ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
         import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
