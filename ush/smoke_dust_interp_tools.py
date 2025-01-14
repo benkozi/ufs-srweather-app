@@ -394,7 +394,7 @@ def generate_regridder(
     return regridder, use_dummy_emiss
 
 
-def mask_edges(data: ndarray, mask_width: int = 1) -> ndarray:
+def mask_edges(data: ndarray, mask_width: int = 1) -> None:
     """
     Mask edges of domain for interpolation.
 
@@ -407,7 +407,7 @@ def mask_edges(data: ndarray, mask_width: int = 1) -> ndarray:
     """
     original_shape = data.shape
     if mask_width < 1:
-        return data  # No masking if mask_width is less than 1
+        return  # No masking if mask_width is less than 1
 
     # Mask top and bottom rows
     data[:mask_width, :] = np.nan
@@ -417,8 +417,6 @@ def mask_edges(data: ndarray, mask_width: int = 1) -> ndarray:
     data[:, :mask_width] = np.nan
     data[:, -mask_width:] = np.nan
     assert data.shape == original_shape, "Data shape altered during masking."
-
-    return data
 
 
 def interpolate_rave(

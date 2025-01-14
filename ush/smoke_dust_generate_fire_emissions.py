@@ -36,6 +36,8 @@ from smoke_dust_interpolation import open_nc, create_sd_coordinate_variable, cre
 
 import numpy as np
 
+from smoke_dust_interp_tools import mask_edges
+
 
 @unique
 class PredefinedGrid(StrEnum):
@@ -433,6 +435,13 @@ class SmokeDustPreprocessor:
                     regrid_metadata.append(row_data | dst_summary)
                     self.log(f"{field_name} after regridding: {dst_summary}")
 
+                    # Mask edges to reduce model edge effects
+                    mask_edges(dst_data)
+                    dst_summary_masked = dict(mean=dst_data.nanmean(), min=dst_data.nanmin(), max=dst_data.nanmax(), sum=dst_data.nansum(), origin="dst_masked", n=dst_data.size)
+                    self.log(f"{field_name} after masking: {dst_summary_masked}")
+                    regrid_metadata.append(row_data | dst_summary_masked)
+
+                    # Persist the destination field
                     dst_fwrap.fill_nc_variable(output_file_path)
 
         regrid_metadata_path = self._context.intp_dir / "regrid_metadata.csv"
