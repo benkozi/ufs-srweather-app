@@ -368,7 +368,7 @@ class SmokeDustPreprocessor:
                         case _:
                             raise NotImplementedError(field_name)
 
-                    dst_nc2field = NcToField(path=output_file_path, name=dst_field_name, gwrap=dst_gwrap, dim_time=('time',))
+                    dst_nc2field = NcToField(path=output_file_path, name=dst_field_name, gwrap=dst_gwrap, dim_time=('t',))
                     dst_fwrap = dst_nc2field.create_field_wrapper()
 
                     if first:
