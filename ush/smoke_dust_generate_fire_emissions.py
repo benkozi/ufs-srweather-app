@@ -349,6 +349,7 @@ class SmokeDustPreprocessor:
             self.log(f"grid_out_shape={grid_out_shape}")
 
             first = True
+            regrid_metadata = []
             for row in rave_to_interpolate.iterrows():
                 self.log(f"processing RAVE interpolation row: {row[0]}, {row[1].to_dict()}")
 
@@ -410,22 +411,34 @@ class SmokeDustPreprocessor:
                         first = False
 
                     #tdk: make this smoother; automatically fill masked data maybe
-                    data = src_fwrap.value.data
+                    src_data = src_fwrap.value.data
                     match field_name:
                         case "FRP_MEAN":
-                            data[:] = np.where(data == -1.0, 0.0, data)
+                            src_data[:] = np.where(src_data == -1.0, 0.0, src_data)
                         case "FRE":
-                            data[:] = np.where(data > 1000., data, 0.0)
+                            src_data[:] = np.where(src_data > 1000., src_data, 0.0)
                         case _:
                             raise NotImplementedError(field_name)
 
-                    self.log(f"{field_name} before regridding: {dict(mean=data.mean(), min=data.min(), max=data.max(), sum=data.sum())}")
+                    row_data = deepcopy(row[1].to_dict())
+                    row_data["rave_interpolated"] = output_file_path
+                    row_data["field_name_dst"] = dst_field_name
+                    row_data['field_name_rave'] = field_name
+                    src_summary = dict(mean=src_data.mean(), min=src_data.min(), max=src_data.max(), sum=src_data.sum())
+                    regrid_metadata.append(row_data | src_summary)
+                    self.log(f"{field_name} before regridding: {src_summary}")
                     dst_field = regridder(src_fwrap.value, dst_fwrap.value)
                     dst_data = dst_field.data
-                    self.log(f"{field_name} after regridding: {dict(mean=dst_data.mean(), min=dst_data.min(), max=dst_data.max(), sum=dst_data.sum())}")
+                    dst_summary = dict(mean=dst_data.mean(), min=dst_data.min(), max=dst_data.max(), sum=dst_data.sum())
+                    regrid_metadata.append(row_data | dst_summary)
+                    self.log(f"{field_name} after regridding: {dst_summary}")
 
                     dst_fwrap.fill_nc_variable(output_file_path)
 
+        regrid_metadata_path = self._context.intp_dir / "regrid_metadata.csv"
+        self.log(f"writing regrid metadata: {regrid_metadata_path}")
+        df = pd.DataFrame(data=regrid_metadata)
+        df.to_csv(regrid_metadata_path, index=False)
         import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
