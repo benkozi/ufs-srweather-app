@@ -335,7 +335,7 @@ class SmokeDustPreprocessor:
                 case EbbDCycle.ONE:
                     self._run_average_frp_()
                 case EbbDCycle.TWO:
-                    self._run_emissions_forecast()
+                    self._run_emissions_forecast_()
                 case _:
                     raise NotImplementedError(self._context.ebb_dcycle_flag)
         self.log("run: exiting")
