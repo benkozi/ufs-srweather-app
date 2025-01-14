@@ -495,6 +495,7 @@ class SmokeDustPreprocessor:
         with xr.open_dataset(self._context.grid_out) as ds:
             target_area = ds['area'].values
 
+        ctr = 0
         for row_idx, row_df in self.forecast_metadata.iterrows():
             self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
             with xr.open_dataset(row_df['rave_interpolated']) as ds:
@@ -520,8 +521,48 @@ class SmokeDustPreprocessor:
                         frp_daily += np.where(frp > 0, frp, 0).ravel()
                     case _:
                         raise NotImplementedError(self._context.ebb_dcycle_flag)
+            ctr += 1
 
-            import pdb;pdb.set_trace()
+        if ctr > 0:
+            match self._context.ebb_dcycle_flag:
+                case EbbDCycle.ONE:
+                    frp_avg_reshaped = np.stack(frp_avg_hr, axis=0)
+                    ebb_total_reshaped = np.stack(ebb_smoke_total, axis=0)
+                case EbbDCycle.TWO:
+                    summed_array = np.sum(np.array(ebb_smoke_total), axis=0)
+                    num_zeros = len(ebb_smoke_total) - np.sum(
+                        [arr == 0 for arr in ebb_smoke_total], axis=0
+                    )
+                    safe_zero_count = np.where(num_zeros == 0, 1, num_zeros)
+                    result_array = np.array(
+                        [
+                            (
+                                summed_array[i] / 2
+                                if safe_zero_count[i] == 1
+                                else summed_array[i] / safe_zero_count[i]
+                            )
+                            for i in range(len(safe_zero_count))
+                        ]
+                    )
+                    result_array[num_zeros == 0] = summed_array[num_zeros == 0]
+                    ebb_total = result_array.reshape(self.grid_out_shape)
+                    ebb_total_reshaped = ebb_total / 3600
+                    temp_frp = np.array(
+                        [
+                            (
+                                frp_daily[i] / 2
+                                if safe_zero_count[i] == 1
+                                else frp_daily[i] / safe_zero_count[i]
+                            )
+                            for i in range(len(safe_zero_count))
+                        ]
+                    )
+                    temp_frp[num_zeros == 0] = frp_daily[num_zeros == 0]
+                    frp_avg_reshaped = temp_frp.reshape(*self.grid_out_shape)
+                case _:
+                    raise NotImplementedError(self._context.ebb_dcycle_flag)
+
+        import pdb;pdb.set_trace()
 
     def finalize(self) -> None:
         raise NotImplementedError
