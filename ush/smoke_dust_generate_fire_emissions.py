@@ -346,7 +346,7 @@ class SmokeDustPreprocessor:
                 output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
                 self.log(f"creating output file: {output_file_path}")
                 with open_nc(output_file_path, "w") as ds:
-                    ds.createDimension("time", 1)
+                    ds.createDimension("t", None)
                     ds.createDimension("lat", grid_out_shape[0])
                     ds.createDimension("lon", grid_out_shape[1])
                     setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
@@ -355,6 +355,7 @@ class SmokeDustPreprocessor:
                     create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
                     create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
                     create_sd_variable(ds, "frp_avg_hr", "Mean Fire Radiative Power", "MW", fill_value_str="0.f", fill_value_float=0.0)
+                    create_sd_variable(ds, "FRE", "FRE", "MJ", fill_value_str="0.f", fill_value_float=0.0)
 
                 for field_name in self._context.vars_emis:
 
@@ -362,6 +363,8 @@ class SmokeDustPreprocessor:
                     match field_name:
                         case "FRP_MEAN":
                             dst_field_name = "frp_avg_hr"
+                        case "FRE":
+                            dst_field_name = "FRE"
                         case _:
                             raise NotImplementedError(field_name)
 
@@ -396,10 +399,14 @@ class SmokeDustPreprocessor:
                     match field_name:
                         case "FRP_MEAN":
                             data[:] = np.where(data == -1.0, 0.0, data)
+                        case "FRE":
+                            #tdk: handle missing values like FRP_MEAN
+                            data[:] = np.where(data > 1000., data, 0.0)
                         case _:
                             raise NotImplementedError(field_name)
 
                     self.log(f"{field_name} before regridding: {dict(mean=data.mean(), min=data.min(), max=data.max(), sum=data.sum())}")
+                    dst_field = regridder(src_fwrap.value, dst_fwrap.value)
 
                     import pdb;pdb.set_trace()
 

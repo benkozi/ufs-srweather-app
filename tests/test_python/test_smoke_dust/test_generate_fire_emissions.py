@@ -45,7 +45,8 @@ class GenerateEmissWorkflowArgs:
             # staticdir=comin / 'RRFS_CONUS_13km', #tdk: test with other grids
 
             # ravedir=comin / 'RAVE_fire',
-            ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'),
+            # ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'), #hera
+            ravedir=Path('/work/noaa/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'), #orion
 
             # tdk: make this configurable
             intp_dir=comout / 'intp_dir',
@@ -100,11 +101,13 @@ class TestGenerateFireEmissions(unittest.TestCase):
         shutil.rmtree(self._temp_dir)
 
     def test(self) -> None:
-        comin = Path(
-            "/scratch2/NAGAPE/epic/Ben.Koziol/tmp-smoke-fix-dir") # tdk: needs to point to an actual fixed file directory location
+        # comin = Path("/scratch2/NAGAPE/epic/Ben.Koziol/tmp-smoke-fix-dir") # hera
+        comin = Path("/home/bwkoziol/tmp-smoke-dust-fixed-files/") # orion
         # comin = Path(self._temp_dir)
 
-        main_args = GenerateEmissWorkflowArgs.create(comin, Path("/home/Benjamin.Koziol/htmp/comout"))
+        # comout = "/home/Benjamin.Koziol/htmp/comout" #hera
+        comout = "/home/bwkoziol/comout" #orion
+        main_args = GenerateEmissWorkflowArgs.create(comin, Path(comout))
         logger.debug(main_args)
         main_path = self._ushdir / "smoke_dust_generate_fire_emissions.py"
         with main_args.run_context() as _:

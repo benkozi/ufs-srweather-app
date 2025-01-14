@@ -68,12 +68,12 @@ def create_sd_variable(
         units: Units of the variable to create
         fval: Fill value of the variable to create
     """
-    var_out = fout.createVariable(varname, "f4", ("time", "lat", "lon"), fill_value=fill_value_float)
+    var_out = fout.createVariable(varname, "f4", ("t", "lat", "lon"), fill_value=fill_value_float)
     var_out.units = units
     var_out.long_name = long_name
     var_out.standard_name = long_name
     var_out.FillValue = fill_value_str
-    var_out.coordinates = "time geolat geolon"
+    var_out.coordinates = "t geolat geolon"
 
 
 HasNcAttrsType = Union[nc.Dataset, nc.Variable]
