@@ -23,6 +23,7 @@ import esmpy
 import netCDF4
 import pandas as pd
 from mpi4py import MPI
+from numpy.ma.core import MaskedArray
 from pandas import Index
 
 import smoke_dust_fire_emiss_tools as femmi_tools
@@ -535,8 +536,8 @@ class SmokeDustPreprocessor:
         # self.log("_run_interpolation_postprocessing: exit")
 
     @staticmethod
-    def _create_descriptive_statistics_(container: Dict[str, np.ndarray], origin: Literal["src", "dst", "dst_masked"], path: Path) -> pd.DataFrame:
-        df = pd.DataFrame.from_dict({k: v.filled(np.nan).ravel() for k, v in container})
+    def _create_descriptive_statistics_(container: Dict[str, MaskedArray], origin: Literal["src", "dst", "dst_masked"], path: Path) -> pd.DataFrame:
+        df = pd.DataFrame.from_dict({k: v.filled(np.nan).ravel() for k, v in container.items()})
         desc = df.describe()
         adds = {}
         for field_name in container.keys():
