@@ -488,13 +488,15 @@ class SmokeDustPreprocessor:
     def _interpolation_postprocessing_(self, row_data: pd.Series) -> None:
         self.log("_run_interpolation_postprocessing: enter")
 
-        #tdk: make regrid metadata configurable at a high-level
-        with open_nc(row_data["rave_raw"], parallel=False) as ds:
-            src_desc = self._create_descriptive_statistics_({ii: ds.variables[ii][:] for ii in self._context.vars_emis}, "src", row_data["rave_raw"])
+        calc_stats = self._context.regrid_descriptive_statistics
+        if calc_stats:
+            with open_nc(row_data["rave_raw"], parallel=False) as ds:
+                src_desc = self._create_descriptive_statistics_({ii: ds.variables[ii][:] for ii in self._context.vars_emis}, "src", row_data["rave_raw"])
         field_names_dst = ["frp_avg_hr", "FRE"] #tdk: make this a property or something
         with open_nc(row_data["rave_interpolated"], parallel=False) as ds:
             dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
-        dst_desc_unmasked = self._create_descriptive_statistics_(dst_data, "dst", row_data["rave_interpolated"])
+        if calc_stats:
+            dst_desc_unmasked = self._create_descriptive_statistics_(dst_data, "dst", row_data["rave_interpolated"])
 
         # Mask edges to reduce model edge effects
         self.log("masking edges", level=logging.DEBUG)
@@ -506,7 +508,9 @@ class SmokeDustPreprocessor:
             for k, v in dst_data.items():
                 ds.variables[k][:] = v
 
-        dst_desc_masked = self._create_descriptive_statistics_(dst_data, "dst_masked", row_data["rave_interpolated"])
+        if calc_stats:
+            dst_desc_masked = self._create_descriptive_statistics_(dst_data, "dst_masked", row_data["rave_interpolated"])
+
         import pdb;pdb.set_trace()
 
         #     row_dict["rave_interpolated"] = output_file_path

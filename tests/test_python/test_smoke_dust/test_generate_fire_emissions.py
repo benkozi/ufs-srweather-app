@@ -1,5 +1,8 @@
 from pathlib import Path
 import sys
+
+import numpy as np
+
 sys.path.append(str(Path("../../../ush")))
 
 import logging
@@ -15,6 +18,8 @@ from pathlib import Path
 from typing import Tuple, Dict
 
 from smoke_dust_generate_fire_emissions import generate_emiss_workflow
+from smoke_dust_interp_tools import mask_edges
+from smoke_dust_interpolation import open_nc
 
 logger = logging.getLogger('test_generate_fire_emissions')
 handler = logging.StreamHandler(stream=sys.stdout)
@@ -123,3 +128,17 @@ class TestGenerateFireEmissions(unittest.TestCase):
             # subprocess.check_call(
             #     [python, main_path] + list(
             #         main_args.as_script_args()))  # tdk: figure out python runtime
+
+
+class Test(unittest.TestCase):
+
+    def test_mask_edges(self) -> None:
+        data = np.ma.array(np.ones((3,3)), mask=False)
+        mask_edges(data)
+        with open_nc("foo.nc", "w", parallel=False, clobber=True) as ds:
+            ds.createDimension('d', 3)
+            var = ds.createVariable('tester', 'f4', ('d', 'd'), fill_value=0.)
+            var[:] = data
+        with open_nc("foo.nc", "r", parallel=False) as ds:
+            actual = var[:]
+        assert actual.data.sum() == 1.
