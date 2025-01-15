@@ -84,6 +84,7 @@ class SmokeDustContext:
     current_day: str
     nwges_dir: Path
 
+    regrid_descriptive_statistics: bool = True #tdk: make this a parameter
     beta: float = 0.3
     fg_to_ug: float = 1e6
     to_s: int = 3600
@@ -493,6 +494,7 @@ class SmokeDustPreprocessor:
         with open_nc(row_data["rave_interpolated"], parallel=False) as ds:
             dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
         dst_desc_unmasked = self._create_descriptive_statistics_(dst_data, "dst", row_data["rave_interpolated"])
+        import pdb;pdb.set_trace()
 
         # Mask edges to reduce model edge effects
         self.log("masking edges", level=logging.DEBUG)
