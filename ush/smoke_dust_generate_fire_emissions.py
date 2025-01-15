@@ -499,13 +499,14 @@ class SmokeDustPreprocessor:
         # Mask edges to reduce model edge effects
         self.log("masking edges", level=logging.DEBUG)
         for v in dst_data.values():
-            mask_edges(v)
-        dst_desc_masked = self._create_descriptive_statistics_(dst_data, "dst_masked", row_data["rave_interpolated"])
+            mask_edges(v[0, :, :])
 
+        # Persist masked data to disk
         with open_nc(row_data["rave_interpolated"], parallel=False, mode="a") as ds:
             for k, v in dst_data.items():
                 ds.variables[k][:] = v
 
+        dst_desc_masked = self._create_descriptive_statistics_(dst_data, "dst_masked", row_data["rave_interpolated"])
         import pdb;pdb.set_trace()
 
         #     row_dict["rave_interpolated"] = output_file_path
