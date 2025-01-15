@@ -323,7 +323,7 @@ class SmokeDustPreprocessor:
     def grid_out_shape(self) -> Tuple[int, int]:
         if self._grid_out_shape is not None:
             return self._grid_out_shape
-        with open_nc(self._context.grid_out) as ds:
+        with open_nc(self._context.grid_out, parallel=False) as ds:
             grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
         self.log(f"grid_out_shape={grid_out_shape}")
         self._grid_out_shape = grid_out_shape
