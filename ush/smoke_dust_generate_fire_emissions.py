@@ -365,10 +365,9 @@ class SmokeDustPreprocessor:
 
         first = True
         regrid_metadata = []
-        for row in rave_to_interpolate.iterrows():
-            row_data = row[1]
+        for row_idx, row_data in rave_to_interpolate.iterrows():
             row_dict = row_data.to_dict()
-            self.log(f"processing RAVE interpolation row: {row[0]}, {row_data}")
+            self.log(f"processing RAVE interpolation row: {row_idx}, {row_dict}")
 
             if first:
                 self.log("creating destination grid from RRFS grid file")
@@ -441,13 +440,13 @@ class SmokeDustPreprocessor:
                     src_gwrap = src_nc2grid.create_grid_wrapper()
 
                 self.log("creating source field", level=logging.DEBUG)
-                src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time=('time',))
+                src_nc2field = NcToField(path=row_data['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time=('time',))
                 src_fwrap = src_nc2field.create_field_wrapper()
 
                 if first:
                     self.log("creating regridder")
-                    self.log(f"{src_fwrap.value.shape=}", level=logging.DEBUG)
-                    self.log(f"{dst_fwrap.value.shape=}", level=logging.DEBUG)
+                    self.log(f"{src_fwrap.value.data.shape=}", level=logging.DEBUG)
+                    self.log(f"{dst_fwrap.value.data.shape=}", level=logging.DEBUG)
                     regridder = esmpy.RegridFromFile(src_fwrap.value, dst_fwrap.value,
                                                      filename=str(self._context.weightfile))
                     first = False
@@ -490,7 +489,7 @@ class SmokeDustPreprocessor:
                 dst_fwrap.fill_nc_variable(output_file_path)
 
                 # Update the forecast metadata with the interpolated RAVE file data
-                self.forecast_metadata.loc[row[0], 'rave_interpolated'] = output_file_path
+                self.forecast_metadata.loc[row_idx, 'rave_interpolated'] = output_file_path
 
         regrid_metadata_path = self._context.intp_dir / "regrid_metadata.csv"
         self.log(f"writing regrid metadata: {regrid_metadata_path}")
