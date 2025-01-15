@@ -488,7 +488,7 @@ class SmokeDustPreprocessor:
         with open_nc(row_data['rave_raw'], parallel=False) as ds:
             data = {}
             for field_name in self._context.vars_emis:
-                data[field_name] = ds.variables[field_name][:].filled(np.nan)
+                data[field_name] = ds.variables[field_name][:].filled(np.nan).ravel()
         df = pd.DataFrame.from_dict(data)
         del data
         import pdb;pdb.set_trace()
