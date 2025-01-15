@@ -469,6 +469,7 @@ class SmokeDustPreprocessor:
                 self.log(f"run regridding", level=logging.DEBUG)
                 _ = regridder(src_fwrap.value, dst_fwrap.value)
 
+                import pdb;pdb.set_trace()
                 # Persist the destination field
                 dst_fwrap.fill_nc_variable(output_file_path)
 
