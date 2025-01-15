@@ -33,5 +33,6 @@ rm ~/htmp/comout/intp_dir/* || echo "no interpolation data to remove"
 cd ${TESTDIR}
 git pull
 
+echo "running python unit test"
 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
 #mpirun -n 2 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
