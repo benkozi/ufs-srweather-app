@@ -719,6 +719,7 @@ def generate_emiss_workflow(
     except Exception as e:
         processor.log("unhandled error", exc_info=e)
 
+    return
     import pdb;pdb.set_trace()
 
     # ----------------------------------------------------------------------
