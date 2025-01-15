@@ -492,7 +492,7 @@ class SmokeDustPreprocessor:
         if calc_stats:
             with open_nc(row_data["rave_raw"], parallel=False) as ds:
                 src_desc = self._create_descriptive_statistics_({ii: ds.variables[ii][:] for ii in self._context.vars_emis}, "src", row_data["rave_raw"])
-                src_desc = src_desc.rename({'FRP_MEAN': 'frp_avg_hr'}, inplace=True)
+                src_desc.rename({'FRP_MEAN': 'frp_avg_hr'}, inplace=True)
         field_names_dst = ["frp_avg_hr", "FRE"] #tdk: make this a property or something
         with open_nc(row_data["rave_interpolated"], parallel=False) as ds:
             dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
