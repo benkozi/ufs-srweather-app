@@ -9,8 +9,8 @@
 #SBATCH --output=%x_%j.out
 #SBATCH --error=%x_%j.err
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1  # Assuming 24 cores per node, utilize them fully
-#SBATCH --ntasks=1  # Total tasks should be nodes * tasks-per-node
+#SBATCH --ntasks-per-node=2  # Assuming 24 cores per node, utilize them fully
+#SBATCH --ntasks=2  # Total tasks should be nodes * tasks-per-node
 
 set -e
 
@@ -31,8 +31,8 @@ export PATH=${CONDA_ENV}/bin:${PATH}
 rm ~/htmp/comout/intp_dir/* || echo "no interpolation data to remove"
 
 cd ${TESTDIR}
-git pull
+#git pull
 
 echo "running python unit test"
-python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
-#mpirun -n 2 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
+#python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
+mpirun -n 2 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
