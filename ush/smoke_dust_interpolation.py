@@ -77,7 +77,9 @@ def create_sd_variable(
     var_out.FillValue = fill_value_str
     var_out.coordinates = "t geolat geolon"
     if fill_first_time_index:
+        var_out.set_collective(True)
         var_out[0, :, :] = fill_value_float
+        var_out.set_collective(False)
 
 
 HasNcAttrsType = Union[nc.Dataset, nc.Variable]
