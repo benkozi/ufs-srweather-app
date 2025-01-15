@@ -17,7 +17,7 @@ from enum import unique, StrEnum, IntEnum
 import logging
 import logging.config
 from pathlib import Path
-from typing import Tuple, List, Literal
+from typing import Tuple, List, Literal, Dict
 
 import esmpy
 import netCDF4
@@ -485,7 +485,23 @@ class SmokeDustPreprocessor:
         self.log("_run_interpolation_postprocessing: enter")
 
         #tdk: make regrid metadata configurable at a high-level
-        src_desc = self._create_descriptive_statistics_(self._context.vars_emis, "src", row_data["rave_path"])
+        with open_nc(row_data["rave_raw"], parallel=False) as ds:
+            src_desc = self._create_descriptive_statistics_({ii: ds.variables[ii][:] for ii in self._context.vars_emis}, "src", row_data["rave_raw"])
+        field_names_dst = ["frp_avg_hr", "FRE"] #tdk: make this a property or something
+        with open_nc(row_data["rave_interpolated"], parallel=False) as ds:
+            dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
+        dst_desc_unmasked = self._create_descriptive_statistics_(dst_data, "dst", row_data["rave_interpolated"])
+
+        # Mask edges to reduce model edge effects
+        self.log("masking edges", level=logging.DEBUG)
+        for v in dst_data.values():
+            mask_edges(v)
+        dst_desc_masked = self._create_descriptive_statistics_(dst_data, "dst_masked", row_data["rave_interpolated"])
+
+        with open_nc(row_data["rave_interpolated"], parallel=False, mode="a") as ds:
+            for k, v in dst_data.items():
+                ds.variables[k][:] = v
+
         import pdb;pdb.set_trace()
 
         #     row_dict["rave_interpolated"] = output_file_path
@@ -519,16 +535,11 @@ class SmokeDustPreprocessor:
         # self.log("_run_interpolation_postprocessing: exit")
 
     @staticmethod
-    def _create_descriptive_statistics_(field_names: List[str], origin: Literal["src", "dst", "dst_masked"], path: Path) -> pd.DataFrame:
-        with open_nc(path, parallel=False) as ds:
-            data = {}
-            for field_name in field_names:
-                data[field_name] = ds.variables[field_name][:].filled(np.nan).ravel()
-        df = pd.DataFrame.from_dict(data)
+    def _create_descriptive_statistics_(container: Dict[str, np.ndarray], origin: Literal["src", "dst", "dst_masked"], path: Path) -> pd.DataFrame:
+        df = pd.DataFrame.from_dict({k: v.filled(np.nan).ravel() for k, v in container})
         desc = df.describe()
-        del data
         adds = {}
-        for field_name in field_names:
+        for field_name in container.keys():
             adds[field_name] = [df[field_name].isnull().sum(), origin, path]
         desc = pd.concat([desc, pd.DataFrame(data=adds, index=['count_null', "origin", "path"])])
         return desc
