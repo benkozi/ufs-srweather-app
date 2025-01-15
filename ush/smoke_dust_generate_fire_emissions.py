@@ -207,6 +207,9 @@ class SmokeDustPreprocessor:
         self._grid_out_shape = None
         self._emissions_path = None
 
+        # Holds interpolation descriptive statistics
+        self._interpolation_stats = None
+
         self.log(f"initialization complete. context={self._context}")
 
     # @property
@@ -513,6 +516,11 @@ class SmokeDustPreprocessor:
             dst_desc_masked = self._create_descriptive_statistics_(dst_data, "dst_masked", row_data["rave_interpolated"])
             summary = pd.concat([ii.transpose() for ii in [src_desc, dst_desc_unmasked, dst_desc_masked]])
             summary.index.name = "variable"
+            summary.reset_index(inplace=True)
+            if self._interpolation_stats is None:
+                self._interpolation_stats = summary
+            else:
+                self._interpolation_stats = pd.concat([self._interpolation_stats, summary])
 
         import pdb;pdb.set_trace()
         self.log("_run_interpolation_postprocessing: exit")
