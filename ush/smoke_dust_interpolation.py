@@ -1,6 +1,5 @@
 import abc
 from contextlib import contextmanager
-from enum import unique
 from pathlib import Path
 from typing import Tuple, Literal, Dict, Sequence, Any, Union
 
@@ -19,7 +18,7 @@ def open_nc(
     path: Path,
     mode: Literal["r", "w", "a"] = "r",
     clobber: bool = False,
-    parallel: bool = False, #tdk: test with true when not on orion
+    parallel: bool = True,
 ) -> nc.Dataset:
     ds = nc.Dataset(
         path,
