@@ -469,21 +469,20 @@ class SmokeDustPreprocessor:
                 self.log(f"run regridding", level=logging.DEBUG)
                 _ = regridder(src_fwrap.value, dst_fwrap.value)
 
-                import pdb;pdb.set_trace()
                 # Persist the destination field
                 dst_fwrap.fill_nc_variable(output_file_path)
 
-                # Update the forecast metadata with the interpolated RAVE file data
-                self.forecast_metadata.loc[row_idx, 'rave_interpolated'] = output_file_path
-                row_data['rave_interpolated'] = output_file_path
+            # Update the forecast metadata with the interpolated RAVE file data
+            self.forecast_metadata.loc[row_idx, 'rave_interpolated'] = output_file_path
+            row_data['rave_interpolated'] = output_file_path
 
                 #tdk:mpi: need to figure out how to make this collective
                 # regrid_metadata_path = self._context.intp_dir / "regrid_metadata.csv"
                 # self.log(f"writing regrid metadata: {regrid_metadata_path}")
                 # df = pd.DataFrame(data=regrid_metadata)
                 # df.to_csv(regrid_metadata_path, index=False)
-                if self._rank == 0:
-                    self._interpolation_postprocessing_(row_data)
+            if self._rank == 0:
+                self._interpolation_postprocessing_(row_data)
 
     def _interpolation_postprocessing_(self, row_data: pd.Series) -> None:
         self.log("_run_interpolation_postprocessing: enter")
@@ -495,7 +494,6 @@ class SmokeDustPreprocessor:
         with open_nc(row_data["rave_interpolated"], parallel=False) as ds:
             dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
         dst_desc_unmasked = self._create_descriptive_statistics_(dst_data, "dst", row_data["rave_interpolated"])
-        import pdb;pdb.set_trace()
 
         # Mask edges to reduce model edge effects
         self.log("masking edges", level=logging.DEBUG)
