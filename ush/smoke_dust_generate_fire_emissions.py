@@ -151,8 +151,12 @@ class SmokeDustContext:
         return cls(**kwds)
 
     @staticmethod
-    def _format_read_path_(value: str) -> Path:
-        path = Path(value)
+    def _format_path_(value: Path | str) -> Path:
+        return Path(value).expanduser().resolve(strict=True)
+
+    @classmethod
+    def _format_read_path_(cls, value: str) -> Path:
+        path = cls._format_path_(value)
         errors = []
         if not path.exists():
             errors.append(f"path does not exist: {path}")
@@ -164,9 +168,9 @@ class SmokeDustContext:
             raise OSError(errors)
         return path
 
-    @staticmethod
-    def _format_write_path_(value: str) -> Path:
-        path = Path(value)
+    @classmethod
+    def _format_write_path_(cls, value: str) -> Path:
+        path = cls._format_path_(value)
         errors = []
         if not path.exists():
             errors.append(f"path does not exist: {path}")
