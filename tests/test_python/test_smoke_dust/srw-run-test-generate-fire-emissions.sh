@@ -6,8 +6,10 @@
 #SBATCH --partition=hera
 #_SBATCH --partition=bigmem
 #SBATCH -t 00:01:00
-#SBATCH --output=%x_%j.out
-#SBATCH --error=%x_%j.err
+#SBATCH --output=%x.out
+#SBATCH --error=%x.err
+#_SBATCH --output=%x_%j.out
+#_SBATCH --error=%x_%j.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=2  # Assuming 24 cores per node, utilize them fully
 #SBATCH --ntasks=2  # Total tasks should be nodes * tasks-per-node
