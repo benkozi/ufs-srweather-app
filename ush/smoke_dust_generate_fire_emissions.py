@@ -470,6 +470,7 @@ class SmokeDustPreprocessor:
                 _ = regridder(src_fwrap.value, dst_fwrap.value)
 
                 # Persist the destination field
+                self.log(f"filling netcdf", level=logging.DEBUG)
                 dst_fwrap.fill_nc_variable(output_file_path)
 
             # Update the forecast metadata with the interpolated RAVE file data
@@ -494,7 +495,7 @@ class SmokeDustPreprocessor:
         with open_nc(row_data["rave_interpolated"], parallel=False) as ds:
             dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
         dst_desc_unmasked = self._create_descriptive_statistics_(dst_data, "dst", row_data["rave_interpolated"])
-
+        import pdb;pdb.set_trace()
         # Mask edges to reduce model edge effects
         self.log("masking edges", level=logging.DEBUG)
         for v in dst_data.values():
@@ -543,8 +544,8 @@ class SmokeDustPreprocessor:
         desc = df.describe()
         adds = {}
         for field_name in container.keys():
-            adds[field_name] = [df[field_name].isnull().sum(), origin, path]
-        desc = pd.concat([desc, pd.DataFrame(data=adds, index=['count_null', "origin", "path"])])
+            adds[field_name] = [df[field_name].sum(), df[field_name].isnull().sum(), origin, path]
+        desc = pd.concat([desc, pd.DataFrame(data=adds, index=['sum', 'count_null', "origin", "path"])])
         return desc
 
     def _run_average_frp_(self):
