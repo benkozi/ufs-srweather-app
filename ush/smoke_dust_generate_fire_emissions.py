@@ -325,7 +325,7 @@ class SmokeDustPreprocessor:
             return self._grid_out_shape
         with open_nc(self._context.grid_out, parallel=False) as ds:
             grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
-        self.log(f"grid_out_shape={grid_out_shape}")
+        self.log(f"{grid_out_shape=}")
         self._grid_out_shape = grid_out_shape
         return self._grid_out_shape
 
@@ -338,7 +338,7 @@ class SmokeDustPreprocessor:
 
     def run(self) -> None:
         self.log("run: entering")
-        self.log(f"is_first_day={self.is_first_day}")
+        self.log(f"is_firs{self.is_first_day=}")
         if self.is_first_day:
             #tdk: implement creation of dummy emissions file
             raise NotImplementedError("is_first_day=True not implemented")
