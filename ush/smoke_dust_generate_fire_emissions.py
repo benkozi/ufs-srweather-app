@@ -193,12 +193,13 @@ class SmokeDustPreprocessor:
     def __init__(self, args: List[str]) -> None:
         self._context = SmokeDustContext.create_from_args(args)
         self._logger = self._init_logging_()
-        self.log(f"initialization complete. context={self._context}")
 
-        # self._forecast_dates = None
-        # self._intp_avail_hours = None
+        # On-demand/cached property values
         self._forecast_metadata = None
         self._grid_out_shape = None
+        self._emissions_path = None
+
+        self.log(f"initialization complete. context={self._context}")
 
     # @property
     # def forecast_dates(self) -> pd.DatetimeIndex:
@@ -276,6 +277,7 @@ class SmokeDustPreprocessor:
             "%Y%m%d%H"
         )
 
+        # Collect metadata on RAVE input files
         intp_path = []
         rave_to_forecast = []
         for date in forecast_dates:
@@ -321,13 +323,19 @@ class SmokeDustPreprocessor:
         self._grid_out_shape = grid_out_shape
         return self._grid_out_shape
 
+    @property
+    def emissions_path(self) -> Path:
+        if self._emissions_path is not None:
+            return self._emissions_path
+        self._emissions_path = self._context.intp_dir / f"SMOKE_RRFS_data_{self._context.current_day}00.nc"
+        return self._emissions_path
 
     def run(self) -> None:
         self.log("run: entering")
         self.log(f"is_first_day={self.is_first_day}")
         if self.is_first_day:
             #tdk: implement creation of dummy emissions file
-            raise NotImplementedError("is_first_day is not yet implemented")
+            raise NotImplementedError("is_first_day=True not implemented")
         else:
             #tdk: need try/catch to use dummy emissions if regridding fails or no rave data is available
             self._run_interpolation_()
@@ -342,7 +350,6 @@ class SmokeDustPreprocessor:
 
     def _run_interpolation_(self):
         #tdk:last: refactor to method
-
 
         # Select which RAVE files need to be interpolated
         rave_to_interpolate = self.forecast_metadata[
@@ -567,9 +574,8 @@ class SmokeDustPreprocessor:
         self.log(f"frp_avg_reshaped nan count={np.isnan(frp_avg_reshaped).sum()}")
         self.log(f"ebb_total_reshaped nan count={np.isnan(ebb_total_reshaped).sum()}")
 
-        emissions_path = self._context.intp_dir / f"SMOKE_RRFS_data_{self._context.current_day}00.nc"
-        self.log(f"creating emissions file: {emissions_path}")
-        with open_nc(emissions_path, "w", parallel=False, clobber=True) as ds_out:
+        self.log(f"creating emissions file: {self.emissions_path}")
+        with open_nc(self.emissions_path, "w", parallel=False, clobber=True) as ds_out:
             self._create_template_emissions_file_(ds_out)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
@@ -582,13 +588,12 @@ class SmokeDustPreprocessor:
                 ds_out, "ebb_smoke_hr", "EBB emissions", "ug m-2 s-1", "0.f", 0.
             )
             ds_out.variables["ebb_smoke_hr"][:] = ebb_total_reshaped
-        import pdb;pdb.set_trace()
 
     def _run_emissions_forecast_(self) -> None:
         self.log("running emissions forecast")
-        import pdb;pdb.set_trace()
+        raise NotImplementedError(EbbDCycle.TWO)
 
-    def _create_template_emissions_file_(self, ds):
+    def _create_template_emissions_file_(self, ds: netCDF4.Dataset):
         ds.createDimension("t", None)
         ds.createDimension("lat", self.grid_out_shape[0])
         ds.createDimension("lon", self.grid_out_shape[1])
@@ -598,8 +603,26 @@ class SmokeDustPreprocessor:
         create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
         create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
 
+    def _create_dummy_emissions_file_(self) -> None:
+        self.log("_create_dummy_emissions_file_: enter")
+        self.log(f"emissions_path: {self.emissions_path}")
+        with open_nc(self.emissions_path, "w", parallel=False, clobber=True) as ds:
+            self._create_template_emissions_file_(ds)
+            with open_nc(self._context.grid_out, parallel=False) as ds_src:
+                ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
+                ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
+
+            create_sd_variable(ds, "frp_davg", "Daily mean Fire Radiative Power", "MW", "0.f", 0.)
+            create_sd_variable(ds, "ebb_rate", "Total EBB emission", "ug m-2 s-1", "0.f", 0.)
+            create_sd_variable(ds, "fire_end_hr", "Hours since fire was last detected", "hrs", "0.f", 0.)
+            create_sd_variable(
+                ds, "hwp_davg", "Daily mean Hourly Wildfire Potential", "none", "0.f", 0.
+            )
+            create_sd_variable(ds, "totprcp_24hrs", "Sum of precipitation", "m", "0.f", 0.)
+        self.log("_create_dummy_emissions_file_: exit")
+
     def finalize(self) -> None:
-        raise NotImplementedError
+        self.log('finalize: exiting')
 
     def log(self,
             msg,
@@ -678,6 +701,7 @@ def generate_emiss_workflow(
         # import pdb;pdb.set_trace()
         # tdk
         processor.run()
+        processor.finalize()
     except Exception as e:
         processor.log("unhandled error", exc_info=e)
 

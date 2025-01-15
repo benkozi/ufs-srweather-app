@@ -1,7 +1,7 @@
 import abc
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Tuple, Literal, Dict, Sequence, Any, Union, List
+from typing import Tuple, Literal, Dict, Sequence, Any, Union
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
@@ -34,20 +34,20 @@ def open_nc(
         ds.close()
 
 def create_sd_coordinate_variable(
-    fout: nc.Dataset, varname: str, long_name: str, units: str, fill_value_str: str, fill_value_float: float
+    ds: nc.Dataset, varname: str, long_name: str, units: str, fill_value_str: str, fill_value_float: float
 ) -> None:
     """
-    Store a 2D variable (latitude/longitude) in the file.
-    #tdk: docs
+    Create a smoke/dust netCDF spatial coordinate variable.
+
     Args:
-        fout: Dataset to update
+        ds: Dataset to update
         varname: Variable name to create
-        var: Variable data to store
         long_name: Variable long name
         units: Variable units
-        fval: Variable fill value
+        fill_value_str: The string representation of the fill value
+        fill_value_float: The float representation of the fill value
     """
-    var_out = fout.createVariable(varname, "f4", ("lat", "lon"), fill_value=fill_value_float)
+    var_out = ds.createVariable(varname, "f4", ("lat", "lon"), fill_value=fill_value_float)
     var_out.units = units
     var_out.long_name = long_name
     var_out.standard_name = varname
@@ -56,24 +56,27 @@ def create_sd_coordinate_variable(
 
 
 def create_sd_variable(
-    fout: nc.Dataset, varname: str, long_name: str, units: str, fill_value_str: str, fill_value_float: float
+    ds: nc.Dataset, varname: str, long_name: str, units: str, fill_value_str: str, fill_value_float: float, fill: bool = True
 ) -> None:
     """
-    Store a 3D variable (time, latitude/longitude) in the file.
-    #tdk: doc
+    Create a smoke/dust netCDF variable.
+
     Args:
-        fout: Dataset to update
+        ds: Dataset to update
         varname: Name of the variable to create
         long_name: Long name of the variable to create
         units: Units of the variable to create
-        fval: Fill value of the variable to create
+        fill_value_str: The string representation of the fill value
+        fill_value_float: The float representation of the fill value
+        fill: If True, fill the variable with provided `fill_value_float`
     """
-    var_out = fout.createVariable(varname, "f4", ("t", "lat", "lon"), fill_value=fill_value_float)
+    var_out = ds.createVariable(varname, "f4", ("t", "lat", "lon"), fill_value=fill_value_float)
     var_out.units = units
     var_out.long_name = long_name
     var_out.standard_name = long_name
     var_out.FillValue = fill_value_str
     var_out.coordinates = "t geolat geolon"
+    var_out[:].fill(fill_value_float)
 
 
 HasNcAttrsType = Union[nc.Dataset, nc.Variable]
