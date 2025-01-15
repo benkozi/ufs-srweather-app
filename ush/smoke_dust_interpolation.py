@@ -77,9 +77,17 @@ def create_sd_variable(
     var_out.FillValue = fill_value_str
     var_out.coordinates = "t geolat geolon"
     if fill_first_time_index:
-        var_out.set_collective(True)
+        try:
+            var_out.set_collective(True)
+        except RuntimeError:
+            # Allow this function to work with parallel and non-parallel datasets. If the dataset is not opened in parallel
+            # this error message is returned: RuntimeError: NetCDF: Parallel operation on file opened for non-parallel access
+            pass
         var_out[0, :, :] = fill_value_float
-        var_out.set_collective(False)
+        try:
+            var_out.set_collective(False)
+        except RuntimeError:
+            pass
 
 
 HasNcAttrsType = Union[nc.Dataset, nc.Variable]

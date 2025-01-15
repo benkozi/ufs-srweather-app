@@ -353,9 +353,6 @@ class SmokeDustPreprocessor:
                         self._run_emissions_forecast_()
                     case _:
                         raise NotImplementedError(self._context.ebb_dcycle_flag)
-            else:
-                self.log("waiting for EbbDCycle")
-            self._comm.barrier()
         self.log("run: exiting")
 
     def _run_interpolation_(self):
