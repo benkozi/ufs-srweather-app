@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --job-name=test_generate_fire_emissions
+#SBATCH --job-name=job-test_generate_fire_emissions
 #SBATCH --account=epic
 #SBATCH --qos=batch
 #SBATCH --partition=hera
