@@ -30,7 +30,7 @@ export ESMFMKFILE=${CONDA_ENV}/lib/esmf.mk
 export PATH=${CONDA_ENV}/bin:${PATH}
 
 # Comment to skip regridding (if it has been completed)
-#rm ~/htmp/comout/intp_dir/* || echo "no interpolation data to remove"
+rm ~/htmp/comout/intp_dir/* || echo "no interpolation data to remove"
 
 cd ${TESTDIR}
 #git pull
