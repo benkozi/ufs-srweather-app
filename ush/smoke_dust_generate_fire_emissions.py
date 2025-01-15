@@ -338,7 +338,7 @@ class SmokeDustPreprocessor:
 
     def run(self) -> None:
         self.log("run: entering")
-        self.log(f"is_firs{self.is_first_day=}")
+        self.log(f"{self.is_first_day=}")
         if self.is_first_day:
             #tdk: implement creation of dummy emissions file
             raise NotImplementedError("is_first_day=True not implemented")
@@ -367,7 +367,6 @@ class SmokeDustPreprocessor:
             return
 
         first = True
-        regrid_metadata = []
         for row_idx, row_data in rave_to_interpolate.iterrows():
             row_dict = row_data.to_dict()
             self.log(f"processing RAVE interpolation row: {row_idx}, {row_dict}")
@@ -464,33 +463,9 @@ class SmokeDustPreprocessor:
                     case _:
                         raise NotImplementedError(field_name)
 
-                #tdk:mpi move summary to separate serial operation
-                # row_dict["rave_interpolated"] = output_file_path
-                # row_dict["field_name_dst"] = dst_field_name
-                # row_dict['field_name_rave'] = field_name
-                # src_summary = dict(mean=src_data.mean(), min=src_data.min(), max=src_data.max(), sum=src_data.sum(),
-                #                    origin="src", n=src_data.size)
-                # regrid_metadata.append(row_dict | src_summary)
-                # self.log(f"{field_name} before regridding: {src_summary}", level=logging.DEBUG)
-
                 # Execute the ESMF regridding
                 self.log(f"run regridding", level=logging.DEBUG)
                 _ = regridder(src_fwrap.value, dst_fwrap.value)
-
-                #tdk:move summary to separate serial operation
-                # dst_data = dst_field.data
-                # dst_summary = dict(mean=dst_data.mean(), min=dst_data.min(), max=dst_data.max(), sum=dst_data.sum(),
-                #                    origin="dst", n=dst_data.size)
-                # regrid_metadata.append(row_dict | dst_summary)
-                # self.log(f"{field_name} after regridding: {dst_summary}", level=logging.DEBUG)
-
-                #tdk:mpi: needs to happen on a single rank
-                # Mask edges to reduce model edge effects
-                # mask_edges(dst_data)
-                # dst_summary_masked = dict(mean=np.nanmean(dst_data), min=np.nanmin(dst_data), max=np.nanmax(dst_data),
-                #                           sum=np.nansum(dst_data), origin="dst_masked", n=dst_data.size)
-                # self.log(f"{field_name} after masking: {dst_summary_masked}", level=logging.DEBUG)
-                # regrid_metadata.append(row_dict | dst_summary_masked)
 
                 # Persist the destination field
                 dst_fwrap.fill_nc_variable(output_file_path)
@@ -498,11 +473,51 @@ class SmokeDustPreprocessor:
                 # Update the forecast metadata with the interpolated RAVE file data
                 self.forecast_metadata.loc[row_idx, 'rave_interpolated'] = output_file_path
 
-        #tdk:mpi: need to figure out how to make this collective
+                #tdk:mpi: need to figure out how to make this collective
+                # regrid_metadata_path = self._context.intp_dir / "regrid_metadata.csv"
+                # self.log(f"writing regrid metadata: {regrid_metadata_path}")
+                # df = pd.DataFrame(data=regrid_metadata)
+                # df.to_csv(regrid_metadata_path, index=False)
+                if self._rank == 0:
+                    self._interpolation_postprocessing_(row_data)
+
+    def _interpolation_postprocessing_(self, row_data: pd.Series) -> None:
+        self.log("_run_interpolation_postprocessing: enter")
+
+        regrid_metadata = []
+        with open_nc(row_data['rave_raw'], parallel=False) as ds:
+            for field_name in self._context.vars_emis:
+                import pdb;pdb.set_trace()
+
+        #     row_dict["rave_interpolated"] = output_file_path
+        #     row_dict["field_name_dst"] = dst_field_name
+        #     row_dict['field_name_rave'] = field_name
+        #     src_summary = dict(mean=src_data.mean(), min=src_data.min(), max=src_data.max(), sum=src_data.sum(),
+        #                        origin="src", n=src_data.size)
+        #     regrid_metadata.append(row_dict | src_summary)
+        #     self.log(f"{field_name} before regridding: {src_summary}", level=logging.DEBUG)
+        #
+        #     tdk:move summary to separate serial operation
+        #     dst_data = dst_field.data
+        #     dst_summary = dict(mean=dst_data.mean(), min=dst_data.min(), max=dst_data.max(), sum=dst_data.sum(),
+        #                        origin="dst", n=dst_data.size)
+        #     regrid_metadata.append(row_dict | dst_summary)
+        #     self.log(f"{field_name} after regridding: {dst_summary}", level=logging.DEBUG)
+        #
+        #     tdk:mpi: needs to happen on a single rank
+        #     Mask edges to reduce model edge effects
+        #     mask_edges(dst_data)
+        #     dst_summary_masked = dict(mean=np.nanmean(dst_data), min=np.nanmin(dst_data), max=np.nanmax(dst_data),
+        #                               sum=np.nansum(dst_data), origin="dst_masked", n=dst_data.size)
+        #     self.log(f"{field_name} after masking: {dst_summary_masked}", level=logging.DEBUG)
+        #     regrid_metadata.append(row_dict | dst_summary_masked)
+        #
+        # tdk:mpi: need to figure out how to make this collective
         # regrid_metadata_path = self._context.intp_dir / "regrid_metadata.csv"
         # self.log(f"writing regrid metadata: {regrid_metadata_path}")
         # df = pd.DataFrame(data=regrid_metadata)
         # df.to_csv(regrid_metadata_path, index=False)
+        # self.log("_run_interpolation_postprocessing: exit")
 
     def _run_average_frp_(self):
         self.log("averaging FRP")
