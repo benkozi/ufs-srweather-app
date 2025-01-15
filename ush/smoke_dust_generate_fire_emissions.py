@@ -511,7 +511,7 @@ class SmokeDustPreprocessor:
 
         if calc_stats:
             dst_desc_masked = self._create_descriptive_statistics_(dst_data, "dst_masked", row_data["rave_interpolated"])
-            summary = pd.concat([ii.tranpose() for ii in [src_desc, dst_desc_unmasked, dst_desc_masked]])
+            summary = pd.concat([ii.transpose() for ii in [src_desc, dst_desc_unmasked, dst_desc_masked]])
             summary.index.name = "variable"
 
         import pdb;pdb.set_trace()
