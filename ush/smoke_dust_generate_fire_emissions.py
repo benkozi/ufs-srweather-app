@@ -496,7 +496,7 @@ class SmokeDustPreprocessor:
         adds = {}
         for field_name in self._context.vars_emis:
             adds[field_name] = [df[field_name].isnull().sum()]
-        desc = pd.concat([desc, adds], index=['null_count'])
+        desc = pd.concat([desc, pd.DataFrame(data=adds, index=['null_count'])])
         import pdb;pdb.set_trace()
 
         #     row_dict["rave_interpolated"] = output_file_path
