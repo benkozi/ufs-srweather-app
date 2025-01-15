@@ -468,6 +468,8 @@ class SmokeDustPreprocessor:
                 self.log(f"{field_name} before regridding: {src_summary}", level=logging.DEBUG)
 
                 # Execute the ESMF regridding
+                self.log(f"{src_fwrap.value.shape=}", level=logging.DEBUG)
+                self.log(f"{dst_fwrap.value.shape=}", level=logging.DEBUG)
                 dst_field = regridder(src_fwrap.value, dst_fwrap.value)
 
                 dst_data = dst_field.data
