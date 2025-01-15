@@ -473,6 +473,7 @@ class SmokeDustPreprocessor:
 
                 # Update the forecast metadata with the interpolated RAVE file data
                 self.forecast_metadata.loc[row_idx, 'rave_interpolated'] = output_file_path
+                row_data['rave_interpolated'] = output_file_path
 
                 #tdk:mpi: need to figure out how to make this collective
                 # regrid_metadata_path = self._context.intp_dir / "regrid_metadata.csv"
