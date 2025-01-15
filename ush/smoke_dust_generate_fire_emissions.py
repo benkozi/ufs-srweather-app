@@ -196,6 +196,8 @@ class SmokeDustPreprocessor:
 
     def __init__(self, args: List[str]) -> None:
         self._context = SmokeDustContext.create_from_args(args)
+        self._comm = MPI.COMM_WORLD
+        self._rank = self._comm.Get_rank()
         self._logger = self._init_logging_()
 
         # On-demand/cached property values
@@ -644,15 +646,15 @@ class SmokeDustPreprocessor:
 
     def _init_logging_(self) -> logging.Logger:
         project_name = "smoke-dust-preprocessor"
-        rank = MPI.COMM_WORLD.Get_rank()
+
         logging_config: dict = {
             "version": 1,
             "disable_existing_loggers": False,
             "formatters": {
                 "plain": {
-                    # Uncomment to report the full path to the file
-                    # "format": f"[%(name)s][%(levelname)s][%(asctime)s][%(pathname)s:%(lineno)d][%(process)d][%(thread)d][{rank}]: %(message)s"
-                    "format": f"[%(name)s][%(levelname)s][%(asctime)s][%(filename)s:%(lineno)d][%(process)d][%(thread)d][{rank}]: %(message)s"
+                    # Uncomment to report verbose output in logs; try to keep these two in sync
+                    # "format": f"[%(name)s][%(levelname)s][%(asctime)s][%(pathname)s:%(lineno)d][%(process)d][%(thread)d][rank={self._rank}]: %(message)s"
+                    "format": f"[%(name)s][%(levelname)s][%(asctime)s][%(filename)s:%(lineno)d][rank={self._rank}]: %(message)s"
                 },
             },
             "handlers": {
