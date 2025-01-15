@@ -418,6 +418,7 @@ class SmokeDustPreprocessor:
                     case _:
                         raise NotImplementedError(field_name)
 
+                self.log("creating destination field", level=logging.DEBUG)
                 dst_nc2field = NcToField(path=output_file_path, name=dst_field_name, gwrap=dst_output_gwrap,
                                          dim_time=('t',))
                 dst_fwrap = dst_nc2field.create_field_wrapper()
@@ -439,12 +440,14 @@ class SmokeDustPreprocessor:
                     )
                     src_gwrap = src_nc2grid.create_grid_wrapper()
 
-                self.log("creating source field")
+                self.log("creating source field", level=logging.DEBUG)
                 src_nc2field = NcToField(path=row[1]['rave_raw'], name=field_name, gwrap=src_gwrap, dim_time=('time',))
                 src_fwrap = src_nc2field.create_field_wrapper()
 
                 if first:
                     self.log("creating regridder")
+                    self.log(f"{src_fwrap.value.shape=}", level=logging.DEBUG)
+                    self.log(f"{dst_fwrap.value.shape=}", level=logging.DEBUG)
                     regridder = esmpy.RegridFromFile(src_fwrap.value, dst_fwrap.value,
                                                      filename=str(self._context.weightfile))
                     first = False
@@ -468,8 +471,6 @@ class SmokeDustPreprocessor:
                 self.log(f"{field_name} before regridding: {src_summary}", level=logging.DEBUG)
 
                 # Execute the ESMF regridding
-                self.log(f"{src_fwrap.value.shape=}", level=logging.DEBUG)
-                self.log(f"{dst_fwrap.value.shape=}", level=logging.DEBUG)
                 dst_field = regridder(src_fwrap.value, dst_fwrap.value)
 
                 dst_data = dst_field.data

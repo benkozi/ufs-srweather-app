@@ -1,5 +1,6 @@
 import abc
 from contextlib import contextmanager
+from enum import unique
 from pathlib import Path
 from typing import Tuple, Literal, Dict, Sequence, Any, Union
 
@@ -56,7 +57,7 @@ def create_sd_coordinate_variable(
 
 
 def create_sd_variable(
-    ds: nc.Dataset, varname: str, long_name: str, units: str, fill_value_str: str, fill_value_float: float, fill: bool = True
+    ds: nc.Dataset, varname: str, long_name: str, units: str, fill_value_str: str, fill_value_float: float, fill_first_time_index: bool = True
 ) -> None:
     """
     Create a smoke/dust netCDF variable.
@@ -68,7 +69,7 @@ def create_sd_variable(
         units: Units of the variable to create
         fill_value_str: The string representation of the fill value
         fill_value_float: The float representation of the fill value
-        fill: If True, fill the variable with provided `fill_value_float`
+        fill_first_time_index: If True, fill the first time index with provided `fill_value_float`
     """
     var_out = ds.createVariable(varname, "f4", ("t", "lat", "lon"), fill_value=fill_value_float)
     var_out.units = units
@@ -76,7 +77,8 @@ def create_sd_variable(
     var_out.standard_name = long_name
     var_out.FillValue = fill_value_str
     var_out.coordinates = "t geolat geolon"
-    var_out[:].fill(fill_value_float)
+    if fill_first_time_index:
+        var_out[0, :, :] = fill_value_float
 
 
 HasNcAttrsType = Union[nc.Dataset, nc.Variable]
