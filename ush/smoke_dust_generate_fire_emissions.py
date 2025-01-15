@@ -484,13 +484,19 @@ class SmokeDustPreprocessor:
     def _interpolation_postprocessing_(self, row_data: pd.Series) -> None:
         self.log("_run_interpolation_postprocessing: enter")
 
+        #tdk: make regrid metadata configurable at a high-level
         regrid_metadata = []
         with open_nc(row_data['rave_raw'], parallel=False) as ds:
             data = {}
             for field_name in self._context.vars_emis:
                 data[field_name] = ds.variables[field_name][:].filled(np.nan).ravel()
         df = pd.DataFrame.from_dict(data)
+        desc = df.describe()
         del data
+        adds = {}
+        for field_name in self._context.vars_emis:
+            adds[field_name] = [df[field_name].isnull().sum()]
+        desc = pd.concat([desc, adds], index=['null_count'])
         import pdb;pdb.set_trace()
 
         #     row_dict["rave_interpolated"] = output_file_path
