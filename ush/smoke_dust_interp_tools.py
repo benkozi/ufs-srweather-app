@@ -8,6 +8,7 @@ import os
 import fnmatch
 import xarray as xr
 import numpy as np
+from esmpy import MaskedArray
 from netCDF4 import Dataset
 from numpy import ndarray
 from pandas import Index
@@ -394,29 +395,35 @@ def generate_regridder(
     return regridder, use_dummy_emiss
 
 
-def mask_edges(data: ndarray, mask_width: int = 1) -> None:
+def mask_edges(data: MaskedArray, mask_width: int = 1) -> None:
     """
     Mask edges of domain for interpolation.
 
     Args:
-        data: The numpy array to mask
+        data: The masked array to alter
         mask_width: The width of the mask at each edge
 
     Returns:
         A numpy array of the masked edges
     """
+    if data.ndim != 2:
+        raise ValueError(f"{data.ndim=}")
+
     original_shape = data.shape
     if mask_width < 1:
         return  # No masking if mask_width is less than 1
 
+    target = data.mask
     # Mask top and bottom rows
-    data[:mask_width, :] = np.nan
-    data[-mask_width:, :] = np.nan
+    target[:mask_width, :] = True
+    target[-mask_width:, :] = True
 
     # Mask left and right columns
-    data[:, :mask_width] = np.nan
-    data[:, -mask_width:] = np.nan
-    assert data.shape == original_shape, "Data shape altered during masking."
+    target[:, :mask_width] = True
+    target[:, -mask_width:] = True
+
+    if data.shape != original_shape:
+        raise ValueError("Data shape altered during masking.")
 
 
 def interpolate_rave(

@@ -495,7 +495,7 @@ class SmokeDustPreprocessor:
         with open_nc(row_data["rave_interpolated"], parallel=False) as ds:
             dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
         dst_desc_unmasked = self._create_descriptive_statistics_(dst_data, "dst", row_data["rave_interpolated"])
-        import pdb;pdb.set_trace()
+
         # Mask edges to reduce model edge effects
         self.log("masking edges", level=logging.DEBUG)
         for v in dst_data.values():
