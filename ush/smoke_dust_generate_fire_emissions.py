@@ -486,8 +486,12 @@ class SmokeDustPreprocessor:
 
         regrid_metadata = []
         with open_nc(row_data['rave_raw'], parallel=False) as ds:
+            data = {}
             for field_name in self._context.vars_emis:
-                import pdb;pdb.set_trace()
+                data[field_name] = ds.variables[field_name][:].filled(np.nan)
+        df = pd.DataFrame.from_dict(data)
+        del data
+        import pdb;pdb.set_trace()
 
         #     row_dict["rave_interpolated"] = output_file_path
         #     row_dict["field_name_dst"] = dst_field_name
