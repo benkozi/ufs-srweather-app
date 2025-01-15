@@ -37,4 +37,4 @@ cd ${TESTDIR}
 
 echo "running python unit test"
 #python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
-mpirun -n 24 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
+mpirun -n 8 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
