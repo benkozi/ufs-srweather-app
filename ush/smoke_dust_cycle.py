@@ -84,6 +84,7 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
             ds_out.variables[DerivedVariable.EBB_TOTAL.value][:] = derived[DerivedVariable.EBB_TOTAL]
 
     def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[DerivedVariable, np.ndarray]:
+        #tdk:story: refactor to share code with other cycle
         ebb_smoke_total = []
         frp_avg_hr = []
 
