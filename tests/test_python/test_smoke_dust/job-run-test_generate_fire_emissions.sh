@@ -29,12 +29,8 @@ CONDA_ENV=/scratch2/NAGAPE/epic/Ben.Koziol/miniconda/envs/regrid-wrapper
 export ESMFMKFILE=${CONDA_ENV}/lib/esmf.mk
 export PATH=${CONDA_ENV}/bin:${PATH}
 
-# Comment to skip regridding (if it has been completed)
-rm ~/htmp/comout/intp_dir/* || echo "no interpolation data to remove"
-
 cd ${TESTDIR}
-#git pull
 
 echo "running python unit test"
-python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
-#mpirun -n 2 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
+#python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
+mpirun -n 2 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py

@@ -70,6 +70,7 @@ class LogLevel(StrEnum):
 
 @dataclass
 class SmokeDustContext:
+    # Values provided via command-line
     staticdir: Path
     ravedir: Path
     intp_dir: Path
@@ -81,11 +82,11 @@ class SmokeDustContext:
     log_level: LogLevel
     # rave_qa_flag_filter: RaveQaFilter
 
+    # Values provided via environment
     current_day: str
     nwges_dir: Path
 
     calculate_descriptive_interpolation_statistics: bool = True #tdk: make this a parameter
-
     beta: float = 0.3
     fg_to_ug: float = 1e6
     to_s: int = 3600
@@ -114,6 +115,14 @@ class SmokeDustContext:
     @property
     def hourly_hwpdir(self) -> Path:
         return self.nwges_dir / "hourly_hwpdir.nc"
+
+    @property
+    def emissions_path(self) -> Path:
+        return self.intp_dir / f"SMOKE_RRFS_data_{self.current_day}00.nc"
+
+    @property
+    def interpolation_statistics_path(self) -> Path:
+        return self.intp_dir / "interpolation_statistics.csv"
 
     @classmethod
     def create_from_args(cls, args: List[str]) -> "SmokeDustContext":
@@ -206,7 +215,6 @@ class SmokeDustPreprocessor:
         # On-demand/cached property values
         self._forecast_metadata = None
         self._grid_out_shape = None
-        self._emissions_path = None
 
         # Holds interpolation descriptive statistics
         self._interpolation_stats = None
@@ -334,13 +342,6 @@ class SmokeDustPreprocessor:
         self.log(f"{grid_out_shape=}")
         self._grid_out_shape = grid_out_shape
         return self._grid_out_shape
-
-    @property
-    def emissions_path(self) -> Path:
-        if self._emissions_path is not None:
-            return self._emissions_path
-        self._emissions_path = self._context.intp_dir / f"SMOKE_RRFS_data_{self._context.current_day}00.nc"
-        return self._emissions_path
 
     def run(self) -> None:
         self.log("run: entering")
@@ -484,7 +485,9 @@ class SmokeDustPreprocessor:
             if self._rank == 0:
                 self._interpolation_postprocessing_(row_data)
 
-        import pdb;pdb.set_trace()
+        if self._context.calculate_descriptive_interpolation_statistics and self._interpolation_stats is not None:
+            self.log(f"writing interpolation statistics: {self._context.interpolation_statistics_path}")
+            self._interpolation_stats.to_csv(self._context.interpolation_statistics_path)
 
     def _interpolation_postprocessing_(self, row_data: pd.Series) -> None:
         self.log("_run_interpolation_postprocessing: enter", level=logging.DEBUG)
@@ -516,6 +519,7 @@ class SmokeDustPreprocessor:
             dst_desc_masked = self._create_descriptive_statistics_(dst_data, "dst_masked", row_data["rave_interpolated"])
             summary = pd.concat([ii.transpose() for ii in [src_desc, dst_desc_unmasked, dst_desc_masked]])
             summary.index.name = "variable"
+            summary['forecast_date'] = row_data['forecast_date']
             summary.reset_index(inplace=True)
             if self._interpolation_stats is None:
                 self._interpolation_stats = summary
@@ -618,8 +622,8 @@ class SmokeDustPreprocessor:
         self.log(f"frp_avg_reshaped nan count={np.isnan(frp_avg_reshaped).sum()}")
         self.log(f"ebb_total_reshaped nan count={np.isnan(ebb_total_reshaped).sum()}")
 
-        self.log(f"creating emissions file: {self.emissions_path}")
-        with open_nc(self.emissions_path, "w", parallel=False, clobber=True) as ds_out:
+        self.log(f"creating emissions file: {self._context.emissions_path}")
+        with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds_out:
             self._create_template_emissions_file_(ds_out)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
@@ -649,8 +653,8 @@ class SmokeDustPreprocessor:
 
     def _create_dummy_emissions_file_(self) -> None:
         self.log("_create_dummy_emissions_file_: enter")
-        self.log(f"emissions_path: {self.emissions_path}")
-        with open_nc(self.emissions_path, "w", parallel=False, clobber=True) as ds:
+        self.log(f"{self._context.emissions_path=}")
+        with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds:
             self._create_template_emissions_file_(ds)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
@@ -750,8 +754,6 @@ def generate_emiss_workflow(
         processor.log("unhandled error", exc_info=e)
 
     return
-    import pdb;pdb.set_trace()
-
     # ----------------------------------------------------------------------
     # Import envs from workflow and get the pre-defined grid
     # Set variable names, constants and unit conversions

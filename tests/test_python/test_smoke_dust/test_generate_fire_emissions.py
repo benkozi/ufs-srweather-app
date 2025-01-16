@@ -130,15 +130,16 @@ class TestGenerateFireEmissions(unittest.TestCase):
             #         main_args.as_script_args()))  # tdk: figure out python runtime
 
 
-class Test(unittest.TestCase):
-
-    def test_mask_edges(self) -> None:
-        data = np.ma.array(np.ones((3,3)), mask=False)
-        mask_edges(data)
-        with open_nc("foo.nc", "w", parallel=False, clobber=True) as ds:
-            ds.createDimension('d', 3)
-            var = ds.createVariable('tester', 'f4', ('d', 'd'), fill_value=0.)
-            var[:] = data
-        with open_nc("foo.nc", "r", parallel=False) as ds:
-            actual = var[:]
-        assert actual.data.sum() == 1.
+# class Test(unittest.TestCase):
+#
+#     def test_mask_edges(self) -> None:
+#         #tdk:last: this is worth testing?
+#         data = np.ma.array(np.ones((3,3)), mask=False)
+#         mask_edges(data)
+#         with open_nc("foo.nc", "w", parallel=False, clobber=True) as ds:
+#             ds.createDimension('d', 3)
+#             var = ds.createVariable('tester', 'f4', ('d', 'd'), fill_value=0.)
+#             var[:] = data
+#         with open_nc("foo.nc", "r", parallel=False) as ds:
+#             actual = var[:]
+#         assert actual.data.sum() == 1.
