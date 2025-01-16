@@ -148,6 +148,8 @@ class SmokeDustPreprocessor:
                 #         self._run_emissions_forecast_()
                 #     case _:
                 #         raise NotImplementedError(self._context.ebb_dcycle_flag)
+                if self._context.calculate_descriptive_interpolation_statistics:
+                    self._cycle.create_derived_statistics()
         self.log("run: exiting")
 
     def _run_interpolation_(self):

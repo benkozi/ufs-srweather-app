@@ -27,6 +27,16 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
     def log(self, *args: Any, **kwargs: Any) -> None:
         self._context.log(*args, **kwargs)
 
+    def create_derived_statistics(self) -> None:
+        with open_nc(self._context.emissions_path, 'r', parallel=False) as ds:
+            df = create_descriptive_statistics({ii.value: ds.variables[ii.value][:] for ii in DerivedVariable}, "derived", self._context.emissions_path)
+        derived_stats_out = self._context.intp_dir / "derived_variable_statistics.csv"
+        self.log(f"writing {derived_stats_out}")
+        df = df.transpose()
+        df.index.name = "variable"
+        df.reset_index(inplace=True)
+        df.to_csv(derived_stats_out, index=False)
+
     @abc.abstractmethod
     def flag(self) -> EbbDCycle:
         ...
@@ -72,15 +82,6 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
                 ds_out, DerivedVariable.EBB_TOTAL.value, "EBB emissions", "ug m-2 s-1", "0.f", 0.
             )
             ds_out.variables[DerivedVariable.EBB_TOTAL.value][:] = derived[DerivedVariable.EBB_TOTAL]
-        if self._context.calculate_descriptive_interpolation_statistics: #tdk: rename to general descriptive stats
-            with open_nc(self._context.emissions_path, 'r', parallel=False) as ds:
-                df = create_descriptive_statistics({ii.value: ds.variables[ii.value][:] for ii in derived.keys()}, "derived", self._context.emissions_path)
-            derived_stats_out = self._context.intp_dir / "derived_variable_statistics.csv"
-            self.log(f"writing {derived_stats_out}")
-            df = df.transpose()
-            df.index.name = "variable"
-            df.reset_index(inplace=True)
-            df.to_csv(derived_stats_out, index=False)
 
     def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[DerivedVariable, np.ndarray]:
         ebb_smoke_total = []
