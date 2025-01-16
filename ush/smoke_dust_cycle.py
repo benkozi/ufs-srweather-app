@@ -18,7 +18,7 @@ class DerivedVariable(StrEnum):
     EBB_TOTAL = "ebb_smoke_hr"
 
 
-class AbstractSmokeDustCycle(abc.ABC):
+class AbstractSmokeDustCycleProcessor(abc.ABC):
 
     def __init__(self, context: SmokeDustContext):
         self._context = context
@@ -43,7 +43,7 @@ class AbstractSmokeDustCycle(abc.ABC):
         ...
 
 
-class SmokeDustCycleOne(AbstractSmokeDustCycle):
+class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
     flag = EbbDCycle.ONE
 
     def create_start_datetime(self) -> dt.datetime:
@@ -102,12 +102,16 @@ class SmokeDustCycleOne(AbstractSmokeDustCycle):
 
         return {DerivedVariable.FRP_AVG:frp_avg_reshaped, DerivedVariable.EBB_TOTAL:ebb_total_reshaped}
 
-class SmokeDustCycleTwo(AbstractSmokeDustCycle):
+class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
     flag = EbbDCycle.TWO
 
     def create_start_datetime(self) -> dt.datetime:
         self.log("Creating emissions for modulated persistence by Wildfire potential")
         return self._context.fcst_datetime - dt.timedelta(days=1, hours=1)
+
+    def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
+        #tdk:story: implement emissions processing when we can test
+        raise NotImplementedError
 
     def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[DerivedVariable, np.ndarray]:
         frp_daily = np.zeros(self._context.grid_out_shape)
