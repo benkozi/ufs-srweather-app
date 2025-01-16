@@ -275,7 +275,7 @@ class SmokeDustPreprocessor:
 
         if self._context.calculate_descriptive_interpolation_statistics and self._interpolation_stats is not None:
             self.log(f"writing interpolation statistics: {self._context.interpolation_statistics_path}")
-            self._interpolation_stats.to_csv(self._context.interpolation_statistics_path)
+            self._interpolation_stats.to_csv(self._context.interpolation_statistics_path, index=False)
 
     def _interpolation_postprocessing_(self, row_data: pd.Series) -> None:
         self.log("_run_interpolation_postprocessing: enter", level=logging.DEBUG)
@@ -287,7 +287,7 @@ class SmokeDustPreprocessor:
             dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
         if calc_stats:
             # Do these calculations before we modify the arrays since edge masking is inplace
-            dst_desc_unmasked = self._create_descriptive_statistics_(dst_data, "dst_unmasked", row_data["rave_interpolated"])
+            dst_desc_unmasked = self._create_descriptive_statistics_(dst_data, "dst_unmasked", None)
 
         # Mask edges to reduce model edge effects
         self.log("masking edges", level=logging.DEBUG)
