@@ -84,7 +84,8 @@ class SmokeDustContext:
     current_day: str
     nwges_dir: Path
 
-    regrid_descriptive_statistics: bool = True #tdk: make this a parameter
+    calculate_descriptive_interpolation_statistics: bool = True #tdk: make this a parameter
+
     beta: float = 0.3
     fg_to_ug: float = 1e6
     to_s: int = 3600
@@ -480,31 +481,27 @@ class SmokeDustPreprocessor:
             self.forecast_metadata.loc[row_idx, 'rave_interpolated'] = output_file_path
             row_data['rave_interpolated'] = output_file_path
 
-                #tdk:mpi: need to figure out how to make this collective
-                # regrid_metadata_path = self._context.intp_dir / "regrid_metadata.csv"
-                # self.log(f"writing regrid metadata: {regrid_metadata_path}")
-                # df = pd.DataFrame(data=regrid_metadata)
-                # df.to_csv(regrid_metadata_path, index=False)
             if self._rank == 0:
                 self._interpolation_postprocessing_(row_data)
 
-    def _interpolation_postprocessing_(self, row_data: pd.Series) -> None:
-        self.log("_run_interpolation_postprocessing: enter")
+        import pdb;pdb.set_trace()
 
-        calc_stats = self._context.regrid_descriptive_statistics
-        if calc_stats:
-            with open_nc(row_data["rave_raw"], parallel=False) as ds:
-                src_desc = self._create_descriptive_statistics_({ii: ds.variables[ii][:] for ii in self._context.vars_emis}, "src", row_data["rave_raw"])
-                src_desc.rename(columns={'FRP_MEAN': 'frp_avg_hr'}, inplace=True)
+    def _interpolation_postprocessing_(self, row_data: pd.Series) -> None:
+        self.log("_run_interpolation_postprocessing: enter", level=logging.DEBUG)
+
+        calc_stats = self._context.calculate_descriptive_interpolation_statistics
+
         field_names_dst = ["frp_avg_hr", "FRE"] #tdk: make this a property or something
         with open_nc(row_data["rave_interpolated"], parallel=False) as ds:
             dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
         if calc_stats:
+            # Do these calculations before we modify the arrays since edge masking is inplace
             dst_desc_unmasked = self._create_descriptive_statistics_(dst_data, "dst_unmasked", row_data["rave_interpolated"])
 
         # Mask edges to reduce model edge effects
         self.log("masking edges", level=logging.DEBUG)
         for v in dst_data.values():
+            # Operation is inplace
             mask_edges(v[0, :, :])
 
         # Persist masked data to disk
@@ -513,6 +510,9 @@ class SmokeDustPreprocessor:
                 ds.variables[k][:] = v
 
         if calc_stats:
+            with open_nc(row_data["rave_raw"], parallel=False) as ds:
+                src_desc = self._create_descriptive_statistics_({ii: ds.variables[ii][:] for ii in self._context.vars_emis}, "src", row_data["rave_raw"])
+                src_desc.rename(columns={'FRP_MEAN': 'frp_avg_hr'}, inplace=True)
             dst_desc_masked = self._create_descriptive_statistics_(dst_data, "dst_masked", row_data["rave_interpolated"])
             summary = pd.concat([ii.transpose() for ii in [src_desc, dst_desc_unmasked, dst_desc_masked]])
             summary.index.name = "variable"
@@ -522,38 +522,7 @@ class SmokeDustPreprocessor:
             else:
                 self._interpolation_stats = pd.concat([self._interpolation_stats, summary])
 
-        import pdb;pdb.set_trace()
-        self.log("_run_interpolation_postprocessing: exit")
-
-        #     row_dict["rave_interpolated"] = output_file_path
-        #     row_dict["field_name_dst"] = dst_field_name
-        #     row_dict['field_name_rave'] = field_name
-        #     src_summary = dict(mean=src_data.mean(), min=src_data.min(), max=src_data.max(), sum=src_data.sum(),
-        #                        origin="src", n=src_data.size)
-        #     regrid_metadata.append(row_dict | src_summary)
-        #     self.log(f"{field_name} before regridding: {src_summary}", level=logging.DEBUG)
-        #
-        #     tdk:move summary to separate serial operation
-        #     dst_data = dst_field.data
-        #     dst_summary = dict(mean=dst_data.mean(), min=dst_data.min(), max=dst_data.max(), sum=dst_data.sum(),
-        #                        origin="dst", n=dst_data.size)
-        #     regrid_metadata.append(row_dict | dst_summary)
-        #     self.log(f"{field_name} after regridding: {dst_summary}", level=logging.DEBUG)
-        #
-        #     tdk:mpi: needs to happen on a single rank
-        #     Mask edges to reduce model edge effects
-        #     mask_edges(dst_data)
-        #     dst_summary_masked = dict(mean=np.nanmean(dst_data), min=np.nanmin(dst_data), max=np.nanmax(dst_data),
-        #                               sum=np.nansum(dst_data), origin="dst_masked", n=dst_data.size)
-        #     self.log(f"{field_name} after masking: {dst_summary_masked}", level=logging.DEBUG)
-        #     regrid_metadata.append(row_dict | dst_summary_masked)
-        #
-        # tdk:mpi: need to figure out how to make this collective
-        # regrid_metadata_path = self._context.intp_dir / "regrid_metadata.csv"
-        # self.log(f"writing regrid metadata: {regrid_metadata_path}")
-        # df = pd.DataFrame(data=regrid_metadata)
-        # df.to_csv(regrid_metadata_path, index=False)
-        # self.log("_run_interpolation_postprocessing: exit")
+        self.log("_run_interpolation_postprocessing: exit", level=logging.DEBUG)
 
     @staticmethod
     def _create_descriptive_statistics_(container: Dict[str, MaskedArray], origin: Literal["src", "dst_unmasked", "dst_masked"], path: Path) -> pd.DataFrame:
