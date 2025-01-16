@@ -89,6 +89,15 @@ def create_sd_variable(
         except RuntimeError:
             pass
 
+def create_template_emissions_file(ds: nc.Dataset, grid_shape: Tuple[int, int]):
+    ds.createDimension("t", None)
+    ds.createDimension("lat", grid_shape[0])
+    ds.createDimension("lon", grid_shape[1])
+    setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
+    setattr(ds, "TIME_RANGE", "1 hour")
+
+    create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
+    create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
 
 HasNcAttrsType = Union[nc.Dataset, nc.Variable]
 

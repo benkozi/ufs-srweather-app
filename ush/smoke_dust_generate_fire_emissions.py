@@ -12,34 +12,45 @@ import sys
 import fnmatch
 from copy import copy, deepcopy
 from pathlib import Path
-from typing import Tuple, List, Literal, Dict, Any
+from typing import List, Literal, Dict, Any, Tuple
 
 import esmpy
 import netCDF4
 import pandas as pd
 from numpy.ma.core import MaskedArray
 
-import datetime as dt
 
-from smoke_dust_interpolation import NcToGrid, GridSpec, NcToField
+from smoke_dust_interpolation import NcToGrid, GridSpec, NcToField, create_template_emissions_file
 from smoke_dust_interpolation import open_nc, create_sd_coordinate_variable, create_sd_variable
 
 import numpy as np
 
 from smoke_dust_interp_tools import mask_edges
-import xarray as xr
 
 from smoke_dust_context import SmokeDustContext
+from smoke_dust_cycle import AbstractSmokeDustCycle, SmokeDustCycleTwo
+import logging
+
+from smoke_dust_cycle import DerivedVariable
+from ush.smoke_dust_context import EbbDCycle
+from ush.smoke_dust_cycle import SmokeDustCycleOne
 
 
 class SmokeDustPreprocessor:
 
     def __init__(self, context: SmokeDustContext) -> None:
         self._context = context
+        match self._context.ebb_dcycle_flag:
+            case EbbDCycle.ONE:
+                self._cycle = SmokeDustCycleOne(context)
+            case EbbDCycle.TWO:
+                self._cycle = SmokeDustCycleTwo(context)
+            case _:
+                raise NotImplementedError(self._context.ebb_dcycle_flag)
 
         # On-demand/cached property values
         self._forecast_metadata = None
-        self._grid_out_shape = None
+        # self._grid_out_shape = None
 
         # Holds interpolation descriptive statistics
         self._interpolation_stats = None
@@ -55,20 +66,23 @@ class SmokeDustPreprocessor:
             return self._forecast_metadata
 
         # Create forecast times
-        fcst_datetime = dt.datetime.strptime(self._context.current_day, "%Y%m%d%H")
-        match self._context.ebb_dcycle_flag:
-            case EbbDCycle.ONE:
-                if self._context.persistence:
-                    self.log("Creating emissions for persistence method where satellite FRP persist from previous day")
-                    start_datetime = fcst_datetime - dt.timedelta(days=1)
-                else:
-                    self.log("Creating emissions using current date satellite FRP")
-                    start_datetime = fcst_datetime
-            case EbbDCycle.TWO:
-                self.log("Creating emissions for modulated persistence by Wildfire potential")
-                start_datetime = fcst_datetime - dt.timedelta(days=1, hours=1)
-            case _:
-                raise NotImplementedError(self._context.ebb_dcycle_flag)
+
+        # fcst_datetime = dt.datetime.strptime(self._context.current_day, "%Y%m%d%H")
+        # match self._context.ebb_dcycle_flag:
+        #     case EbbDCycle.ONE:
+        #         if self._context.persistence:
+        #             self.log("Creating emissions for persistence method where satellite FRP persist from previous day")
+        #             start_datetime = fcst_datetime - dt.timedelta(days=1)
+        #         else:
+        #             self.log("Creating emissions using current date satellite FRP")
+        #             start_datetime = fcst_datetime
+        #     case EbbDCycle.TWO:
+        #         self.log("Creating emissions for modulated persistence by Wildfire potential")
+        #         start_datetime = fcst_datetime - dt.timedelta(days=1, hours=1)
+        #     case _:
+        #         raise NotImplementedError(self._context.ebb_dcycle_flag)
+
+        start_datetime = self._cycle.create_start_datetime()
         forecast_dates = pd.date_range(start=start_datetime, periods=24, freq="h").strftime(
             "%Y%m%d%H"
         )
@@ -109,15 +123,15 @@ class SmokeDustPreprocessor:
     def is_first_day(self) -> bool:
         return self.forecast_metadata['rave_interpolated'].isnull().all() and self.forecast_metadata['rave_raw'].isnull().all()
 
-    @property
-    def grid_out_shape(self) -> Tuple[int, int]:
-        if self._grid_out_shape is not None:
-            return self._grid_out_shape
-        with open_nc(self._context.grid_out, parallel=False) as ds:
-            grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
-        self.log(f"{grid_out_shape=}")
-        self._grid_out_shape = grid_out_shape
-        return self._grid_out_shape
+    # @property
+    # def grid_out_shape(self) -> Tuple[int, int]:
+    #     if self._grid_out_shape is not None:
+    #         return self._grid_out_shape
+    #     with open_nc(self._context.grid_out, parallel=False) as ds:
+    #         grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
+    #     self.log(f"{grid_out_shape=}")
+    #     self._grid_out_shape = grid_out_shape
+    #     return self._grid_out_shape
 
     def run(self) -> None:
         self.log("run: entering")
@@ -127,14 +141,15 @@ class SmokeDustPreprocessor:
         else:
             #tdk: need try/catch to use dummy emissions if regridding fails or no rave data is available
             self._run_interpolation_()
-            if self._rank == 0:
-                match self._context.ebb_dcycle_flag:
-                    case EbbDCycle.ONE:
-                        self._run_average_frp_()
-                    case EbbDCycle.TWO:
-                        self._run_emissions_forecast_()
-                    case _:
-                        raise NotImplementedError(self._context.ebb_dcycle_flag)
+            if self._context.rank == 0:
+                self._cycle.process_emissions(self.forecast_metadata)
+                # match self._context.ebb_dcycle_flag:
+                #     case EbbDCycle.ONE:
+                #         self._run_average_frp_()
+                #     case EbbDCycle.TWO:
+                #         self._run_emissions_forecast_()
+                #     case _:
+                #         raise NotImplementedError(self._context.ebb_dcycle_flag)
         self.log("run: exiting")
 
     def _run_interpolation_(self):
@@ -313,126 +328,128 @@ class SmokeDustPreprocessor:
         desc = pd.concat([desc, pd.DataFrame(data=adds, index=['sum', 'count_null', "origin", "path"])])
         return desc
 
-    def _run_average_frp_(self):
-        self.log("averaging FRP")
+    # def _run_average_frp_(self):
+    #     self.log("averaging FRP")
         #tdk:story: need fail-over option to return empty arrays
 
-        frp_daily = np.zeros(self.grid_out_shape)
-        ebb_smoke_total = []
-        frp_avg_hr = []
+        # frp_daily = np.zeros(self.grid_out_shape)
+        # ebb_smoke_total = []
+        # frp_avg_hr = []
+        #
+        # with xr.open_dataset(self._context.veg_map) as ds:
+        #     emiss_factor = ds['emiss_factor'].values
+        # with xr.open_dataset(self._context.grid_out) as ds:
+        #     target_area = ds['area'].values
+        #
+        # for row_idx, row_df in self.forecast_metadata.iterrows():
+        #     self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
+        #     with xr.open_dataset(row_df['rave_interpolated']) as ds:
+        #         fre = ds['FRE'][0, :, :].values
+        #         frp = ds['frp_avg_hr'][0, :, :].values
+        #
+        #         match self._context.ebb_dcycle_flag:
+        #             #tdk:ja: can we give these cycles more explanatory names?
+        #             case EbbDCycle.ONE:
+        #                 frp_avg_hr.append(frp)
+        #                 ebb_hourly = (fre * emiss_factor * self._context.beta * self._context.fg_to_ug) / (
+        #                         target_area * self._context.to_s
+        #                 )
+        #                 ebb_smoke_total.append(
+        #                     np.where(frp > 0, ebb_hourly, 0)
+        #                 )
+        #             case EbbDCycle.TWO:
+        #                 ebb_hourly = (
+        #                         fre * emiss_factor * self._context.beta * self._context.fg_to_ug / target_area
+        #                 )
+        #                 ebb_smoke_total.append(
+        #                     np.where(frp > 0, ebb_hourly, 0).ravel()
+        #                 )
+        #                 frp_daily += np.where(frp > 0, frp, 0).ravel()
+        #             case _:
+        #                 raise NotImplementedError(self._context.ebb_dcycle_flag)
+        #
+        # self.log("reshaping arrays")
+        # match self._context.ebb_dcycle_flag:
+        #     case EbbDCycle.ONE:
+        #         frp_avg_reshaped = np.stack(frp_avg_hr, axis=0)
+        #         ebb_total_reshaped = np.stack(ebb_smoke_total, axis=0)
+        #     case EbbDCycle.TWO:
+        #         summed_array = np.sum(np.array(ebb_smoke_total), axis=0)
+        #         num_zeros = len(ebb_smoke_total) - np.sum(
+        #             [arr == 0 for arr in ebb_smoke_total], axis=0
+        #         )
+        #         safe_zero_count = np.where(num_zeros == 0, 1, num_zeros)
+        #         result_array = np.array(
+        #             [
+        #                 (
+        #                     summed_array[i] / 2
+        #                     if safe_zero_count[i] == 1
+        #                     else summed_array[i] / safe_zero_count[i]
+        #                 )
+        #                 for i in range(len(safe_zero_count))
+        #             ]
+        #         )
+        #         result_array[num_zeros == 0] = summed_array[num_zeros == 0]
+        #         ebb_total = result_array.reshape(self.grid_out_shape)
+        #         ebb_total_reshaped = ebb_total / 3600
+        #         temp_frp = np.array(
+        #             [
+        #                 (
+        #                     frp_daily[i] / 2
+        #                     if safe_zero_count[i] == 1
+        #                     else frp_daily[i] / safe_zero_count[i]
+        #                 )
+        #                 for i in range(len(safe_zero_count))
+        #             ]
+        #         )
+        #         temp_frp[num_zeros == 0] = frp_daily[num_zeros == 0]
+        #         frp_avg_reshaped = temp_frp.reshape(*self.grid_out_shape)
+        #     case _:
+        #         raise NotImplementedError(self._context.ebb_dcycle_flag)
+        #
+        # np.nan_to_num(frp_avg_reshaped, copy=False, nan=0.0)
 
-        with xr.open_dataset(self._context.veg_map) as ds:
-            emiss_factor = ds['emiss_factor'].values
-        with xr.open_dataset(self._context.grid_out) as ds:
-            target_area = ds['area'].values
+        # self.log(f"frp_avg_reshaped nan count={np.isnan(frp_avg_reshaped).sum()}")
+        # self.log(f"ebb_total_reshaped nan count={np.isnan(ebb_total_reshaped).sum()}")
 
-        for row_idx, row_df in self.forecast_metadata.iterrows():
-            self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
-            with xr.open_dataset(row_df['rave_interpolated']) as ds:
-                fre = ds['FRE'][0, :, :].values
-                frp = ds['frp_avg_hr'][0, :, :].values
+        # derived = self._cycle.average_frp(self.forecast_metadata)
+        #
+        # self.log(f"creating emissions file: {self._context.emissions_path}")
+        # with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds_out:
+        #     self._create_template_emissions_file_(ds_out)
+        #     with open_nc(self._context.grid_out, parallel=False) as ds_src:
+        #         ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
+        #         ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
+        #     create_sd_variable(
+        #         ds_out, "frp_avg_hr", "mean Fire Radiative Power", "MW", "0.f", 0.
+        #     )
+        #     ds_out.variables["frp_avg_hr"][:] = derived[DerivedVariable.FRP_AVG]
+        #     create_sd_variable(
+        #         ds_out, "ebb_smoke_hr", "EBB emissions", "ug m-2 s-1", "0.f", 0.
+        #     )
+        #     ds_out.variables["ebb_smoke_hr"][:] = derived[DerivedVariable.EBB_TOTAL]
 
-                match self._context.ebb_dcycle_flag:
-                    #tdk:ja: can we give these cycles more explanatory names?
-                    case EbbDCycle.ONE:
-                        frp_avg_hr.append(frp)
-                        ebb_hourly = (fre * emiss_factor * self._context.beta * self._context.fg_to_ug) / (
-                                target_area * self._context.to_s
-                        )
-                        ebb_smoke_total.append(
-                            np.where(frp > 0, ebb_hourly, 0)
-                        )
-                    case EbbDCycle.TWO:
-                        ebb_hourly = (
-                                fre * emiss_factor * self._context.beta * self._context.fg_to_ug / target_area
-                        )
-                        ebb_smoke_total.append(
-                            np.where(frp > 0, ebb_hourly, 0).ravel()
-                        )
-                        frp_daily += np.where(frp > 0, frp, 0).ravel()
-                    case _:
-                        raise NotImplementedError(self._context.ebb_dcycle_flag)
+    # def _run_emissions_forecast_(self) -> None:
+    #     self.log("_run_emissions_forecast_: enter")
+    #     #tdk: story emissions forecast
+    #     raise NotImplementedError(EbbDCycle.TWO)
+    #     # self.log("_run_emissions_forecast_: exit")
 
-        self.log("reshaping arrays")
-        match self._context.ebb_dcycle_flag:
-            case EbbDCycle.ONE:
-                frp_avg_reshaped = np.stack(frp_avg_hr, axis=0)
-                ebb_total_reshaped = np.stack(ebb_smoke_total, axis=0)
-            case EbbDCycle.TWO:
-                summed_array = np.sum(np.array(ebb_smoke_total), axis=0)
-                num_zeros = len(ebb_smoke_total) - np.sum(
-                    [arr == 0 for arr in ebb_smoke_total], axis=0
-                )
-                safe_zero_count = np.where(num_zeros == 0, 1, num_zeros)
-                result_array = np.array(
-                    [
-                        (
-                            summed_array[i] / 2
-                            if safe_zero_count[i] == 1
-                            else summed_array[i] / safe_zero_count[i]
-                        )
-                        for i in range(len(safe_zero_count))
-                    ]
-                )
-                result_array[num_zeros == 0] = summed_array[num_zeros == 0]
-                ebb_total = result_array.reshape(self.grid_out_shape)
-                ebb_total_reshaped = ebb_total / 3600
-                temp_frp = np.array(
-                    [
-                        (
-                            frp_daily[i] / 2
-                            if safe_zero_count[i] == 1
-                            else frp_daily[i] / safe_zero_count[i]
-                        )
-                        for i in range(len(safe_zero_count))
-                    ]
-                )
-                temp_frp[num_zeros == 0] = frp_daily[num_zeros == 0]
-                frp_avg_reshaped = temp_frp.reshape(*self.grid_out_shape)
-            case _:
-                raise NotImplementedError(self._context.ebb_dcycle_flag)
-
-        np.nan_to_num(frp_avg_reshaped, copy=False, nan=0.0)
-
-        self.log(f"frp_avg_reshaped nan count={np.isnan(frp_avg_reshaped).sum()}")
-        self.log(f"ebb_total_reshaped nan count={np.isnan(ebb_total_reshaped).sum()}")
-
-        self.log(f"creating emissions file: {self._context.emissions_path}")
-        with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds_out:
-            self._create_template_emissions_file_(ds_out)
-            with open_nc(self._context.grid_out, parallel=False) as ds_src:
-                ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
-                ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
-            create_sd_variable(
-                ds_out, "frp_avg_hr", "mean Fire Radiative Power", "MW", "0.f", 0.
-            )
-            ds_out.variables["frp_avg_hr"][:] = frp_avg_reshaped
-            create_sd_variable(
-                ds_out, "ebb_smoke_hr", "EBB emissions", "ug m-2 s-1", "0.f", 0.
-            )
-            ds_out.variables["ebb_smoke_hr"][:] = ebb_total_reshaped
-
-    def _run_emissions_forecast_(self) -> None:
-        self.log("_run_emissions_forecast_: enter")
-        #tdk: story emissions forecast
-        raise NotImplementedError(EbbDCycle.TWO)
-        # self.log("_run_emissions_forecast_: exit")
-
-    def _create_template_emissions_file_(self, ds: netCDF4.Dataset):
-        ds.createDimension("t", None)
-        ds.createDimension("lat", self.grid_out_shape[0])
-        ds.createDimension("lon", self.grid_out_shape[1])
-        setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
-        setattr(ds, "TIME_RANGE", "1 hour")
-
-        create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
-        create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
+    # def _create_template_emissions_file_(self, ds: netCDF4.Dataset, grid_shape: Tuple[int, int]):
+    #     ds.createDimension("t", None)
+    #     ds.createDimension("lat", grid_shape[0])
+    #     ds.createDimension("lon", grid_shape[1])
+    #     setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
+    #     setattr(ds, "TIME_RANGE", "1 hour")
+    #
+    #     create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
+    #     create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
 
     def _create_dummy_emissions_file_(self) -> None:
         self.log("_create_dummy_emissions_file_: enter")
         self.log(f"{self._context.emissions_path=}")
         with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds:
-            self._create_template_emissions_file_(ds)
+            create_template_emissions_file(ds, self._context.grid_out_shape)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
@@ -469,7 +486,8 @@ def generate_emiss_workflow(
         persistence: If ``TRUE``, use satellite observations from the previous day. Otherwise, use observations from the same day.
     """
 
-    processor = SmokeDustPreprocessor(args)
+    context = SmokeDustContext.create_from_args(args)
+    processor = SmokeDustPreprocessor(context)
     try:
         processor.run()
         processor.finalize()

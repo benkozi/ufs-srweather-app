@@ -7,6 +7,9 @@ from pathlib import Path
 from typing import Tuple, List
 
 from mpi4py import MPI
+import datetime as dt
+
+from smoke_dust_interpolation import open_nc
 
 
 @unique
@@ -74,9 +77,14 @@ class SmokeDustContext:
     to_s: int = 3600
     vars_emis = ["FRP_MEAN", "FRE"]
     rank: int = MPI.COMM_WORLD.Get_rank()
+    grid_out_shape: Tuple[int, int] = (0, 0) # Set in __post_init__
 
     def __post_init__(self):
         self._logger = self._init_logging_()
+
+        with open_nc(self.grid_out, parallel=False) as ds:
+            self.grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
+        self.log(f"{self.grid_out_shape=}")
 
     @property
     def veg_map(self) -> Path:
@@ -109,6 +117,10 @@ class SmokeDustContext:
     @property
     def interpolation_statistics_path(self) -> Path:
         return self.intp_dir / "interpolation_statistics.csv"
+
+    @property
+    def fcst_datetime(self) -> dt.datetime:
+        return dt.datetime.strptime(self.current_day, "%Y%m%d%H")
 
     @classmethod
     def create_from_args(cls, args: List[str]) -> "SmokeDustContext":
