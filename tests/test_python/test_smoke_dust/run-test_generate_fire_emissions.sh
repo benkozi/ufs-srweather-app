@@ -3,7 +3,7 @@
 set -e
 
 # Comment to skip regridding (if it has been completed)
-#rm ~/htmp/comout/intp_dir/* || echo "no interpolation data to remove"
+rm ~/htmp/comout/intp_dir/* || echo "no interpolation data to remove"
 
 cd ~/l/test_smoke_dust-python
 git pull
