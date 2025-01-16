@@ -197,7 +197,7 @@ class SmokeDustPreprocessor:
             output_file_path = self._context.intp_dir / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
             self.log(f"creating output file: {output_file_path}")
             with open_nc(output_file_path, "w") as ds:
-                self._create_template_emissions_file_(ds)
+                create_template_emissions_file(ds, self._context.grid_out_shape)
 
                 create_sd_variable(ds, "frp_avg_hr", "Mean Fire Radiative Power", "MW", fill_value_str="0.f",
                                    fill_value_float=0.0)
