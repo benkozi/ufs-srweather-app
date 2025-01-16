@@ -19,7 +19,8 @@ import pandas as pd
 from numpy.ma.core import MaskedArray
 
 
-from smoke_dust_interpolation import NcToGrid, GridSpec, NcToField, create_template_emissions_file
+from smoke_dust_interpolation import NcToGrid, GridSpec, NcToField, create_template_emissions_file, \
+    create_descriptive_statistics
 from smoke_dust_interpolation import open_nc, create_sd_variable
 
 import numpy as np
@@ -289,7 +290,7 @@ class SmokeDustPreprocessor:
             dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
         if calc_stats:
             # Do these calculations before we modify the arrays since edge masking is inplace
-            dst_desc_unmasked = self._create_descriptive_statistics_(dst_data, "dst_unmasked", None)
+            dst_desc_unmasked = create_descriptive_statistics(dst_data, "dst_unmasked", None)
 
         # Mask edges to reduce model edge effects
         self.log("masking edges", level=logging.DEBUG)
@@ -304,9 +305,9 @@ class SmokeDustPreprocessor:
 
         if calc_stats:
             with open_nc(row_data["rave_raw"], parallel=False) as ds:
-                src_desc = self._create_descriptive_statistics_({ii: ds.variables[ii][:] for ii in self._context.vars_emis}, "src", row_data["rave_raw"])
+                src_desc = create_descriptive_statistics({ii: ds.variables[ii][:] for ii in self._context.vars_emis}, "src", row_data["rave_raw"])
                 src_desc.rename(columns={'FRP_MEAN': 'frp_avg_hr'}, inplace=True)
-            dst_desc_masked = self._create_descriptive_statistics_(dst_data, "dst_masked", row_data["rave_interpolated"])
+            dst_desc_masked = create_descriptive_statistics(dst_data, "dst_masked", row_data["rave_interpolated"])
             summary = pd.concat([ii.transpose() for ii in [src_desc, dst_desc_unmasked, dst_desc_masked]])
             summary.index.name = "variable"
             summary['forecast_date'] = row_data['forecast_date']
