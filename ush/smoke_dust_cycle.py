@@ -65,13 +65,13 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
             create_sd_variable(
-                ds_out, "frp_avg_hr", "mean Fire Radiative Power", "MW", "0.f", 0.
+                ds_out, DerivedVariable.FRP_AVG.value, "mean Fire Radiative Power", "MW", "0.f", 0.
             )
-            ds_out.variables["frp_avg_hr"][:] = derived[DerivedVariable.FRP_AVG]
+            ds_out.variables[DerivedVariable.FRP_AVG.value][:] = derived[DerivedVariable.FRP_AVG]
             create_sd_variable(
-                ds_out, "ebb_smoke_hr", "EBB emissions", "ug m-2 s-1", "0.f", 0.
+                ds_out, DerivedVariable.EBB_TOTAL.value, "EBB emissions", "ug m-2 s-1", "0.f", 0.
             )
-            ds_out.variables["ebb_smoke_hr"][:] = derived[DerivedVariable.EBB_TOTAL]
+            ds_out.variables[DerivedVariable.EBB_TOTAL.value][:] = derived[DerivedVariable.EBB_TOTAL]
         if self._context.calculate_descriptive_interpolation_statistics: #tdk: rename to general descriptive stats
             with open_nc(self._context.emissions_path, 'r', parallel=False) as ds:
                 df = create_descriptive_statistics({ii.value: ds.variables[ii.value][:] for ii in derived.keys()}, "derived", self._context.emissions_path)
