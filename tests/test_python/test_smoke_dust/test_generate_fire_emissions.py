@@ -1,3 +1,4 @@
+from enum import StrEnum
 from pathlib import Path
 import sys
 
@@ -143,3 +144,18 @@ class TestGenerateFireEmissions(unittest.TestCase):
 #         with open_nc("foo.nc", "r", parallel=False) as ds:
 #             actual = var[:]
 #         assert actual.data.sum() == 1.
+#
+#     def test_enum_behaviors(self):
+#
+#         class Name(StrEnum):
+#             ONE = 'one'
+#             TWO = 'two'
+#
+#             def other_name(self):
+#                 other = {self.ONE: 'foo-one', self.TWO: 'foo-two'}
+#                 return other[self]
+#
+#         nn = Name('one')
+#         assert nn.other_name() == 'foo-one'
+#         assert list(Name) == [Name.ONE, Name.TWO]
+#         assert list(Name) == ['one', 'two']
