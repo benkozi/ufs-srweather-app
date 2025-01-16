@@ -272,10 +272,10 @@ class SmokeDustPreprocessor:
             self.forecast_metadata.loc[row_idx, 'rave_interpolated'] = output_file_path
             row_data['rave_interpolated'] = output_file_path
 
-            if self._rank == 0:
+            if self._context.rank == 0:
                 self._interpolation_postprocessing_(row_data)
 
-        if self._context.calculate_descriptive_interpolation_statistics and self._interpolation_stats is not None:
+        if self._context.rank == 0 and self._context.calculate_descriptive_interpolation_statistics and self._interpolation_stats is not None:
             self.log(f"writing interpolation statistics: {self._context.interpolation_statistics_path}")
             self._interpolation_stats.to_csv(self._context.interpolation_statistics_path, index=False)
 
