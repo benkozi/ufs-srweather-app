@@ -153,7 +153,7 @@ class SmokeDustContext:
             restart_interval=[int(num) for num in l_restart_interval.split(" ")],
             persistence=cls._str_to_bool_(l_persistence),
             exit_on_error=cls._str_to_bool_(l_exit_on_error),
-            log_level=getattr(logging, l_log_level),
+            log_level=getattr(logging, l_log_level.upper()),
             current_day=current_day,
             nwges_dir=nwges_dir,
         )
@@ -237,7 +237,7 @@ class SmokeDustContext:
             "loggers": {
                 project_name: {
                     "handlers": ["default"],
-                    "level": self.log_level.upper(),
+                    "level": self.log_level,
                 },
             },
         }
