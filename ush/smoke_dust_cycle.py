@@ -77,6 +77,7 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
                 df = create_descriptive_statistics({ii.value: ds.variables[ii.value][:] for ii in derived.keys()}, "derived", self._context.emissions_path)
             derived_stats_out = self._context.intp_dir / "derived_variable_statistics.csv"
             self.log(f"writing {derived_stats_out}")
+            df = df.transpose()
             df.index.name = "variable"
             df.reset_index(inplace=True)
             df.to_csv(derived_stats_out, index=False)
