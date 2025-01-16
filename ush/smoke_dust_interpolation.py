@@ -4,9 +4,12 @@ from pathlib import Path
 from typing import Tuple, Literal, Dict, Sequence, Any, Union
 
 import numpy as np
+from numpy.ma import MaskedArray
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 import esmpy
 import netCDF4 as nc
+
+import pandas as pd
 
 from mpi4py import MPI
 
@@ -98,6 +101,17 @@ def create_template_emissions_file(ds: nc.Dataset, grid_shape: Tuple[int, int]):
 
     create_sd_coordinate_variable(ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0)
     create_sd_coordinate_variable(ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0)
+
+
+def create_descriptive_statistics(container: Dict[str, np.ma.MaskedArray], origin: Literal["src", "dst_unmasked", "dst_masked", "derived"], path: Path) -> pd.DataFrame:
+    df = pd.DataFrame.from_dict({k: v.filled(np.nan).ravel() for k, v in container.items()})
+    desc = df.describe()
+    adds = {}
+    for field_name in container.keys():
+        adds[field_name] = [df[field_name].sum(), df[field_name].isnull().sum(), origin, path]
+    desc = pd.concat([desc, pd.DataFrame(data=adds, index=['sum', 'count_null', "origin", "path"])])
+    return desc
+
 
 HasNcAttrsType = Union[nc.Dataset, nc.Variable]
 

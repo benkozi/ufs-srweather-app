@@ -316,15 +316,15 @@ class SmokeDustPreprocessor:
 
         self.log("_run_interpolation_postprocessing: exit", level=logging.DEBUG)
 
-    @staticmethod
-    def _create_descriptive_statistics_(container: Dict[str, MaskedArray], origin: Literal["src", "dst_unmasked", "dst_masked"], path: Path) -> pd.DataFrame:
-        df = pd.DataFrame.from_dict({k: v.filled(np.nan).ravel() for k, v in container.items()})
-        desc = df.describe()
-        adds = {}
-        for field_name in container.keys():
-            adds[field_name] = [df[field_name].sum(), df[field_name].isnull().sum(), origin, path]
-        desc = pd.concat([desc, pd.DataFrame(data=adds, index=['sum', 'count_null', "origin", "path"])])
-        return desc
+    # @staticmethod
+    # def _create_descriptive_statistics_(container: Dict[str, MaskedArray], origin: Literal["src", "dst_unmasked", "dst_masked"], path: Path) -> pd.DataFrame:
+    #     df = pd.DataFrame.from_dict({k: v.filled(np.nan).ravel() for k, v in container.items()})
+    #     desc = df.describe()
+    #     adds = {}
+    #     for field_name in container.keys():
+    #         adds[field_name] = [df[field_name].sum(), df[field_name].isnull().sum(), origin, path]
+    #     desc = pd.concat([desc, pd.DataFrame(data=adds, index=['sum', 'count_null', "origin", "path"])])
+    #     return desc
 
     # def _run_average_frp_(self):
     #     self.log("averaging FRP")

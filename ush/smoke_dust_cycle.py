@@ -10,6 +10,7 @@ import numpy as np
 import xarray as xr
 
 from smoke_dust_interpolation import open_nc, create_sd_variable, create_template_emissions_file
+from smoke_dust_interpolation import create_descriptive_statistics
 
 
 @unique
@@ -71,6 +72,12 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
                 ds_out, "ebb_smoke_hr", "EBB emissions", "ug m-2 s-1", "0.f", 0.
             )
             ds_out.variables["ebb_smoke_hr"][:] = derived[DerivedVariable.EBB_TOTAL]
+        if self._context.calculate_descriptive_interpolation_statistics: #tdk: rename to general descriptive stats
+            with open_nc(self._context.emissions_path, 'r', parallel=False) as ds:
+                df = create_descriptive_statistics({ii.value: ds.variables[ii.value][:] for ii in derived.keys()}, "derived", self._context.emissions_path)
+            derived_stats_out = self._context.intp_dir / "derived_variable_statistics.csv"
+            self.log(f"writing {derived_stats_out}")
+            df.to_csv(derived_stats_out, index=False)
 
     def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[DerivedVariable, np.ndarray]:
         ebb_smoke_total = []
