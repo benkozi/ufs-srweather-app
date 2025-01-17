@@ -16,8 +16,8 @@ from typing import List, Any
 import pandas as pd
 
 
-from smoke_dust_interpolation import create_template_emissions_file
-from smoke_dust_interpolation import open_nc, create_sd_variable
+from smoke_dust_common import create_template_emissions_file
+from smoke_dust_common import open_nc, create_sd_variable
 
 from smoke_dust_context import SmokeDustContext
 from smoke_dust_cycle import SmokeDustCycleTwo
@@ -105,7 +105,7 @@ class SmokeDustPreprocessor:
             if self._context.rank == 0:
                 self._cycle_processor.process_emissions(self.forecast_metadata)
                 if self._context.should_calc_desc_stats:
-                    self._cycle_processor.create_derived_statistics()
+                    self._cycle_processor.create_derived_statistics(self.forecast_metadata)
         self.log("run: exiting")
 
     def _create_dummy_emissions_file_(self) -> None:

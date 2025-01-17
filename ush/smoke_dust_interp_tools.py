@@ -8,11 +8,11 @@ import os
 import fnmatch
 import xarray as xr
 import numpy as np
-from esmpy import MaskedArray
 from netCDF4 import Dataset
-from numpy import ndarray
 from pandas import Index
 from xarray import DataArray
+
+from ush.smoke_dust_regrid import mask_edges
 
 try:
     import esmpy as ESMF
@@ -393,37 +393,6 @@ def generate_regridder(
         use_dummy_emiss = True
 
     return regridder, use_dummy_emiss
-
-
-def mask_edges(data: MaskedArray, mask_width: int = 1) -> None:
-    """
-    Mask edges of domain for interpolation.
-
-    Args:
-        data: The masked array to alter
-        mask_width: The width of the mask at each edge
-
-    Returns:
-        A numpy array of the masked edges
-    """
-    if data.ndim != 2:
-        raise ValueError(f"{data.ndim=}")
-
-    original_shape = data.shape
-    if mask_width < 1:
-        return  # No masking if mask_width is less than 1
-
-    target = data.mask
-    # Mask top and bottom rows
-    target[:mask_width, :] = True
-    target[-mask_width:, :] = True
-
-    # Mask left and right columns
-    target[:, :mask_width] = True
-    target[:, -mask_width:] = True
-
-    if data.shape != original_shape:
-        raise ValueError("Data shape altered during masking.")
 
 
 def interpolate_rave(

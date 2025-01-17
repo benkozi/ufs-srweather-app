@@ -9,7 +9,7 @@ from typing import Tuple, List
 from mpi4py import MPI
 import datetime as dt
 
-from smoke_dust_interpolation import open_nc
+from smoke_dust_common import open_nc
 
 
 @unique
@@ -113,10 +113,6 @@ class SmokeDustContext:
     @property
     def emissions_path(self) -> Path:
         return self.intp_dir / f"SMOKE_RRFS_data_{self.current_day}00.nc"
-
-    @property
-    def interpolation_statistics_path(self) -> Path:
-        return self.intp_dir / "interpolation_statistics.csv"
 
     @property
     def fcst_datetime(self) -> dt.datetime:

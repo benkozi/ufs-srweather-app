@@ -9,8 +9,8 @@ from smoke_dust_context import SmokeDustContext, EmissionVariable, EbbDCycle
 import numpy as np
 import xarray as xr
 
-from smoke_dust_interpolation import open_nc, create_sd_variable, create_template_emissions_file
-from smoke_dust_interpolation import create_descriptive_statistics
+from smoke_dust_common import open_nc, create_sd_variable, create_template_emissions_file
+from smoke_dust_common import create_descriptive_statistics
 
 
 @unique
@@ -27,15 +27,16 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
     def log(self, *args: Any, **kwargs: Any) -> None:
         self._context.log(*args, **kwargs)
 
-    def create_derived_statistics(self) -> None:
+    def create_derived_statistics(self, forecast_metadata: pd.DataFrame) -> None:
         with open_nc(self._context.emissions_path, 'r', parallel=False) as ds:
             df = create_descriptive_statistics({ii.value: ds.variables[ii.value][:] for ii in DerivedVariable}, "derived", self._context.emissions_path)
-        derived_stats_out = self._context.intp_dir / "derived_variable_statistics.csv" #tdk: add forecast date info to filenames
-        self.log(f"writing {derived_stats_out}")
         df = df.transpose()
         df.index.name = "variable"
         df.reset_index(inplace=True)
-        df.to_csv(derived_stats_out, index=False)
+        forecast_dates = forecast_metadata['forecast_date']
+        stats_path = self._context.intp_dir / f"stats_derived_{forecast_dates.min()}_{forecast_dates.max()}.csv"
+        self.log(f"writing {stats_path=}")
+        df.to_csv(stats_path, index=False)
 
     @abc.abstractmethod
     def flag(self) -> EbbDCycle:
