@@ -1,7 +1,8 @@
-sys.path.append(str(Path("../../../ush")))
-
 from pathlib import Path
 import sys
+
+sys.path.append(str(Path("../../../ush")))
+
 import logging
 import os
 import shutil
