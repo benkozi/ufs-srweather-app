@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
 import os
-from typing import Tuple, Any
+from datetime import datetime
+from typing import Any
 
 import numpy as np
 import xarray as xr
-from datetime import datetime
 from netCDF4 import Dataset
 from pandas import Index
 from xarray import DataArray
+
 
 def estimate_fire_duration(
     intp_dir: str,

@@ -3,14 +3,17 @@ import datetime as dt
 from enum import StrEnum, unique
 from typing import Dict, Any
 
-import pandas as pd
-
-from smoke_dust_context import SmokeDustContext, EmissionVariable, EbbDCycle
 import numpy as np
+import pandas as pd
 import xarray as xr
 
-from smoke_dust_common import open_nc, create_sd_variable, create_template_emissions_file
-from smoke_dust_common import create_descriptive_statistics
+from smoke_dust_common import (
+    open_nc,
+    create_sd_variable,
+    create_template_emissions_file,
+    create_descriptive_statistics,
+)
+from smoke_dust_context import SmokeDustContext, EmissionVariable, EbbDCycle
 
 
 @unique
@@ -28,31 +31,36 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
         self._context.log(*args, **kwargs)
 
     def create_derived_statistics(self, forecast_metadata: pd.DataFrame) -> None:
-        with open_nc(self._context.emissions_path, 'r', parallel=False) as ds:
-            df = create_descriptive_statistics({ii.value: ds.variables[ii.value][:] for ii in DerivedVariable}, "derived", self._context.emissions_path)
+        with open_nc(self._context.emissions_path, "r", parallel=False) as ds:
+            df = create_descriptive_statistics(
+                {ii.value: ds.variables[ii.value][:] for ii in DerivedVariable},
+                "derived",
+                self._context.emissions_path,
+            )
         df = df.transpose()
         df.index.name = "variable"
         df.reset_index(inplace=True)
-        forecast_dates = forecast_metadata['forecast_date']
-        stats_path = self._context.intp_dir / f"stats_derived_{forecast_dates.min()}_{forecast_dates.max()}.csv"
+        forecast_dates = forecast_metadata["forecast_date"]
+        stats_path = (
+            self._context.intp_dir
+            / f"stats_derived_{forecast_dates.min()}_{forecast_dates.max()}.csv"
+        )
         self.log(f"writing {stats_path=}")
         df.to_csv(stats_path, index=False)
 
     @abc.abstractmethod
-    def flag(self) -> EbbDCycle:
-        ...
+    def flag(self) -> EbbDCycle: ...
 
     @abc.abstractmethod
-    def create_start_datetime(self) -> dt.datetime:
-        ...
+    def create_start_datetime(self) -> dt.datetime: ...
 
     @abc.abstractmethod
-    def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[DerivedVariable, np.ndarray]:
-        ...
+    def average_frp(
+        self, forecast_metadata: pd.DataFrame
+    ) -> Dict[DerivedVariable, np.ndarray]: ...
 
     @abc.abstractmethod
-    def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
-        ...
+    def process_emissions(self, forecast_metadata: pd.DataFrame) -> None: ...
 
 
 class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
@@ -60,7 +68,9 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
 
     def create_start_datetime(self) -> dt.datetime:
         if self._context.persistence:
-            self.log("Creating emissions for persistence method where satellite FRP persist from previous day")
+            self.log(
+                "Creating emissions for persistence method where satellite FRP persist from previous day"
+            )
             start_datetime = self._context.fcst_datetime - dt.timedelta(days=1)
         else:
             self.log("Creating emissions using current date satellite FRP")
@@ -70,50 +80,70 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
         derived = self.average_frp(forecast_metadata)
         self.log(f"creating 24-hour emissions file: {self._context.emissions_path}")
-        with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds_out:
+        with open_nc(
+            self._context.emissions_path, "w", parallel=False, clobber=True
+        ) as ds_out:
             create_template_emissions_file(ds_out, self._context.grid_out_shape)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
             create_sd_variable(
-                ds_out, DerivedVariable.FRP_AVG.value, "mean Fire Radiative Power", "MW", "0.f", 0.
+                ds_out,
+                DerivedVariable.FRP_AVG.value,
+                "mean Fire Radiative Power",
+                "MW",
+                "0.f",
+                0.0,
             )
-            ds_out.variables[DerivedVariable.FRP_AVG.value][:] = derived[DerivedVariable.FRP_AVG]
+            ds_out.variables[DerivedVariable.FRP_AVG.value][:] = derived[
+                DerivedVariable.FRP_AVG
+            ]
             create_sd_variable(
-                ds_out, DerivedVariable.EBB_TOTAL.value, "EBB emissions", "ug m-2 s-1", "0.f", 0.
+                ds_out,
+                DerivedVariable.EBB_TOTAL.value,
+                "EBB emissions",
+                "ug m-2 s-1",
+                "0.f",
+                0.0,
             )
-            ds_out.variables[DerivedVariable.EBB_TOTAL.value][:] = derived[DerivedVariable.EBB_TOTAL]
+            ds_out.variables[DerivedVariable.EBB_TOTAL.value][:] = derived[
+                DerivedVariable.EBB_TOTAL
+            ]
 
-    def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[DerivedVariable, np.ndarray]:
-        #tdk:story: refactor to share code with other cycle
+    def average_frp(
+        self, forecast_metadata: pd.DataFrame
+    ) -> Dict[DerivedVariable, np.ndarray]:
+        # tdk:story: refactor to share code with other cycle
         ebb_smoke_total = []
         frp_avg_hr = []
 
         with xr.open_dataset(self._context.veg_map) as ds:
-            emiss_factor = ds['emiss_factor'].values
+            emiss_factor = ds["emiss_factor"].values
         with xr.open_dataset(self._context.grid_out) as ds:
-            target_area = ds['area'].values
+            target_area = ds["area"].values
 
         for row_idx, row_df in forecast_metadata.iterrows():
             self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
-            with xr.open_dataset(row_df['rave_interpolated']) as ds:
+            with xr.open_dataset(row_df["rave_interpolated"]) as ds:
                 fre = ds[EmissionVariable.FRE.smoke_dust_name()][0, :, :].values
                 frp = ds[EmissionVariable.FRP.smoke_dust_name()][0, :, :].values
 
             frp_avg_hr.append(frp)
-            ebb_hourly = (fre * emiss_factor * self._context.beta * self._context.fg_to_ug) / (
-                    target_area * self._context.to_s
-            )
-            ebb_smoke_total.append(
-                np.where(frp > 0, ebb_hourly, 0)
-            )
+            ebb_hourly = (
+                fre * emiss_factor * self._context.beta * self._context.fg_to_ug
+            ) / (target_area * self._context.to_s)
+            ebb_smoke_total.append(np.where(frp > 0, ebb_hourly, 0))
 
         frp_avg_reshaped = np.stack(frp_avg_hr, axis=0)
         ebb_total_reshaped = np.stack(ebb_smoke_total, axis=0)
 
         np.nan_to_num(frp_avg_reshaped, copy=False, nan=0.0)
 
-        return {DerivedVariable.FRP_AVG:frp_avg_reshaped, DerivedVariable.EBB_TOTAL:ebb_total_reshaped}
+        return {
+            DerivedVariable.FRP_AVG: frp_avg_reshaped,
+            DerivedVariable.EBB_TOTAL: ebb_total_reshaped,
+        }
+
 
 class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
     flag = EbbDCycle.TWO
@@ -123,30 +153,34 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         return self._context.fcst_datetime - dt.timedelta(days=1, hours=1)
 
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
-        #tdk:story: implement emissions processing when we can test
+        # tdk:story: implement emissions processing when we can test
         raise NotImplementedError
 
-    def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[DerivedVariable, np.ndarray]:
+    def average_frp(
+        self, forecast_metadata: pd.DataFrame
+    ) -> Dict[DerivedVariable, np.ndarray]:
         frp_daily = np.zeros(self._context.grid_out_shape)
         ebb_smoke_total = []
 
         with xr.open_dataset(self._context.veg_map) as ds:
-            emiss_factor = ds['emiss_factor'].values
+            emiss_factor = ds["emiss_factor"].values
         with xr.open_dataset(self._context.grid_out) as ds:
-            target_area = ds['area'].values
+            target_area = ds["area"].values
 
         for row_idx, row_df in forecast_metadata.iterrows():
             self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
-            with xr.open_dataset(row_df['rave_interpolated']) as ds:
+            with xr.open_dataset(row_df["rave_interpolated"]) as ds:
                 fre = ds[EmissionVariable.FRE.smoke_dust_name()][0, :, :].values
                 frp = ds[EmissionVariable.FRP.smoke_dust_name()][0, :, :].values
 
             ebb_hourly = (
-                    fre * emiss_factor * self._context.beta * self._context.fg_to_ug / target_area
+                fre
+                * emiss_factor
+                * self._context.beta
+                * self._context.fg_to_ug
+                / target_area
             )
-            ebb_smoke_total.append(
-                np.where(frp > 0, ebb_hourly, 0).ravel()
-            )
+            ebb_smoke_total.append(np.where(frp > 0, ebb_hourly, 0).ravel())
             frp_daily += np.where(frp > 0, frp, 0).ravel()
 
         summed_array = np.sum(np.array(ebb_smoke_total), axis=0)
@@ -182,4 +216,19 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
 
         np.nan_to_num(frp_avg_reshaped, copy=False, nan=0.0)
 
-        return {DerivedVariable.FRP_AVG: frp_avg_reshaped, DerivedVariable.EBB_TOTAL: ebb_total_reshaped}
+        return {
+            DerivedVariable.FRP_AVG: frp_avg_reshaped,
+            DerivedVariable.EBB_TOTAL: ebb_total_reshaped,
+        }
+
+
+def create_cycle_processor(
+    context: SmokeDustContext,
+) -> AbstractSmokeDustCycleProcessor:
+    match context.ebb_dcycle_flag:
+        case EbbDCycle.ONE:
+            return SmokeDustCycleOne(context)
+        case EbbDCycle.TWO:
+            return SmokeDustCycleTwo(context)
+        case _:
+            raise NotImplementedError(context.ebb_dcycle_flag)

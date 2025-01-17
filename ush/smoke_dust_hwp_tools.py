@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
+import datetime as dt
+import fnmatch
+import os
+from datetime import timedelta
 from typing import List, Tuple
 
 import numpy as np
-import os
-import datetime as dt
-from datetime import timedelta
 import xarray as xr
-import fnmatch
-
 from pandas import Index
 from xarray import DataArray
 

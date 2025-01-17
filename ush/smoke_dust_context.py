@@ -1,3 +1,4 @@
+import datetime as dt
 import logging
 import logging.config
 import os
@@ -7,7 +8,6 @@ from pathlib import Path
 from typing import Tuple, List
 
 from mpi4py import MPI
-import datetime as dt
 
 from smoke_dust_common import open_nc
 
@@ -71,20 +71,23 @@ class SmokeDustContext:
     current_day: str
     nwges_dir: Path
 
-    should_calc_desc_stats: bool = True #tdk: make this a parameter
+    should_calc_desc_stats: bool = True  # tdk: make this a parameter
     beta: float = 0.3
     fg_to_ug: float = 1e6
     to_s: int = 3600
     vars_emis = ["FRP_MEAN", "FRE"]
     rank: int = MPI.COMM_WORLD.Get_rank()
-    grid_out_shape: Tuple[int, int] = (0, 0) # Set in __post_init__
+    grid_out_shape: Tuple[int, int] = (0, 0)  # Set in __post_init__
     esmpy_debug: bool = False
 
     def __post_init__(self):
         self._logger = self._init_logging_()
 
         with open_nc(self.grid_out, parallel=False) as ds:
-            self.grid_out_shape = ds.dimensions["grid_yt"].size, ds.dimensions["grid_xt"].size
+            self.grid_out_shape = (
+                ds.dimensions["grid_yt"].size,
+                ds.dimensions["grid_xt"].size,
+            )
         self.log(f"{self.grid_out_shape=}")
 
     @property
@@ -157,11 +160,12 @@ class SmokeDustContext:
 
         return cls(**kwds)
 
-    def log(self,
-            msg,
-            level=logging.INFO,
-            exc_info: Exception = None,
-            stacklevel: int = 2,
+    def log(
+        self,
+        msg,
+        level=logging.INFO,
+        exc_info: Exception = None,
+        stacklevel: int = 2,
     ):
         if exc_info is not None:
             level = logging.ERROR
