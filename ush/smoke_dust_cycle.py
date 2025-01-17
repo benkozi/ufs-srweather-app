@@ -30,7 +30,7 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
     def create_derived_statistics(self) -> None:
         with open_nc(self._context.emissions_path, 'r', parallel=False) as ds:
             df = create_descriptive_statistics({ii.value: ds.variables[ii.value][:] for ii in DerivedVariable}, "derived", self._context.emissions_path)
-        derived_stats_out = self._context.intp_dir / "derived_variable_statistics.csv"
+        derived_stats_out = self._context.intp_dir / "derived_variable_statistics.csv" #tdk: add forecast date info to filenames
         self.log(f"writing {derived_stats_out}")
         df = df.transpose()
         df.index.name = "variable"

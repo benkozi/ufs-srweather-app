@@ -15,9 +15,8 @@ from smoke_dust_interp_tools import mask_edges
 
 class SmokeDustRegridProcessor:
 
-    def __init__(self, context: SmokeDustContext, forecast_metadata: pd.DataFrame):
+    def __init__(self, context: SmokeDustContext):
         self._context = context
-        self._forecast_metadata = forecast_metadata
 
         # Holds interpolation descriptive statistics
         self._interpolation_stats = None
@@ -26,10 +25,10 @@ class SmokeDustRegridProcessor:
         #tdk: superclass for processors
         self._context.log(*args, **kwargs)
 
-    def run(self) -> None:
+    def run(self, forecast_metadata: pd.DataFrame) -> None:
         # Select which RAVE files to interpolate
-        rave_to_interpolate = self._forecast_metadata[
-            self._forecast_metadata['rave_interpolated'].isnull() & ~self._forecast_metadata['rave_raw'].isnull()]
+        rave_to_interpolate = forecast_metadata[
+            forecast_metadata['rave_interpolated'].isnull() & ~forecast_metadata['rave_raw'].isnull()]
 
         if len(rave_to_interpolate) == 0:
             self.log("all rave files have been interpolated")
@@ -142,7 +141,7 @@ class SmokeDustRegridProcessor:
                 dst_fwrap.fill_nc_variable(output_file_path)
 
             # Update the forecast metadata with the interpolated RAVE file data
-            self._forecast_metadata.loc[row_idx, 'rave_interpolated'] = output_file_path
+            forecast_metadata.loc[row_idx, 'rave_interpolated'] = output_file_path
             row_data['rave_interpolated'] = output_file_path
 
             if self._context.rank == 0:
