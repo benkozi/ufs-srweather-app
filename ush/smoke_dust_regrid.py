@@ -43,7 +43,6 @@ class SmokeDustRegridProcessor:
             forecast_metadata["rave_interpolated"].isnull()
             & ~forecast_metadata["rave_raw"].isnull()
         ]
-        import pdb;pdb.set_trace()
         if len(rave_to_interpolate) == 0:
             self.log("all rave files have been interpolated")
             return

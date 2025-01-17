@@ -68,7 +68,7 @@ class SmokeDustPreprocessor:
                     intp_path.append(resolved)
             else:
                 intp_path.append(None)
-
+            import pdb;pdb.set_trace()
             # Check for raw RAVE data
             wildcard_name = f"*-3km*{date}*{date}59590*.nc"
             name_retro = f"*3km*{date}*{date}*.nc"  # tdk:ja: what is this for?
