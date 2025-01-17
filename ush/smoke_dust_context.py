@@ -112,7 +112,7 @@ class SmokeDustContext:
 
     @property
     def hourly_hwpdir(self) -> Path:
-        return self.nwges_dir / "hourly_hwpdir.nc"
+        return self.nwges_dir / "RESTART"
 
     @property
     def emissions_path(self) -> Path:

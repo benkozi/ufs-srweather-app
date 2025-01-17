@@ -153,8 +153,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         return self._context.fcst_datetime - dt.timedelta(days=1, hours=1)
 
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
-        # tdk:story: implement emissions processing when we can test
-        raise NotImplementedError
+        import pdb;pdb.set_trace()
 
     def average_frp(
         self, forecast_metadata: pd.DataFrame

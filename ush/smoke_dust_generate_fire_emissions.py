@@ -53,6 +53,7 @@ class SmokeDustPreprocessor:
         # Collect metadata on RAVE input files
         intp_path = []
         rave_to_forecast = []
+        hwp = []
         for date in forecast_dates:
             # Check for pre-existing interpolated RAVE data
             file_path = (
@@ -83,14 +84,24 @@ class SmokeDustPreprocessor:
             if not found:
                 rave_to_forecast.append(None)
 
+            # Check for HWP files
+            self.log("check for available HWP files")
+            restart_file = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
+            if restart_file.exists():
+                hwp.append(restart_file)
+            else:
+                hwp.append(None)
+
         df = pd.DataFrame(
             data={
                 "forecast_date": forecast_dates,
                 "rave_interpolated": intp_path,
                 "rave_raw": rave_to_forecast,
+                "hwp": hwp
             }
         )
         self._forecast_metadata = df
+        #tdk:last: write forecast metadata
         return df
 
     @property
