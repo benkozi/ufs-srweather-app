@@ -4,7 +4,6 @@ from copy import copy, deepcopy
 from pathlib import Path
 from typing import Any, Union, Dict, Sequence, Tuple, Literal
 
-import esmpy
 import netCDF4 as nc
 import numpy as np
 from pydantic import BaseModel, ConfigDict, model_validator, field_validator
@@ -16,11 +15,18 @@ from smoke_dust_common import create_template_emissions_file, \
     create_sd_variable, create_descriptive_statistics
 from smoke_dust_common import open_nc
 
+try:
+    import esmpy
+except ImportError:
+    # esmpy version 8.3.1 is required on Orion/Hercules
+    import ESMF as esmpy
+
 
 class SmokeDustRegridProcessor:
 
     def __init__(self, context: SmokeDustContext):
         self._context = context
+        self._esmpy_manager = esmpy.Manager(debug=self._context.esmpy_debug)
 
         # Holds interpolation descriptive statistics
         self._interpolation_stats = None
@@ -198,37 +204,6 @@ class SmokeDustRegridProcessor:
 
 
 HasNcAttrsType = Union[nc.Dataset, nc.Variable]
-
-
-def copy_nc_attrs(src: HasNcAttrsType, dst: HasNcAttrsType) -> None:
-    for attr in src.ncattrs():
-        if attr.startswith("_"):
-            continue
-        setattr(dst, attr, getattr(src, attr))
-
-
-def resize_nc(
-    src_path: Path,
-    dst_path: Path,
-    new_sizes: Dict[str, int],
-    copy_values_for: Sequence[str] | None = None,
-) -> None:
-    with open_nc(src_path, mode="r") as src:
-        with open_nc(dst_path, mode="w") as dst:
-            copy_nc_attrs(src, dst)
-            for dim in src.dimensions:
-                size = get_aliased_key(new_sizes, dim)
-                dst.createDimension(dim, size=size)
-            for varname, var in src.variables.items():
-                fill_value = (
-                    getattr(var, "_FillValue") if hasattr(var, "_FillValue") else None
-                )
-                new_var = dst.createVariable(
-                    varname, var.dtype, var.dimensions, fill_value=fill_value
-                )
-                copy_nc_attrs(var, new_var)
-                if copy_values_for and varname in copy_values_for:
-                    new_var[:] = var[:]
 
 
 NameListType = Tuple[str, ...]
@@ -524,23 +499,6 @@ class NcToField(BaseModel):
             field.data[:] = load_variable_data(ds.variables[self.name], target_dims)
             fwrap = FieldWrapper(value=field, dims=target_dims, gwrap=self.gwrap)
             return fwrap
-
-
-class FieldWrapperCollection(BaseModel):
-    value: Tuple[FieldWrapper, ...]
-
-    def fill_nc_variables(self, path: Path) -> None:
-        for fwrap in self.value:
-            fwrap.fill_nc_variable(path)
-
-    @field_validator("value", mode="before")
-    @classmethod
-    def _validate_value_(
-        cls, value: Tuple[FieldWrapper, ...]
-    ) -> Tuple[FieldWrapper, ...]:
-        if len(set([id(ii.value.grid) for ii in value])) != 1:
-            raise ValueError("all fields must share the same grid")
-        return value
 
 
 def mask_edges(data: np.ma.MaskedArray, mask_width: int = 1) -> None:

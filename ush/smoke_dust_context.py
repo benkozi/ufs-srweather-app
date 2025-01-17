@@ -78,6 +78,7 @@ class SmokeDustContext:
     vars_emis = ["FRP_MEAN", "FRE"]
     rank: int = MPI.COMM_WORLD.Get_rank()
     grid_out_shape: Tuple[int, int] = (0, 0) # Set in __post_init__
+    esmpy_debug: bool = False
 
     def __post_init__(self):
         self._logger = self._init_logging_()
