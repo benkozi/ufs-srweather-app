@@ -54,8 +54,8 @@ class GenerateEmissWorkflowArgs:
             # predef_grid='RRFS_NA_13km',  # tdk: test with all grids
             predef_grid='RRFS_CONUS_25km',  # tdk: test with all grids
             # predef_grid='RRFS_CONUS_13km',  # tdk: test with all grids
-            ebb_dcycle_flag='1',  # tdk: test with 2
-            # ebb_dcycle_flag='2',  # tdk: test with 2
+            # ebb_dcycle_flag='1',  # tdk: test with 2
+            ebb_dcycle_flag='2',  # tdk: test with 2
             restart_interval='6 12 18 24',
             persistence='FALSE',  # tdk: test with false
             # persistence='TRUE',  # tdk: test with false
