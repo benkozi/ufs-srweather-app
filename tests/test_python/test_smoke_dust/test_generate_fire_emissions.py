@@ -1,15 +1,10 @@
-from enum import StrEnum
-from pathlib import Path
-import sys
-
-import numpy as np
-
 sys.path.append(str(Path("../../../ush")))
 
+from pathlib import Path
+import sys
 import logging
 import os
 import shutil
-import subprocess
 import sys
 import tempfile
 import unittest
@@ -19,8 +14,6 @@ from pathlib import Path
 from typing import Tuple, Dict
 
 from smoke_dust_generate_fire_emissions import generate_emiss_workflow
-from smoke_dust_interp_tools import mask_edges
-from smoke_dust_interpolation import open_nc
 
 logger = logging.getLogger('test_generate_fire_emissions')
 handler = logging.StreamHandler(stream=sys.stdout)

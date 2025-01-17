@@ -71,7 +71,7 @@ class SmokeDustContext:
     current_day: str
     nwges_dir: Path
 
-    calculate_descriptive_interpolation_statistics: bool = True #tdk: make this a parameter
+    should_calc_desc_stats: bool = True #tdk: make this a parameter
     beta: float = 0.3
     fg_to_ug: float = 1e6
     to_s: int = 3600
