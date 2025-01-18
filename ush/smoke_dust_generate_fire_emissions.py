@@ -84,13 +84,13 @@ class SmokeDustPreprocessor:
             if not found:
                 rave_to_forecast.append(None)
 
-            # Check for HWP files
-            self.log("check for available HWP files")
-            restart_file = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
-            if restart_file.exists():
-                hwp.append(restart_file)
-            else:
-                hwp.append(None)
+            #tdk:last: can maybe remove
+            # # Check for HWP files
+            # restart_file = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
+            # if restart_file.exists():
+            #     hwp.append(restart_file)
+            # else:
+            #     hwp.append(None)
 
         df = pd.DataFrame(
             data={
