@@ -154,6 +154,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
 
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
         #tdk: figure out restart file copying
+        self.log("process_emissions: enter")
 
         hwp_ave = []
         totprcp = np.zeros(self._context.grid_out_shape)
@@ -191,8 +192,6 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         )
         fire_age = np.array(te).reshape(self._context.grid_out_shape)
 
-        # ---------------
-
         # Ensure arrays are not negative or NaN
         frp_avg_reshaped = np.clip(derived[DerivedVariable.FRP_AVG], 0, None)
         frp_avg_reshaped = np.nan_to_num(frp_avg_reshaped)
@@ -217,49 +216,34 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         ebb_tot_reshaped = ebb_tot_reshaped * mask
         fire_age = fire_age * mask
 
-        # Produce emiss file
-        with open_nc(self._context.emissions_path, "w", parallel=False) as ds:
+        with open_nc(self._context.emissions_path, "w", parallel=False) as ds_out:
             create_template_emissions_file(ds, self._context.grid_out_shape)
-            i_tools.Store_latlon_by_Level(
-                fout,
-                "geolat",
-                tgt_latt,
-                "cell center latitude",
-                "degrees_north",
-                "-9999.f",
-            )
-            i_tools.Store_latlon_by_Level(
-                fout,
-                "geolon",
-                tgt_lont,
-                "cell center longitude",
-                "degrees_east",
-                "-9999.f",
-            )
+            with open_nc(self._context.grid_out, parallel=False) as ds_src:
+                ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
+                ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
 
-            print("Storing different variables")
-            i_tools.Store_by_Level(
-                fout, "frp_davg", "Daily mean Fire Radiative Power", "MW", "0.f"
+            create_sd_variable(
+                ds_out, "frp_davg", "Daily mean Fire Radiative Power", "MW", "0.f", 0.0
             )
-            fout.variables["frp_davg"][0, :, :] = frp_avg_reshaped
-            i_tools.Store_by_Level(
-                fout, "ebb_rate", "Total EBB emission", "ug m-2 s-1", "0.f"
+            ds_out.variables["frp_davg"][0, :, :] = frp_avg_reshaped
+            create_sd_variable(
+                ds_out, "ebb_rate", "Total EBB emission", "ug m-2 s-1", "0.f", 0.0
             )
-            fout.variables["ebb_rate"][0, :, :] = ebb_tot_reshaped
-            i_tools.Store_by_Level(
-                fout, "fire_end_hr", "Hours since fire was last detected", "hrs", "0.f"
+            ds_out.variables["ebb_rate"][0, :, :] = ebb_tot_reshaped
+            create_sd_variable(
+                ds_out, "fire_end_hr", "Hours since fire was last detected", "hrs", "0.f", 0.0
             )
-            fout.variables["fire_end_hr"][0, :, :] = fire_age
-            i_tools.Store_by_Level(
-                fout, "hwp_davg", "Daily mean Hourly Wildfire Potential", "none", "0.f"
+            ds_out.variables["fire_end_hr"][0, :, :] = fire_age
+            create_sd_variable(
+                ds_out, "hwp_davg", "Daily mean Hourly Wildfire Potential", "none", "0.f", 0.0
             )
-            fout.variables["hwp_davg"][0, :, :] = filtered_hwp
-            i_tools.Store_by_Level(
-                fout, "totprcp_24hrs", "Sum of precipitation", "m", "0.f"
+            ds_out.variables["hwp_davg"][0, :, :] = filtered_hwp
+            create_sd_variable(
+                ds_out, "totprcp_24hrs", "Sum of precipitation", "m", "0.f", 0.0
             )
-            fout.variables["totprcp_24hrs"][0, :, :] = filtered_prcp
+            ds_out.variables["totprcp_24hrs"][0, :, :] = filtered_prcp
 
-        import pdb;pdb.set_trace()
+        self.log("process_emissions: exit")
 
     def average_frp(
         self, forecast_metadata: pd.DataFrame
