@@ -136,7 +136,7 @@ else
   fi
 
   # Copy Smoke file to COMOUT
-  cp -p ${DATA}/${smokeFile} ${COMOUT}
+  cp -p ${DATA_SHARE}/${smokeFile} ${COMOUT}
 fi
 #
 #-----------------------------------------------------------------------
