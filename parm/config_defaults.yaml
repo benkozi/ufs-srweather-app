@@ -2551,6 +2551,7 @@ smoke_dust_parm:
   #
   # SMOKE_DUST_FILE_PREFIX:
   # Prefix of Smoke and Dust file name
+  #tdk:doc
   #
   #-----------------------------------------------------------------------
   #
@@ -2560,6 +2561,8 @@ smoke_dust_parm:
   COMINsmoke_default: ""
   COMINrave_default: ""
   SMOKE_DUST_FILE_PREFIX: "SMOKE_RRFS_data"
+  EXIT_ON_ERROR: TRUE
+  LOG_LEVEL: DEBUG
 
 rocoto:
   attrs: ""
