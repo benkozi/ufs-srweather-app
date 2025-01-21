@@ -9,6 +9,7 @@
 #########################################################################
 
 import fnmatch
+import logging
 import sys
 from pathlib import Path
 from typing import List, Any
@@ -46,6 +47,7 @@ class SmokeDustPreprocessor:
             return self._forecast_metadata
 
         start_datetime = self._cycle_processor.create_start_datetime()
+        self.log(f"creating forecast metadata: {start_datetime}")
         forecast_dates = pd.date_range(
             start=start_datetime, periods=24, freq="h"
         ).strftime("%Y%m%d%H")
@@ -53,7 +55,6 @@ class SmokeDustPreprocessor:
         # Collect metadata on RAVE input files
         intp_path = []
         rave_to_forecast = []
-        hwp = []
         for date in forecast_dates:
             # Check for pre-existing interpolated RAVE data
             file_path = (
@@ -92,16 +93,17 @@ class SmokeDustPreprocessor:
             # else:
             #     hwp.append(None)
 
+        self.log(f"{forecast_dates=}", level=logging.DEBUG)
+        self.log(f"{intp_path=}", level=logging.DEBUG)
+        self.log(f"{rave_to_forecast=}", level=logging.DEBUG)
         df = pd.DataFrame(
             data={
                 "forecast_date": forecast_dates,
                 "rave_interpolated": intp_path,
                 "rave_raw": rave_to_forecast,
-                "hwp": hwp
             }
         )
         self._forecast_metadata = df
-        #tdk:last: write forecast metadata
         return df
 
     @property
