@@ -90,38 +90,6 @@ class SmokeDustContext:
             )
         self.log(f"{self.grid_out_shape=}")
 
-    @property
-    def veg_map(self) -> Path:
-        return self.staticdir / "veg_map.nc"
-
-    @property
-    def rave_to_intp(self) -> str:
-        return self.predef_grid.value + "_intp_"
-
-    @property
-    def grid_in(self) -> Path:
-        return self.staticdir / "grid_in.nc"
-
-    @property
-    def weightfile(self) -> Path:
-        return self.staticdir / "weight_file.nc"
-
-    @property
-    def grid_out(self) -> Path:
-        return self.staticdir / "ds_out_base.nc"
-
-    @property
-    def hourly_hwpdir(self) -> Path:
-        return self.nwges_dir / "RESTART"
-
-    @property
-    def emissions_path(self) -> Path:
-        return self.intp_dir / f"SMOKE_RRFS_data_{self.current_day}00.nc"
-
-    @property
-    def fcst_datetime(self) -> dt.datetime:
-        return dt.datetime.strptime(self.current_day, "%Y%m%d%H")
-
     @classmethod
     def create_from_args(cls, args: List[str]) -> "SmokeDustContext":
         print(f"create_from_args:args={args}", flush=True)
@@ -159,6 +127,38 @@ class SmokeDustContext:
         )
 
         return cls(**kwds)
+
+    @property
+    def veg_map(self) -> Path:
+        return self.staticdir / "veg_map.nc"
+
+    @property
+    def rave_to_intp(self) -> str:
+        return self.predef_grid.value + "_intp_"
+
+    @property
+    def grid_in(self) -> Path:
+        return self.staticdir / "grid_in.nc"
+
+    @property
+    def weightfile(self) -> Path:
+        return self.staticdir / "weight_file.nc"
+
+    @property
+    def grid_out(self) -> Path:
+        return self.staticdir / "ds_out_base.nc"
+
+    @property
+    def hourly_hwpdir(self) -> Path:
+        return self.nwges_dir / "RESTART"
+
+    @property
+    def emissions_path(self) -> Path:
+        return self.intp_dir / f"SMOKE_RRFS_data_{self.current_day}00.nc"
+
+    @property
+    def fcst_datetime(self) -> dt.datetime:
+        return dt.datetime.strptime(self.current_day, "%Y%m%d%H")
 
     def log(
         self,
