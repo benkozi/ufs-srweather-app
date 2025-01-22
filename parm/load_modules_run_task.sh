@@ -111,9 +111,8 @@ fi
 if [ "${task_name}" = "smoke_dust" ]; then
   set +u
   if [ "${machine}" = "hera" ]; then
-    module use /contrib/miniconda3/modulefiles
-    module load miniconda3/4.12.0
-    conda activate /scratch2/NCEPDEV/naqfc/Chan-hoo.Jeon/PY_VENV/main_aqm_pyenv
+    export ESMFMKFILE=/scratch2/NAGAPE/epic/Ben.Koziol/miniconda/envs/srw_aqm/lib/esmf.mk
+    export PATH=/scratch2/NAGAPE/epic/Ben.Koziol/miniconda/envs/srw_aqm/bin:${PATH}
   elif [ "${machine}" = "orion" ] || [ "${machine}" = "hercules" ]; then
     export ESMFMKFILE=/work/noaa/epic/bwkoziol/sandbox/miniconda3/envs/srw_aqm/lib/esmf.mk
     export PATH=/work/noaa/epic/bwkoziol/sandbox/miniconda3/envs/srw_aqm/bin:${PATH}

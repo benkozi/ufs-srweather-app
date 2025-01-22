@@ -11,7 +11,7 @@ set -xue
 . ${PARMsrw}/source_util_funcs.sh
 task_global_vars=( "EBB_DCYCLE" "FIXsmoke" "INCR_CYCL_FREQ" \
   "PERSISTENCE" "PRE_TASK_CMDS" "PREDEF_GRID_NAME" "RESTART_INTERVAL" \
-  "SMOKE_DUST_FILE_PREFIX" "EXIT_ON_ERROR" "LOG_LEVEL" "RUN_CMD_FCST" )
+  "SMOKE_DUST_FILE_PREFIX" "EXIT_ON_ERROR" "LOG_LEVEL" )
 for var in ${task_global_vars[@]}; do
   source_config_for_task ${var} ${GLOBAL_VAR_DEFNS_FP}
 done
@@ -113,7 +113,7 @@ else
   #
 
   #tdk: maybe have own command that already has its own nprocs
-  eval ${RUN_CMD_FCST} -n ${nprocs} ${USHsrw}/smoke_dust_main.py \
+  eval mpirun -n ${nprocs} ${USHsrw}/smoke_dust_main.py \
     "${FIXsmoke}/${PREDEF_GRID_NAME}" \
     "${DATA}" \
     "${DATA_SHARE}" \
