@@ -113,8 +113,8 @@ else
   #
 
   #tdk: maybe have own command that already has its own nprocs
-#  eval mpirun -n ${nprocs} python ${USHsrw}/smoke_dust_main.py \
-  python ${USHsrw}/smoke_dust_main.py \
+  mpirun -n ${nprocs} python ${USHsrw}/smoke_dust_main.py \
+#  python ${USHsrw}/smoke_dust_main.py \ #tdk:rm
     "${FIXsmoke}/${PREDEF_GRID_NAME}" \
     "${DATA}" \
     "${DATA_SHARE}" \
