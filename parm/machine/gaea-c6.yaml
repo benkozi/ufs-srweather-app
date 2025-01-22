@@ -38,9 +38,9 @@ platform:
   FIXshp: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/NaturalEarth
   FIXaqm:
   FIXemis:
-  FIXsmoke: /ncrc/proj/bil-fire8/SRW-AQM_DATA/fix_smoke
-  FIXupp: /ncrc/proj/bil-fire8/SRW-AQM_DATA/fix_upp
-  FIXcrtm: /ncrc/proj/bil-fire8/SRW-AQM_DATA/fix_crtm
+  FIXsmoke: /gpfs/f6/bil-fire8/world-shared/SRW_AQM_data/fix_smoke
+  FIXupp: /gpfs/f6/bil-fire8/world-shared/SRW_AQM_data/fix_upp
+  FIXcrtm: /gpfs/f6/bil-fire8/world-shared/SRW_AQM_data/fix_crtm
   EXTRN_MDL_DATA_STORES: aws
 
 cpl_aqm_parm:
@@ -49,8 +49,8 @@ cpl_aqm_parm:
   NEXUS_GFS_SFC_DIR:
 
 smoke_dust_parm:
-  COMINsmoke_default: /ncrc/proj/bil-fire8/SRW-AQM_DATA/data_smoke_dust/RAVE_smoke_dust
-  COMINrave_default: /ncrc/proj/bil-fire8/SRW-AQM_DATA/data_smoke_dust/RAVE_fire
+  COMINsmoke_default: /gpfs/f6/bil-fire8/world-shared/SRW_AQM_data/data_smoke_dust/RAVE_smoke_dust
+  COMINrave_default: /gpfs/f6/bil-fire8/world-shared/SRW_AQM_data/data_smoke_dust/RAVE_fire
 
 data:
   ics_lbcs:
