@@ -30,13 +30,18 @@ class SmokeDustPreprocessor:
 
     def __init__(self, context: SmokeDustContext) -> None:
         self._context = context
+        self.log(f"__init__: enter")
+
+        # Processes regridding from source data to destination analysis grid
         self._regrid_processor = SmokeDustRegridProcessor(context)
+        # Processes cycle-specific data transformations
         self._cycle_processor = create_cycle_processor(context)
 
         # On-demand/cached property values
         self._forecast_metadata = None
 
-        self.log(f"initialization complete. {self._context=}")
+        self.log(f"{self._context=}")
+        self.log("__init__: exit")
 
     def log(self, *args: Any, **kwargs: Any) -> None:
         self._context.log(*args, **kwargs)
@@ -47,7 +52,7 @@ class SmokeDustPreprocessor:
             return self._forecast_metadata
 
         start_datetime = self._cycle_processor.create_start_datetime()
-        self.log(f"creating forecast metadata: {start_datetime}")
+        self.log(f"creating forecast metadata: {start_datetime=}")
         forecast_dates = pd.date_range(
             start=start_datetime, periods=24, freq="h"
         ).strftime("%Y%m%d%H")
@@ -85,14 +90,6 @@ class SmokeDustPreprocessor:
             if not found:
                 rave_to_forecast.append(None)
 
-            #tdk:last: can maybe remove
-            # # Check for HWP files
-            # restart_file = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
-            # if restart_file.exists():
-            #     hwp.append(restart_file)
-            # else:
-            #     hwp.append(None)
-
         self.log(f"{forecast_dates=}", level=logging.DEBUG)
         self.log(f"{intp_path=}", level=logging.DEBUG)
         self.log(f"{rave_to_forecast=}", level=logging.DEBUG)
@@ -108,18 +105,18 @@ class SmokeDustPreprocessor:
 
     @property
     def is_first_day(self) -> bool:
-        return (
+        is_first_day =  (
             self.forecast_metadata["rave_interpolated"].isnull().all()
             and self.forecast_metadata["rave_raw"].isnull().all()
         )
+        self.log(f"{is_first_day=}")
+        return is_first_day
 
     def run(self) -> None:
         self.log("run: entering")
         if self.is_first_day:
-            # tdk: implement creation of dummy emissions file
-            raise NotImplementedError
+            self.create_dummy_emissions_file()
         else:
-            # tdk: need try/catch to use dummy emissions if regridding fails or no rave data is available
             self._regrid_processor.run(self.forecast_metadata)
             if self._context.rank == 0:
                 self._cycle_processor.process_emissions(self.forecast_metadata)
@@ -129,13 +126,13 @@ class SmokeDustPreprocessor:
                     )
         self.log("run: exiting")
 
-    def _create_dummy_emissions_file_(self) -> None:
-        self.log("_create_dummy_emissions_file_: enter")
+    def create_dummy_emissions_file(self) -> None:
+        self.log("create_dummy_emissions_file: enter")
         self.log(f"{self._context.emissions_path=}")
         with open_nc(
             self._context.emissions_path, "w", parallel=False, clobber=True
         ) as ds:
-            create_template_emissions_file(ds, self._context.grid_out_shape)
+            create_template_emissions_file(ds, self._context.grid_out_shape, is_dummy=True)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
@@ -165,7 +162,7 @@ class SmokeDustPreprocessor:
             create_sd_variable(
                 ds, "totprcp_24hrs", "Sum of precipitation", "m", "0.f", 0.0
             )
-        self.log("_create_dummy_emissions_file_: exit")
+        self.log("create_dummy_emissions_file: exit")
 
     def finalize(self) -> None:
         self.log("finalize: exiting")
@@ -186,11 +183,12 @@ def generate_emiss_workflow(args: List[str]) -> None:
     """
 
     context = SmokeDustContext.create_from_args(args)
+    processor = SmokeDustPreprocessor(context)
     try:
-        processor = SmokeDustPreprocessor(context)
         processor.run()
         processor.finalize()
     except Exception as e:
+        processor.create_dummy_emissions_file()
         context.log("unhandled error", exc_info=e)
 
 

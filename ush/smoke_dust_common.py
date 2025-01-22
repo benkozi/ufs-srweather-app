@@ -101,12 +101,13 @@ def create_sd_variable(
             pass
 
 
-def create_template_emissions_file(ds: nc.Dataset, grid_shape: Tuple[int, int]):
+def create_template_emissions_file(ds: nc.Dataset, grid_shape: Tuple[int, int], is_dummy: bool = False):
     ds.createDimension("t", None)
     ds.createDimension("lat", grid_shape[0])
     ds.createDimension("lon", grid_shape[1])
     setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
     setattr(ds, "TIME_RANGE", "1 hour")
+    setattr(ds, "is_dummy", str(is_dummy))
 
     create_sd_coordinate_variable(
         ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0
