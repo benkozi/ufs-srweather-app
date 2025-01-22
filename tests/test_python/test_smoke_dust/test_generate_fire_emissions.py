@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Tuple, Dict
 
-from smoke_dust_generate_fire_emissions import generate_emiss_workflow
+from smoke_dust_generate_fire_emissions import main
 
 logger = logging.getLogger('test_generate_fire_emissions')
 handler = logging.StreamHandler(stream=sys.stdout)
@@ -114,9 +114,9 @@ class TestGenerateFireEmissions(unittest.TestCase):
 
         main_args = GenerateEmissWorkflowArgs.create(comin, Path(comout))
         logger.debug(main_args)
-        main_path = self._ushdir / "smoke_dust_generate_fire_emissions.py"
+        main_path = self._ushdir / "smoke_dust_main.py"
         with main_args.run_context() as _:
-            generate_emiss_workflow(main_args.as_script_args())
+            main(main_args.as_script_args())
 
             # python = "python3"
             # # python = '/scratch2/NAGAPE/epic/Ben.Koziol/miniconda/envs/regrid-wrapper/bin/python3.11'

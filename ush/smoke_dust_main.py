@@ -168,7 +168,7 @@ class SmokeDustPreprocessor:
         self.log("finalize: exiting")
 
 
-def generate_emiss_workflow(args: List[str]) -> None:
+def main(args: List[str]) -> None:
     """
     Prepares fire-related ICs. This is the main function that handles data movement and interpolation.
     #tdk: doc
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("")
     # tdk:story: use argparse
-    generate_emiss_workflow(sys.argv[1:])
+    main(sys.argv[1:])
     print("")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("Exiting. Bye!")

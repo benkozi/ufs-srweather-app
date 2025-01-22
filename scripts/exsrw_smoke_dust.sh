@@ -118,7 +118,7 @@ else
 #    FIXsmoke="/home/bwkoziol/tmp-smoke-dust-fixed-files" #orion
   fi
 
-  ${USHsrw}/smoke_dust_generate_fire_emissions.py \
+  ${USHsrw}/smoke_dust_main.py \
     "${FIXsmoke}/${PREDEF_GRID_NAME}" \
     "${DATA}" \
     "${DATA_SHARE}" \
@@ -130,7 +130,7 @@ else
     "${LOG_LEVEL}"
   export err=$?
   if [ $err -ne 0 ]; then
-    message_txt="generate_fire_emissions.py failed with return code $err"
+    message_txt="failed with return code $err"
     err_exit "${message_txt}"
     print_err_msg_exit "${message_txt}"
   fi
