@@ -71,7 +71,7 @@ global:
 smoke_dust_parm:
   DO_SMOKE_DUST: true
   EBB_DCYCLE: 1
-  PERSISTENCE: true
+  PERSISTENCE: false
   SMOKE_DUST_FILE_PREFIX: SMOKE_RRFS_data
   EXIT_ON_ERROR: TRUE
   LOG_LEVEL: DEBUG

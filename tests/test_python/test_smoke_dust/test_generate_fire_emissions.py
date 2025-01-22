@@ -46,7 +46,7 @@ class GenerateEmissWorkflowArgs:
 
             # ravedir=comin / 'RAVE_fire',
 
-            ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'), #hera
+            ravedir=Path('/scratch2/NAGAPE/epic/Ben.Koziol/sandbox/srw-main-aqm/predefined-grids/nco_dirs/test_smoke/tmp/smoke_dust.2019072200.5508083'), #hera
             # ravedir=Path('/work/noaa/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'), #orion
 
             # tdk: make this configurable
@@ -104,7 +104,7 @@ class TestGenerateFireEmissions(unittest.TestCase):
         shutil.rmtree(self._temp_dir)
 
     def test(self) -> None:
-        comin = Path("/scratch2/NAGAPE/epic/Ben.Koziol/tmp-smoke-fix-dir") # hera
+        comin = Path("/scratch2/NAGAPE/epic/SRW-AQM_DATA/fix_smoke") # hera
         # comin = Path("/home/bwkoziol/tmp-smoke-dust-fixed-files/") # orion
         # comin = Path(self._temp_dir)
 
