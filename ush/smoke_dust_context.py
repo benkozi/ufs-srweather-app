@@ -119,8 +119,7 @@ class SmokeDustContext:
             predef_grid=PredefinedGrid(l_predef_grid),
             ebb_dcycle_flag=EbbDCycle(int(l_ebb_dcycle_flag)),
             restart_interval=[int(num) for num in l_restart_interval.split(" ")],
-            # persistence=cls._str_to_bool_(l_persistence), #tdk: revert
-            persistence=False,
+            persistence=cls._str_to_bool_(l_persistence),
             exit_on_error=cls._str_to_bool_(l_exit_on_error),
             log_level=getattr(logging, l_log_level.upper()),
             current_day=current_day,

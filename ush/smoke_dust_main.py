@@ -115,7 +115,8 @@ class SmokeDustPreprocessor:
     def run(self) -> None:
         self.log("run: entering")
         if self.is_first_day:
-            self.create_dummy_emissions_file()
+            if self._context.rank == 0:
+                self.create_dummy_emissions_file()
         else:
             self._regrid_processor.run(self.forecast_metadata)
             if self._context.rank == 0:
