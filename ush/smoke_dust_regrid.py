@@ -152,10 +152,17 @@ class SmokeDustRegridProcessor:
                     self.log("creating regridder")
                     self.log(f"{src_fwrap.value.data.shape=}", level=logging.DEBUG)
                     self.log(f"{dst_fwrap.value.data.shape=}", level=logging.DEBUG)
-                    regridder = esmpy.RegridFromFile(
+                    # regridder = esmpy.RegridFromFile(
+                    #     src_fwrap.value,
+                    #     dst_fwrap.value,
+                    #     filename=str(self._context.weightfile),
+                    # )
+                    regridder = esmpy.Regrid(
                         src_fwrap.value,
                         dst_fwrap.value,
-                        filename=str(self._context.weightfile),
+                        regrid_method=esmpy.RegridMethod.CONSERVE,
+                        unmapped_action=esmpy.UnmappedAction.IGNORE,
+                        ignore_degenerate=True,
                     )
                     first = False
 
