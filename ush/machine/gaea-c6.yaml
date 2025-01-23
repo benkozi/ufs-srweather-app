@@ -36,7 +36,6 @@ platform:
   FIXsfc: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/NaturalEarth
   FIXsmoke: /gpfs/f6/bil-fire8/world-shared/SRW_AQM_data/fix_smoke
-  FIXupp: /gpfs/f6/bil-fire8/world-shared/SRW_AQM_data/fix_upp
   FIXcrtm: /gpfs/f6/bil-fire8/world-shared/SRW_AQM_data/fix_crtm
   EXTRN_MDL_DATA_STORES: aws
 
