@@ -117,7 +117,7 @@
 #
 . $USHdir/source_util_funcs.sh
 for sect in user nco platform workflow global cpl_aqm_parm constants fixed_files \
-  task_get_extrn_lbcs task_run_fcst task_run_post fire; do
+  task_get_extrn_lbcs task_run_fcst task_run_post smoke_dust_parm fire; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
 
@@ -298,7 +298,7 @@ create_symlink_to_file $target $symlink ${relative_link_flag}
 # that the FV3 model is hardcoded to recognize, and those are the names 
 # we use below.
 #
-suites=( "FV3_RAP" "FV3_HRRR" "FV3_GFS_v15_thompson_mynn_lam3km" "FV3_GFS_v17_p8" )
+suites=( "FV3_RAP" "FV3_HRRR" "FV3_HRRR_gf" "FV3_GFS_v15_thompson_mynn_lam3km" "FV3_GFS_v17_p8" )
 if [[ ${suites[@]} =~ "${CCPP_PHYS_SUITE}" ]] ; then
   file_ids=( "ss" "ls" )
   for file_id in "${file_ids[@]}"; do
@@ -338,7 +338,7 @@ cd ${DATA}/INPUT
 #
 relative_link_flag="FALSE"
 
-if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+if [ $(boolify "${CPL_AQM}") = "TRUE" ] || [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
   COMIN="${COMROOT}/${NET}/${model_ver}/${RUN}.${PDY}/${cyc}${SLASH_ENSMEM_SUBDIR}" #temporary path, should be removed later
 
   target="${COMIN}/${NET}.${cycle}${dot_ensmem}.gfs_data.tile${TILE_RGNL}.halo${NH0}.nc"
@@ -358,17 +358,35 @@ if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
     symlink="gfs_bndy.tile${TILE_RGNL}.${fhr}.nc"
     create_symlink_to_file $target $symlink ${relative_link_flag}
   done
-  target="${COMIN}/${NET}.${cycle}${dot_ensmem}.NEXUS_Expt.nc"
-  symlink="NEXUS_Expt.nc"
-  create_symlink_to_file $target $symlink ${relative_link_flag}
 
-  # create symlink to PT for point source in SRW-AQM
-  target="${COMIN}/${NET}.${cycle}${dot_ensmem}.PT.nc"
-  if [ -f ${target} ]; then
-    symlink="PT.nc"
+  if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+    target="${COMIN}/${NET}.${cycle}${dot_ensmem}.NEXUS_Expt.nc"
+    symlink="NEXUS_Expt.nc"
     create_symlink_to_file $target $symlink ${relative_link_flag}
-  fi
 
+    # create symlink to PT for point source in SRW-AQM
+    target="${COMIN}/${NET}.${cycle}${dot_ensmem}.PT.nc"
+    if [ -f ${target} ]; then
+      symlink="PT.nc"
+      create_symlink_to_file $target $symlink ${relative_link_flag}
+    fi
+  else
+    ln -nsf ${FIXsmoke}/${PREDEF_GRID_NAME}/dust12m_data.nc .
+    ln -nsf ${FIXsmoke}/${PREDEF_GRID_NAME}/emi_data.nc .
+
+    smokefile="${COMIN}/${SMOKE_DUST_FILE_PREFIX}_${PDY}${cyc}00.nc"
+    if [ -f ${smokefile} ]; then
+      ln -nsf ${smokefile} ${SMOKE_DUST_FILE_PREFIX}.nc
+    else
+      if [ "${EBB_DCYCLE}" = "1" ]; then
+        ln -nsf ${FIXsmoke}/${PREDEF_GRID_NAME}/dummy_24hr_smoke_ebbdc1.nc ${SMOKE_DUST_FILE_PREFIX}.nc
+        echo "WARNING: Smoke file is not available, use dummy_24hr_smoke_ebbdc1.nc instead"
+      else
+        ln -nsf ${FIXsmoke}/${PREDEF_GRID_NAME}/dummy_24hr_smoke.nc ${SMOKE_DUST_FILE_PREFIX}.nc
+        echo "WARNING: Smoke file is not available, use dummy_24hr_smoke.nc instead"
+      fi
+    fi
+  fi
 else
   target="${INPUT_DATA}/${NET}.${cycle}${dot_ensmem}.gfs_data.tile${TILE_RGNL}.halo${NH0}.nc"
   symlink="gfs_data.nc"
@@ -520,7 +538,7 @@ if [ $(boolify ${WRITE_DOPOST}) = "TRUE" ]; then
     if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
       post_config_fp="${PARMdir}/upp/postxconfig-NT-AQM.txt"
     else
-      post_config_fp="${PARMdir}/upp/postxconfig-NT-fv3lam.txt"
+      post_config_fp="${PARMdir}/upp/postxconfig-NT-rrfs.txt"
     fi
     print_info_msg "
 ====================================================================
