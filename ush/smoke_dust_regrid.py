@@ -152,18 +152,18 @@ class SmokeDustRegridProcessor:
                     self.log("creating regridder")
                     self.log(f"{src_fwrap.value.data.shape=}", level=logging.DEBUG)
                     self.log(f"{dst_fwrap.value.data.shape=}", level=logging.DEBUG)
-                    # regridder = esmpy.RegridFromFile(
-                    #     src_fwrap.value,
-                    #     dst_fwrap.value,
-                    #     filename=str(self._context.weightfile),
-                    # )
-                    regridder = esmpy.Regrid(
+                    regridder = esmpy.RegridFromFile(
                         src_fwrap.value,
                         dst_fwrap.value,
-                        regrid_method=esmpy.RegridMethod.CONSERVE,
-                        unmapped_action=esmpy.UnmappedAction.IGNORE,
-                        ignore_degenerate=True,
+                        filename=str(self._context.weightfile),
                     )
+                    # regridder = esmpy.Regrid(
+                    #     src_fwrap.value,
+                    #     dst_fwrap.value,
+                    #     regrid_method=esmpy.RegridMethod.CONSERVE,
+                    #     unmapped_action=esmpy.UnmappedAction.IGNORE,
+                    #     ignore_degenerate=True,
+                    # )
                     first = False
 
                 # tdk: make this smoother; automatically fill masked data maybe

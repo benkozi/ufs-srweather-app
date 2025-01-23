@@ -257,6 +257,7 @@ FV3_HRRR_gf:
     use_ufo: true
     wetdep_ls_alpha : 0.5
     wetdep_ls_opt : 1
+    hwp_method: 1
   fv_diagnostics_nml:
     do_hailcast: true
 
