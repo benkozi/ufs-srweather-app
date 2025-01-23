@@ -120,7 +120,7 @@ for sect in user nco platform workflow global cpl_aqm_parm constants fixed_files
   task_get_extrn_lbcs task_run_fcst task_run_post smoke_dust_parm fire; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
-
+set -xue
 #
 #-----------------------------------------------------------------------
 #

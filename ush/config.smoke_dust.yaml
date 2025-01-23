@@ -49,8 +49,10 @@ task_get_extrn_lbcs:
 #  EXTRN_MDL_SOURCE_BASEDIR_LBCS: /work/noaa/epic/SRW-AQM_DATA/input_model_data/RAP/${yyyymmddhh} # orion/hercules
 #  EXTRN_MDL_SOURCE_BASEDIR_LBCS: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/RAP/${yyyymmddhh}  # gaea-c6
 task_make_ics:
+  LEVP: 66
   VCOORD_FILE: "{{ workflow.FIXam }}/global_hyblev_fcst_rrfsL65.txt"
 task_make_lbcs:
+  LEVP: 66
   VCOORD_FILE: "{{ workflow.FIXam }}/global_hyblev_fcst_rrfsL65.txt"
 task_run_fcst:
   OMP_NUM_THREADS_RUN_FCST: 1

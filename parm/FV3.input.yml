@@ -104,8 +104,6 @@ FV3_HRRR_gf:
   atmos_model_nml:
     avg_max_length: 3600.
     ignore_rst_cksum: true
-  external_ic_nml:
-    levp: 66
   fv_core_nml:
     agrid_vel_rst: true
     d_con: 0.5
@@ -125,7 +123,6 @@ FV3_HRRR_gf:
     n_split: 5
     n_sponge: 65
     nord_tr: 0
-    npz: 65
     psm_bc: 1
     range_warn: False
     regional_bcs_from_gsi: false
