@@ -370,6 +370,9 @@ platform:
   # FIXsmoke:
   # System directory where Smoke and Dust data files are located.
   #
+  # FIXupp:
+  # System directory where UPP fixed files are located
+  #
   # FIXcrtm:
   # System directory where CRTM fixed files are located
   #
@@ -387,6 +390,7 @@ platform:
   FIXaqm: ""
   FIXemis: ""
   FIXsmoke: ""
+  FIXupp: ""
   FIXcrtm: ""
   FIXcrtmupp: ""
   #

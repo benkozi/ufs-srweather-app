@@ -37,6 +37,7 @@ platform:
   FIXaqm: /work/noaa/epic/SRW-AQM_DATA/fix_aqm
   FIXemis: /work/noaa/epic/SRW-AQM_DATA/fix_emis
   FIXsmoke: /work/noaa/epic/SRW-AQM_DATA/fix_smoke
+  FIXupp: /work/noaa/epic/SRW-AQM_DATA/fix_upp
   FIXcrtm: /work/noaa/epic/SRW-AQM_DATA/fix_crtm
   EXTRN_MDL_DATA_STORES: aws
 data:

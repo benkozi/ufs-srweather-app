@@ -9,7 +9,6 @@
 #
 date
 export PS4='+ $SECONDS + '
-set -xue
 #
 #-----------------------------------------------------------------------
 #
@@ -33,6 +32,7 @@ export USHdir="${USHsrw}"  # should be removed later
 for sect in user nco platform workflow global smoke_dust_parm ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
+set -xue
 #
 #-----------------------------------------------------------------------
 #

@@ -9,7 +9,6 @@
 #
 date
 export PS4='+ $SECONDS + '
-set -xue
 #
 #-----------------------------------------------------------------------
 #
@@ -33,6 +32,7 @@ export USHdir="${USHsrw}"  # should be removed later
 for sect in user nco platform workflow global smoke_dust_parm ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
+set -xue
 #
 #-----------------------------------------------------------------------
 #
@@ -113,7 +113,7 @@ fi
 mkdir -p ${COMOUT}
 
 export COMINsmoke="${COMINsmoke:-${COMINsmoke_default}}"
-export COMINfire="${COMINfire:-${COMINfire_default}}"
+export COMINrave="${COMINrave:-${COMINrave_default}}"
 
 # Create a teomporary share directory for RAVE interpolated data files
 export DATA_SHARE="${DATA_SHARE:-${DATAROOT}/DATA_SHARE/RAVE_fire_intp}"

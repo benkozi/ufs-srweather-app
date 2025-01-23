@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -xue
 #
 #-----------------------------------------------------------------------
 #
@@ -8,11 +7,10 @@ set -xue
 #
 #-----------------------------------------------------------------------
 #
-. ${PARMsrw}/source_util_funcs.sh
-task_global_vars=( "COLDSTART" "DATE_FIRST_CYCL" "DO_SMOKE_DUST" \
-  "INCR_CYCL_FREQ" "IO_LAYOUT_Y" "PRE_TASK_CMDS" )
-for var in ${task_global_vars[@]}; do
-  source_config_for_task ${var} ${GLOBAL_VAR_DEFNS_FP}
+. ${USHsrw}/source_util_funcs.sh
+for sect in user nco platform workflow global smoke_dust_parm \
+  constants fixed_files grid_params task_run_fcst ; do
+  source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
 #
 #-----------------------------------------------------------------------
@@ -22,7 +20,7 @@ done
 #
 #-----------------------------------------------------------------------
 #
-#{ save_shell_opts; set -xue; } > /dev/null 2>&1
+set -xue
 #
 #-----------------------------------------------------------------------
 #
