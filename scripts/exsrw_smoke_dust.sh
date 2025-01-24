@@ -121,7 +121,7 @@ else
     "${EBB_DCYCLE}" \
     "${RESTART_INTERVAL}"\
     "${PERSISTENCE}"\
-    "$(RAVE_QA_FILTER)"\
+    "${RAVE_QA_FILTER}"\
     "${EXIT_ON_ERROR}"\
     "${LOG_LEVEL}"
   export err=$?
