@@ -329,10 +329,10 @@ set -eu
 # automatically determine compiler
 if [ -z "${COMPILER}" ] ; then
   case ${PLATFORM} in
-    jet|hera|gaea) COMPILER=intel ;;
+    hera|gaea-c6) COMPILER=intel ;;
     orion) COMPILER=intel ;;
     wcoss2) COMPILER=intel ;;
-    cheyenne) COMPILER=intel ;;
+    derecho) COMPILER=intel ;;
     macos|singularity) COMPILER=gnu ;;
     odin|noaacloud) COMPILER=intel ;;
     *)
@@ -546,6 +546,7 @@ if [ "${BUILD_UPP}" = "on" ]; then
     rm -rf ${HOME_DIR}/parm/upp_parm
   fi
   cp -rp ${SORC_DIR}/UPP/parm ${HOME_DIR}/parm/upp_parm
+  cp -rp ${SORC_DIR}/UPP/fix ${HOME_DIR}/fix/fix_upp
 fi
 if [ "${BUILD_NEXUS}" = "on" ]; then
   if [ -d "${HOME_DIR}/parm/nexus_config" ]; then
