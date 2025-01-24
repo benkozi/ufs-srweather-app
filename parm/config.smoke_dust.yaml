@@ -1,10 +1,8 @@
 metadata:
   description: config for Smoke and Dust, RRFS_CONUS_3km
 user:
-  MACHINE: hera #tdk: revert
-#  MACHINE: [hera/orion/hercules/gaea-c6] #tdk: revert
-  ACCOUNT: epic #tdk: revert
-#  ACCOUNT: [account name] #tdk: revert
+  MACHINE: [hera/orion/hercules/gaea-c6]
+  ACCOUNT: [account name]
 platform:
   EXTRN_MDL_DATA_STORES: disk
 workflow:
@@ -74,9 +72,9 @@ global:
   HALO_BLEND: 20
 smoke_dust_parm:
   DO_SMOKE_DUST: true
-  EBB_DCYCLE: 1 # or 2
+  EBB_DCYCLE: 1 # or 2 (2 is WIP)
   PERSISTENCE: false # or true
-  RAVE_QA_FILTER : high # or none #tdk: set to none for the default
+  RAVE_QA_FILTER : none # or none #tdk: set to none for the default
   SMOKE_DUST_FILE_PREFIX: SMOKE_RRFS_data
   EXIT_ON_ERROR: TRUE
   LOG_LEVEL: DEBUG
