@@ -2,8 +2,6 @@ metadata:
   description: config for Smoke and Dust, RRFS_CONUS_3km
 user:
   RUN_ENVIR: community
-platform:
-  BUILD_MOD_FN: 'build_{{ user.MACHINE|lower() }}_intel_prod'
 workflow:
   PREDEF_GRID_NAME: RRFS_CONUS_3km
   CCPP_PHYS_SUITE: FV3_HRRR_gf
@@ -21,8 +19,8 @@ workflow:
   COLDSTART: true
 nco:
   envir_default: we2e_smoke_dust
-  NET_default: we2e_smoke_dust
-  RUN_default: we2e_smoke_dust
+  NET_default: smoke_dust
+  RUN_default: smoke_dust
 rocoto:
   tasks:
     taskgroups: '{{ ["parm/wflow/prep.yaml", "parm/wflow/smoke_dust.yaml", "parm/wflow/coldstart.yaml", "parm/wflow/post.yaml"]|include }}'
@@ -39,8 +37,10 @@ task_get_extrn_lbcs:
   EXTRN_MDL_LBCS_OFFSET_HRS: 0
   USE_USER_STAGED_EXTRN_FILES: true
 task_make_ics:
+  LEVP: 66
   VCOORD_FILE: "{{ workflow.FIXam }}/global_hyblev_fcst_rrfsL65.txt"
 task_make_lbcs:
+  LEVP: 66
   VCOORD_FILE: "{{ workflow.FIXam }}/global_hyblev_fcst_rrfsL65.txt"
 task_run_fcst:
   DT_ATMOS: 36
