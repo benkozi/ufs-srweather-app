@@ -16,12 +16,9 @@ from smoke_dust_common import (
     open_nc,
 )
 from smoke_dust_context import SmokeDustContext
+from ush.smoke_dust_context import RaveQaFilter
 
-try:
-    import esmpy
-except ImportError:
-    # esmpy version 8.3.1 is required on Orion/Hercules
-    import ESMF as esmpy
+import esmpy
 
 
 class SmokeDustRegridProcessor:
@@ -157,6 +154,8 @@ class SmokeDustRegridProcessor:
                         dst_fwrap.value,
                         filename=str(self._context.weightfile),
                     )
+
+                    # Uncomment to generate weights on the fly without reading from file
                     # regridder = esmpy.Regrid(
                     #     src_fwrap.value,
                     #     dst_fwrap.value,
@@ -164,6 +163,7 @@ class SmokeDustRegridProcessor:
                     #     unmapped_action=esmpy.UnmappedAction.IGNORE,
                     #     ignore_degenerate=True,
                     # )
+
                     first = False
 
                 # tdk: make this smoother; automatically fill masked data maybe
@@ -175,6 +175,13 @@ class SmokeDustRegridProcessor:
                         src_data[:] = np.where(src_data > 1000.0, src_data, 0.0)
                     case _:
                         raise NotImplementedError(field_name)
+                
+                if self._context.rave_qa_filter == RaveQaFilter.HIGH:
+                    with open_nc(row_data["rave_raw"], parallel=True) as rave_ds:
+                        rave_qa = load_variable_data(rave_ds.variables["QA"], src_fwrap.dims)
+                    set_to_zero = np.where(rave_qa < 2)
+                    self.log(f"RAVE QA filter applied: {self._context.rave_qa_filter=}; {np.sum(set_to_zero)=}")
+                    src_data[set_to_zero] = 0.0
 
                 # Execute the ESMF regridding
                 self.log(f"run regridding", level=logging.DEBUG)

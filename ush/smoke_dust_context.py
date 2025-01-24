@@ -27,10 +27,10 @@ class EbbDCycle(IntEnum):
     TWO = 2
 
 
-# @unique
-# class RaveQaFilter(StrEnum):
-#     NONE = "NONE"
-#     HIGH = "HIGH"
+@unique
+class RaveQaFilter(StrEnum):
+    NONE = "NONE"
+    HIGH = "HIGH"
 
 
 @unique
@@ -63,9 +63,9 @@ class SmokeDustContext:
     ebb_dcycle_flag: EbbDCycle
     restart_interval: Tuple[int, ...]
     persistence: bool
+    rave_qa_filter: RaveQaFilter
     exit_on_error: bool
     log_level: LogLevel
-    # rave_qa_flag_filter: RaveQaFilter
 
     # Values provided via environment
     current_day: str
@@ -92,7 +92,7 @@ class SmokeDustContext:
 
     @classmethod
     def create_from_args(cls, args: List[str]) -> "SmokeDustContext":
-        print(f"create_from_args:args={args}", flush=True)
+        print(f"create_from_args: {args=}", flush=True)
 
         # Extract local arguments from args before converting values
         (
@@ -103,6 +103,7 @@ class SmokeDustContext:
             l_ebb_dcycle_flag,
             l_restart_interval,
             l_persistence,
+            l_rave_qa_filter,
             l_exit_on_error,
             l_log_level,
         ) = args
@@ -120,6 +121,7 @@ class SmokeDustContext:
             ebb_dcycle_flag=EbbDCycle(int(l_ebb_dcycle_flag)),
             restart_interval=[int(num) for num in l_restart_interval.split(" ")],
             persistence=cls._str_to_bool_(l_persistence),
+            rave_qa_filter=RaveQaFilter(l_rave_qa_filter.upper()),
             exit_on_error=cls._str_to_bool_(l_exit_on_error),
             log_level=getattr(logging, l_log_level.upper()),
             current_day=current_day,

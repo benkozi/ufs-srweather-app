@@ -11,7 +11,7 @@ set -xue
 . ${PARMsrw}/source_util_funcs.sh
 task_global_vars=( "EBB_DCYCLE" "FIXsmoke" "INCR_CYCL_FREQ" \
   "PERSISTENCE" "PRE_TASK_CMDS" "PREDEF_GRID_NAME" "RESTART_INTERVAL" \
-  "SMOKE_DUST_FILE_PREFIX" "EXIT_ON_ERROR" "LOG_LEVEL" )
+  "SMOKE_DUST_FILE_PREFIX" "EXIT_ON_ERROR" "LOG_LEVEL" "RAVE_QA_FILTER" )
 for var in ${task_global_vars[@]}; do
   source_config_for_task ${var} ${GLOBAL_VAR_DEFNS_FP}
 done
@@ -121,6 +121,7 @@ else
     "${EBB_DCYCLE}" \
     "${RESTART_INTERVAL}"\
     "${PERSISTENCE}"\
+    "$(RAVE_QA_FILTER)"\
     "${EXIT_ON_ERROR}"\
     "${LOG_LEVEL}"
   export err=$?
