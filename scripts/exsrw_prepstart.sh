@@ -71,7 +71,9 @@ else
       CDATEprev=$($NDATE -${INCR_CYCL_FREQ} ${PDY}${cyc})
       PDYprev=${CDATEprev:0:8}
       cycprev=${CDATEprev:8:2}
-      path_restart=${COMIN}/${RUN}.${PDYprev}/${cycprev}${SLASH_ENSMEM_SUBDIR}/RESTART
+# the following path should be changed once the forecast script meets the nco standards:
+#      path_restart=${COMIN}/${RUN}.${PDYprev}/${cycprev}${SLASH_ENSMEM_SUBDIR}/RESTART
+      path_restart="${EXPTDIR}/${CDATEprev}/RESTART"
 
       n=${INCR_CYCL_FREQ}
       while [[ $n -le 25 ]] ; do
