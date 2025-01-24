@@ -177,7 +177,7 @@ class SmokeDustRegridProcessor:
                 if self._context.rave_qa_filter == RaveQaFilter.HIGH:
                     with open_nc(row_data["rave_raw"], parallel=True) as rave_ds:
                         rave_qa = load_variable_data(rave_ds.variables["QA"], src_fwrap.dims)
-                    set_to_zero = np.where(rave_qa < 2)
+                    set_to_zero = rave_qa < 2
                     self.log(f"RAVE QA filter applied: {self._context.rave_qa_filter=}; {set_to_zero.size=}; {np.sum(set_to_zero)=}")
                     src_data[set_to_zero] = 0.0
 
