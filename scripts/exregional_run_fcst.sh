@@ -120,7 +120,6 @@ for sect in user nco platform workflow global cpl_aqm_parm constants fixed_files
   task_get_extrn_lbcs task_run_fcst task_run_post smoke_dust_parm fire; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
-set -xue
 #
 #-----------------------------------------------------------------------
 #
@@ -902,7 +901,7 @@ POST_STEP
 #
 #-----------------------------------------------------------------------
 #
-if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+if [ $(boolify "${CPL_AQM}") = "TRUE" ] || [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
   if [ "${RUN_ENVIR}" = "nco" ]; then
     if [ -d "${COMIN}/RESTART" ] && [ "$(ls -A ${DATA}/RESTART)" ]; then
       rm -rf "${COMIN}/RESTART"
@@ -912,7 +911,9 @@ if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
     fi
   fi
 
-  cp -p ${DATA}/${AQM_RC_PRODUCT_FN} ${COMOUT}/${NET}.${cycle}${dot_ensmem}.${AQM_RC_PRODUCT_FN}
+  if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+    cp -p ${DATA}/${AQM_RC_PRODUCT_FN} ${COMOUT}/${NET}.${cycle}${dot_ensmem}.${AQM_RC_PRODUCT_FN}
+  fi
 
   fhr_ct=0
   fhr=0
@@ -920,8 +921,8 @@ if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
     fhr_ct=$(printf "%03d" $fhr)
     source_dyn="${DATA}/dynf${fhr_ct}.nc"
     source_phy="${DATA}/phyf${fhr_ct}.nc"
-    target_dyn="${COMIN}/${NET}.${cycle}${dot_ensmem}.dyn.f${fhr_ct}.nc"
-    target_phy="${COMIN}/${NET}.${cycle}${dot_ensmem}.phy.f${fhr_ct}.nc"
+    target_dyn="${COMIN}/${NET}.${cycle}${dot_ensmem}.dyn.f${fhr_ct}.${POST_OUTPUT_DOMAIN_NAME}.nc"
+    target_phy="${COMIN}/${NET}.${cycle}${dot_ensmem}.phy.f${fhr_ct}.${POST_OUTPUT_DOMAIN_NAME}.nc"
     [ -f ${source_dyn} ] && cp -p ${source_dyn} ${target_dyn}
     [ -f ${source_phy} ] && cp -p ${source_phy} ${target_phy}
     (( fhr=fhr+1 ))

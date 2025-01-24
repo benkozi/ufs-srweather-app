@@ -105,6 +105,7 @@ In directory:     \"${scrfunc_dir}\"
 This is the ex-script for the task that runs the post-processor (UPP) on
 the output files corresponding to a specified forecast hour.
 ========================================================================"
+set -xue
 #
 #-----------------------------------------------------------------------
 #
@@ -168,21 +169,23 @@ fi
 cp ${post_config_fp} ./postxconfig-NT.txt
 cp ${PARMdir}/upp/params_grib2_tbl_new .
 if [ $(boolify ${DO_SMOKE_DUST}) = "TRUE" ] || [ $(boolify ${USE_CRTM}) = "TRUE" ]; then
-  cp ${CRTM_DIR}/Nalli.IRwater.EmisCoeff.bin ./
-  cp ${CRTM_DIR}/FAST*.bin ./
-  cp ${CRTM_DIR}/NPOESS.IRland.EmisCoeff.bin ./
-  cp ${CRTM_DIR}/NPOESS.IRsnow.EmisCoeff.bin ./
-  cp ${CRTM_DIR}/NPOESS.IRice.EmisCoeff.bin ./
-  cp ${CRTM_DIR}/AerosolCoeff.bin ./
-  cp ${CRTM_DIR}/CloudCoeff.bin ./
-  cp ${CRTM_DIR}/*.SpcCoeff.bin ./
-  cp ${CRTM_DIR}/*.TauCoeff.bin ./
+  if [ $(boolify ${DO_SMOKE_DUST}) = "TRUE" ]; then
+    CRTM_DIR="${FIXcrtm}"
+  fi
+  ln -nsf ${CRTM_DIR}/Nalli.IRwater.EmisCoeff.bin .
+  ln -nsf ${CRTM_DIR}/FAST*.bin .
+  ln -nsf ${CRTM_DIR}/NPOESS.IRland.EmisCoeff.bin .
+  ln -nsf ${CRTM_DIR}/NPOESS.IRsnow.EmisCoeff.bin .
+  ln -nsf ${CRTM_DIR}/NPOESS.IRice.EmisCoeff.bin .
+  ln -nsf ${CRTM_DIR}/AerosolCoeff.bin .
+  ln -nsf ${CRTM_DIR}/CloudCoeff.bin .
+  ln -nsf ${CRTM_DIR}/*.SpcCoeff.bin .
+  ln -nsf ${CRTM_DIR}/*.TauCoeff.bin .
   print_info_msg "
 ====================================================================
 Copying the external CRTM fix files from CRTM_DIR to the temporary
 work directory (DATA_FHR):
   CRTM_DIR = \"${CRTM_DIR}\"
-  DATA_FHR = \"${DATA_FHR}\"
 ===================================================================="
 fi
 #
@@ -230,8 +233,10 @@ if [ "${RUN_ENVIR}" = "nco" ]; then
 else
     DATAFCST=$DATA
 fi
+
 dyn_file="${DATAFCST}/dynf${fhr}${mnts_secs_str}.nc"
 phy_file="${DATAFCST}/phyf${fhr}${mnts_secs_str}.nc"
+
 #
 # Set parameters that specify the actual time (not forecast time) of the
 # output.
@@ -245,8 +250,10 @@ post_mn=${post_time:10:2}
 #
 # Create the input namelist file to the post-processor executable.
 #
-if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
+if [ $(boolify "${CPL_AQM}") = "TRUE" ] && [ $(boolify "${DO_SMOKE_DUST}") = "FALSE" ]; then
   post_itag_add="aqf_on=.true.,"
+elif [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+  post_itag_add="slrutah_on=.true.,gtg_on=.true."
 else
   post_itag_add=""
 fi
@@ -333,25 +340,27 @@ The \${fhr} variable contains too few or too many characters:
 fi
 
 if [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+  COMOUT="${COMROOT}/${NET}/${model_ver}/${RUN}.${PDY}/${cyc}${SLASH_ENSMEM_SUBDIR}" #temporary path, should be removed later
+
   bgdawp=${NET}.${cycle}.prslev.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
   bgrd3d=${NET}.${cycle}.natlev.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
   bgifi=${NET}.${cycle}.ififip.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
   bgavi=${NET}.${cycle}.aviation.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
 
   if [ -f "PRSLEV.GrbF${post_fhr}" ]; then
-    wgrib2 PRSLEV.GrbF${post_fhr} -set center 7 -grib ${bgdawp} >>$pgmout 2>>errfile
+    wgrib2 PRSLEV.GrbF${post_fhr} -set center 7 -grib ${bgdawp}
     cp -p ${bgdawp} ${COMOUT}
   fi
   if [ -f "NATLEV.GrbF${post_fhr}" ]; then
-    wgrib2 NATLEV.GrbF${post_fhr} -set center 7 -grib ${bgrd3d} >>$pgmout 2>>errfile
+    wgrib2 NATLEV.GrbF${post_fhr} -set center 7 -grib ${bgrd3d}
     cp -p ${bgrd3d} ${COMOUT}
   fi
   if [ -f "IFIFIP.GrbF${post_fhr}" ]; then
-    wgrib2 IFIFIP.GrbF${post_fhr} -set center 7 -grib ${bgifi} >>$pgmout 2>>errfile
+    wgrib2 IFIFIP.GrbF${post_fhr} -set center 7 -grib ${bgifi}
     cp -p ${bgifi} ${COMOUT}
   fi
   if [ -f "AVIATION.GrbF${post_fhr}" ]; then
-    wgrib2 AVIATION.GrbF${post_fhr} -set center 7 -grib ${bgavi} >>$pgmout 2>>errfile
+    wgrib2 AVIATION.GrbF${post_fhr} -set center 7 -grib ${bgavi}
     cp -p ${bgavi} ${COMOUT}
   fi
 

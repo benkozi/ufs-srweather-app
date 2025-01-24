@@ -201,7 +201,11 @@ case "${CCPP_PHYS_SUITE}" in
     if [ "${EXTRN_MDL_NAME_ICS}" = "RAP" ] || \
        [ "${EXTRN_MDL_NAME_ICS}" = "RRFS" ] || \
        [ "${EXTRN_MDL_NAME_ICS}" = "HRRR" ]; then
-      varmap_file="GSDphys_var_map.txt"
+      if [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+        varmap_file="GSDphys_smoke_var_map.txt"
+      else
+        varmap_file="GSDphys_var_map.txt"
+      fi
     elif [ "${EXTRN_MDL_NAME_ICS}" = "NAM" ] || \
          [ "${EXTRN_MDL_NAME_ICS}" = "FV3GFS" ] || \
          [ "${EXTRN_MDL_NAME_ICS}" = "UFS-CASE-STUDY" ] || \
