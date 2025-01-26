@@ -5,7 +5,7 @@
 #SBATCH --qos=batch
 #SBATCH --partition=hera
 #_SBATCH --partition=bigmem
-#SBATCH -t 00:10:00
+#SBATCH -t 00:30:00
 #SBATCH --output=%x.out
 #SBATCH --error=%x.err
 #_SBATCH --output=%x_%j.out
