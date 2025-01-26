@@ -12,7 +12,7 @@
 #_SBATCH --error=%x_%j.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8  # Assuming 24 cores per node, utilize them fully
-#SBATCH --ntasks=8  # Total tasks should be nodes * tasks-per-node
+#SBATCH --ntasks=24  # Total tasks should be nodes * tasks-per-node
 
 set -e
 
@@ -32,5 +32,5 @@ export PATH=${CONDA_ENV}/bin:${PATH}
 cd ${TESTDIR}
 
 echo "running python unit test"
-python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
-#mpirun -n 8 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
+#python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
+mpirun -n 24 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py

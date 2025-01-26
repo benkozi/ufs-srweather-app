@@ -9,7 +9,7 @@ cd ~/l/test_smoke_dust-python
 git pull
 rm *.err *.out || echo "no job logs to remove"
 
-bash ./job-run-test_generate_fire_emissions.sh
+#bash ./job-run-test_generate_fire_emissions.sh
 
-#sbatch job-run-test_generate_fire_emissions.sh
-#squeue -u Benjamin.Koziol -i 5
+sbatch job-run-test_generate_fire_emissions.sh
+squeue -u Benjamin.Koziol -i 10
