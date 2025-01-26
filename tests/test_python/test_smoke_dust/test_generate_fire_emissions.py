@@ -41,19 +41,21 @@ class GenerateEmissWorkflowArgs:
     def create(cls, comin: Path, comout: Path) -> "GenerateEmissWorkflowArgs":
         return cls(
             # staticdir=comin / 'RRFS_NA_13km',  # tdk: test with other grids
-            staticdir=comin / 'RRFS_CONUS_25km',  # tdk: test with other grids
+            # staticdir=comin / 'RRFS_CONUS_25km',  # tdk: test with other grids
             # staticdir=comin / 'RRFS_CONUS_13km', #tdk: test with other grids
+            staticdir=comin / 'RRFS_CONUS_3km', #tdk: test with other grids
 
             # ravedir=comin / 'RAVE_fire',
 
-            ravedir=Path('/scratch2/NAGAPE/epic/Ben.Koziol/sandbox/srw-main-aqm/predefined-grids/nco_dirs/test_smoke/tmp/smoke_dust.2019072200.5508083'), #hera
+            ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'), #hera
             # ravedir=Path('/work/noaa/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'), #orion
 
             # tdk: make this configurable
             intp_dir=comout / 'intp_dir',
             # predef_grid='RRFS_NA_13km',  # tdk: test with all grids
-            predef_grid='RRFS_CONUS_25km',  # tdk: test with all grids
+            # predef_grid='RRFS_CONUS_25km',  # tdk: test with all grids
             # predef_grid='RRFS_CONUS_13km',  # tdk: test with all grids
+            predef_grid='RRFS_CONUS_3km',  # tdk: test with all grids
             # ebb_dcycle_flag='1',  # tdk: test with 2
             ebb_dcycle_flag='2',  # tdk: test with 2
             restart_interval='6 12 18 24',
