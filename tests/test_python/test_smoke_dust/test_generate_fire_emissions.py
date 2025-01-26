@@ -1,5 +1,5 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.append(str(Path("../../../ush")))
 
@@ -12,7 +12,7 @@ import unittest
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Literal
 
 from smoke_dust_main import main
 
@@ -35,6 +35,7 @@ class GenerateEmissWorkflowArgs:
     exit_on_error: str
     cdate: str
     data: Path
+    rave_qa_filter: Literal['NONE', 'HIGH']
     log_level: str = "DEBUG"
 
     @classmethod
@@ -43,11 +44,11 @@ class GenerateEmissWorkflowArgs:
             # staticdir=comin / 'RRFS_NA_13km',  # tdk: test with other grids
             # staticdir=comin / 'RRFS_CONUS_25km',  # tdk: test with other grids
             # staticdir=comin / 'RRFS_CONUS_13km', #tdk: test with other grids
-            staticdir=comin / 'RRFS_CONUS_3km', #tdk: test with other grids
+            staticdir=comin / 'RRFS_CONUS_3km',  # tdk: test with other grids
 
             # ravedir=comin / 'RAVE_fire',
 
-            ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'), #hera
+            ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'),  # hera
             # ravedir=Path('/work/noaa/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'), #orion
 
             # tdk: make this configurable
@@ -63,12 +64,13 @@ class GenerateEmissWorkflowArgs:
             # persistence='TRUE',  # tdk: test with false
             cdate='2019072200',
             data=comout / 'data',
-            exit_on_error="TRUE", #tdk: test with FALSE
+            exit_on_error="TRUE",  # tdk: test with FALSE
+            rave_qa_filter='NONE'
         )
 
     def as_script_args(self) -> Tuple:
         return str(self.staticdir), str(self.ravedir), str(
-            self.intp_dir), self.predef_grid, self.ebb_dcycle_flag, self.restart_interval, self.persistence, self.exit_on_error, self.log_level
+            self.intp_dir), self.predef_grid, self.ebb_dcycle_flag, self.restart_interval, self.persistence, self.rave_qa_filter, self.exit_on_error, self.log_level
 
     @contextmanager
     def run_context(self) -> Dict[str, str]:
@@ -106,7 +108,7 @@ class TestGenerateFireEmissions(unittest.TestCase):
         shutil.rmtree(self._temp_dir)
 
     def test(self) -> None:
-        comin = Path("/scratch2/NAGAPE/epic/SRW-AQM_DATA/fix_smoke") # hera
+        comin = Path("/scratch2/NAGAPE/epic/SRW-AQM_DATA/fix_smoke")  # hera
         # comin = Path("/home/bwkoziol/tmp-smoke-dust-fixed-files/") # orion
         # comin = Path(self._temp_dir)
 
@@ -125,7 +127,6 @@ class TestGenerateFireEmissions(unittest.TestCase):
             # subprocess.check_call(
             #     [python, main_path] + list(
             #         main_args.as_script_args()))  # tdk: figure out python runtime
-
 
 # class Test(unittest.TestCase):
 #
