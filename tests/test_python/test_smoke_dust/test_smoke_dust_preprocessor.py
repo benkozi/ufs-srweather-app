@@ -1,9 +1,14 @@
+import hashlib
 import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Type
 
 import pytest
+from _pytest.fixtures import SubRequest
+from pydantic import BaseModel
+from pytest_mock import MockerFixture
 
 sys.path.append(str(Path("../../../ush")))
 
@@ -12,8 +17,8 @@ import pandas as pd
 import numpy as np
 
 from smoke_dust_context import SmokeDustContext
-from smoke_dust_cycle import SmokeDustCycleTwo
 from smoke_dust_main import SmokeDustPreprocessor
+from smoke_dust_cycle import AbstractSmokeDustCycleProcessor, SmokeDustCycleOne, SmokeDustCycleTwo
 
 
 @dataclass
@@ -77,37 +82,83 @@ def create_veg_map(root_dir: Path, shape: FakeGridOutShape) -> None:
         emiss_factor[:] = np.ones((shape.y_size, shape.x_size))
 
 
-class TestSmokeDustCycleTwo:
+def create_context(root_dir: Path, overrides: dict | None = None) -> SmokeDustContext:
+    current_day = '2019072200'
+    nwges_dir = root_dir
+    os.environ['CDATE'] = current_day
+    os.environ['DATA'] = str(nwges_dir)
+    kwds = dict(staticdir=root_dir,
+                ravedir=root_dir,
+                intp_dir=root_dir,
+                predef_grid='RRFS_CONUS_3km',
+                ebb_dcycle_flag='2',
+                restart_interval='6 12 18 24',
+                persistence='FALSE',
+                rave_qa_filter='NONE',
+                exit_on_error='TRUE',
+                log_level='DEBUG',
+                )
+    if overrides is not None:
+        kwds.update(overrides)
+    context = SmokeDustContext.create_from_args(kwds.values())
+    return context
 
-    def test_process_emissions(self, tmp_path: Path, fake_grid_out_shape: FakeGridOutShape) -> None:
+
+class ExpectedData(BaseModel):
+    flag: str
+    klass: Type[AbstractSmokeDustCycleProcessor]
+    hash: str
+
+
+class DataForTest(BaseModel):
+    model_config = dict(arbitrary_types_allowed=True)
+    context: SmokeDustContext
+    preprocessor: SmokeDustPreprocessor
+    expected: ExpectedData
+
+
+@pytest.fixture(params=[ExpectedData(flag='1', klass=SmokeDustCycleOne, hash='1ac3a32190c14d15358b9203844a4516'),
+                        ExpectedData(flag='2', klass=SmokeDustCycleTwo, hash='6752199f1039edc936a942f3885af38b')])
+def data_for_test(request: SubRequest, tmp_path: Path, fake_grid_out_shape: FakeGridOutShape) -> DataForTest:
+    try:
         create_grid_out(tmp_path, fake_grid_out_shape)
         create_veg_map(tmp_path, fake_grid_out_shape)
-
-        current_day = '2019072200'
-        nwges_dir = tmp_path
-        os.environ['CDATE'] = current_day
-        os.environ['DATA'] = str(nwges_dir)
-
-        kwds = dict(staticdir=tmp_path,
-                    ravedir=tmp_path,
-                    intp_dir=tmp_path,
-                    predef_grid='RRFS_CONUS_3km',
-                    ebb_dcycle_flag='2',
-                    restart_interval='6 12 18 24',
-                    persistence='FALSE',
-                    rave_qa_filter='NONE',
-                    exit_on_error='TRUE',
-                    log_level='DEBUG',
-                    )
-        context = SmokeDustContext.create_from_args(kwds.values())
+        context = create_context(tmp_path, overrides=dict(ebb_dcycle_flag=request.param.flag))
         preprocessor = SmokeDustPreprocessor(context)
-
         create_restart_files(tmp_path, preprocessor.forecast_dates, fake_grid_out_shape)
         create_rave_interpolated(tmp_path, preprocessor.forecast_dates, fake_grid_out_shape,
                                  context.predef_grid.value + "_intp_")
+        return DataForTest(context=context, preprocessor=preprocessor, expected=request.param)
+    finally:
+        for ii in ['CDATE', 'DATA']:
+            os.unsetenv(ii)
 
-        cycle = SmokeDustCycleTwo(context)
-        assert preprocessor._forecast_metadata is None
-        cycle.process_emissions(preprocessor.forecast_metadata)
 
-        assert context.emissions_path.exists()
+def create_file_hash(path: Path) -> str:
+    with open(path, "rb") as f:
+        file_hash = hashlib.md5()
+        while chunk := f.read(8192):
+            file_hash.update(chunk)
+    return file_hash.hexdigest()
+
+
+def test_happy_path(data_for_test: DataForTest, mocker: MockerFixture) -> None:
+    spy1 = mocker.spy(data_for_test.preprocessor, 'create_dummy_emissions_file')
+    spy2 = mocker.spy(data_for_test.preprocessor._regrid_processor, '_run_impl_')
+    spy3 = mocker.spy(data_for_test.preprocessor._regrid_processor, 'run')
+    spy4 = mocker.spy(data_for_test.preprocessor._cycle_processor.__class__, 'process_emissions')
+    spy5 = mocker.spy(data_for_test.preprocessor._cycle_processor.__class__, 'average_frp')
+
+    assert isinstance(data_for_test.preprocessor._cycle_processor, data_for_test.expected.klass)
+    assert data_for_test.preprocessor._forecast_metadata is None
+    assert not data_for_test.context.emissions_path.exists()
+
+    data_for_test.preprocessor.run()
+    spy1.assert_not_called()
+    spy2.assert_not_called()
+    spy3.assert_called_once()
+    spy4.assert_called_once()
+    spy5.assert_called_once()
+
+    assert data_for_test.context.emissions_path.exists()
+    assert create_file_hash(data_for_test.context.emissions_path) == data_for_test.expected.hash

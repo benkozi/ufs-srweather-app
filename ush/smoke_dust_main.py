@@ -129,10 +129,6 @@ class SmokeDustPreprocessor:
             self._regrid_processor.run(self.forecast_metadata)
             if self._context.rank == 0:
                 self._cycle_processor.process_emissions(self.forecast_metadata)
-                if self._context.should_calc_desc_stats:
-                    self._cycle_processor.create_derived_statistics(
-                        self.forecast_metadata
-                    )
         self.log("run: exiting")
 
     def create_dummy_emissions_file(self) -> None:
