@@ -157,7 +157,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         self.log("process_emissions: enter")
 
         hwp_ave = []
-        totprcp = np.zeros(self._context.grid_out_shape)
+        totprcp = np.zeros(self._context.grid_out_shape).ravel()
         for date in forecast_metadata['forecast_date']:
             phy_data_path = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
             rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
@@ -175,7 +175,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         derived = self.average_frp(forecast_metadata)
 
         t_fire = np.zeros(self._context.grid_out_shape)
-        for date in forecast_metadata['forecast_dates']:
+        for date in forecast_metadata['forecast_date']:
             rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
             with xr.open_dataset(rave_path) as ds:
                 frp = ds.frp_avg_hr[0, :, :].values
@@ -215,8 +215,9 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         ebb_tot_reshaped = ebb_tot_reshaped * mask
         fire_age = fire_age * mask
 
+        self.log(f"creating emissions file: {self._context.emissions_path}")
         with open_nc(self._context.emissions_path, "w", parallel=False) as ds_out:
-            create_template_emissions_file(ds, self._context.grid_out_shape)
+            create_template_emissions_file(ds_out, self._context.grid_out_shape)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
@@ -249,7 +250,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
     ) -> Dict[FrpVariable, np.ndarray]:
         self.log(f"average_frp: entering")
 
-        frp_daily = np.zeros(self._context.grid_out_shape)
+        frp_daily = np.zeros(self._context.grid_out_shape).ravel()
         ebb_smoke_total = []
 
         with xr.open_dataset(self._context.veg_map) as ds:
