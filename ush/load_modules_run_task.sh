@@ -209,14 +209,6 @@ if [ -n "${SRW_ENV:-}" ] ; then
   conda activate ${SRW_ENV}
   set -u
 fi
-
-# Esmpy/ESMF segfaults when running through conda on Orion/Hercules. 
-# Use a manually built esmpy v8.3.1 and local Python modules.
-if [[ ( "${machine}" == "orion" || "${machine}" == "hercules" ) && "${task_name}" == "smoke_dust" ]]; then
-  set +u
-  export PYTHONPATH=/work/noaa/epic/bwkoziol/main_aqm/esmf/src/addon/ESMPy/src:$PYTHONPATH
-  set -u
-fi
 #
 #-----------------------------------------------------------------------
 #

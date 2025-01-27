@@ -233,13 +233,8 @@ if [ "${BUILD_CONDA}" = "on" ] ; then
     mamba install -y bash coreutils sed
   fi
   conda activate
-  if [ "${PLATFORM}" = "orion" ] || [ "${PLATFORM}" = "hercules" ]; then
-    envir_fn="envir_noesmpy.yml"
-  else
-    envir_fn="environment.yml"
-  fi
   if ! conda env list | grep -q "^srw_app\s" ; then
-    mamba env create -n srw_app --file $envir_fn
+    mamba env create -n srw_app --file environment.yml
   fi
   if ! conda env list | grep -q "^srw_graphics\s" ; then
     mamba env create -n srw_graphics --file graphics_environment.yml
