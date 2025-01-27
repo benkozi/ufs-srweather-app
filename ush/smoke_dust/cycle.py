@@ -7,12 +7,12 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from smoke_dust_common import (
+from .common import (
     open_nc,
     create_sd_variable,
     create_template_emissions_file,
 )
-from smoke_dust_context import SmokeDustContext, EmissionVariable, EbbDCycle
+from .context import SmokeDustContext, EmissionVariable, EbbDCycle
 
 
 @unique
@@ -134,14 +134,19 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         return self._context.fcst_datetime - dt.timedelta(days=1, hours=1)
 
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
-        #tdk:story: figure out restart file copying
+        # tdk:story: figure out restart file copying
         self.log("process_emissions: enter")
 
         hwp_ave = []
         totprcp = np.zeros(self._context.grid_out_shape).ravel()
-        for date in forecast_metadata['forecast_date']:
-            phy_data_path = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
-            rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+        for date in forecast_metadata["forecast_date"]:
+            phy_data_path = (
+                self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
+            )
+            rave_path = (
+                self._context.intp_dir
+                / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+            )
             self.log(f"processing emissions for: {phy_data_path=}, {rave_path=}")
             with xr.open_dataset(phy_data_path) as ds:
                 hwp_values = ds.rrfs_hwp_ave.values.ravel()
@@ -156,8 +161,11 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         derived = self.average_frp(forecast_metadata)
 
         t_fire = np.zeros(self._context.grid_out_shape)
-        for date in forecast_metadata['forecast_date']:
-            rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+        for date in forecast_metadata["forecast_date"]:
+            rave_path = (
+                self._context.intp_dir
+                / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+            )
             with xr.open_dataset(rave_path) as ds:
                 frp = ds.frp_avg_hr[0, :, :].values
             dates_filtered = np.where(frp > 0, int(date[:10]), 0)
@@ -168,7 +176,14 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
             for hr in t_fire_flattened
         ]
         te = np.array(
-            [(self._context.fcst_datetime - i).total_seconds() / 3600 if i != 0 else 0 for i in hr_ends]
+            [
+                (
+                    (self._context.fcst_datetime - i).total_seconds() / 3600
+                    if i != 0
+                    else 0
+                )
+                for i in hr_ends
+            ]
         )
         fire_age = np.array(te).reshape(self._context.grid_out_shape)
 
@@ -212,11 +227,21 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
             )
             ds_out.variables["ebb_rate"][0, :, :] = ebb_tot_reshaped
             create_sd_variable(
-                ds_out, "fire_end_hr", "Hours since fire was last detected", "hrs", "0.f", 0.0
+                ds_out,
+                "fire_end_hr",
+                "Hours since fire was last detected",
+                "hrs",
+                "0.f",
+                0.0,
             )
             ds_out.variables["fire_end_hr"][0, :, :] = fire_age
             create_sd_variable(
-                ds_out, "hwp_davg", "Daily mean Hourly Wildfire Potential", "none", "0.f", 0.0
+                ds_out,
+                "hwp_davg",
+                "Daily mean Hourly Wildfire Potential",
+                "none",
+                "0.f",
+                0.0,
             )
             ds_out.variables["hwp_davg"][0, :, :] = filtered_hwp
             create_sd_variable(

@@ -101,7 +101,9 @@ def create_sd_variable(
             pass
 
 
-def create_template_emissions_file(ds: nc.Dataset, grid_shape: Tuple[int, int], is_dummy: bool = False):
+def create_template_emissions_file(
+    ds: nc.Dataset, grid_shape: Tuple[int, int], is_dummy: bool = False
+):
     ds.createDimension("t", None)
     ds.createDimension("lat", grid_shape[0])
     ds.createDimension("lon", grid_shape[1])

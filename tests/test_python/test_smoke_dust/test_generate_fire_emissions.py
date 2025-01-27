@@ -1,8 +1,3 @@
-import sys
-from pathlib import Path
-
-sys.path.append(str(Path("../../../ush")))
-
 import logging
 import os
 import shutil
@@ -14,11 +9,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Tuple, Dict, Literal
 
-from smoke_dust_main import main
+from smoke_dust.main import main
 
-logger = logging.getLogger('test_generate_fire_emissions')
+logger = logging.getLogger("test_generate_fire_emissions")
 handler = logging.StreamHandler(stream=sys.stdout)
-handler.setFormatter(logging.Formatter('[%(levelname)s][%(name)s][%(created)f] %(message)s'))
+handler.setFormatter(
+    logging.Formatter("[%(levelname)s][%(name)s][%(created)f] %(message)s")
+)
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)  # tdk:set to info
 
@@ -35,7 +32,7 @@ class GenerateEmissWorkflowArgs:
     exit_on_error: str
     cdate: str
     data: Path
-    rave_qa_filter: Literal['NONE', 'HIGH']
+    rave_qa_filter: Literal["NONE", "HIGH"]
     log_level: str = "DEBUG"
 
     @classmethod
@@ -44,50 +41,59 @@ class GenerateEmissWorkflowArgs:
             # staticdir=comin / 'RRFS_NA_13km',  # tdk: test with other grids
             # staticdir=comin / 'RRFS_CONUS_25km',  # tdk: test with other grids
             # staticdir=comin / 'RRFS_CONUS_13km', #tdk: test with other grids
-            staticdir=comin / 'RRFS_CONUS_3km',  # tdk: test with other grids
-
+            staticdir=comin / "RRFS_CONUS_3km",  # tdk: test with other grids
             # ravedir=comin / 'RAVE_fire',
-
-            ravedir=Path('/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'),  # hera
+            ravedir=Path(
+                "/scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire"
+            ),  # hera
             # ravedir=Path('/work/noaa/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire'), #orion
-
             # tdk: make this configurable
-            intp_dir=comout / 'intp_dir',
+            intp_dir=comout / "intp_dir",
             # predef_grid='RRFS_NA_13km',  # tdk: test with all grids
             # predef_grid='RRFS_CONUS_25km',  # tdk: test with all grids
             # predef_grid='RRFS_CONUS_13km',  # tdk: test with all grids
-            predef_grid='RRFS_CONUS_3km',  # tdk: test with all grids
+            predef_grid="RRFS_CONUS_3km",  # tdk: test with all grids
             # ebb_dcycle_flag='1',  # tdk: test with 2
-            ebb_dcycle_flag='2',  # tdk: test with 2
-            restart_interval='6 12 18 24',
-            persistence='FALSE',  # tdk: test with false
+            ebb_dcycle_flag="2",  # tdk: test with 2
+            restart_interval="6 12 18 24",
+            persistence="FALSE",  # tdk: test with false
             # persistence='TRUE',  # tdk: test with false
-            cdate='2019072200',
+            cdate="2019072200",
             # data=comout / 'data',
-            data="/scratch2/NAGAPE/epic/Ben.Koziol/sandbox/srw-main-aqm/control/nco_dirs/test_smoke/tmp/forecast_mem000.2019072206.5556738", #tdk: need to figure out data directory
+            data="/scratch2/NAGAPE/epic/Ben.Koziol/sandbox/srw-main-aqm/control/nco_dirs/test_smoke/tmp/forecast_mem000.2019072206.5556738",  # tdk: need to figure out data directory
             exit_on_error="TRUE",  # tdk: test with FALSE
-            rave_qa_filter='NONE'
+            rave_qa_filter="NONE",
         )
 
     def as_script_args(self) -> Tuple:
-        return str(self.staticdir), str(self.ravedir), str(
-            self.intp_dir), self.predef_grid, self.ebb_dcycle_flag, self.restart_interval, self.persistence, self.rave_qa_filter, self.exit_on_error, self.log_level
+        return (
+            str(self.staticdir),
+            str(self.ravedir),
+            str(self.intp_dir),
+            self.predef_grid,
+            self.ebb_dcycle_flag,
+            self.restart_interval,
+            self.persistence,
+            self.rave_qa_filter,
+            self.exit_on_error,
+            self.log_level,
+        )
 
     @contextmanager
     def run_context(self) -> Dict[str, str]:
-        l = logger.getChild('run_context')
+        l = logger.getChild("run_context")
 
         # dirs = [self.intp_dir, self.data, self.staticdir, self.ravedir]
         # for ii in dirs:
         #     l.debug(f'creating directory: {ii}')
         #     os.mkdir(ii)
 
-        env_vars = {'CDATE': self.cdate, 'DATA': self.data}
-        l.debug(f'setting environment variables: {env_vars}')
+        env_vars = {"CDATE": self.cdate, "DATA": self.data}
+        l.debug(f"setting environment variables: {env_vars}")
         orig = {k: os.environ.get(k) for k in env_vars.keys()}
         try:
-            os.environ['CDATE'] = self.cdate
-            os.environ['DATA'] = str(self.data)
+            os.environ["CDATE"] = self.cdate
+            os.environ["DATA"] = str(self.data)
             yield env_vars
         finally:
             for k, v in orig.items():
@@ -128,6 +134,7 @@ class TestGenerateFireEmissions(unittest.TestCase):
             # subprocess.check_call(
             #     [python, main_path] + list(
             #         main_args.as_script_args()))  # tdk: figure out python runtime
+
 
 # class Test(unittest.TestCase):
 #

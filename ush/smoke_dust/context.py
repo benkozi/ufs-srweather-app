@@ -2,7 +2,6 @@ import datetime as dt
 import logging
 import logging.config
 import os
-from dataclasses import dataclass
 from enum import unique, StrEnum, IntEnum
 from pathlib import Path
 from typing import Tuple, List
@@ -10,7 +9,7 @@ from typing import Tuple, List
 from mpi4py import MPI
 from pydantic import BaseModel, model_validator
 
-from smoke_dust_common import open_nc
+from .common import open_nc
 
 
 @unique

@@ -16,14 +16,14 @@ from typing import List, Any
 
 import pandas as pd
 
-from smoke_dust_common import (
+from .common import (
     create_template_emissions_file,
     open_nc,
     create_sd_variable,
 )
-from smoke_dust_context import SmokeDustContext
-from smoke_dust_cycle import create_cycle_processor
-from smoke_dust_regrid import SmokeDustRegridProcessor
+from .context import SmokeDustContext
+from .cycle import create_cycle_processor
+from .regrid import SmokeDustRegridProcessor
 
 
 class SmokeDustPreprocessor:
@@ -113,7 +113,7 @@ class SmokeDustPreprocessor:
 
     @property
     def is_first_day(self) -> bool:
-        is_first_day =  (
+        is_first_day = (
             self.forecast_metadata["rave_interpolated"].isnull().all()
             and self.forecast_metadata["rave_raw"].isnull().all()
         )
@@ -137,7 +137,9 @@ class SmokeDustPreprocessor:
         with open_nc(
             self._context.emissions_path, "w", parallel=False, clobber=True
         ) as ds:
-            create_template_emissions_file(ds, self._context.grid_out_shape, is_dummy=True)
+            create_template_emissions_file(
+                ds, self._context.grid_out_shape, is_dummy=True
+            )
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
