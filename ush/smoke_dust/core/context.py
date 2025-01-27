@@ -9,7 +9,7 @@ from typing import Tuple, List
 from mpi4py import MPI
 from pydantic import BaseModel, model_validator
 
-from .common import open_nc
+from smoke_dust.core.common import open_nc
 
 
 @unique

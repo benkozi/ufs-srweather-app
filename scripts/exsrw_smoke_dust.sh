@@ -113,7 +113,7 @@ else
   #
 
   #tdk:last: maybe have own command that already has its own nprocs
-  mpirun -n ${nprocs} python ${USHsrw}/smoke_dust/main.py \
+  mpirun -n ${nprocs} python ${USHsrw}/smoke_dust/generate_emissions.py \
     "${FIXsmoke}/${PREDEF_GRID_NAME}" \
     "${DATA}" \
     "${DATA_SHARE}" \

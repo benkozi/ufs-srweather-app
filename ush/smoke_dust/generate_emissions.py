@@ -16,14 +16,14 @@ from typing import List, Any
 
 import pandas as pd
 
-from .common import (
+from smoke_dust.core.common import (
     create_template_emissions_file,
     open_nc,
     create_sd_variable,
 )
-from .context import SmokeDustContext
-from .cycle import create_cycle_processor
-from .regrid import SmokeDustRegridProcessor
+from smoke_dust.core.context import SmokeDustContext
+from smoke_dust.core.cycle import create_cycle_processor
+from smoke_dust.core.regrid import SmokeDustRegridProcessor
 
 
 class SmokeDustPreprocessor:

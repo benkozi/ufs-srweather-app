@@ -10,13 +10,13 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from .common import (
+from smoke_dust.core.common import (
     create_template_emissions_file,
     create_sd_variable,
     create_descriptive_statistics,
     open_nc,
 )
-from .context import RaveQaFilter, SmokeDustContext
+from smoke_dust.core.context import RaveQaFilter, SmokeDustContext
 
 
 class SmokeDustRegridProcessor:

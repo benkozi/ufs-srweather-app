@@ -12,13 +12,13 @@ from _pytest.fixtures import SubRequest
 from pydantic import BaseModel
 from pytest_mock import MockerFixture
 
-from smoke_dust.context import SmokeDustContext
-from smoke_dust.cycle import (
+from smoke_dust.core.context import SmokeDustContext
+from smoke_dust.core.cycle import (
     AbstractSmokeDustCycleProcessor,
     SmokeDustCycleOne,
     SmokeDustCycleTwo,
 )
-from smoke_dust.main import SmokeDustPreprocessor
+from smoke_dust.generate_emissions import SmokeDustPreprocessor
 
 
 @dataclass

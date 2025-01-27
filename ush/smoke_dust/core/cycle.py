@@ -7,12 +7,12 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from .common import (
+from smoke_dust.core.common import (
     open_nc,
     create_sd_variable,
     create_template_emissions_file,
 )
-from .context import SmokeDustContext, EmissionVariable, EbbDCycle
+from smoke_dust.core.context import SmokeDustContext, EmissionVariable, EbbDCycle
 
 
 @unique
