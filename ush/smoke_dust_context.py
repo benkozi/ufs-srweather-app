@@ -53,7 +53,7 @@ class EmissionVariable(StrEnum):
         return other[self]
 
 
-@dataclass
+@dataclass #tdk:last: pydantic base model
 class SmokeDustContext:
     # Values provided via command-line
     staticdir: Path
