@@ -200,6 +200,8 @@ def main(args: List[str]) -> None:
 
 
 if __name__ == "__main__":
+    sys.path.append(str(Path(__file__).parent.parent))
+
     print("")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("Welcome to interpolating RAVE and processing fire emissions!")
