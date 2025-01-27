@@ -16,43 +16,48 @@ from smoke_dust_cycle import SmokeDustCycleTwo
 from smoke_dust_main import SmokeDustPreprocessor
 
 
-def create_restart_files(root_dir: Path, forecast_metadata: pd.DataFrame, grid_out_shape: tuple[int, int]) -> None:
-    restart_dir = root_dir / 'RESTART'
-    restart_dir.mkdir()
-    for date in forecast_metadata['forecast_date']:
-        restart_file = restart_dir / f'{date[:8]}.{date[8:10]}0000.phy_data.nc'
-        with nc.Dataset(restart_file, 'w') as ds:
-            ds.createDimension('Time')
-            ds.createDimension('yaxis_1', grid_out_shape[0])
-            ds.createDimension('xaxis_1', grid_out_shape[1])
-            totprcp_ave = ds.createVariable('totprcp_ave', 'f4', ('Time', 'yaxis_1', 'xaxis_1'))
-            totprcp_ave[0, ...] = np.ones(grid_out_shape)
-            rrfs_hwp_ave = ds.createVariable('rrfs_hwp_ave', 'f4', ('Time', 'yaxis_1', 'xaxis_1'))
-            rrfs_hwp_ave[0, ...] = totprcp_ave[:] + 2
-
-
-def create_rave_interpolated(root_dir: Path, forecast_metadata: pd.DataFrame, grid_out_shape: tuple[int, int],
-                             rave_to_intp: str) -> None:
-    for date in forecast_metadata['forecast_date']:
-        intp_file = root_dir / f"{rave_to_intp}{date}00_{date}59.nc"
-        dims = ('t', 'lat', 'lon')
-        with nc.Dataset(intp_file, 'w') as ds:
-            ds.createDimension('t')
-            ds.createDimension('lat', grid_out_shape[0])
-            ds.createDimension('lon', grid_out_shape[1])
-            for varname in ['frp_avg_hr', 'FRE']:
-                var = ds.createVariable(varname, 'f4', dims)
-                var[0, ...] = np.ones(grid_out_shape)
-
-
 @dataclass
 class FakeGridOutShape:
     y_size: int = 5
     x_size: int = 10
 
+    @property
+    def as_tuple(self) -> tuple[int, int]:
+        return self.y_size, self.x_size
+
+
 @pytest.fixture
 def fake_grid_out_shape() -> FakeGridOutShape:
     return FakeGridOutShape()
+
+
+def create_restart_files(root_dir: Path, forecast_dates: pd.DatetimeIndex, shape: FakeGridOutShape) -> None:
+    restart_dir = root_dir / 'RESTART'
+    restart_dir.mkdir()
+    for date in forecast_dates:
+        restart_file = restart_dir / f'{date[:8]}.{date[8:10]}0000.phy_data.nc'
+        with nc.Dataset(restart_file, 'w') as ds:
+            ds.createDimension('Time')
+            ds.createDimension('yaxis_1', shape.y_size)
+            ds.createDimension('xaxis_1', shape.x_size)
+            totprcp_ave = ds.createVariable('totprcp_ave', 'f4', ('Time', 'yaxis_1', 'xaxis_1'))
+            totprcp_ave[0, ...] = np.ones(shape.as_tuple)
+            rrfs_hwp_ave = ds.createVariable('rrfs_hwp_ave', 'f4', ('Time', 'yaxis_1', 'xaxis_1'))
+            rrfs_hwp_ave[0, ...] = totprcp_ave[:] + 2
+
+
+def create_rave_interpolated(root_dir: Path, forecast_dates: pd.DatetimeIndex, shape: FakeGridOutShape,
+                             rave_to_intp: str) -> None:
+    for date in forecast_dates:
+        intp_file = root_dir / f"{rave_to_intp}{date}00_{date}59.nc"
+        dims = ('t', 'lat', 'lon')
+        with nc.Dataset(intp_file, 'w') as ds:
+            ds.createDimension('t')
+            ds.createDimension('lat', shape.y_size)
+            ds.createDimension('lon', shape.x_size)
+            for varname in ['frp_avg_hr', 'FRE']:
+                var = ds.createVariable(varname, 'f4', dims)
+                var[0, ...] = np.ones(shape.as_tuple)
 
 
 def create_grid_out(root_dir: Path, shape: FakeGridOutShape) -> None:
@@ -95,15 +100,14 @@ class TestSmokeDustCycleTwo:
                     log_level='DEBUG',
                     )
         context = SmokeDustContext.create_from_args(kwds.values())
-
         preprocessor = SmokeDustPreprocessor(context)
 
-        create_restart_files(tmp_path, preprocessor.forecast_metadata, context.grid_out_shape)
-        create_rave_interpolated(tmp_path, preprocessor.forecast_metadata, context.grid_out_shape,
+        create_restart_files(tmp_path, preprocessor.forecast_dates, fake_grid_out_shape)
+        create_rave_interpolated(tmp_path, preprocessor.forecast_dates, fake_grid_out_shape,
                                  context.predef_grid.value + "_intp_")
-        preprocessor._forecast_metadata = None
 
         cycle = SmokeDustCycleTwo(context)
+        assert preprocessor._forecast_metadata is None
         cycle.process_emissions(preprocessor.forecast_metadata)
 
         assert context.emissions_path.exists()
