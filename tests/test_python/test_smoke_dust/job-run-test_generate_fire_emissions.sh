@@ -32,5 +32,5 @@ export PATH=${CONDA_ENV}/bin:${PATH}
 cd ${TESTDIR}
 
 echo "running python unit test"
-#python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
-mpirun -n 8 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
+python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
+#mpirun -n 8 python -m unittest ${TESTDIR}/test_generate_fire_emissions.py
