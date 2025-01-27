@@ -1,6 +1,9 @@
 import os
 import sys
+from dataclasses import dataclass
 from pathlib import Path
+
+import pytest
 
 sys.path.append(str(Path("../../../ush")))
 
@@ -42,22 +45,38 @@ def create_rave_interpolated(root_dir: Path, forecast_metadata: pd.DataFrame, gr
                 var[0, ...] = np.ones(grid_out_shape)
 
 
+@dataclass
+class FakeGridOutShape:
+    y_size: int = 5
+    x_size: int = 10
+
+@pytest.fixture
+def fake_grid_out_shape() -> FakeGridOutShape:
+    return FakeGridOutShape()
+
+
+def create_grid_out(root_dir: Path, shape: FakeGridOutShape) -> None:
+    with nc.Dataset(root_dir / 'ds_out_base.nc', 'w') as ds:
+        ds.createDimension('grid_yt', shape.y_size)
+        ds.createDimension('grid_xt', shape.x_size)
+        for varname in ['area', 'grid_latt', 'grid_lont']:
+            var = ds.createVariable(varname, 'f4', ('grid_yt', 'grid_xt'))
+            var[:] = np.ones((shape.y_size, shape.x_size))
+
+
+def create_veg_map(root_dir: Path, shape: FakeGridOutShape) -> None:
+    with nc.Dataset(root_dir / 'veg_map.nc', 'w') as ds:
+        ds.createDimension('grid_yt', shape.y_size)
+        ds.createDimension('grid_xt', shape.x_size)
+        emiss_factor = ds.createVariable('emiss_factor', 'f4', ('grid_yt', 'grid_xt'))
+        emiss_factor[:] = np.ones((shape.y_size, shape.x_size))
+
+
 class TestSmokeDustCycleTwo:
 
-    def test_process_emissions(self, tmp_path: Path) -> None:
-        y_size = 5
-        x_size = 10
-        with nc.Dataset(tmp_path / 'ds_out_base.nc', 'w') as ds:
-            ds.createDimension('grid_yt', y_size)
-            ds.createDimension('grid_xt', x_size)
-            for varname in ['area', 'grid_latt', 'grid_lont']:
-                var = ds.createVariable(varname, 'f4', ('grid_yt', 'grid_xt'))
-                var[:] = np.ones((y_size, x_size))
-        with nc.Dataset(tmp_path / 'veg_map.nc', 'w') as ds:
-            ds.createDimension('grid_yt', y_size)
-            ds.createDimension('grid_xt', x_size)
-            emiss_factor = ds.createVariable('emiss_factor', 'f4', ('grid_yt', 'grid_xt'))
-            emiss_factor[:] = np.ones((y_size, x_size))
+    def test_process_emissions(self, tmp_path: Path, fake_grid_out_shape: FakeGridOutShape) -> None:
+        create_grid_out(tmp_path, fake_grid_out_shape)
+        create_veg_map(tmp_path, fake_grid_out_shape)
 
         current_day = '2019072200'
         nwges_dir = tmp_path
@@ -78,13 +97,13 @@ class TestSmokeDustCycleTwo:
         context = SmokeDustContext.create_from_args(kwds.values())
 
         preprocessor = SmokeDustPreprocessor(context)
-        cycle = SmokeDustCycleTwo(context)
 
         create_restart_files(tmp_path, preprocessor.forecast_metadata, context.grid_out_shape)
         create_rave_interpolated(tmp_path, preprocessor.forecast_metadata, context.grid_out_shape,
                                  context.predef_grid.value + "_intp_")
         preprocessor._forecast_metadata = None
 
+        cycle = SmokeDustCycleTwo(context)
         cycle.process_emissions(preprocessor.forecast_metadata)
 
         assert context.emissions_path.exists()
