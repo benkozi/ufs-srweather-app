@@ -57,7 +57,7 @@ class SmokeDustPreprocessor:
             start=start_datetime, periods=24, freq="h"
         ).strftime("%Y%m%d%H")
 
-        # Collect metadata on RAVE input files
+        # Collect metadata on data files related to forecast dates
         intp_path = []
         rave_to_forecast = []
         for date in forecast_dates:

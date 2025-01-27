@@ -153,13 +153,13 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         return self._context.fcst_datetime - dt.timedelta(days=1, hours=1)
 
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
-        #tdk: figure out restart file copying
+        #tdk:story: figure out restart file copying
         self.log("process_emissions: enter")
 
         hwp_ave = []
         totprcp = np.zeros(self._context.grid_out_shape)
         # var1, var2 = "rrfs_hwp_ave", "totprcp_ave"
-        for date in forecast_metadata['forecast_dates']:
+        for date in forecast_metadata['forecast_date']:
             phy_data_path = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
             rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
             self.log(f"processing emissions for: {phy_data_path=}, {rave_path=}")

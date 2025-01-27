@@ -63,7 +63,8 @@ class GenerateEmissWorkflowArgs:
             persistence='FALSE',  # tdk: test with false
             # persistence='TRUE',  # tdk: test with false
             cdate='2019072200',
-            data=comout / 'data',
+            # data=comout / 'data',
+            data="/scratch2/NAGAPE/epic/Ben.Koziol/sandbox/srw-main-aqm/control/nco_dirs/test_smoke/tmp/forecast_mem000.2019072206.5556738", #tdk: need to figure out data directory
             exit_on_error="TRUE",  # tdk: test with FALSE
             rave_qa_filter='NONE'
         )
