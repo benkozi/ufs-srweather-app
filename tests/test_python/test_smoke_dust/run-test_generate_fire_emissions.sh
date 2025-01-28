@@ -12,4 +12,4 @@ rm *.err *.out || echo "no job logs to remove"
 bash ./job-run-test_generate_fire_emissions.sh
 
 #sbatch job-run-test_generate_fire_emissions.sh
-#squeue -u Benjamin.Koziol -i 5
+#squeue -u Benjamin.Koziol -i 10

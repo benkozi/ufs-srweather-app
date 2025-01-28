@@ -90,7 +90,7 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-export DATA="${DATA:-${DATAROOT}/${jobid}}"
+export DATA="${DATA:-${DATAROOT}/${jobid}}" #tdk: need to figure out data directory
 mkdir -p $DATA
 cd $DATA
 #

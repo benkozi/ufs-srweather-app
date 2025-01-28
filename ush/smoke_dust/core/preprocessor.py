@@ -1,29 +1,18 @@
-#!/usr/bin/env python3
-
-#########################################################################
-#                                                                       #
-# Python script for fire emissions preprocessing from RAVE FRP and FRE  #
-# (Li et al.,2022).                                                     #
-# johana.romero-alvarez@noaa.gov                                        #
-#                                                                       #
-#########################################################################
-
 import fnmatch
 import logging
-import sys
 from pathlib import Path
-from typing import List, Any
+from typing import Any
 
 import pandas as pd
 
-from smoke_dust_common import (
-    create_template_emissions_file,
+from smoke_dust.core.common import (
     open_nc,
+    create_template_emissions_file,
     create_sd_variable,
 )
-from smoke_dust_context import SmokeDustContext
-from smoke_dust_cycle import create_cycle_processor
-from smoke_dust_regrid import SmokeDustRegridProcessor
+from smoke_dust.core.context import SmokeDustContext
+from smoke_dust.core.cycle import create_cycle_processor
+from smoke_dust.core.regrid import SmokeDustRegridProcessor
 
 
 class SmokeDustPreprocessor:
@@ -39,6 +28,7 @@ class SmokeDustPreprocessor:
 
         # On-demand/cached property values
         self._forecast_metadata = None
+        self._forecast_dates = None
 
         self.log(f"{self._context=}")
         self.log("__init__: exit")
@@ -47,20 +37,27 @@ class SmokeDustPreprocessor:
         self._context.log(*args, **kwargs)
 
     @property
+    def forecast_dates(self) -> pd.DatetimeIndex:
+        if self._forecast_dates is not None:
+            return self._forecast_dates
+        start_datetime = self._cycle_processor.create_start_datetime()
+        self.log(f"{start_datetime=}")
+        forecast_dates = pd.date_range(
+            start=start_datetime, periods=24, freq="h"
+        ).strftime("%Y%m%d%H")
+        self._forecast_dates = forecast_dates
+        return self._forecast_dates
+
+    @property
     def forecast_metadata(self) -> pd.DataFrame:
         if self._forecast_metadata is not None:
             return self._forecast_metadata
 
-        start_datetime = self._cycle_processor.create_start_datetime()
-        self.log(f"creating forecast metadata: {start_datetime=}")
-        forecast_dates = pd.date_range(
-            start=start_datetime, periods=24, freq="h"
-        ).strftime("%Y%m%d%H")
-
-        # Collect metadata on RAVE input files
+        # Collect metadata on data files related to forecast dates
+        self.log(f"creating forecast metadata")
         intp_path = []
         rave_to_forecast = []
-        for date in forecast_dates:
+        for date in self.forecast_dates:
             # Check for pre-existing interpolated RAVE data
             file_path = (
                 Path(self._context.intp_dir)
@@ -90,12 +87,12 @@ class SmokeDustPreprocessor:
             if not found:
                 rave_to_forecast.append(None)
 
-        self.log(f"{forecast_dates=}", level=logging.DEBUG)
+        self.log(f"{self.forecast_dates}", level=logging.DEBUG)
         self.log(f"{intp_path=}", level=logging.DEBUG)
         self.log(f"{rave_to_forecast=}", level=logging.DEBUG)
         df = pd.DataFrame(
             data={
-                "forecast_date": forecast_dates,
+                "forecast_date": self.forecast_dates,
                 "rave_interpolated": intp_path,
                 "rave_raw": rave_to_forecast,
             }
@@ -105,7 +102,7 @@ class SmokeDustPreprocessor:
 
     @property
     def is_first_day(self) -> bool:
-        is_first_day =  (
+        is_first_day = (
             self.forecast_metadata["rave_interpolated"].isnull().all()
             and self.forecast_metadata["rave_raw"].isnull().all()
         )
@@ -121,10 +118,6 @@ class SmokeDustPreprocessor:
             self._regrid_processor.run(self.forecast_metadata)
             if self._context.rank == 0:
                 self._cycle_processor.process_emissions(self.forecast_metadata)
-                if self._context.should_calc_desc_stats:
-                    self._cycle_processor.create_derived_statistics(
-                        self.forecast_metadata
-                    )
         self.log("run: exiting")
 
     def create_dummy_emissions_file(self) -> None:
@@ -133,7 +126,9 @@ class SmokeDustPreprocessor:
         with open_nc(
             self._context.emissions_path, "w", parallel=False, clobber=True
         ) as ds:
-            create_template_emissions_file(ds, self._context.grid_out_shape, is_dummy=True)
+            create_template_emissions_file(
+                ds, self._context.grid_out_shape, is_dummy=True
+            )
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
@@ -167,42 +162,3 @@ class SmokeDustPreprocessor:
 
     def finalize(self) -> None:
         self.log("finalize: exiting")
-
-
-def main(args: List[str]) -> None:
-    """
-    Prepares fire-related ICs. This is the main function that handles data movement and interpolation.
-    #tdk: doc
-    Args:
-        staticdir: Path to fix files for the smoke and dust component
-        ravedir: Path to the directory containing RAVE fire data files (hourly). This is typically the working directory (DATA)
-        intp_dir: Path to interpolated RAVE data files from the previous cycles (DATA_SHARE)
-        predef_grid: If ``RRFS_NA_3km``, use pre-defined grid dimensions
-        ebb_dcycle_flag: Select the EBB cycle to run. Valid values are ``"1"`` or ``"2"``
-        restart_interval: Indicates if restart files should be copied. The actual interval values are not used
-        persistence: If ``TRUE``, use satellite observations from the previous day. Otherwise, use observations from the same day.
-    """
-
-    context = SmokeDustContext.create_from_args(args)
-    processor = SmokeDustPreprocessor(context)
-    try:
-        processor.run()
-        processor.finalize()
-    except Exception as e:
-        processor.create_dummy_emissions_file()
-        context.log("unhandled error", exc_info=e)
-
-
-if __name__ == "__main__":
-    print("")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("Welcome to interpolating RAVE and processing fire emissions!")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("")
-    # tdk:story: use argparse
-    main(sys.argv[1:])
-    print("")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("Exiting. Bye!")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("")

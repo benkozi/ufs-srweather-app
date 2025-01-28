@@ -2,14 +2,14 @@ import datetime as dt
 import logging
 import logging.config
 import os
-from dataclasses import dataclass
 from enum import unique, StrEnum, IntEnum
 from pathlib import Path
 from typing import Tuple, List
 
 from mpi4py import MPI
+from pydantic import BaseModel, model_validator
 
-from smoke_dust_common import open_nc
+from smoke_dust.core.common import open_nc
 
 
 @unique
@@ -53,8 +53,7 @@ class EmissionVariable(StrEnum):
         return other[self]
 
 
-@dataclass
-class SmokeDustContext:
+class SmokeDustContext(BaseModel):
     # Values provided via command-line
     staticdir: Path
     ravedir: Path
@@ -75,12 +74,13 @@ class SmokeDustContext:
     beta: float = 0.3
     fg_to_ug: float = 1e6
     to_s: int = 3600
-    vars_emis = ["FRP_MEAN", "FRE"]
+    vars_emis: List[str] = ["FRP_MEAN", "FRE"]
     rank: int = MPI.COMM_WORLD.Get_rank()
     grid_out_shape: Tuple[int, int] = (0, 0)  # Set in __post_init__
     esmpy_debug: bool = False
 
-    def __post_init__(self):
+    @model_validator(mode="after")
+    def _set_grid_shape_(self) -> "SmokeDustContext":
         self._logger = self._init_logging_()
 
         with open_nc(self.grid_out, parallel=False) as ds:
@@ -89,6 +89,7 @@ class SmokeDustContext:
                 ds.dimensions["grid_xt"].size,
             )
         self.log(f"{self.grid_out_shape=}")
+        return self
 
     @classmethod
     def create_from_args(cls, args: List[str]) -> "SmokeDustContext":
@@ -123,7 +124,7 @@ class SmokeDustContext:
             persistence=cls._str_to_bool_(l_persistence),
             rave_qa_filter=RaveQaFilter(l_rave_qa_filter.upper()),
             exit_on_error=cls._str_to_bool_(l_exit_on_error),
-            log_level=getattr(logging, l_log_level.upper()),
+            log_level=l_log_level,
             current_day=current_day,
             nwges_dir=nwges_dir,
         )
@@ -240,7 +241,7 @@ class SmokeDustContext:
             "loggers": {
                 project_name: {
                     "handlers": ["default"],
-                    "level": self.log_level,
+                    "level": getattr(logging, self.log_level.value),
                 },
             },
         }

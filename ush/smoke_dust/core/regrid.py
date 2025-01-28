@@ -10,13 +10,13 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from smoke_dust_common import (
+from smoke_dust.core.common import (
     create_template_emissions_file,
     create_sd_variable,
     create_descriptive_statistics,
     open_nc,
 )
-from smoke_dust_context import RaveQaFilter, SmokeDustContext
+from smoke_dust.core.context import RaveQaFilter, SmokeDustContext
 
 
 class SmokeDustRegridProcessor:
@@ -29,7 +29,7 @@ class SmokeDustRegridProcessor:
         self._interpolation_stats = None
 
     def log(self, *args: Any, **kwargs: Any) -> None:
-        # tdk: superclass for processors
+        # tdk:last: superclass for processors
         self._context.log(*args, **kwargs)
 
     def run(self, forecast_metadata: pd.DataFrame) -> None:
@@ -42,6 +42,11 @@ class SmokeDustRegridProcessor:
             self.log("all rave files have been interpolated")
             return
 
+        self._run_impl_(forecast_metadata, rave_to_interpolate)
+
+    def _run_impl_(
+        self, forecast_metadata: pd.DataFrame, rave_to_interpolate: pd.Series
+    ) -> None:
         first = True
         for row_idx, row_data in rave_to_interpolate.iterrows():
             row_dict = row_data.to_dict()
@@ -173,12 +178,16 @@ class SmokeDustRegridProcessor:
                         src_data[:] = np.where(src_data > 1000.0, src_data, 0.0)
                     case _:
                         raise NotImplementedError(field_name)
-                
+
                 if self._context.rave_qa_filter == RaveQaFilter.HIGH:
                     with open_nc(row_data["rave_raw"], parallel=True) as rave_ds:
-                        rave_qa = load_variable_data(rave_ds.variables["QA"], src_fwrap.dims)
+                        rave_qa = load_variable_data(
+                            rave_ds.variables["QA"], src_fwrap.dims
+                        )
                     set_to_zero = rave_qa < 2
-                    self.log(f"RAVE QA filter applied: {self._context.rave_qa_filter=}; {set_to_zero.size=}; {np.sum(set_to_zero)=}")
+                    self.log(
+                        f"RAVE QA filter applied: {self._context.rave_qa_filter=}; {set_to_zero.size=}; {np.sum(set_to_zero)=}"
+                    )
                     src_data[set_to_zero] = 0.0
 
                 # Execute the ESMF regridding
@@ -194,8 +203,7 @@ class SmokeDustRegridProcessor:
             row_data["rave_interpolated"] = output_file_path
 
             if self._context.rank == 0:
-                self._interpolation_postprocessing_(row_data)
-
+                self._regrid_postprocessing_(row_data)
         if (
             self._context.rank == 0
             and self._context.should_calc_desc_stats
@@ -209,7 +217,7 @@ class SmokeDustRegridProcessor:
             self.log(f"writing interpolation statistics: {stats_path=}")
             self._interpolation_stats.to_csv(stats_path, index=False)
 
-    def _interpolation_postprocessing_(self, row_data: pd.Series) -> None:
+    def _regrid_postprocessing_(self, row_data: pd.Series) -> None:
         self.log("_run_interpolation_postprocessing: enter", level=logging.DEBUG)
 
         calc_stats = self._context.should_calc_desc_stats

@@ -7,17 +7,16 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from smoke_dust_common import (
+from smoke_dust.core.common import (
     open_nc,
     create_sd_variable,
     create_template_emissions_file,
-    create_descriptive_statistics,
 )
-from smoke_dust_context import SmokeDustContext, EmissionVariable, EbbDCycle
+from smoke_dust.core.context import SmokeDustContext, EmissionVariable, EbbDCycle
 
 
 @unique
-class DerivedVariable(StrEnum):
+class FrpVariable(StrEnum):
     FRP_AVG = "frp_avg_hr"
     EBB_TOTAL = "ebb_smoke_hr"
 
@@ -30,24 +29,6 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
     def log(self, *args: Any, **kwargs: Any) -> None:
         self._context.log(*args, **kwargs)
 
-    def create_derived_statistics(self, forecast_metadata: pd.DataFrame) -> None:
-        with open_nc(self._context.emissions_path, "r", parallel=False) as ds:
-            df = create_descriptive_statistics(
-                {ii.value: ds.variables[ii.value][:] for ii in DerivedVariable},
-                "derived",
-                self._context.emissions_path,
-            )
-        df = df.transpose()
-        df.index.name = "variable"
-        df.reset_index(inplace=True)
-        forecast_dates = forecast_metadata["forecast_date"]
-        stats_path = (
-            self._context.intp_dir
-            / f"stats_derived_{forecast_dates.min()}_{forecast_dates.max()}.csv"
-        )
-        self.log(f"writing {stats_path=}")
-        df.to_csv(stats_path, index=False)
-
     @abc.abstractmethod
     def flag(self) -> EbbDCycle: ...
 
@@ -57,7 +38,7 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
     @abc.abstractmethod
     def average_frp(
         self, forecast_metadata: pd.DataFrame
-    ) -> Dict[DerivedVariable, np.ndarray]: ...
+    ) -> Dict[FrpVariable, np.ndarray]: ...
 
     @abc.abstractmethod
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None: ...
@@ -89,30 +70,30 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
                 ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
             create_sd_variable(
                 ds_out,
-                DerivedVariable.FRP_AVG.value,
+                FrpVariable.FRP_AVG.value,
                 "mean Fire Radiative Power",
                 "MW",
                 "0.f",
                 0.0,
             )
-            ds_out.variables[DerivedVariable.FRP_AVG.value][:] = derived[
-                DerivedVariable.FRP_AVG
+            ds_out.variables[FrpVariable.FRP_AVG.value][:] = derived[
+                FrpVariable.FRP_AVG
             ]
             create_sd_variable(
                 ds_out,
-                DerivedVariable.EBB_TOTAL.value,
+                FrpVariable.EBB_TOTAL.value,
                 "EBB emissions",
                 "ug m-2 s-1",
                 "0.f",
                 0.0,
             )
-            ds_out.variables[DerivedVariable.EBB_TOTAL.value][:] = derived[
-                DerivedVariable.EBB_TOTAL
+            ds_out.variables[FrpVariable.EBB_TOTAL.value][:] = derived[
+                FrpVariable.EBB_TOTAL
             ]
 
     def average_frp(
         self, forecast_metadata: pd.DataFrame
-    ) -> Dict[DerivedVariable, np.ndarray]:
+    ) -> Dict[FrpVariable, np.ndarray]:
         # tdk:story: refactor to share code with other cycle
         ebb_smoke_total = []
         frp_avg_hr = []
@@ -140,8 +121,8 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
         np.nan_to_num(frp_avg_reshaped, copy=False, nan=0.0)
 
         return {
-            DerivedVariable.FRP_AVG: frp_avg_reshaped,
-            DerivedVariable.EBB_TOTAL: ebb_total_reshaped,
+            FrpVariable.FRP_AVG: frp_avg_reshaped,
+            FrpVariable.EBB_TOTAL: ebb_total_reshaped,
         }
 
 
@@ -153,15 +134,19 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         return self._context.fcst_datetime - dt.timedelta(days=1, hours=1)
 
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
-        #tdk: figure out restart file copying
+        # tdk:story: figure out restart file copying
         self.log("process_emissions: enter")
 
         hwp_ave = []
-        totprcp = np.zeros(self._context.grid_out_shape)
-        # var1, var2 = "rrfs_hwp_ave", "totprcp_ave"
-        for date in forecast_metadata['forecast_dates']:
-            phy_data_path = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
-            rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+        totprcp = np.zeros(self._context.grid_out_shape).ravel()
+        for date in forecast_metadata["forecast_date"]:
+            phy_data_path = (
+                self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
+            )
+            rave_path = (
+                self._context.intp_dir
+                / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+            )
             self.log(f"processing emissions for: {phy_data_path=}, {rave_path=}")
             with xr.open_dataset(phy_data_path) as ds:
                 hwp_values = ds.rrfs_hwp_ave.values.ravel()
@@ -176,8 +161,11 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         derived = self.average_frp(forecast_metadata)
 
         t_fire = np.zeros(self._context.grid_out_shape)
-        for date in forecast_metadata['forecast_dates']:
-            rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+        for date in forecast_metadata["forecast_date"]:
+            rave_path = (
+                self._context.intp_dir
+                / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+            )
             with xr.open_dataset(rave_path) as ds:
                 frp = ds.frp_avg_hr[0, :, :].values
             dates_filtered = np.where(frp > 0, int(date[:10]), 0)
@@ -188,15 +176,22 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
             for hr in t_fire_flattened
         ]
         te = np.array(
-            [(self._context.fcst_datetime - i).total_seconds() / 3600 if i != 0 else 0 for i in hr_ends]
+            [
+                (
+                    (self._context.fcst_datetime - i).total_seconds() / 3600
+                    if i != 0
+                    else 0
+                )
+                for i in hr_ends
+            ]
         )
         fire_age = np.array(te).reshape(self._context.grid_out_shape)
 
         # Ensure arrays are not negative or NaN
-        frp_avg_reshaped = np.clip(derived[DerivedVariable.FRP_AVG], 0, None)
+        frp_avg_reshaped = np.clip(derived[FrpVariable.FRP_AVG], 0, None)
         frp_avg_reshaped = np.nan_to_num(frp_avg_reshaped)
 
-        ebb_tot_reshaped = np.clip(derived[DerivedVariable.EBB_TOTAL], 0, None)
+        ebb_tot_reshaped = np.clip(derived[FrpVariable.EBB_TOTAL], 0, None)
         ebb_tot_reshaped = np.nan_to_num(ebb_tot_reshaped)
 
         fire_age = np.clip(fire_age, 0, None)
@@ -216,8 +211,9 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         ebb_tot_reshaped = ebb_tot_reshaped * mask
         fire_age = fire_age * mask
 
+        self.log(f"creating emissions file: {self._context.emissions_path}")
         with open_nc(self._context.emissions_path, "w", parallel=False) as ds_out:
-            create_template_emissions_file(ds, self._context.grid_out_shape)
+            create_template_emissions_file(ds_out, self._context.grid_out_shape)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
@@ -231,11 +227,21 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
             )
             ds_out.variables["ebb_rate"][0, :, :] = ebb_tot_reshaped
             create_sd_variable(
-                ds_out, "fire_end_hr", "Hours since fire was last detected", "hrs", "0.f", 0.0
+                ds_out,
+                "fire_end_hr",
+                "Hours since fire was last detected",
+                "hrs",
+                "0.f",
+                0.0,
             )
             ds_out.variables["fire_end_hr"][0, :, :] = fire_age
             create_sd_variable(
-                ds_out, "hwp_davg", "Daily mean Hourly Wildfire Potential", "none", "0.f", 0.0
+                ds_out,
+                "hwp_davg",
+                "Daily mean Hourly Wildfire Potential",
+                "none",
+                "0.f",
+                0.0,
             )
             ds_out.variables["hwp_davg"][0, :, :] = filtered_hwp
             create_sd_variable(
@@ -247,10 +253,10 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
 
     def average_frp(
         self, forecast_metadata: pd.DataFrame
-    ) -> Dict[DerivedVariable, np.ndarray]:
+    ) -> Dict[FrpVariable, np.ndarray]:
         self.log(f"average_frp: entering")
 
-        frp_daily = np.zeros(self._context.grid_out_shape)
+        frp_daily = np.zeros(self._context.grid_out_shape).ravel()
         ebb_smoke_total = []
 
         with xr.open_dataset(self._context.veg_map) as ds:
@@ -309,8 +315,8 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
 
         self.log("average_frp: exiting")
         return {
-            DerivedVariable.FRP_AVG: frp_avg_reshaped,
-            DerivedVariable.EBB_TOTAL: ebb_total_reshaped,
+            FrpVariable.FRP_AVG: frp_avg_reshaped,
+            FrpVariable.EBB_TOTAL: ebb_total_reshaped,
         }
 
 
