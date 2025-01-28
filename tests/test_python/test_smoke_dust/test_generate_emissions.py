@@ -18,7 +18,7 @@ from smoke_dust.core.cycle import (
     SmokeDustCycleOne,
     SmokeDustCycleTwo,
 )
-from smoke_dust.generate_emissions import SmokeDustPreprocessor
+from smoke_dust.core.preprocessor import SmokeDustPreprocessor
 
 
 @dataclass
@@ -174,23 +174,20 @@ def create_file_hash(path: Path) -> str:
 class TestSmokeDustPreprocessor:
 
     def test_run(self, data_for_test: DataForTest, mocker: MockerFixture) -> None:
-        spy1 = mocker.spy(data_for_test.preprocessor, "create_dummy_emissions_file")
-        spy2 = mocker.spy(data_for_test.preprocessor._regrid_processor, "_run_impl_")
-        spy3 = mocker.spy(data_for_test.preprocessor._regrid_processor, "run")
-        spy4 = mocker.spy(
-            data_for_test.preprocessor._cycle_processor.__class__, "process_emissions"
-        )
-        spy5 = mocker.spy(
-            data_for_test.preprocessor._cycle_processor.__class__, "average_frp"
-        )
+        preprocessor = data_for_test.preprocessor
+        spy1 = mocker.spy(preprocessor, "create_dummy_emissions_file")
+        regrid_processor_class = preprocessor._regrid_processor.__class__
+        spy2 = mocker.spy(regrid_processor_class, "_run_impl_")
+        spy3 = mocker.spy(regrid_processor_class, "run")
+        cycle_processor_class = preprocessor._cycle_processor.__class__
+        spy4 = mocker.spy(cycle_processor_class, "process_emissions")
+        spy5 = mocker.spy(cycle_processor_class, "average_frp")
 
-        assert isinstance(
-            data_for_test.preprocessor._cycle_processor, data_for_test.expected.klass
-        )
-        assert data_for_test.preprocessor._forecast_metadata is None
+        assert isinstance(preprocessor._cycle_processor, data_for_test.expected.klass)
+        assert preprocessor._forecast_metadata is None
         assert not data_for_test.context.emissions_path.exists()
 
-        data_for_test.preprocessor.run()
+        preprocessor.run()
         spy1.assert_not_called()
         spy2.assert_not_called()
         spy3.assert_called_once()

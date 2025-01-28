@@ -203,7 +203,7 @@ class SmokeDustRegridProcessor:
             row_data["rave_interpolated"] = output_file_path
 
             if self._context.rank == 0:
-                self._interpolation_postprocessing_(row_data)
+                self._regrid_postprocessing_(row_data)
         if (
             self._context.rank == 0
             and self._context.should_calc_desc_stats
@@ -217,7 +217,7 @@ class SmokeDustRegridProcessor:
             self.log(f"writing interpolation statistics: {stats_path=}")
             self._interpolation_stats.to_csv(stats_path, index=False)
 
-    def _interpolation_postprocessing_(self, row_data: pd.Series) -> None:
+    def _regrid_postprocessing_(self, row_data: pd.Series) -> None:
         self.log("_run_interpolation_postprocessing: enter", level=logging.DEBUG)
 
         calc_stats = self._context.should_calc_desc_stats
