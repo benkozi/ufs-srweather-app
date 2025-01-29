@@ -52,7 +52,7 @@ SD_VARS = SmokeDustVariables(
         ),
         SmokeDustVariable(
             name="frp_avg_hr",
-            long_name="mean Fire Radiative Power",
+            long_name="Mean Fire Radiative Power",
             units="MW",
             fill_value_str="0.f",
             fill_value_float=0.0,

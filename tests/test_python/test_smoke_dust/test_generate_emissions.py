@@ -131,7 +131,7 @@ class DataForTest(BaseModel):
 @pytest.fixture(
     params=[
         ExpectedData(
-            flag="1", klass=SmokeDustCycleOne, hash="1ac3a32190c14d15358b9203844a4516"
+            flag="1", klass=SmokeDustCycleOne, hash="d124734dfce7ca914391e35a02e4a7d2"
         ),
         ExpectedData(
             flag="2", klass=SmokeDustCycleTwo, hash="6752199f1039edc936a942f3885af38b"
