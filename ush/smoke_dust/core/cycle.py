@@ -211,18 +211,16 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
 
-            # var_map = {'frp_davg': frp_avg_reshaped, 'ebb_rate': ebb_tot_reshaped,}
-
-            create_sd_variable(ds_out, SD_VARS.get("frp_davg"))
-            ds_out.variables["frp_davg"][0, :, :] = frp_avg_reshaped
-            create_sd_variable(ds_out, SD_VARS.get("ebb_rate"))
-            ds_out.variables["ebb_rate"][0, :, :] = ebb_tot_reshaped
-            create_sd_variable(ds_out, SD_VARS.get("fire_end_hr"))
-            ds_out.variables["fire_end_hr"][0, :, :] = fire_age
-            create_sd_variable(ds_out, SD_VARS.get("hwp_davg"))
-            ds_out.variables["hwp_davg"][0, :, :] = filtered_hwp
-            create_sd_variable(ds_out, SD_VARS.get("totprcp_24hrs"))
-            ds_out.variables["totprcp_24hrs"][0, :, :] = filtered_prcp
+            var_map = {
+                "frp_davg": frp_avg_reshaped,
+                "ebb_rate": ebb_tot_reshaped,
+                "fire_end_hr": fire_age,
+                "hwp_davg": filtered_hwp,
+                "totprcp_24hrs": filtered_prcp,
+            }
+            for varname, fill_array in var_map.items():
+                create_sd_variable(ds_out, SD_VARS.get(varname))
+                ds_out.variables[varname][0, :, :] = fill_array
 
         self.log("process_emissions: exit")
 
