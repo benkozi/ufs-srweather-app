@@ -16,7 +16,7 @@ from smoke_dust.core.common import (
     create_descriptive_statistics,
     open_nc,
 )
-from smoke_dust.core.context import RaveQaFilter, SmokeDustContext
+from smoke_dust.core.context import RaveQaFilter, SmokeDustContext, PredefinedGrid
 
 
 class SmokeDustRegridProcessor:
@@ -152,20 +152,24 @@ class SmokeDustRegridProcessor:
                     self.log("creating regridder")
                     self.log(f"{src_fwrap.value.data.shape=}", level=logging.DEBUG)
                     self.log(f"{dst_fwrap.value.data.shape=}", level=logging.DEBUG)
-                    # regridder = esmpy.RegridFromFile(
-                    #     src_fwrap.value,
-                    #     dst_fwrap.value,
-                    #     filename=str(self._context.weightfile),
-                    # )
-
-                    # Uncomment to generate weights on the fly without reading from file
-                    regridder = esmpy.Regrid(
-                        src_fwrap.value,
-                        dst_fwrap.value,
-                        regrid_method=esmpy.RegridMethod.CONSERVE,
-                        unmapped_action=esmpy.UnmappedAction.IGNORE,
-                        ignore_degenerate=True,
-                    )
+                    if self._context.predef_grid == PredefinedGrid.RRFS_NA_13km:
+                        # ESMF does not like reading the weights for this field combination (rc=-1). The error can be
+                        # bypassed by creating weights in-memory.
+                        self.log("creating regridding in-memory")
+                        regridder = esmpy.Regrid(
+                            src_fwrap.value,
+                            dst_fwrap.value,
+                            regrid_method=esmpy.RegridMethod.CONSERVE,
+                            unmapped_action=esmpy.UnmappedAction.IGNORE,
+                            ignore_degenerate=True,
+                        )
+                    else:
+                        self.log("creating regridding from file")
+                        regridder = esmpy.RegridFromFile(
+                            src_fwrap.value,
+                            dst_fwrap.value,
+                            filename=str(self._context.weightfile),
+                        )
 
                     first = False
 
@@ -204,6 +208,7 @@ class SmokeDustRegridProcessor:
 
             if self._context.rank == 0:
                 self._regrid_postprocessing_(row_data)
+
         if (
             self._context.rank == 0
             and self._context.should_calc_desc_stats
