@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 from mpi4py import MPI
 
+from smoke_dust.core.variable import SmokeDustVariable, SD_VARS
+
 
 @contextmanager
 def open_nc(
@@ -31,40 +33,28 @@ def open_nc(
 
 def create_sd_coordinate_variable(
     ds: nc.Dataset,
-    varname: str,
-    long_name: str,
-    units: str,
-    fill_value_str: str,
-    fill_value_float: float,
+    sd_variable: SmokeDustVariable,
 ) -> None:
     """
     Create a smoke/dust netCDF spatial coordinate variable.
 
     Args:
         ds: Dataset to update
-        varname: Variable name to create
-        long_name: Variable long name
-        units: Variable units
-        fill_value_str: The string representation of the fill value
-        fill_value_float: The float representation of the fill value
+        sd_variable: Contains variable metadata
     """
     var_out = ds.createVariable(
-        varname, "f4", ("lat", "lon"), fill_value=fill_value_float
+        sd_variable.name, "f4", ("lat", "lon"), fill_value=sd_variable.fill_value_float
     )
-    var_out.units = units
-    var_out.long_name = long_name
-    var_out.standard_name = varname
-    var_out.FillValue = fill_value_str
+    var_out.units = sd_variable.units
+    var_out.long_name = sd_variable.long_name
+    var_out.standard_name = sd_variable.name
+    var_out.FillValue = sd_variable.fill_value_str
     var_out.coordinates = "geolat geolon"
 
 
 def create_sd_variable(
     ds: nc.Dataset,
-    varname: str,
-    long_name: str,
-    units: str,
-    fill_value_str: str,
-    fill_value_float: float,
+    sd_variable: SmokeDustVariable,
     fill_first_time_index: bool = True,
 ) -> None:
     """
@@ -72,20 +62,19 @@ def create_sd_variable(
 
     Args:
         ds: Dataset to update
-        varname: Name of the variable to create
-        long_name: Long name of the variable to create
-        units: Units of the variable to create
-        fill_value_str: The string representation of the fill value
-        fill_value_float: The float representation of the fill value
+        sd_variable: Contains variable metadata
         fill_first_time_index: If True, fill the first time index with provided `fill_value_float`
     """
     var_out = ds.createVariable(
-        varname, "f4", ("t", "lat", "lon"), fill_value=fill_value_float
+        sd_variable.name,
+        "f4",
+        ("t", "lat", "lon"),
+        fill_value=sd_variable.fill_value_float,
     )
-    var_out.units = units
-    var_out.long_name = long_name
-    var_out.standard_name = long_name
-    var_out.FillValue = fill_value_str
+    var_out.units = sd_variable.units
+    var_out.long_name = sd_variable.long_name
+    var_out.standard_name = sd_variable.long_name
+    var_out.FillValue = sd_variable.fill_value_str
     var_out.coordinates = "t geolat geolon"
     if fill_first_time_index:
         try:
@@ -94,7 +83,7 @@ def create_sd_variable(
             # Allow this function to work with parallel and non-parallel datasets. If the dataset is not opened in parallel
             # this error message is returned: RuntimeError: NetCDF: Parallel operation on file opened for non-parallel access
             pass
-        var_out[0, :, :] = fill_value_float
+        var_out[0, :, :] = sd_variable.fill_value_float
         try:
             var_out.set_collective(False)
         except RuntimeError:
@@ -111,12 +100,8 @@ def create_template_emissions_file(
     setattr(ds, "TIME_RANGE", "1 hour")
     setattr(ds, "is_dummy", str(is_dummy))
 
-    create_sd_coordinate_variable(
-        ds, "geolat", "cell center latitude", "degrees_north", "-9999.f", -9999.0
-    )
-    create_sd_coordinate_variable(
-        ds, "geolon", "cell center longitude", "degrees_east", "-9999.f", -9999.0
-    )
+    for varname in ["geolat", "geolon"]:
+        create_sd_coordinate_variable(ds, SD_VARS.get(varname))
 
 
 def create_descriptive_statistics(

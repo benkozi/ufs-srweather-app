@@ -13,6 +13,7 @@ from smoke_dust.core.common import (
     create_template_emissions_file,
 )
 from smoke_dust.core.context import SmokeDustContext, EmissionVariable, EbbDCycle
+from smoke_dust.core.variable import SD_VARS
 
 
 @unique
@@ -70,22 +71,14 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
                 ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
             create_sd_variable(
                 ds_out,
-                FrpVariable.FRP_AVG.value,
-                "mean Fire Radiative Power",
-                "MW",
-                "0.f",
-                0.0,
+                SD_VARS.get(FrpVariable.FRP_AVG.value),
             )
             ds_out.variables[FrpVariable.FRP_AVG.value][:] = derived[
                 FrpVariable.FRP_AVG
             ]
             create_sd_variable(
                 ds_out,
-                FrpVariable.EBB_TOTAL.value,
-                "EBB emissions",
-                "ug m-2 s-1",
-                "0.f",
-                0.0,
+                SD_VARS.get(FrpVariable.EBB_TOTAL.value),
             )
             ds_out.variables[FrpVariable.EBB_TOTAL.value][:] = derived[
                 FrpVariable.EBB_TOTAL
@@ -218,35 +211,17 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
 
-            create_sd_variable(
-                ds_out, "frp_davg", "Daily mean Fire Radiative Power", "MW", "0.f", 0.0
-            )
+            # var_map = {'frp_davg': frp_avg_reshaped, 'ebb_rate': ebb_tot_reshaped,}
+
+            create_sd_variable(ds_out, SD_VARS.get("frp_davg"))
             ds_out.variables["frp_davg"][0, :, :] = frp_avg_reshaped
-            create_sd_variable(
-                ds_out, "ebb_rate", "Total EBB emission", "ug m-2 s-1", "0.f", 0.0
-            )
+            create_sd_variable(ds_out, SD_VARS.get("ebb_rate"))
             ds_out.variables["ebb_rate"][0, :, :] = ebb_tot_reshaped
-            create_sd_variable(
-                ds_out,
-                "fire_end_hr",
-                "Hours since fire was last detected",
-                "hrs",
-                "0.f",
-                0.0,
-            )
+            create_sd_variable(ds_out, SD_VARS.get("fire_end_hr"))
             ds_out.variables["fire_end_hr"][0, :, :] = fire_age
-            create_sd_variable(
-                ds_out,
-                "hwp_davg",
-                "Daily mean Hourly Wildfire Potential",
-                "none",
-                "0.f",
-                0.0,
-            )
+            create_sd_variable(ds_out, SD_VARS.get("hwp_davg"))
             ds_out.variables["hwp_davg"][0, :, :] = filtered_hwp
-            create_sd_variable(
-                ds_out, "totprcp_24hrs", "Sum of precipitation", "m", "0.f", 0.0
-            )
+            create_sd_variable(ds_out, SD_VARS.get("totprcp_24hrs"))
             ds_out.variables["totprcp_24hrs"][0, :, :] = filtered_prcp
 
         self.log("process_emissions: exit")

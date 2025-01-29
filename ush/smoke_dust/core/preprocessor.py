@@ -13,6 +13,7 @@ from smoke_dust.core.common import (
 from smoke_dust.core.context import SmokeDustContext
 from smoke_dust.core.cycle import create_cycle_processor
 from smoke_dust.core.regrid import SmokeDustRegridProcessor
+from smoke_dust.core.variable import SD_VARS
 
 
 class SmokeDustPreprocessor:
@@ -133,31 +134,14 @@ class SmokeDustPreprocessor:
                 ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
 
-            create_sd_variable(
-                ds, "frp_davg", "Daily mean Fire Radiative Power", "MW", "0.f", 0.0
-            )
-            create_sd_variable(
-                ds, "ebb_rate", "Total EBB emission", "ug m-2 s-1", "0.f", 0.0
-            )
-            create_sd_variable(
-                ds,
+            for varname in [
+                "frp_davg",
+                "ebb_rate",
                 "fire_end_hr",
-                "Hours since fire was last detected",
-                "hrs",
-                "0.f",
-                0.0,
-            )
-            create_sd_variable(
-                ds,
                 "hwp_davg",
-                "Daily mean Hourly Wildfire Potential",
-                "none",
-                "0.f",
-                0.0,
-            )
-            create_sd_variable(
-                ds, "totprcp_24hrs", "Sum of precipitation", "m", "0.f", 0.0
-            )
+                "totprcp_24hrs",
+            ]:
+                create_sd_variable(ds, SD_VARS.get(varname))
         self.log("create_dummy_emissions_file: exit")
 
     def finalize(self) -> None:
