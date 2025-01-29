@@ -76,7 +76,7 @@ class SmokeDustPreprocessor:
 
             # Check for raw RAVE data
             wildcard_name = f"*-3km*{date}*{date}59590*.nc"
-            name_retro = f"*3km*{date}*{date}*.nc"  # tdk:ja: what is this for?
+            name_retro = f"*3km*{date}*{date}*.nc"
             found = False
             for rave_path in self._context.ravedir.iterdir():
                 if fnmatch.fnmatch(str(rave_path), wildcard_name) or fnmatch.fnmatch(
