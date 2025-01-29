@@ -236,6 +236,12 @@ These parameters are associated with the fixed (i.e., static) files. On :srw-wik
 ``FIXemis``: (Default: "")
    Path to system directory containing AQM emission data files.
 
+``FIXsmoke``: (Default: "")
+   Path to system directory containing Smoke and Dust data files.
+
+``FIXupp``: (Default: "")
+   Path to system directory containing UPP fix files.
+
 ``FIXcrtm``: (Default: "")
    Path to system directory containing CRTM fixed files. 
 
