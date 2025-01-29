@@ -17,6 +17,7 @@ from smoke_dust.core.common import (
     open_nc,
 )
 from smoke_dust.core.context import RaveQaFilter, SmokeDustContext, PredefinedGrid
+from smoke_dust.core.variable import SD_VARS
 
 
 class SmokeDustRegridProcessor:
@@ -87,18 +88,8 @@ class SmokeDustRegridProcessor:
             self.log(f"creating output file: {output_file_path}")
             with open_nc(output_file_path, "w") as ds:
                 create_template_emissions_file(ds, self._context.grid_out_shape)
-
-                create_sd_variable(
-                    ds,
-                    "frp_avg_hr",
-                    "Mean Fire Radiative Power",
-                    "MW",
-                    fill_value_str="0.f",
-                    fill_value_float=0.0,
-                )
-                create_sd_variable(
-                    ds, "FRE", "FRE", "MJ", fill_value_str="0.f", fill_value_float=0.0
-                )
+                for varname in ["frp_avg_hr", "FRE"]:
+                    create_sd_variable(ds, SD_VARS.get(varname))
 
             dst_output_gwrap.fill_nc_variables(output_file_path)
 
