@@ -99,5 +99,12 @@ SD_VARS = SmokeDustVariables(
             fill_value_str="0.f",
             fill_value_float=0.0,
         ),
+        SmokeDustVariable(
+            name="FRE",
+            long_name="FRE",
+            units="MJ",
+            fill_value_str="0.f",
+            fill_value_float=0.0,
+        ),
     )
 )
