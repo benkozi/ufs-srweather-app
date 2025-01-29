@@ -69,20 +69,9 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
-            create_sd_variable(
-                ds_out,
-                SD_VARS.get(FrpVariable.FRP_AVG.value),
-            )
-            ds_out.variables[FrpVariable.FRP_AVG.value][:] = derived[
-                FrpVariable.FRP_AVG
-            ]
-            create_sd_variable(
-                ds_out,
-                SD_VARS.get(FrpVariable.EBB_TOTAL.value),
-            )
-            ds_out.variables[FrpVariable.EBB_TOTAL.value][:] = derived[
-                FrpVariable.EBB_TOTAL
-            ]
+            for var, fill_array in derived.items():
+                create_sd_variable(ds_out, SD_VARS.get(var.value))
+                ds_out.variables[var.value][:] = fill_array
 
     def average_frp(
         self, forecast_metadata: pd.DataFrame
