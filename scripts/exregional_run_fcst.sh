@@ -901,7 +901,7 @@ POST_STEP
 #
 #-----------------------------------------------------------------------
 #
-if [ $(boolify "${CPL_AQM}") = "TRUE" ] || [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
   if [ "${RUN_ENVIR}" = "nco" ]; then
     if [ -d "${COMIN}/RESTART" ] && [ "$(ls -A ${DATA}/RESTART)" ]; then
       rm -rf "${COMIN}/RESTART"

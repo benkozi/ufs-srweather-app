@@ -7,7 +7,7 @@
 #
 #-----------------------------------------------------------------------
 #
-. ${USHsrw}/source_util_funcs.sh
+. ${USHdir}/source_util_funcs.sh
 for sect in user nco platform workflow global smoke_dust_parm \
   constants fixed_files grid_params task_run_fcst ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
@@ -107,7 +107,7 @@ else
   #
   #-----------------------------------------------------------------------
   #
-  ${USHsrw}/smoke_dust_generate_fire_emissions.py \
+  ${USHdir}/smoke_dust_generate_fire_emissions.py \
     "${FIXsmoke}/${PREDEF_GRID_NAME}" \
     "${DATA}" \
     "${DATA_SHARE}" \

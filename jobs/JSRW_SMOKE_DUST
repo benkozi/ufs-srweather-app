@@ -12,23 +12,11 @@ export PS4='+ $SECONDS + '
 #
 #-----------------------------------------------------------------------
 #
-# Set the NCO standard environment variables (Table 1, pp.4)
-#
-#-----------------------------------------------------------------------
-#
-export USHsrw="${HOMEdir}/ush"
-export EXECsrw="${HOMEdir}/exec"
-export PARMsrw="${HOMEdir}/parm"
-export SCRIPTSsrw="${HOMEdir}/scripts"
-#
-#-----------------------------------------------------------------------
-#
 # Source the variable definitions file and the bash utility functions.
 #
 #-----------------------------------------------------------------------
 #
-export USHdir="${USHsrw}"  # should be removed later
-. ${USHsrw}/source_util_funcs.sh
+. ${USHdir}/source_util_funcs.sh
 for sect in user nco platform workflow global smoke_dust_parm ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
@@ -148,7 +136,7 @@ fi
 export pgmout="${DATA}/OUTPUT.$$"
 env
 
-${SCRIPTSsrw}/exsrw_smoke_dust.sh
+${SCRIPTSdir}/exsrw_smoke_dust.sh
 export err=$?; err_chk
 
 if [ -e "$pgmout" ]; then

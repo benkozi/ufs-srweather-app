@@ -339,8 +339,6 @@ The \${fhr} variable contains too few or too many characters:
 fi
 
 if [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
-  COMOUT="${COMROOT}/${NET}/${model_ver}/${RUN}.${PDY}/${cyc}${SLASH_ENSMEM_SUBDIR}" #temporary path, should be removed later
-
   bgdawp=${NET}.${cycle}.prslev.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
   bgrd3d=${NET}.${cycle}.natlev.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
   bgifi=${NET}.${cycle}.ififip.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
@@ -348,19 +346,19 @@ if [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
 
   if [ -f "PRSLEV.GrbF${post_fhr}" ]; then
     wgrib2 PRSLEV.GrbF${post_fhr} -set center 7 -grib ${bgdawp}
-    cp -p ${bgdawp} ${COMOUT}
+    mv ${bgdawp} ${COMOUT}
   fi
   if [ -f "NATLEV.GrbF${post_fhr}" ]; then
     wgrib2 NATLEV.GrbF${post_fhr} -set center 7 -grib ${bgrd3d}
-    cp -p ${bgrd3d} ${COMOUT}
+    mv ${bgrd3d} ${COMOUT}
   fi
   if [ -f "IFIFIP.GrbF${post_fhr}" ]; then
     wgrib2 IFIFIP.GrbF${post_fhr} -set center 7 -grib ${bgifi}
-    cp -p ${bgifi} ${COMOUT}
+    mv ${bgifi} ${COMOUT}
   fi
   if [ -f "AVIATION.GrbF${post_fhr}" ]; then
     wgrib2 AVIATION.GrbF${post_fhr} -set center 7 -grib ${bgavi}
-    cp -p ${bgavi} ${COMOUT}
+    mv ${bgavi} ${COMOUT}
   fi
 
 else
@@ -400,10 +398,8 @@ else
       $DBNROOT/bin/dbn_alert MODEL rrfs_post ${job} ${COMOUT}/${post_renamed_fn}
     fi
   done
-
-  rm -rf ${DATA_FHR}
-
 fi
+rm -rf ${DATA_FHR}
 #
 #-----------------------------------------------------------------------
 #

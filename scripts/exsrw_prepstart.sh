@@ -7,7 +7,7 @@
 #
 #-----------------------------------------------------------------------
 #
-. ${USHsrw}/source_util_funcs.sh
+. ${USHdir}/source_util_funcs.sh
 for sect in user nco platform workflow global smoke_dust_parm \
   constants fixed_files grid_params task_run_fcst ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
@@ -71,8 +71,6 @@ else
       CDATEprev=$($NDATE -${INCR_CYCL_FREQ} ${PDY}${cyc})
       PDYprev=${CDATEprev:0:8}
       cycprev=${CDATEprev:8:2}
-# the following path should be changed once the forecast script meets the nco standards:
-#      path_restart=${COMIN}/${RUN}.${PDYprev}/${cycprev}${SLASH_ENSMEM_SUBDIR}/RESTART
       path_restart="${EXPTDIR}/${CDATEprev}/RESTART"
 
       n=${INCR_CYCL_FREQ}
@@ -118,7 +116,7 @@ else
       echo "${PDY}${cyc}: cycle smoke/dust from ${checkfile} "
     fi
 
-    ${USHsrw}/smoke_dust_add_smoke.py
+    ${USHdir}/smoke_dust_add_smoke.py
     export err=$?
     if [ $err -ne 0 ]; then
       message_txt="add_smoke.py failed with return code $err"

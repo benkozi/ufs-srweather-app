@@ -6,6 +6,7 @@ default_smoke_dust_task: &default_smoke_dust
   envars: &default_vars
     GLOBAL_VAR_DEFNS_FP: '&GLOBAL_VAR_DEFNS_FP;'
     HOMEdir: '&HOMEdir;'
+    USHdir: '&USHdir;'
     envir: '&envir;'
     model_ver: '&model_ver;'
     KEEPDATA: '&KEEPDATA;'
