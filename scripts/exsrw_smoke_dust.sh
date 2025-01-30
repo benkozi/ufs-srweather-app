@@ -107,23 +107,27 @@ else
   #
   #-----------------------------------------------------------------------
   #
-  ${USHdir}/smoke_dust_generate_fire_emissions.py \
+  mpirun -n ${nprocs} ${USHdir}/smoke_dust/generate_emissions.py \
     "${FIXsmoke}/${PREDEF_GRID_NAME}" \
     "${DATA}" \
     "${DATA_SHARE}" \
     "${PREDEF_GRID_NAME}" \
     "${EBB_DCYCLE}" \
-    "${RESTART_INTERVAL}"\
-    "${PERSISTENCE}"
+    "${RESTART_INTERVAL}" \
+    "${PERSISTENCE}" \
+    "${RAVE_QA_FILTER}" \
+    "${EXIT_ON_ERROR}" \
+    "${LOG_LEVEL}"
   export err=$?
   if [ $err -ne 0 ]; then
-    message_txt="generate_fire_emissions.py failed with return code $err"
+    message_txt="generate_emissions.py failed with return code $err"
     err_exit "${message_txt}"
     print_err_msg_exit "${message_txt}"
   fi
 
   # Copy Smoke file to COMOUT
-  cp -p ${DATA}/${smokeFile} ${COMOUT}
+  cp -p ${DATA_SHARE}/${smokeFile} ${COMOUT}
+  cp -p ${DATA_SHARE}/${smokeFile} ${DATA} #tdk:pr: is this copy of the file needed?
 fi
 #
 #-----------------------------------------------------------------------
