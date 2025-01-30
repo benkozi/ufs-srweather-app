@@ -33,3 +33,4 @@ ush/*.swp
 
 *.swp
 __pycache__
+.idea
