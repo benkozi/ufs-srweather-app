@@ -93,8 +93,6 @@ class SmokeDustRegridProcessor:
             dst_output_gwrap.fill_nc_variables(output_file_path)
 
             for field_name in self._context.vars_emis:
-
-                # tdk: clean this up
                 match field_name:
                     case "FRP_MEAN":
                         dst_field_name = "frp_avg_hr"

@@ -76,7 +76,6 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
     def average_frp(
         self, forecast_metadata: pd.DataFrame
     ) -> Dict[FrpVariable, np.ndarray]:
-        # tdk:story: refactor to share code with other cycle
         ebb_smoke_total = []
         frp_avg_hr = []
 
