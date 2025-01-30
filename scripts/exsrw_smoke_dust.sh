@@ -132,7 +132,7 @@ else
 
   # Copy Smoke file to COMOUT
   cp -p ${DATA_SHARE}/${smokeFile} ${COMOUT}
-  cp -p ${DATA_SHARE}/${smokeFile} ${DATA} #tdk: is this copy of the file needed?
+  cp -p ${DATA_SHARE}/${smokeFile} ${DATA} #tdk:pr: is this copy of the file needed?
 fi
 #
 #-----------------------------------------------------------------------

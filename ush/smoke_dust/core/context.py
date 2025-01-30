@@ -71,7 +71,7 @@ class SmokeDustContext(BaseModel):
     nwges_dir: Path
 
     # Fixed parameters
-    should_calc_desc_stats: bool = True  # tdk: set to false?
+    should_calc_desc_stats: bool = False
     vars_emis: tuple[str] = ("FRP_MEAN", "FRE")
     beta: float = 0.3
     fg_to_ug: float = 1e6

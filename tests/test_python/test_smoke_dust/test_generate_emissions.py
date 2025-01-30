@@ -174,6 +174,7 @@ def create_file_hash(path: Path) -> str:
 class TestSmokeDustPreprocessor:
 
     def test_run(self, data_for_test: DataForTest, mocker: MockerFixture) -> None:
+        """Test core capabilities of the preprocessor. Note this does not test regridding."""
         preprocessor = data_for_test.preprocessor
         spy1 = mocker.spy(preprocessor, "create_dummy_emissions_file")
         regrid_processor_class = preprocessor._regrid_processor.__class__
