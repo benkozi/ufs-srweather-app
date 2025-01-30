@@ -454,7 +454,8 @@ def generate_FV3LAM_wflow(
 
     if DO_SMOKE_DUST:
         gfs_physics_nml_dict.update({
-            "ebb_dcycle": EBB_DCYCLE, "rrfs_sd": True
+            "ebb_dcycle": EBB_DCYCLE,
+            "rrfs_sd": True,
     })
 
     if CPL_AQM:
