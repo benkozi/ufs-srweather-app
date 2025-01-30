@@ -111,11 +111,11 @@ fi
 if [ "${task_name}" = "smoke_dust" ]; then
   set +u
   if [ "${machine}" = "hera" ]; then
-    export ESMFMKFILE=/scratch2/NAGAPE/epic/Ben.Koziol/miniconda/envs/srw_aqm/lib/esmf.mk
-    export PATH=/scratch2/NAGAPE/epic/Ben.Koziol/miniconda/envs/srw_aqm/bin:${PATH}
+    export ESMFMKFILE=/scratch1/NCEPDEV/stmp2/Benjamin.Koziol/miniconda3/envs/srw_aqm/lib/esmf.mk
+    export PATH=/scratch1/NCEPDEV/stmp2/Benjamin.Koziol/miniconda3/envs/srw_aqm/bin:${PATH}
   elif [ "${machine}" = "orion" ] || [ "${machine}" = "hercules" ]; then
-    export ESMFMKFILE=/work/noaa/epic/bwkoziol/sandbox/miniconda3/envs/srw_aqm/lib/esmf.mk
-    export PATH=/work/noaa/epic/bwkoziol/sandbox/miniconda3/envs/srw_aqm/bin:${PATH}
+    export ESMFMKFILE=/scratch1/NCEPDEV/stmp2/Benjamin.Koziol/miniconda3/envs/srw_aqm/lib/esmf.mk
+    export PATH=/scratch1/NCEPDEV/stmp2/Benjamin.Koziol/miniconda3/envs/srw_aqm/bin:${PATH}
   elif [ "${machine}" = "gaea-c6" ]; then
     module unload python
     module use /ncrc/proj/epic/miniconda3/modulefiles
