@@ -70,17 +70,18 @@ class SmokeDustContext(BaseModel):
     current_day: str
     nwges_dir: Path
 
-    should_calc_desc_stats: bool = True  # tdk: make this a parameter
+    # Fixed parameters
+    should_calc_desc_stats: bool = True  # tdk: set to false?
+    vars_emis: tuple[str] = ("FRP_MEAN", "FRE")
     beta: float = 0.3
     fg_to_ug: float = 1e6
     to_s: int = 3600
-    vars_emis: List[str] = ["FRP_MEAN", "FRE"]
     rank: int = MPI.COMM_WORLD.Get_rank()
-    grid_out_shape: Tuple[int, int] = (0, 0)  # Set in __post_init__
+    grid_out_shape: Tuple[int, int] = (0, 0)  # Set in _finalize_model_
     esmpy_debug: bool = False
 
     @model_validator(mode="after")
-    def _set_grid_shape_(self) -> "SmokeDustContext":
+    def _finalize_model_(self) -> "SmokeDustContext":
         self._logger = self._init_logging_()
 
         with open_nc(self.grid_out, parallel=False) as ds:

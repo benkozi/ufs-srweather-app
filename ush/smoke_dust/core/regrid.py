@@ -30,7 +30,6 @@ class SmokeDustRegridProcessor:
         self._interpolation_stats = None
 
     def log(self, *args: Any, **kwargs: Any) -> None:
-        # tdk:last: superclass for processors
         self._context.log(*args, **kwargs)
 
     def run(self, forecast_metadata: pd.DataFrame) -> None:
@@ -164,7 +163,6 @@ class SmokeDustRegridProcessor:
 
                     first = False
 
-                # tdk: make this smoother; automatically fill masked data maybe
                 src_data = src_fwrap.value.data
                 match field_name:
                     case "FRP_MEAN":
@@ -221,7 +219,7 @@ class SmokeDustRegridProcessor:
         field_names_dst = [
             "frp_avg_hr",
             "FRE",
-        ]  # tdk: make this a property or something
+        ]
         with open_nc(row_data["rave_interpolated"], parallel=False) as ds:
             dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
         if calc_stats:
