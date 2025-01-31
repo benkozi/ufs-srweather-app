@@ -1,4 +1,4 @@
-name: srw_aqm
+name: srw_sd
 channels:
   - conda-forge
   - ufs-community
