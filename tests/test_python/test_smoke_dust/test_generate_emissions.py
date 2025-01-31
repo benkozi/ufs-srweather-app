@@ -1,6 +1,3 @@
-import hashlib
-import os
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Type
 
@@ -19,21 +16,12 @@ from smoke_dust.core.cycle import (
     SmokeDustCycleTwo,
 )
 from smoke_dust.core.preprocessor import SmokeDustPreprocessor
-
-
-@dataclass
-class FakeGridOutShape:
-    y_size: int = 5
-    x_size: int = 10
-
-    @property
-    def as_tuple(self) -> tuple[int, int]:
-        return self.y_size, self.x_size
-
-
-@pytest.fixture
-def fake_grid_out_shape() -> FakeGridOutShape:
-    return FakeGridOutShape()
+from test_python.test_smoke_dust.conftest import (
+    FakeGridOutShape,
+    create_grid_out,
+    create_context,
+    create_file_hash,
+)
 
 
 def create_restart_files(
@@ -75,44 +63,12 @@ def create_rave_interpolated(
                 var[0, ...] = np.ones(shape.as_tuple)
 
 
-def create_grid_out(root_dir: Path, shape: FakeGridOutShape) -> None:
-    with nc.Dataset(root_dir / "ds_out_base.nc", "w") as ds:
-        ds.createDimension("grid_yt", shape.y_size)
-        ds.createDimension("grid_xt", shape.x_size)
-        for varname in ["area", "grid_latt", "grid_lont"]:
-            var = ds.createVariable(varname, "f4", ("grid_yt", "grid_xt"))
-            var[:] = np.ones((shape.y_size, shape.x_size))
-
-
 def create_veg_map(root_dir: Path, shape: FakeGridOutShape) -> None:
     with nc.Dataset(root_dir / "veg_map.nc", "w") as ds:
         ds.createDimension("grid_yt", shape.y_size)
         ds.createDimension("grid_xt", shape.x_size)
         emiss_factor = ds.createVariable("emiss_factor", "f4", ("grid_yt", "grid_xt"))
         emiss_factor[:] = np.ones((shape.y_size, shape.x_size))
-
-
-def create_context(root_dir: Path, overrides: dict | None = None) -> SmokeDustContext:
-    current_day = "2019072200"
-    nwges_dir = root_dir
-    os.environ["CDATE"] = current_day
-    os.environ["DATA"] = str(nwges_dir)
-    kwds = dict(
-        staticdir=root_dir,
-        ravedir=root_dir,
-        intp_dir=root_dir,
-        predef_grid="RRFS_CONUS_3km",
-        ebb_dcycle_flag="2",
-        restart_interval="6 12 18 24",
-        persistence="FALSE",
-        rave_qa_filter="NONE",
-        exit_on_error="TRUE",
-        log_level="DEBUG",
-    )
-    if overrides is not None:
-        kwds.update(overrides)
-    context = SmokeDustContext.create_from_args(kwds.values())
-    return context
 
 
 class ExpectedData(BaseModel):
@@ -136,39 +92,28 @@ class DataForTest(BaseModel):
         ExpectedData(
             flag="2", klass=SmokeDustCycleTwo, hash="6752199f1039edc936a942f3885af38b"
         ),
-    ]
+    ],
+    ids=lambda p: f"ebb_dcycle_flag={p.flag}",
 )
 def data_for_test(
     request: SubRequest, tmp_path: Path, fake_grid_out_shape: FakeGridOutShape
 ) -> DataForTest:
-    try:
-        create_grid_out(tmp_path, fake_grid_out_shape)
-        create_veg_map(tmp_path, fake_grid_out_shape)
-        context = create_context(
-            tmp_path, overrides=dict(ebb_dcycle_flag=request.param.flag)
-        )
-        preprocessor = SmokeDustPreprocessor(context)
-        create_restart_files(tmp_path, preprocessor.forecast_dates, fake_grid_out_shape)
-        create_rave_interpolated(
-            tmp_path,
-            preprocessor.forecast_dates,
-            fake_grid_out_shape,
-            context.predef_grid.value + "_intp_",
-        )
-        return DataForTest(
-            context=context, preprocessor=preprocessor, expected=request.param
-        )
-    finally:
-        for ii in ["CDATE", "DATA"]:
-            os.unsetenv(ii)
-
-
-def create_file_hash(path: Path) -> str:
-    with open(path, "rb") as f:
-        file_hash = hashlib.md5()
-        while chunk := f.read(8192):
-            file_hash.update(chunk)
-    return file_hash.hexdigest()
+    create_grid_out(tmp_path, fake_grid_out_shape)
+    create_veg_map(tmp_path, fake_grid_out_shape)
+    context = create_context(
+        tmp_path, overrides=dict(ebb_dcycle_flag=request.param.flag)
+    )
+    preprocessor = SmokeDustPreprocessor(context)
+    create_restart_files(tmp_path, preprocessor.forecast_dates, fake_grid_out_shape)
+    create_rave_interpolated(
+        tmp_path,
+        preprocessor.forecast_dates,
+        fake_grid_out_shape,
+        context.predef_grid.value + "_intp_",
+    )
+    return DataForTest(
+        context=context, preprocessor=preprocessor, expected=request.param
+    )
 
 
 class TestSmokeDustPreprocessor:

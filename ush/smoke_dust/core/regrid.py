@@ -140,7 +140,10 @@ class SmokeDustRegridProcessor:
                     self.log("creating regridder")
                     self.log(f"{src_fwrap.value.data.shape=}", level=logging.DEBUG)
                     self.log(f"{dst_fwrap.value.data.shape=}", level=logging.DEBUG)
-                    if self._context.predef_grid == PredefinedGrid.RRFS_NA_13km:
+                    if (
+                        self._context.predef_grid == PredefinedGrid.RRFS_NA_13km
+                        or self._context.regrid_in_memory
+                    ):
                         # ESMF does not like reading the weights for this field combination (rc=-1). The error can be
                         # bypassed by creating weights in-memory.
                         self.log("creating regridding in-memory")
@@ -150,6 +153,7 @@ class SmokeDustRegridProcessor:
                             regrid_method=esmpy.RegridMethod.CONSERVE,
                             unmapped_action=esmpy.UnmappedAction.IGNORE,
                             ignore_degenerate=True,
+                            # filename="/opt/project/weight_file.nc" # Can be used to create a weight file for testing
                         )
                     else:
                         self.log("creating regridding from file")
@@ -584,6 +588,9 @@ def mask_edges(data: np.ma.MaskedArray, mask_width: int = 1) -> None:
         return  # No masking if mask_width is less than 1
 
     target = data.mask
+    if isinstance(target, np.bool_):
+        data.mask = np.zeros_like(data, dtype=bool)
+        target = data.mask
     # Mask top and bottom rows
     target[:mask_width, :] = True
     target[-mask_width:, :] = True

@@ -4,7 +4,7 @@ import logging.config
 import os
 from enum import unique, StrEnum, IntEnum
 from pathlib import Path
-from typing import Tuple, List
+from typing import Tuple, List, Any
 
 from mpi4py import MPI
 from pydantic import BaseModel, model_validator
@@ -79,6 +79,7 @@ class SmokeDustContext(BaseModel):
     rank: int = MPI.COMM_WORLD.Get_rank()
     grid_out_shape: Tuple[int, int] = (0, 0)  # Set in _finalize_model_
     esmpy_debug: bool = False
+    regrid_in_memory: bool = False
 
     @model_validator(mode="after")
     def _finalize_model_(self) -> "SmokeDustContext":
@@ -93,7 +94,9 @@ class SmokeDustContext(BaseModel):
         return self
 
     @classmethod
-    def create_from_args(cls, args: List[str]) -> "SmokeDustContext":
+    def create_from_args(
+        cls, args: List[str], extra: dict | None = None
+    ) -> "SmokeDustContext":
         print(f"create_from_args: {args=}", flush=True)
 
         # Extract local arguments from args before converting values
@@ -129,6 +132,8 @@ class SmokeDustContext(BaseModel):
             current_day=current_day,
             nwges_dir=nwges_dir,
         )
+        if extra is not None:
+            kwds.update(extra)
 
         return cls(**kwds)
 
