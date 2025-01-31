@@ -125,7 +125,7 @@ class SmokeDustContext(BaseModel):
             persistence=cls._str_to_bool_(l_persistence),
             rave_qa_filter=RaveQaFilter(l_rave_qa_filter.upper()),
             exit_on_error=cls._str_to_bool_(l_exit_on_error),
-            log_level=l_log_level,
+            log_level=l_log_level.upper(),
             current_day=current_day,
             nwges_dir=nwges_dir,
         )
