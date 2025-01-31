@@ -75,4 +75,4 @@ smoke_dust_parm:
   PERSISTENCE: false
   RAVE_QA_FILTER: none
   EXIT_ON_ERROR: true
-  LOG_LEVEL: info #tdk: support upper on log_level
+  LOG_LEVEL: info
