@@ -31,7 +31,6 @@ def bin_dir() -> Path:
 
 
 def create_grid_out(root_dir: Path, shape: FakeGridOutShape) -> None:
-    # tdk:rm: use one with corners
     with nc.Dataset(root_dir / "ds_out_base.nc", "w") as ds:
         ds.createDimension("grid_yt", shape.y_size)
         ds.createDimension("grid_xt", shape.x_size)
