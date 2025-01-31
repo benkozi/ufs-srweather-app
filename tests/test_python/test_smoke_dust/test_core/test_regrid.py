@@ -13,10 +13,9 @@ from pytest_mock import MockerFixture
 
 from smoke_dust.core.context import SmokeDustContext
 from smoke_dust.core.preprocessor import SmokeDustPreprocessor
-from smoke_dust.core.regrid import SmokeDustRegridProcessor
+from smoke_dust.core.regrid.processor import SmokeDustRegridProcessor
 from test_python.test_smoke_dust.conftest import (
     FakeGridOutShape,
-    create_grid_out,
     create_context,
     create_file_hash,
 )

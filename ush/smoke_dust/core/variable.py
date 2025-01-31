@@ -1,4 +1,4 @@
-from typing import Tuple, Any
+from typing import Tuple
 
 from pydantic import BaseModel, field_validator
 

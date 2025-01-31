@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-from typing import Tuple
-import xarray as xr
-import numpy as np
 import os
+from typing import Tuple
+
+import numpy as np
+import xarray as xr
 
 
 def populate_data(data: np.ndarray, target_shape: Tuple) -> np.ndarray:

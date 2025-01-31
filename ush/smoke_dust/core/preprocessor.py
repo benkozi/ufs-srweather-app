@@ -12,7 +12,7 @@ from smoke_dust.core.common import (
 )
 from smoke_dust.core.context import SmokeDustContext
 from smoke_dust.core.cycle import create_cycle_processor
-from smoke_dust.core.regrid import SmokeDustRegridProcessor
+from smoke_dust.core.regrid.processor import SmokeDustRegridProcessor
 from smoke_dust.core.variable import SD_VARS
 
 

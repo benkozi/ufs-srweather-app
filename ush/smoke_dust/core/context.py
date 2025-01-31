@@ -4,7 +4,7 @@ import logging.config
 import os
 from enum import unique, StrEnum, IntEnum
 from pathlib import Path
-from typing import Tuple, List, Any
+from typing import Tuple, List
 
 from mpi4py import MPI
 from pydantic import BaseModel, model_validator
