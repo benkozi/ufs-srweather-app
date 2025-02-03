@@ -110,9 +110,7 @@ class SmokeDustRegridProcessor:
             self.__dst_output_gwrap = dst_output_gwrap
         return self.__dst_output_gwrap
 
-    def _get_regridder_(
-        self, src_fwrap: FieldWrapper, dst_fwrap: FieldWrapper
-    ) -> esmpy.Regrid:
+    def _get_regridder_(self, src_fwrap: FieldWrapper, dst_fwrap: FieldWrapper) -> esmpy.Regrid:
         if self.__regridder is None:
             self.log("creating regridder")
             self.log(f"{src_fwrap.value.data.shape=}", level=logging.DEBUG)
@@ -142,9 +140,7 @@ class SmokeDustRegridProcessor:
             self.__regridder = regridder
         return self.__regridder
 
-    def _run_impl_(
-        self, forecast_metadata: pd.DataFrame, rave_to_interpolate: pd.Series
-    ) -> None:
+    def _run_impl_(self, forecast_metadata: pd.DataFrame, rave_to_interpolate: pd.Series) -> None:
         for row_idx, row_data in rave_to_interpolate.iterrows():
             row_dict = row_data.to_dict()
             self.log(f"processing RAVE interpolation row: {row_idx}, {row_dict}")
@@ -200,9 +196,7 @@ class SmokeDustRegridProcessor:
 
                 if self._context.rave_qa_filter == RaveQaFilter.HIGH:
                     with open_nc(row_data["rave_raw"], parallel=True) as rave_ds:
-                        rave_qa = load_variable_data(
-                            rave_ds.variables["QA"], src_fwrap.dims
-                        )
+                        rave_qa = load_variable_data(rave_ds.variables["QA"], src_fwrap.dims)
                     set_to_zero = rave_qa < 2
                     self.log(
                         f"RAVE QA filter applied: {self._context.rave_qa_filter=}; {set_to_zero.size=}; {np.sum(set_to_zero)=}"
@@ -254,9 +248,7 @@ class SmokeDustRegridProcessor:
             dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
         if calc_stats:
             # Do these calculations before we modify the arrays since edge masking is inplace
-            dst_desc_unmasked = create_descriptive_statistics(
-                dst_data, "dst_unmasked", None
-            )
+            dst_desc_unmasked = create_descriptive_statistics(dst_data, "dst_unmasked", None)
 
         # Mask edges to reduce model edge effects
         self.log("masking edges", level=logging.DEBUG)
@@ -281,10 +273,7 @@ class SmokeDustRegridProcessor:
                 dst_data, "dst_masked", row_data["rave_interpolated"]
             )
             summary = pd.concat(
-                [
-                    ii.transpose()
-                    for ii in [src_desc, dst_desc_unmasked, dst_desc_masked]
-                ]
+                [ii.transpose() for ii in [src_desc, dst_desc_unmasked, dst_desc_masked]]
             )
             summary.index.name = "variable"
             summary["forecast_date"] = row_data["forecast_date"]
@@ -292,8 +281,6 @@ class SmokeDustRegridProcessor:
             if self._interpolation_stats is None:
                 self._interpolation_stats = summary
             else:
-                self._interpolation_stats = pd.concat(
-                    [self._interpolation_stats, summary]
-                )
+                self._interpolation_stats = pd.concat([self._interpolation_stats, summary])
 
         self.log("_run_interpolation_postprocessing: exit", level=logging.DEBUG)

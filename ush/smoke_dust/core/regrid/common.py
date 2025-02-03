@@ -65,9 +65,7 @@ class GridSpec(BaseModel):
         ]
         is_given_sum = sum([ii is not None for ii in corner_meta])
         if is_given_sum > 0 and is_given_sum != len(corner_meta):
-            raise ValueError(
-                "if one corner name is supplied, then all must be supplied"
-            )
+            raise ValueError("if one corner name is supplied, then all must be supplied")
         return self
 
     @property
@@ -135,13 +133,9 @@ class GridWrapper(AbstractWrapper):
         with open_nc(path, "a") as ds:
             staggerloc = esmpy.StaggerLoc.CENTER
             x_center_data = self.spec.get_x_data(self.value, staggerloc)
-            set_variable_data(
-                ds.variables[self.spec.x_center], self.dims, x_center_data
-            )
+            set_variable_data(ds.variables[self.spec.x_center], self.dims, x_center_data)
             y_center_data = self.spec.get_y_data(self.value, staggerloc)
-            set_variable_data(
-                ds.variables[self.spec.y_center], self.dims, y_center_data
-            )
+            set_variable_data(ds.variables[self.spec.y_center], self.dims, y_center_data)
 
 
 class FieldWrapper(AbstractWrapper):
@@ -182,13 +176,8 @@ def create_dimension_map(dims: DimensionCollection) -> Dict[str, int]:
     return ret
 
 
-def load_variable_data(
-    var: nc.Variable, target_dims: DimensionCollection
-) -> np.ndarray:
-    slices = [
-        slice(target_dims.get(ii).lower, target_dims.get(ii).upper)
-        for ii in var.dimensions
-    ]
+def load_variable_data(var: nc.Variable, target_dims: DimensionCollection) -> np.ndarray:
+    slices = [slice(target_dims.get(ii).lower, target_dims.get(ii).upper) for ii in var.dimensions]
     raw_data = var[*slices]
     dim_map = {dim: ii for ii, dim in enumerate(var.dimensions)}
     axes = [get_aliased_key(dim_map, ii.name) for ii in target_dims.value]
@@ -202,10 +191,7 @@ def set_variable_data(
     dim_map = create_dimension_map(target_dims)
     axes = [get_aliased_key(dim_map, ii) for ii in var.dimensions]
     transposed_data = target_data.transpose(axes)
-    slices = [
-        slice(target_dims.get(ii).lower, target_dims.get(ii).upper)
-        for ii in var.dimensions
-    ]
+    slices = [slice(target_dims.get(ii).lower, target_dims.get(ii).upper) for ii in var.dimensions]
     var[*slices] = transposed_data
     return transposed_data
 
@@ -225,22 +211,16 @@ class NcToGrid(BaseModel):
             )
             dims = self.spec.create_grid_dims(ds, grid, staggerloc)
             grid_x_center_coords = self.spec.get_x_data(grid, staggerloc)
-            grid_x_center_coords[:] = load_variable_data(
-                ds.variables[self.spec.x_center], dims
-            )
+            grid_x_center_coords[:] = load_variable_data(ds.variables[self.spec.x_center], dims)
             grid_y_center_coords = self.spec.get_y_data(grid, staggerloc)
-            grid_y_center_coords[:] = load_variable_data(
-                ds.variables[self.spec.y_center], dims
-            )
+            grid_y_center_coords[:] = load_variable_data(ds.variables[self.spec.y_center], dims)
 
             if self.spec.has_corners:
                 corner_dims = self._add_corner_coords_(ds, grid)
             else:
                 corner_dims = None
 
-            gwrap = GridWrapper(
-                value=grid, dims=dims, spec=self.spec, corner_dims=corner_dims
-            )
+            gwrap = GridWrapper(value=grid, dims=dims, spec=self.spec, corner_dims=corner_dims)
             return gwrap
 
     def _create_grid_shape_(self, ds: nc.Dataset) -> np.ndarray:
@@ -254,20 +234,14 @@ class NcToGrid(BaseModel):
             raise NotImplementedError(self.spec.x_index, self.spec.y_index)
         return np.array(grid_shape)
 
-    def _add_corner_coords_(
-        self, ds: nc.Dataset, grid: esmpy.Grid
-    ) -> DimensionCollection:
+    def _add_corner_coords_(self, ds: nc.Dataset, grid: esmpy.Grid) -> DimensionCollection:
         staggerloc = esmpy.StaggerLoc.CORNER
         grid.add_coords(staggerloc)
         dims = self.spec.create_grid_dims(ds, grid, staggerloc)
         grid_x_corner_coords = self.spec.get_x_data(grid, staggerloc)
-        grid_x_corner_coords[:] = load_variable_data(
-            ds.variables[self.spec.x_corner], dims
-        )
+        grid_x_corner_coords[:] = load_variable_data(ds.variables[self.spec.x_corner], dims)
         grid_y_corner_coords = self.spec.get_y_data(grid, staggerloc)
-        grid_y_corner_coords[:] = load_variable_data(
-            ds.variables[self.spec.y_corner], dims
-        )
+        grid_y_corner_coords[:] = load_variable_data(ds.variables[self.spec.y_corner], dims)
         return dims
 
 
@@ -293,9 +267,7 @@ class NcToField(BaseModel):
                     staggerloc=self.staggerloc,
                     coordinate_type="time",
                 )
-                target_dims = DimensionCollection(
-                    value=list(self.gwrap.dims.value) + [time_dim]
-                )
+                target_dims = DimensionCollection(value=list(self.gwrap.dims.value) + [time_dim])
             field = esmpy.Field(
                 self.gwrap.value,
                 name=self.name,

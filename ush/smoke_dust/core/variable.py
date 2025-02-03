@@ -25,9 +25,7 @@ class SmokeDustVariables(BaseModel):
 
     @field_validator("values", mode="after")
     @classmethod
-    def _validate_values_(
-        cls, values: SmokeDustVariablesType
-    ) -> SmokeDustVariablesType:
+    def _validate_values_(cls, values: SmokeDustVariablesType) -> SmokeDustVariablesType:
         names = [ii.name for ii in values]
         if len(names) != len(set(names)):
             raise ValueError("Variable names must be unique")

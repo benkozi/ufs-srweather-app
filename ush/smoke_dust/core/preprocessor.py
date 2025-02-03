@@ -43,9 +43,9 @@ class SmokeDustPreprocessor:
             return self._forecast_dates
         start_datetime = self._cycle_processor.create_start_datetime()
         self.log(f"{start_datetime=}")
-        forecast_dates = pd.date_range(
-            start=start_datetime, periods=24, freq="h"
-        ).strftime("%Y%m%d%H")
+        forecast_dates = pd.date_range(start=start_datetime, periods=24, freq="h").strftime(
+            "%Y%m%d%H"
+        )
         self._forecast_dates = forecast_dates
         return self._forecast_dates
 
@@ -61,8 +61,7 @@ class SmokeDustPreprocessor:
         for date in self.forecast_dates:
             # Check for pre-existing interpolated RAVE data
             file_path = (
-                Path(self._context.intp_dir)
-                / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+                Path(self._context.intp_dir) / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
             )
             if file_path.exists() and file_path.is_file():
                 try:
@@ -124,12 +123,8 @@ class SmokeDustPreprocessor:
     def create_dummy_emissions_file(self) -> None:
         self.log("create_dummy_emissions_file: enter")
         self.log(f"{self._context.emissions_path=}")
-        with open_nc(
-            self._context.emissions_path, "w", parallel=False, clobber=True
-        ) as ds:
-            create_template_emissions_file(
-                ds, self._context.grid_out_shape, is_dummy=True
-            )
+        with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds:
+            create_template_emissions_file(ds, self._context.grid_out_shape, is_dummy=True)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]

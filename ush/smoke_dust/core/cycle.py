@@ -37,9 +37,7 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
     def create_start_datetime(self) -> dt.datetime: ...
 
     @abc.abstractmethod
-    def average_frp(
-        self, forecast_metadata: pd.DataFrame
-    ) -> Dict[FrpVariable, np.ndarray]: ...
+    def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[FrpVariable, np.ndarray]: ...
 
     @abc.abstractmethod
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None: ...
@@ -62,9 +60,7 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
         derived = self.average_frp(forecast_metadata)
         self.log(f"creating 24-hour emissions file: {self._context.emissions_path}")
-        with open_nc(
-            self._context.emissions_path, "w", parallel=False, clobber=True
-        ) as ds_out:
+        with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds_out:
             create_template_emissions_file(ds_out, self._context.grid_out_shape)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
@@ -73,9 +69,7 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
                 create_sd_variable(ds_out, SD_VARS.get(var.value))
                 ds_out.variables[var.value][:] = fill_array
 
-    def average_frp(
-        self, forecast_metadata: pd.DataFrame
-    ) -> Dict[FrpVariable, np.ndarray]:
+    def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[FrpVariable, np.ndarray]:
         ebb_smoke_total = []
         frp_avg_hr = []
 
@@ -91,9 +85,9 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
                 frp = ds[EmissionVariable.FRP.smoke_dust_name()][0, :, :].values
 
             frp_avg_hr.append(frp)
-            ebb_hourly = (
-                fre * emiss_factor * self._context.beta * self._context.fg_to_ug
-            ) / (target_area * self._context.to_s)
+            ebb_hourly = (fre * emiss_factor * self._context.beta * self._context.fg_to_ug) / (
+                target_area * self._context.to_s
+            )
             ebb_smoke_total.append(np.where(frp > 0, ebb_hourly, 0))
 
         frp_avg_reshaped = np.stack(frp_avg_hr, axis=0)
@@ -121,13 +115,8 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         hwp_ave = []
         totprcp = np.zeros(self._context.grid_out_shape).ravel()
         for date in forecast_metadata["forecast_date"]:
-            phy_data_path = (
-                self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
-            )
-            rave_path = (
-                self._context.intp_dir
-                / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
-            )
+            phy_data_path = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
+            rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
             self.log(f"processing emissions for: {phy_data_path=}, {rave_path=}")
             with xr.open_dataset(phy_data_path) as ds:
                 hwp_values = ds.rrfs_hwp_ave.values.ravel()
@@ -143,26 +132,18 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
 
         t_fire = np.zeros(self._context.grid_out_shape)
         for date in forecast_metadata["forecast_date"]:
-            rave_path = (
-                self._context.intp_dir
-                / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
-            )
+            rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
             with xr.open_dataset(rave_path) as ds:
                 frp = ds.frp_avg_hr[0, :, :].values
             dates_filtered = np.where(frp > 0, int(date[:10]), 0)
             t_fire = np.maximum(t_fire, dates_filtered)
         t_fire_flattened = [int(i) if i != 0 else 0 for i in t_fire.flatten()]
         hr_ends = [
-            dt.datetime.strptime(str(hr), "%Y%m%d%H") if hr != 0 else 0
-            for hr in t_fire_flattened
+            dt.datetime.strptime(str(hr), "%Y%m%d%H") if hr != 0 else 0 for hr in t_fire_flattened
         ]
         te = np.array(
             [
-                (
-                    (self._context.fcst_datetime - i).total_seconds() / 3600
-                    if i != 0
-                    else 0
-                )
+                ((self._context.fcst_datetime - i).total_seconds() / 3600 if i != 0 else 0)
                 for i in hr_ends
             ]
         )
@@ -212,9 +193,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
 
         self.log("process_emissions: exit")
 
-    def average_frp(
-        self, forecast_metadata: pd.DataFrame
-    ) -> Dict[FrpVariable, np.ndarray]:
+    def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[FrpVariable, np.ndarray]:
         self.log(f"average_frp: entering")
 
         frp_daily = np.zeros(self._context.grid_out_shape).ravel()
@@ -232,19 +211,13 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
                 frp = ds[EmissionVariable.FRP.smoke_dust_name()][0, :, :].values
 
             ebb_hourly = (
-                fre
-                * emiss_factor
-                * self._context.beta
-                * self._context.fg_to_ug
-                / target_area
+                fre * emiss_factor * self._context.beta * self._context.fg_to_ug / target_area
             )
             ebb_smoke_total.append(np.where(frp > 0, ebb_hourly, 0).ravel())
             frp_daily += np.where(frp > 0, frp, 0).ravel()
 
         summed_array = np.sum(np.array(ebb_smoke_total), axis=0)
-        num_zeros = len(ebb_smoke_total) - np.sum(
-            [arr == 0 for arr in ebb_smoke_total], axis=0
-        )
+        num_zeros = len(ebb_smoke_total) - np.sum([arr == 0 for arr in ebb_smoke_total], axis=0)
         safe_zero_count = np.where(num_zeros == 0, 1, num_zeros)
         result_array = np.array(
             [
@@ -261,11 +234,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         ebb_total_reshaped = ebb_total / 3600
         temp_frp = np.array(
             [
-                (
-                    frp_daily[i] / 2
-                    if safe_zero_count[i] == 1
-                    else frp_daily[i] / safe_zero_count[i]
-                )
+                (frp_daily[i] / 2 if safe_zero_count[i] == 1 else frp_daily[i] / safe_zero_count[i])
                 for i in range(len(safe_zero_count))
             ]
         )

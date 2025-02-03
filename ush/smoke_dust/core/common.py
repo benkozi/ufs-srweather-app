@@ -109,9 +109,7 @@ def create_descriptive_statistics(
     origin: Literal["src", "dst_unmasked", "dst_masked", "derived"],
     path: Path,
 ) -> pd.DataFrame:
-    df = pd.DataFrame.from_dict(
-        {k: v.filled(np.nan).ravel() for k, v in container.items()}
-    )
+    df = pd.DataFrame.from_dict({k: v.filled(np.nan).ravel() for k, v in container.items()})
     desc = df.describe()
     adds = {}
     for field_name in container.keys():
@@ -121,7 +119,5 @@ def create_descriptive_statistics(
             origin,
             path,
         ]
-    desc = pd.concat(
-        [desc, pd.DataFrame(data=adds, index=["sum", "count_null", "origin", "path"])]
-    )
+    desc = pd.concat([desc, pd.DataFrame(data=adds, index=["sum", "count_null", "origin", "path"])])
     return desc
