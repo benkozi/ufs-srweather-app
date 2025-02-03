@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 import xarray as xr
 from _pytest.fixtures import SubRequest
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pytest_mock import MockerFixture
 
 from smoke_dust.core.context import SmokeDustContext
@@ -50,6 +50,28 @@ class DataForTest(BaseModel):
     preprocessor: SmokeDustPreprocessor
 
 
+class FakeGridParams(BaseModel):
+    """Model for a fake RAVE/RRFS data file definition."""
+
+    path: Path = Field(description="Path to the output data file.")
+    shape: FakeGridOutShape = Field(description="Output grid shape.")
+    with_corners: bool = Field(
+        description="If True, create the output grid with corners", default=True
+    )
+    fields: list[str] | None = Field(
+        description="If provided, a list of field names to create in the output file.", default=None
+    )
+    min_lon: int = Field(
+        description="The minimum longitude value as origin for grid generation.", default=230
+    )
+    min_lat: int = Field(
+        description="The minimum latitude value as origin for grid generation.", default=25
+    )
+    ntime: int | None = Field(
+        description="If provided, create the output fields with this many time steps.", default=1
+    )
+
+
 @pytest.fixture(params=[True, False], ids=lambda p: f"regrid_in_memory={p}")
 def data_for_test(
     request: SubRequest,
@@ -62,12 +84,16 @@ def data_for_test(
     shutil.copy(bin_dir / weight_file, tmp_path / "weight_file.nc")
     for name in ["ds_out_base.nc", "grid_in.nc"]:
         path = tmp_path / name
-        create_fake_rave_and_rrfs_like_data(path, fake_grid_out_shape, fields=["area"], ntime=None)
-    context = create_fake_context(tmp_path, extra=dict(regrid_in_memory=request.param))
+        _ = create_fake_rave_and_rrfs_like_data(
+            FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["area"], ntime=None)
+        )
+    context = create_fake_context(tmp_path, extra={"regrid_in_memory": request.param})
     preprocessor = SmokeDustPreprocessor(context)
     for date in preprocessor.forecast_dates:
         path = tmp_path / f"Hourly_Emissions_3km_{date}_{date}.nc"
-        create_fake_rave_and_rrfs_like_data(path, fake_grid_out_shape, fields=["FRP_MEAN", "FRE"])
+        _ = create_fake_rave_and_rrfs_like_data(
+            FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["FRP_MEAN", "FRE"])
+        )
     return DataForTest(context=context, preprocessor=preprocessor)
 
 
@@ -104,43 +130,52 @@ def create_analytic_data_array(
     )
 
 
-def create_fake_rave_and_rrfs_like_data(
-    path: Path,
-    shape: FakeGridOutShape,
-    with_corners: bool = True,
-    fields: list[str] | None = None,
-    min_lon: int = 230,
-    min_lat: int = 25,
-    ntime: int | None = 1,
-) -> xr.Dataset:
-    if path.exists():
-        raise ValueError(f"path exists: {path}")
-    lon = np.arange(shape.x_size, dtype=float) + min_lon
-    lat = np.arange(shape.y_size, dtype=float) + min_lat
+def create_fake_rave_and_rrfs_like_data(params: FakeGridParams) -> xr.Dataset:
+    """
+    Create fake RAVE and RRFS data. These data files share a common grid.
+
+    Returns:
+        The created dataset object.
+    """
+    if params.path.exists():
+        raise ValueError(f"path exists: {params.path}")
+    lon = np.arange(params.shape.x_size, dtype=float) + params.min_lon
+    lat = np.arange(params.shape.y_size, dtype=float) + params.min_lat
     lon_mesh, lat_mesh = np.meshgrid(lon, lat)
     ds = xr.Dataset()
     dims = ["grid_yt", "grid_xt"]
     ds["grid_lont"] = xr.DataArray(lon_mesh, dims=dims)
     ds["grid_latt"] = xr.DataArray(lat_mesh, dims=dims)
-    if with_corners:
+    if params.with_corners:
         lonc = np.hstack((lon - 0.5, [lon[-1] + 0.5]))
         latc = np.hstack((lat - 0.5, [lat[-1] + 0.5]))
         lonc_mesh, latc_mesh = np.meshgrid(lonc, latc)
         ds["grid_lon"] = xr.DataArray(lonc_mesh, dims=["grid_y", "grid_x"])
         ds["grid_lat"] = xr.DataArray(latc_mesh, dims=["grid_y", "grid_x"])
-    if fields is not None:
-        if ntime is not None:
+    if params.fields is not None:
+        if params.ntime is not None:
             field_dims = ["time"] + dims
         else:
             field_dims = dims
-        for field in fields:
-            ds[field] = create_analytic_data_array(field_dims, lon_mesh, lat_mesh, ntime=ntime)
-    ds.to_netcdf(path)
+        for field in params.fields:
+            ds[field] = create_analytic_data_array(
+                field_dims, lon_mesh, lat_mesh, ntime=params.ntime
+            )
+    ds.to_netcdf(params.path)
     return ds
 
 
-class TestSmokeDustRegridProcessor:
-    def test_run(self, data_for_test: DataForTest, mocker: MockerFixture, tmp_path: Path) -> None:
+class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
+    """Tests for the smoke/dust regrid processor."""
+
+    def test_run(
+        self,
+        data_for_test: DataForTest,  # pylint: disable=redefined-outer-name
+        mocker: MockerFixture,
+        tmp_path: Path,
+    ) -> None:
+        """Test the regrid processor."""
+        # tdk:story: add MPI testing
         spy1 = mocker.spy(SmokeDustRegridProcessor, "_run_impl_")
         regrid_processor = SmokeDustRegridProcessor(data_for_test.context)
         regrid_processor.run(data_for_test.preprocessor.forecast_metadata)
