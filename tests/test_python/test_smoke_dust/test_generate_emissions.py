@@ -1,3 +1,5 @@
+"""Test emissions processing for smoke/dust."""
+
 from pathlib import Path
 from typing import Type
 
@@ -24,9 +26,17 @@ from test_python.test_smoke_dust.conftest import (
 )
 
 
-def create_restart_files(
+def create_fake_restart_files(
     root_dir: Path, forecast_dates: pd.DatetimeIndex, shape: FakeGridOutShape
 ) -> None:
+    """
+    Create fake restart files expected for EBB_DCYLE=2.
+
+    Args:
+        root_dir: Directory to create fake files in.
+        forecast_dates: The series of dates to create the restart files for.
+        shape: Output grid shape.
+    """
     restart_dir = root_dir / "RESTART"
     restart_dir.mkdir()
     for date in forecast_dates:
@@ -41,12 +51,21 @@ def create_restart_files(
             rrfs_hwp_ave[0, ...] = totprcp_ave[:] + 2
 
 
-def create_rave_interpolated(
+def create_fake_rave_interpolated(
     root_dir: Path,
     forecast_dates: pd.DatetimeIndex,
     shape: FakeGridOutShape,
     rave_to_intp: str,
 ) -> None:
+    """
+    Create fake interpolated RAVE data.
+
+    Args:
+        root_dir: The directory to create fake interpolated data in.
+        forecast_dates: The series of dates to create the interpolated data for.
+        shape: The output grid shape.
+        rave_to_intp: Filename prefix to use for output files.
+    """
     for date in forecast_dates:
         intp_file = root_dir / f"{rave_to_intp}{date}00_{date}59.nc"
         dims = ("t", "lat", "lon")
@@ -59,7 +78,14 @@ def create_rave_interpolated(
                 var[0, ...] = np.ones(shape.as_tuple)
 
 
-def create_veg_map(root_dir: Path, shape: FakeGridOutShape) -> None:
+def create_fake_veg_map(root_dir: Path, shape: FakeGridOutShape) -> None:
+    """
+    Create a fake vegetation map data file.
+
+    Args:
+        root_dir: The directory to create the file in.
+        shape: Shape of the output grid.
+    """
     with nc.Dataset(root_dir / "veg_map.nc", "w") as ds:
         ds.createDimension("grid_yt", shape.y_size)
         ds.createDimension("grid_xt", shape.x_size)
@@ -68,13 +94,17 @@ def create_veg_map(root_dir: Path, shape: FakeGridOutShape) -> None:
 
 
 class ExpectedData(BaseModel):
+    """Holds expected data to test against."""
+
     flag: str
     klass: Type[AbstractSmokeDustCycleProcessor]
     hash: str
 
 
 class DataForTest(BaseModel):
-    model_config = dict(arbitrary_types_allowed=True)
+    """Holds data objects used by the test."""
+
+    model_config = {"arbitrary_types_allowed": True}
     context: SmokeDustContext
     preprocessor: SmokeDustPreprocessor
     expected: ExpectedData
@@ -90,12 +120,15 @@ class DataForTest(BaseModel):
 def data_for_test(
     request: SubRequest, tmp_path: Path, fake_grid_out_shape: FakeGridOutShape
 ) -> DataForTest:
+    """
+    Creates the necessary test data including data files.
+    """
     create_fake_grid_out(tmp_path, fake_grid_out_shape)
-    create_veg_map(tmp_path, fake_grid_out_shape)
-    context = create_fake_context(tmp_path, overrides=dict(ebb_dcycle_flag=request.param.flag))
+    create_fake_veg_map(tmp_path, fake_grid_out_shape)
+    context = create_fake_context(tmp_path, overrides={"ebb_dcycle_flag": request.param.flag})
     preprocessor = SmokeDustPreprocessor(context)
-    create_restart_files(tmp_path, preprocessor.forecast_dates, fake_grid_out_shape)
-    create_rave_interpolated(
+    create_fake_restart_files(tmp_path, preprocessor.forecast_dates, fake_grid_out_shape)
+    create_fake_rave_interpolated(
         tmp_path,
         preprocessor.forecast_dates,
         fake_grid_out_shape,
@@ -104,10 +137,16 @@ def data_for_test(
     return DataForTest(context=context, preprocessor=preprocessor, expected=request.param)
 
 
-class TestSmokeDustPreprocessor:
+class TestSmokeDustPreprocessor:  # pylint: disable=too-few-public-methods
+    """Tests for the smoke/dust preprocessor."""
 
-    def test_run(self, data_for_test: DataForTest, mocker: MockerFixture) -> None:
+    def test_run(
+        self,
+        data_for_test: DataForTest,  # pylint: disable=redefined-outer-name
+        mocker: MockerFixture,
+    ) -> None:
         """Test core capabilities of the preprocessor. Note this does not test regridding."""
+        # pylint: disable=protected-access
         preprocessor = data_for_test.preprocessor
         spy1 = mocker.spy(preprocessor, "create_dummy_emissions_file")
         regrid_processor_class = preprocessor._regrid_processor.__class__
@@ -119,6 +158,7 @@ class TestSmokeDustPreprocessor:
 
         assert isinstance(preprocessor._cycle_processor, data_for_test.expected.klass)
         assert preprocessor._forecast_metadata is None
+        # pylint: enable=protected-access
         assert not data_for_test.context.emissions_path.exists()
 
         preprocessor.run()

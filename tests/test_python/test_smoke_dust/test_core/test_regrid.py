@@ -1,8 +1,9 @@
+"""Tests the regrid processor."""
+
 import glob
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 import pytest
@@ -21,18 +22,30 @@ from test_python.test_smoke_dust.conftest import (
 )
 
 
-def ncdump(path: Path, header_only: bool = True) -> Any:
+def ncdump(path: Path, header_only: bool = True) -> str:
+    """
+    Convenience wrapper for calling the ncdump utility.
+
+    Args:
+        path: Target netCDF file.
+        header_only: If True, return only netCDF header information.
+
+    Returns:
+        Output from the ncdump program.
+    """
     args = ["ncdump"]
     if header_only:
         args.append("-h")
     args.append(str(path))
-    ret = subprocess.check_output(args)
-    print(ret.decode(), flush=True)
+    ret = subprocess.check_output(args).decode()
+    print(ret, flush=True)
     return ret
 
 
 class DataForTest(BaseModel):
-    model_config = dict(arbitrary_types_allowed=True)
+    """Model holds objects needed for testing."""
+
+    model_config = {"arbitrary_types_allowed": True}
     context: SmokeDustContext
     preprocessor: SmokeDustPreprocessor
 
@@ -44,6 +57,7 @@ def data_for_test(
     fake_grid_out_shape: FakeGridOutShape,
     bin_dir: Path,
 ) -> DataForTest:
+    """Create test data including any required data files."""
     weight_file = "weight_file.nc"
     shutil.copy(bin_dir / weight_file, tmp_path / "weight_file.nc")
     for name in ["ds_out_base.nc", "grid_in.nc"]:
@@ -63,6 +77,18 @@ def create_analytic_data_array(
     lat_mesh: np.ndarray,
     ntime: int | None = None,
 ) -> xr.DataArray:
+    """
+    Create an analytic data array using lat/lon values.
+
+    Args:
+        dims: Names of the lat/lon dimensions. For example `["lat", "lon"]`.
+        lon_mesh: A two-dimensional array of longitude values.
+        lat_mesh: A two-dimensional array of latitude values.
+        ntime: If provided, create the output data array with the provided number of time steps.
+
+    Returns:
+        An analytic data array.
+    """
     deg_to_rad = 3.141592653589793 / 180.0
     analytic_data = 2.0 + np.cos(deg_to_rad * lon_mesh) ** 2 * np.cos(
         2.0 * deg_to_rad * (90.0 - lat_mesh)
