@@ -16,7 +16,7 @@ from smoke_dust.core.preprocessor import SmokeDustPreprocessor
 from smoke_dust.core.regrid.processor import SmokeDustRegridProcessor
 from test_python.test_smoke_dust.conftest import (
     FakeGridOutShape,
-    create_context,
+    create_fake_context,
     create_file_hash,
 )
 
@@ -48,12 +48,12 @@ def data_for_test(
     shutil.copy(bin_dir / weight_file, tmp_path / "weight_file.nc")
     for name in ["ds_out_base.nc", "grid_in.nc"]:
         path = tmp_path / name
-        create_rave_and_rrfs_like_data(path, fake_grid_out_shape, fields=["area"], ntime=None)
-    context = create_context(tmp_path, extra=dict(regrid_in_memory=request.param))
+        create_fake_rave_and_rrfs_like_data(path, fake_grid_out_shape, fields=["area"], ntime=None)
+    context = create_fake_context(tmp_path, extra=dict(regrid_in_memory=request.param))
     preprocessor = SmokeDustPreprocessor(context)
     for date in preprocessor.forecast_dates:
         path = tmp_path / f"Hourly_Emissions_3km_{date}_{date}.nc"
-        create_rave_and_rrfs_like_data(path, fake_grid_out_shape, fields=["FRP_MEAN", "FRE"])
+        create_fake_rave_and_rrfs_like_data(path, fake_grid_out_shape, fields=["FRP_MEAN", "FRE"])
     return DataForTest(context=context, preprocessor=preprocessor)
 
 
@@ -78,7 +78,7 @@ def create_analytic_data_array(
     )
 
 
-def create_rave_and_rrfs_like_data(
+def create_fake_rave_and_rrfs_like_data(
     path: Path,
     shape: FakeGridOutShape,
     with_corners: bool = True,

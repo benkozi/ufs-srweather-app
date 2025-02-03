@@ -18,8 +18,8 @@ from smoke_dust.core.cycle import (
 from smoke_dust.core.preprocessor import SmokeDustPreprocessor
 from test_python.test_smoke_dust.conftest import (
     FakeGridOutShape,
-    create_grid_out,
-    create_context,
+    create_fake_grid_out,
+    create_fake_context,
     create_file_hash,
 )
 
@@ -90,9 +90,9 @@ class DataForTest(BaseModel):
 def data_for_test(
     request: SubRequest, tmp_path: Path, fake_grid_out_shape: FakeGridOutShape
 ) -> DataForTest:
-    create_grid_out(tmp_path, fake_grid_out_shape)
+    create_fake_grid_out(tmp_path, fake_grid_out_shape)
     create_veg_map(tmp_path, fake_grid_out_shape)
-    context = create_context(tmp_path, overrides=dict(ebb_dcycle_flag=request.param.flag))
+    context = create_fake_context(tmp_path, overrides=dict(ebb_dcycle_flag=request.param.flag))
     preprocessor = SmokeDustPreprocessor(context)
     create_restart_files(tmp_path, preprocessor.forecast_dates, fake_grid_out_shape)
     create_rave_interpolated(
