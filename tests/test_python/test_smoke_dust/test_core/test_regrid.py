@@ -48,16 +48,12 @@ def data_for_test(
     shutil.copy(bin_dir / weight_file, tmp_path / "weight_file.nc")
     for name in ["ds_out_base.nc", "grid_in.nc"]:
         path = tmp_path / name
-        create_rave_and_rrfs_like_data(
-            path, fake_grid_out_shape, fields=["area"], ntime=None
-        )
+        create_rave_and_rrfs_like_data(path, fake_grid_out_shape, fields=["area"], ntime=None)
     context = create_context(tmp_path, extra=dict(regrid_in_memory=request.param))
     preprocessor = SmokeDustPreprocessor(context)
     for date in preprocessor.forecast_dates:
         path = tmp_path / f"Hourly_Emissions_3km_{date}_{date}.nc"
-        create_rave_and_rrfs_like_data(
-            path, fake_grid_out_shape, fields=["FRP_MEAN", "FRE"]
-        )
+        create_rave_and_rrfs_like_data(path, fake_grid_out_shape, fields=["FRP_MEAN", "FRE"])
     return DataForTest(context=context, preprocessor=preprocessor)
 
 
@@ -112,17 +108,13 @@ def create_rave_and_rrfs_like_data(
         else:
             field_dims = dims
         for field in fields:
-            ds[field] = create_analytic_data_array(
-                field_dims, lon_mesh, lat_mesh, ntime=ntime
-            )
+            ds[field] = create_analytic_data_array(field_dims, lon_mesh, lat_mesh, ntime=ntime)
     ds.to_netcdf(path)
     return ds
 
 
 class TestSmokeDustRegridProcessor:
-    def test_run(
-        self, data_for_test: DataForTest, mocker: MockerFixture, tmp_path: Path
-    ) -> None:
+    def test_run(self, data_for_test: DataForTest, mocker: MockerFixture, tmp_path: Path) -> None:
         spy1 = mocker.spy(SmokeDustRegridProcessor, "_run_impl_")
         regrid_processor = SmokeDustRegridProcessor(data_for_test.context)
         regrid_processor.run(data_for_test.preprocessor.forecast_metadata)

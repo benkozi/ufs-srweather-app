@@ -35,13 +35,9 @@ def create_restart_files(
             ds.createDimension("Time")
             ds.createDimension("yaxis_1", shape.y_size)
             ds.createDimension("xaxis_1", shape.x_size)
-            totprcp_ave = ds.createVariable(
-                "totprcp_ave", "f4", ("Time", "yaxis_1", "xaxis_1")
-            )
+            totprcp_ave = ds.createVariable("totprcp_ave", "f4", ("Time", "yaxis_1", "xaxis_1"))
             totprcp_ave[0, ...] = np.ones(shape.as_tuple)
-            rrfs_hwp_ave = ds.createVariable(
-                "rrfs_hwp_ave", "f4", ("Time", "yaxis_1", "xaxis_1")
-            )
+            rrfs_hwp_ave = ds.createVariable("rrfs_hwp_ave", "f4", ("Time", "yaxis_1", "xaxis_1"))
             rrfs_hwp_ave[0, ...] = totprcp_ave[:] + 2
 
 
@@ -86,12 +82,8 @@ class DataForTest(BaseModel):
 
 @pytest.fixture(
     params=[
-        ExpectedData(
-            flag="1", klass=SmokeDustCycleOne, hash="d124734dfce7ca914391e35a02e4a7d2"
-        ),
-        ExpectedData(
-            flag="2", klass=SmokeDustCycleTwo, hash="6752199f1039edc936a942f3885af38b"
-        ),
+        ExpectedData(flag="1", klass=SmokeDustCycleOne, hash="d124734dfce7ca914391e35a02e4a7d2"),
+        ExpectedData(flag="2", klass=SmokeDustCycleTwo, hash="6752199f1039edc936a942f3885af38b"),
     ],
     ids=lambda p: f"ebb_dcycle_flag={p.flag}",
 )
@@ -100,9 +92,7 @@ def data_for_test(
 ) -> DataForTest:
     create_grid_out(tmp_path, fake_grid_out_shape)
     create_veg_map(tmp_path, fake_grid_out_shape)
-    context = create_context(
-        tmp_path, overrides=dict(ebb_dcycle_flag=request.param.flag)
-    )
+    context = create_context(tmp_path, overrides=dict(ebb_dcycle_flag=request.param.flag))
     preprocessor = SmokeDustPreprocessor(context)
     create_restart_files(tmp_path, preprocessor.forecast_dates, fake_grid_out_shape)
     create_rave_interpolated(
@@ -111,9 +101,7 @@ def data_for_test(
         fake_grid_out_shape,
         context.predef_grid.value + "_intp_",
     )
-    return DataForTest(
-        context=context, preprocessor=preprocessor, expected=request.param
-    )
+    return DataForTest(context=context, preprocessor=preprocessor, expected=request.param)
 
 
 class TestSmokeDustPreprocessor:
@@ -141,7 +129,4 @@ class TestSmokeDustPreprocessor:
         spy5.assert_called_once()
 
         assert data_for_test.context.emissions_path.exists()
-        assert (
-            create_file_hash(data_for_test.context.emissions_path)
-            == data_for_test.expected.hash
-        )
+        assert create_file_hash(data_for_test.context.emissions_path) == data_for_test.expected.hash

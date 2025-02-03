@@ -94,9 +94,7 @@ class SmokeDustContext(BaseModel):
         return self
 
     @classmethod
-    def create_from_args(
-        cls, args: List[str], extra: dict | None = None
-    ) -> "SmokeDustContext":
+    def create_from_args(cls, args: List[str], extra: dict | None = None) -> "SmokeDustContext":
         print(f"create_from_args: {args=}", flush=True)
 
         # Extract local arguments from args before converting values
