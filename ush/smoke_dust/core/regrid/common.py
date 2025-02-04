@@ -47,7 +47,7 @@ class DimensionCollection(BaseModel):
 
 class AbstractWrapper(abc.ABC, BaseModel):
     """
-    Superclass for all wrapper objects. Wrapper objects map metadata to an associated `esmpy`
+    Superclass for all wrapper objects. Wrapper objects map metadata to an associated ``esmpy``
     object.
     """
 
@@ -112,7 +112,7 @@ class GridSpec(BaseModel):
     def create_grid_dims(
         self, ds: nc.Dataset, grid: esmpy.Grid, staggerloc: esmpy.StaggerLoc
     ) -> DimensionCollection:
-        """Create a dimension collection from a netCDF dataset and `esmpy` grid."""
+        """Create a dimension collection from a netCDF dataset and ``esmpy`` grid."""
         if staggerloc == esmpy.StaggerLoc.CENTER:
             x_dim, y_dim = self.x_dim, self.y_dim
         elif staggerloc == esmpy.StaggerLoc.CORNER:
@@ -145,14 +145,14 @@ class GridSpec(BaseModel):
 
 
 class GridWrapper(AbstractWrapper):
-    """Wraps an `esmpy` grid with dimension metadata."""
+    """Wraps an ``esmpy`` grid with dimension metadata."""
 
     value: esmpy.Grid
     spec: GridSpec
     corner_dims: Union[DimensionCollection, None] = None
 
     def fill_nc_variables(self, path: Path):
-        """Fill netCDF variables using coordinate data from an `esmpy` grid."""
+        """Fill netCDF variables using coordinate data from an ``esmpy`` grid."""
         if self.corner_dims is not None:
             raise NotImplementedError
         with open_nc(path, "a") as ds:
@@ -164,13 +164,13 @@ class GridWrapper(AbstractWrapper):
 
 
 class FieldWrapper(AbstractWrapper):
-    """Wraps an `esmpy` field with dimension metadata."""
+    """Wraps an ``esmpy`` field with dimension metadata."""
 
     value: esmpy.Field
     gwrap: GridWrapper
 
     def fill_nc_variable(self, path: Path):
-        """Fill the netCDF variable associated with the `esmpy` field."""
+        """Fill the netCDF variable associated with the ``esmpy`` field."""
         with open_nc(path, "a") as ds:
             var = ds.variables[self.value.name]
             _set_variable_data_(var, self.dims, self.value.data)
@@ -210,7 +210,7 @@ def load_variable_data(var: nc.Variable, target_dims: DimensionCollection) -> np
 
     Args:
         var: netCDF variable to load data from.
-        target_dims: Dimensions for the variable containing `esmpy` bounds.
+        target_dims: Dimensions for the variable containing ``esmpy`` bounds.
 
     Returns:
         The loaded data array.
@@ -235,7 +235,7 @@ def _set_variable_data_(
 
 
 class NcToGrid(BaseModel):
-    """Converts a netCDF file to an `esmpy` grid."""
+    """Converts a netCDF file to an ``esmpy`` grid."""
 
     path: Path
     spec: GridSpec
@@ -287,7 +287,7 @@ class NcToGrid(BaseModel):
 
 
 class NcToField(BaseModel):
-    """Converts a netCDF file to an `esmpy` field."""
+    """Converts a netCDF file to an ``esmpy`` field."""
 
     path: Path
     name: str

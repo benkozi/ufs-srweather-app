@@ -2,12 +2,12 @@
 
 import abc
 import datetime as dt
-from enum import StrEnum, unique
-from typing import Dict, Any
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import xarray as xr
+from pydantic import BaseModel, field_validator
 
 from smoke_dust.core.common import (
     open_nc,
@@ -18,11 +18,18 @@ from smoke_dust.core.context import SmokeDustContext, EmissionVariable, EbbDCycl
 from smoke_dust.core.variable import SD_VARS
 
 
-@unique
-class FrpVariable(StrEnum):
-    # tdk:rm in favor of variable.py
-    FRP_AVG = "frp_avg_hr"
-    EBB_TOTAL = "ebb_smoke_hr"
+class AverageFrpOutput(BaseModel):
+    """Output expected from the ``average_frp`` method."""
+
+    model_config = {"arbitrary_types_allowed": True}
+    data: dict[str, np.ndarray]
+
+    @field_validator("data", mode="before")
+    @classmethod
+    def _validate_data_(cls, value: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
+        if set(value.keys()) != {"frp_avg_hr", "ebb_smoke_hr"}:
+            raise ValueError
+        return value
 
 
 class AbstractSmokeDustCycleProcessor(abc.ABC):
@@ -51,7 +58,7 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
         """
 
     @abc.abstractmethod
-    def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[FrpVariable, np.ndarray]:
+    def average_frp(self, forecast_metadata: pd.DataFrame) -> AverageFrpOutput:
         """
         Calculate fire radiative power and smoke emissions from biomass burning.
 
@@ -96,11 +103,11 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
                 ds_out.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
                 ds_out.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
-            for var, fill_array in derived.items():
-                create_sd_variable(ds_out, SD_VARS.get(var.value))
-                ds_out.variables[var.value][:] = fill_array
+            for var_name, fill_array in derived.data.items():
+                create_sd_variable(ds_out, SD_VARS.get(var_name))
+                ds_out.variables[var_name][:] = fill_array
 
-    def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[FrpVariable, np.ndarray]:
+    def average_frp(self, forecast_metadata: pd.DataFrame) -> AverageFrpOutput:
         ebb_smoke_total = []
         frp_avg_hr = []
 
@@ -126,10 +133,10 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
 
         np.nan_to_num(frp_avg_reshaped, copy=False, nan=0.0)
 
-        return {
-            FrpVariable.FRP_AVG: frp_avg_reshaped,
-            FrpVariable.EBB_TOTAL: ebb_total_reshaped,
-        }
+        return AverageFrpOutput(data={
+            "frp_avg_hr": frp_avg_reshaped,
+            "ebb_smoke_hr": ebb_total_reshaped,
+        })
 
 
 class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
@@ -186,10 +193,10 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         fire_age = np.array(te).reshape(self._context.grid_out_shape)
 
         # Ensure arrays are not negative or NaN
-        frp_avg_reshaped = np.clip(derived[FrpVariable.FRP_AVG], 0, None)
+        frp_avg_reshaped = np.clip(derived.data["frp_avg_hr"], 0, None)
         frp_avg_reshaped = np.nan_to_num(frp_avg_reshaped)
 
-        ebb_tot_reshaped = np.clip(derived[FrpVariable.EBB_TOTAL], 0, None)
+        ebb_tot_reshaped = np.clip(derived.data["ebb_smoke_hr"], 0, None)
         ebb_tot_reshaped = np.nan_to_num(ebb_tot_reshaped)
 
         fire_age = np.clip(fire_age, 0, None)
@@ -229,7 +236,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
 
         self.log("process_emissions: exit")
 
-    def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[FrpVariable, np.ndarray]:
+    def average_frp(self, forecast_metadata: pd.DataFrame) -> AverageFrpOutput:
         self.log("average_frp: entering")
 
         frp_daily = np.zeros(self._context.grid_out_shape).ravel()
@@ -280,10 +287,10 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         np.nan_to_num(frp_avg_reshaped, copy=False, nan=0.0)
 
         self.log("average_frp: exiting")
-        return {
-            FrpVariable.FRP_AVG: frp_avg_reshaped,
-            FrpVariable.EBB_TOTAL: ebb_total_reshaped,
-        }
+        return AverageFrpOutput(data={
+            "frp_avg_hr": frp_avg_reshaped,
+            "ebb_smoke_hr": ebb_total_reshaped,
+        })
 
 
 def create_cycle_processor(
