@@ -1,3 +1,5 @@
+"""Contains common functionality used across smoke/dust."""
+
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Tuple, Literal, Dict
@@ -17,6 +19,18 @@ def open_nc(
     clobber: bool = False,
     parallel: bool = True,
 ) -> nc.Dataset:
+    """
+    Open a netCDF file for various operations.
+
+    Args:
+        path: Path to the target netCDF file.
+        mode: Mode to open the file in.
+        clobber: If True, overwrite an existing file.
+        parallel: If True, open the netCDF for parallel operations.
+
+    Returns:
+        A netCDF dataset object.
+    """
     ds = nc.Dataset(
         path,
         mode=mode,
@@ -80,8 +94,9 @@ def create_sd_variable(
         try:
             var_out.set_collective(True)
         except RuntimeError:
-            # Allow this function to work with parallel and non-parallel datasets. If the dataset is not opened in parallel
-            # this error message is returned: RuntimeError: NetCDF: Parallel operation on file opened for non-parallel access
+            # Allow this function to work with parallel and non-parallel datasets. If the dataset
+            # is not opened in parallel this error message is returned:
+            # RuntimeError: NetCDF: Parallel operation on file opened for non-parallel access
             pass
         var_out[0, :, :] = sd_variable.fill_value_float
         try:
@@ -93,6 +108,15 @@ def create_sd_variable(
 def create_template_emissions_file(
     ds: nc.Dataset, grid_shape: Tuple[int, int], is_dummy: bool = False
 ):
+    """
+    Create a smoke/dust template netCDF emissions file.
+
+    Args:
+        ds: The target netCDF dataset object.
+        grid_shape: The grid shape to create.
+        is_dummy: Converted to a netCDF attribute to indicate if the created file is dummy
+            emissions or will contain actual values.
+    """
     ds.createDimension("t", None)
     ds.createDimension("lat", grid_shape[0])
     ds.createDimension("lon", grid_shape[1])
@@ -109,6 +133,17 @@ def create_descriptive_statistics(
     origin: Literal["src", "dst_unmasked", "dst_masked", "derived"],
     path: Path,
 ) -> pd.DataFrame:
+    """
+    Create a standard set of descriptive statistics using `pandas`.
+
+    Args:
+        container: A dictionary mapping names to masked arrays.
+        origin: A tag to indicate the data origin to add to the created dataframe.
+        path: Path to the netCDF file where the container data originated.
+
+    Returns:
+        A dataframe containing descriptive statistics fields.
+    """
     df = pd.DataFrame.from_dict({k: v.filled(np.nan).ravel() for k, v in container.items()})
     desc = df.describe()
     adds = {}
