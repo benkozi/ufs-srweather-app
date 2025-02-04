@@ -133,10 +133,12 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
 
         np.nan_to_num(frp_avg_reshaped, copy=False, nan=0.0)
 
-        return AverageFrpOutput(data={
-            "frp_avg_hr": frp_avg_reshaped,
-            "ebb_smoke_hr": ebb_total_reshaped,
-        })
+        return AverageFrpOutput(
+            data={
+                "frp_avg_hr": frp_avg_reshaped,
+                "ebb_smoke_hr": ebb_total_reshaped,
+            }
+        )
 
 
 class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
@@ -287,10 +289,12 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         np.nan_to_num(frp_avg_reshaped, copy=False, nan=0.0)
 
         self.log("average_frp: exiting")
-        return AverageFrpOutput(data={
-            "frp_avg_hr": frp_avg_reshaped,
-            "ebb_smoke_hr": ebb_total_reshaped,
-        })
+        return AverageFrpOutput(
+            data={
+                "frp_avg_hr": frp_avg_reshaped,
+                "ebb_smoke_hr": ebb_total_reshaped,
+            }
+        )
 
 
 def create_cycle_processor(

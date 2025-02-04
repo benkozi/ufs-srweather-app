@@ -4,6 +4,7 @@ import glob
 import shutil
 import subprocess
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 import pytest
@@ -58,7 +59,7 @@ class FakeGridParams(BaseModel):
     with_corners: bool = Field(
         description="If True, create the output grid with corners", default=True
     )
-    fields: list[str] | None = Field(
+    fields: Union[list[str], None] = Field(
         description="If provided, a list of field names to create in the output file.", default=None
     )
     min_lon: int = Field(
@@ -67,7 +68,7 @@ class FakeGridParams(BaseModel):
     min_lat: int = Field(
         description="The minimum latitude value as origin for grid generation.", default=25
     )
-    ntime: int | None = Field(
+    ntime: Union[int, None] = Field(
         description="If provided, create the output fields with this many time steps.", default=1
     )
 
@@ -101,7 +102,7 @@ def create_analytic_data_array(
     dims: list[str],
     lon_mesh: np.ndarray,
     lat_mesh: np.ndarray,
-    ntime: int | None = None,
+    ntime: Union[int, None] = None,
 ) -> xr.DataArray:
     """
     Create an analytic data array using lat/lon values.

@@ -4,6 +4,7 @@ import hashlib
 import os
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Union
 
 import netCDF4 as nc
 import numpy as np
@@ -55,7 +56,7 @@ def create_fake_grid_out(root_dir: Path, shape: FakeGridOutShape) -> None:
 
 
 def create_fake_context(
-    root_dir: Path, overrides: dict | None = None, extra: dict | None = None
+    root_dir: Path, overrides: Union[dict, None] = None, extra: Union[dict, None] = None
 ) -> SmokeDustContext:
     """
     Create a fake context for the test runner.

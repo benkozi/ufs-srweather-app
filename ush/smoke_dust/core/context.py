@@ -63,15 +63,18 @@ class LogLevel(StrEnum):
 
 @unique
 class EmissionVariable(StrEnum):
-    # tdk: remove in favor of variable.py
+    """Maps RAVE and smoke/dust variable names."""
+
     FRE = "FRE"
     FRP = "FRP"
 
     def rave_name(self) -> str:
+        """Convert to a RAVE name."""
         other = {self.FRP: "FRP_MEAN", self.FRE: "FRE"}
         return other[self]
 
     def smoke_dust_name(self) -> str:
+        """Convert to a smoke/dust name."""
         other = {self.FRP: "frp_avg_hr", self.FRE: "FRE"}
         return other[self]
 
