@@ -1,3 +1,5 @@
+"""Common regridding functionality used by the regrid processor."""
+
 import abc
 from pathlib import Path
 from typing import Tuple, Literal, Union, Dict, Any
@@ -13,6 +15,8 @@ NameListType = Tuple[str, ...]
 
 
 class Dimension(BaseModel):
+    """A dimension object containing metadata and rank bounds information."""
+
     name: NameListType
     size: int
     lower: int
@@ -22,9 +26,14 @@ class Dimension(BaseModel):
 
 
 class DimensionCollection(BaseModel):
+    """A collection of dimension objects."""
+
     value: Tuple[Dimension, ...]
 
-    def get(self, name: str | NameListType) -> Dimension:
+    def get(self, name: Union[str, NameListType]) -> Dimension:
+        """
+        Get a dimension object from the collection.
+        """
         if isinstance(name, str):
             name_to_find = (name,)
         else:
@@ -37,21 +46,28 @@ class DimensionCollection(BaseModel):
 
 
 class AbstractWrapper(abc.ABC, BaseModel):
+    """
+    Superclass for all wrapper objects. Wrapper objects map metadata to an associated `esmpy`
+    object.
+    """
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
     dims: DimensionCollection
 
 
 class GridSpec(BaseModel):
+    """Defines a grid specification that can be read from a netCDF file."""
+
     model_config = ConfigDict(frozen=True)
 
     x_center: str
     y_center: str
     x_dim: NameListType
     y_dim: NameListType
-    x_corner: str | None = None
-    y_corner: str | None = None
-    x_corner_dim: NameListType | None = None
-    y_corner_dim: NameListType | None = None
+    x_corner: Union[str, None] = None
+    y_corner: Union[str, None] = None
+    x_corner_dim: Union[NameListType, None] = None
+    y_corner_dim: Union[NameListType, None] = None
     x_index: int = 0
     y_index: int = 1
 
@@ -63,34 +79,40 @@ class GridSpec(BaseModel):
             self.x_corner_dim,
             self.y_corner_dim,
         ]
-        is_given_sum = sum([ii is not None for ii in corner_meta])
+        is_given_sum = sum(ii is not None for ii in corner_meta)
         if is_given_sum > 0 and is_given_sum != len(corner_meta):
             raise ValueError("if one corner name is supplied, then all must be supplied")
         return self
 
     @property
     def has_corners(self) -> bool:
+        """Returns true if the grid has corners."""
         return self.x_corner is not None
 
     def get_x_corner(self) -> str:
+        """Get the name of the `x` corner."""
         if self.x_corner is None:
             raise ValueError
         return self.x_corner
 
     def get_y_corner(self) -> str:
+        """Get the name of the `y` corner."""
         if self.y_corner is None:
             raise ValueError
         return self.y_corner
 
     def get_x_data(self, grid: esmpy.Grid, staggerloc: esmpy.StaggerLoc) -> np.ndarray:
+        """Get x-coordinate data from a grid."""
         return grid.get_coords(self.x_index, staggerloc=staggerloc)
 
     def get_y_data(self, grid: esmpy.Grid, staggerloc: esmpy.StaggerLoc) -> np.ndarray:
+        """Get y-coordinate data from a grid."""
         return grid.get_coords(self.y_index, staggerloc=staggerloc)
 
     def create_grid_dims(
         self, ds: nc.Dataset, grid: esmpy.Grid, staggerloc: esmpy.StaggerLoc
     ) -> DimensionCollection:
+        """Create a dimension collection from a netCDF dataset and `esmpy` grid."""
         if staggerloc == esmpy.StaggerLoc.CENTER:
             x_dim, y_dim = self.x_dim, self.y_dim
         elif staggerloc == esmpy.StaggerLoc.CORNER:
@@ -99,7 +121,7 @@ class GridSpec(BaseModel):
             raise NotImplementedError(staggerloc)
         x_dimobj = Dimension(
             name=x_dim,
-            size=get_nc_dimension(ds, x_dim).size,
+            size=_get_nc_dimension_(ds, x_dim).size,
             lower=grid.lower_bounds[staggerloc][self.x_index],
             upper=grid.upper_bounds[staggerloc][self.x_index],
             staggerloc=staggerloc,
@@ -107,7 +129,7 @@ class GridSpec(BaseModel):
         )
         y_dimobj = Dimension(
             name=y_dim,
-            size=get_nc_dimension(ds, y_dim).size,
+            size=_get_nc_dimension_(ds, y_dim).size,
             lower=grid.lower_bounds[staggerloc][self.y_index],
             upper=grid.upper_bounds[staggerloc][self.y_index],
             staggerloc=staggerloc,
@@ -123,35 +145,41 @@ class GridSpec(BaseModel):
 
 
 class GridWrapper(AbstractWrapper):
+    """Wraps an `esmpy` grid with dimension metadata."""
+
     value: esmpy.Grid
     spec: GridSpec
-    corner_dims: DimensionCollection | None = None
+    corner_dims: Union[DimensionCollection, None] = None
 
     def fill_nc_variables(self, path: Path):
+        """Fill netCDF variables using coordinate data from an `esmpy` grid."""
         if self.corner_dims is not None:
             raise NotImplementedError
         with open_nc(path, "a") as ds:
             staggerloc = esmpy.StaggerLoc.CENTER
             x_center_data = self.spec.get_x_data(self.value, staggerloc)
-            set_variable_data(ds.variables[self.spec.x_center], self.dims, x_center_data)
+            _set_variable_data_(ds.variables[self.spec.x_center], self.dims, x_center_data)
             y_center_data = self.spec.get_y_data(self.value, staggerloc)
-            set_variable_data(ds.variables[self.spec.y_center], self.dims, y_center_data)
+            _set_variable_data_(ds.variables[self.spec.y_center], self.dims, y_center_data)
 
 
 class FieldWrapper(AbstractWrapper):
+    """Wraps an `esmpy` field with dimension metadata."""
+
     value: esmpy.Field
     gwrap: GridWrapper
 
     def fill_nc_variable(self, path: Path):
+        """Fill the netCDF variable associated with the `esmpy` field."""
         with open_nc(path, "a") as ds:
             var = ds.variables[self.value.name]
-            set_variable_data(var, self.dims, self.value.data)
+            _set_variable_data_(var, self.dims, self.value.data)
 
 
 HasNcAttrsType = Union[nc.Dataset, nc.Variable]
 
 
-def get_aliased_key(source: Dict, keys: NameListType | str) -> Any:
+def _get_aliased_key_(source: Dict, keys: Union[NameListType, str]) -> Any:
     if isinstance(keys, str):
         keys_to_find = (keys,)
     else:
@@ -164,11 +192,11 @@ def get_aliased_key(source: Dict, keys: NameListType | str) -> Any:
     raise ValueError(f"key not found: {keys}")
 
 
-def get_nc_dimension(ds: nc.Dataset, names: NameListType) -> nc.Dimension:
-    return get_aliased_key(ds.dimensions, names)
+def _get_nc_dimension_(ds: nc.Dataset, names: NameListType) -> nc.Dimension:
+    return _get_aliased_key_(ds.dimensions, names)
 
 
-def create_dimension_map(dims: DimensionCollection) -> Dict[str, int]:
+def _create_dimension_map_(dims: DimensionCollection) -> Dict[str, int]:
     ret = {}
     for idx, dim in enumerate(dims.value):
         for name in dim.name:
@@ -177,19 +205,29 @@ def create_dimension_map(dims: DimensionCollection) -> Dict[str, int]:
 
 
 def load_variable_data(var: nc.Variable, target_dims: DimensionCollection) -> np.ndarray:
+    """
+    Load variable data using bounds defined in the dimension collection.
+
+    Args:
+        var: netCDF variable to load data from.
+        target_dims: Dimensions for the variable containing `esmpy` bounds.
+
+    Returns:
+        The loaded data array.
+    """
     slices = [slice(target_dims.get(ii).lower, target_dims.get(ii).upper) for ii in var.dimensions]
     raw_data = var[*slices]
     dim_map = {dim: ii for ii, dim in enumerate(var.dimensions)}
-    axes = [get_aliased_key(dim_map, ii.name) for ii in target_dims.value]
+    axes = [_get_aliased_key_(dim_map, ii.name) for ii in target_dims.value]
     transposed_data = raw_data.transpose(axes)
     return transposed_data
 
 
-def set_variable_data(
+def _set_variable_data_(
     var: nc.Variable, target_dims: DimensionCollection, target_data: np.ndarray
 ) -> np.ndarray:
-    dim_map = create_dimension_map(target_dims)
-    axes = [get_aliased_key(dim_map, ii) for ii in var.dimensions]
+    dim_map = _create_dimension_map_(target_dims)
+    axes = [_get_aliased_key_(dim_map, ii) for ii in var.dimensions]
     transposed_data = target_data.transpose(axes)
     slices = [slice(target_dims.get(ii).lower, target_dims.get(ii).upper) for ii in var.dimensions]
     var[*slices] = transposed_data
@@ -197,10 +235,13 @@ def set_variable_data(
 
 
 class NcToGrid(BaseModel):
+    """Converts a netCDF file to an `esmpy` grid."""
+
     path: Path
     spec: GridSpec
 
     def create_grid_wrapper(self) -> GridWrapper:
+        """Create a grid wrapper."""
         with open_nc(self.path, "r") as ds:
             grid_shape = self._create_grid_shape_(ds)
             staggerloc = esmpy.StaggerLoc.CENTER
@@ -224,8 +265,8 @@ class NcToGrid(BaseModel):
             return gwrap
 
     def _create_grid_shape_(self, ds: nc.Dataset) -> np.ndarray:
-        x_size = get_nc_dimension(ds, self.spec.x_dim).size
-        y_size = get_nc_dimension(ds, self.spec.y_dim).size
+        x_size = _get_nc_dimension_(ds, self.spec.x_dim).size
+        y_size = _get_nc_dimension_(ds, self.spec.y_dim).size
         if self.spec.x_index == 0:
             grid_shape = (x_size, y_size)
         elif self.spec.x_index == 1:
@@ -246,19 +287,22 @@ class NcToGrid(BaseModel):
 
 
 class NcToField(BaseModel):
+    """Converts a netCDF file to an `esmpy` field."""
+
     path: Path
     name: str
     gwrap: GridWrapper
-    dim_time: NameListType | None = None
+    dim_time: Union[NameListType, None] = None
     staggerloc: int = esmpy.StaggerLoc.CENTER
 
     def create_field_wrapper(self) -> FieldWrapper:
+        """Create a field wrapper."""
         with open_nc(self.path, "r") as ds:
             if self.dim_time is None:
                 ndbounds = None
                 target_dims = self.gwrap.dims
             else:
-                ndbounds = (len(get_nc_dimension(ds, self.dim_time)),)
+                ndbounds = (len(_get_nc_dimension_(ds, self.dim_time)),)
                 time_dim = Dimension(
                     name=self.dim_time,
                     size=ndbounds[0],

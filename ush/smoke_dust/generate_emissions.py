@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""Generate fire-related ICs."""
+
 #########################################################################
 #                                                                       #
 # Python script for fire emissions preprocessing from RAVE FRP and FRE  #
@@ -20,7 +22,8 @@ from smoke_dust.core.preprocessor import SmokeDustPreprocessor
 
 def main(args: List[str]) -> None:
     """
-    Prepares fire-related ICs. This is the main function that handles data movement and interpolation.
+    Prepares fire-related ICs. This is the main function that handles data movement and
+    interpolation.
     #tdk: doc
     Args:
         staticdir: Path to fix files for the smoke and dust component
@@ -37,7 +40,7 @@ def main(args: List[str]) -> None:
     try:
         processor.run()
         processor.finalize()
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         processor.create_dummy_emissions_file()
         context.log("unhandled error", exc_info=e)
 

@@ -1,3 +1,5 @@
+"""Implements the smoke/dust regrid processor."""
+
 import logging
 from copy import copy, deepcopy
 from typing import Any
@@ -26,6 +28,7 @@ from smoke_dust.core.variable import SD_VARS
 
 
 class SmokeDustRegridProcessor:
+    """Regrids smoke/dust data to the forecast grid."""
 
     def __init__(self, context: SmokeDustContext):
         self._context = context
@@ -41,9 +44,11 @@ class SmokeDustRegridProcessor:
         self.__regridder = None
 
     def log(self, *args: Any, **kwargs: Any) -> None:
+        """See `SmokeDustContext.log`."""
         self._context.log(*args, **kwargs)
 
     def run(self, forecast_metadata: pd.DataFrame) -> None:
+        """Run the regrid processor. This may be run in parallel using MPI."""
         # Select which RAVE files to interpolate
         rave_to_interpolate = forecast_metadata[
             forecast_metadata["rave_interpolated"].isnull()
@@ -119,8 +124,8 @@ class SmokeDustRegridProcessor:
                 self._context.predef_grid == PredefinedGrid.RRFS_NA_13km
                 or self._context.regrid_in_memory
             ):
-                # ESMF does not like reading the weights for this field combination (rc=-1). The error can be
-                # bypassed by creating weights in-memory.
+                # ESMF does not like reading the weights for this field combination (rc=-1). The
+                # error can be bypassed by creating weights in-memory.
                 self.log("creating regridding in-memory")
                 regridder = esmpy.Regrid(
                     src_fwrap.value,
@@ -128,7 +133,8 @@ class SmokeDustRegridProcessor:
                     regrid_method=esmpy.RegridMethod.CONSERVE,
                     unmapped_action=esmpy.UnmappedAction.IGNORE,
                     ignore_degenerate=True,
-                    # filename="/opt/project/weight_file.nc" # Can be used to create a weight file for testing
+                    # Can be used to create a weight file for testing
+                    # filename="/opt/project/weight_file.nc"
                 )
             else:
                 self.log("creating regridding from file")
@@ -199,7 +205,8 @@ class SmokeDustRegridProcessor:
                         rave_qa = load_variable_data(rave_ds.variables["QA"], src_fwrap.dims)
                     set_to_zero = rave_qa < 2
                     self.log(
-                        f"RAVE QA filter applied: {self._context.rave_qa_filter=}; {set_to_zero.size=}; {np.sum(set_to_zero)=}"
+                        f"RAVE QA filter applied: {self._context.rave_qa_filter=}; "
+                        f"{set_to_zero.size=}; {np.sum(set_to_zero)=}"
                     )
                     src_data[set_to_zero] = 0.0
                 else:
@@ -207,12 +214,12 @@ class SmokeDustRegridProcessor:
                         raise NotImplementedError
 
                 # Execute the ESMF regridding
-                self.log(f"run regridding", level=logging.DEBUG)
+                self.log("run regridding", level=logging.DEBUG)
                 regridder = self._get_regridder_(src_fwrap, dst_fwrap)
                 _ = regridder(src_fwrap.value, dst_fwrap.value)
 
                 # Persist the destination field
-                self.log(f"filling netcdf", level=logging.DEBUG)
+                self.log("filling netcdf", level=logging.DEBUG)
                 dst_fwrap.fill_nc_variable(output_file_path)
 
             # Update the forecast metadata with the interpolated RAVE file data

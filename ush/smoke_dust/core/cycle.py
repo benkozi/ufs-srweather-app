@@ -1,3 +1,5 @@
+"""Forecast cycle definitions for smoke/dust."""
+
 import abc
 import datetime as dt
 from enum import StrEnum, unique
@@ -18,38 +20,67 @@ from smoke_dust.core.variable import SD_VARS
 
 @unique
 class FrpVariable(StrEnum):
+    # tdk:rm in favor of variable.py
     FRP_AVG = "frp_avg_hr"
     EBB_TOTAL = "ebb_smoke_hr"
 
 
 class AbstractSmokeDustCycleProcessor(abc.ABC):
+    """Base class for all smoke/dust cycle processors."""
 
     def __init__(self, context: SmokeDustContext):
         self._context = context
 
     def log(self, *args: Any, **kwargs: Any) -> None:
+        """
+        See `SmokeDustContext.log`.
+        """
         self._context.log(*args, **kwargs)
 
     @abc.abstractmethod
-    def flag(self) -> EbbDCycle: ...
+    def flag(self) -> EbbDCycle:
+        """
+        The cycle flag associated with the processor.
+        """
 
     @abc.abstractmethod
-    def create_start_datetime(self) -> dt.datetime: ...
+    def create_start_datetime(self) -> dt.datetime:
+        """
+        Creates the cycle's start datetime. Used when searching for RAVE files to use for the
+        forecast.
+        """
 
     @abc.abstractmethod
-    def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[FrpVariable, np.ndarray]: ...
+    def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[FrpVariable, np.ndarray]:
+        """
+        Calculate fire radiative power and smoke emissions from biomass burning.
+
+        Args:
+            forecast_metadata: Dataframe containing forecast metadata.
+        Returns:
+            Fire radiative power and smoke emissions.
+        """
 
     @abc.abstractmethod
-    def process_emissions(self, forecast_metadata: pd.DataFrame) -> None: ...
+    def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
+        """
+        Create smoke/dust ICs emissions file.
+
+        Args:
+            forecast_metadata: Dataframe containing forecast metadata.
+        """
 
 
 class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
+    """Creates ICs consisting of fire radiative power and smoke emissions from biomass burning."""
+
     flag = EbbDCycle.ONE
 
     def create_start_datetime(self) -> dt.datetime:
         if self._context.persistence:
             self.log(
-                "Creating emissions for persistence method where satellite FRP persist from previous day"
+                "Creating emissions for persistence method where satellite FRP persist from "
+                "previous day"
             )
             start_datetime = self._context.fcst_datetime - dt.timedelta(days=1)
         else:
@@ -102,6 +133,11 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
 
 
 class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
+    """
+    In addition to outputs from cycle `1`, also creates ICs for forecasting hourly wildfire
+    potential.
+    """
+
     flag = EbbDCycle.TWO
 
     def create_start_datetime(self) -> dt.datetime:
@@ -194,7 +230,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         self.log("process_emissions: exit")
 
     def average_frp(self, forecast_metadata: pd.DataFrame) -> Dict[FrpVariable, np.ndarray]:
-        self.log(f"average_frp: entering")
+        self.log("average_frp: entering")
 
         frp_daily = np.zeros(self._context.grid_out_shape).ravel()
         ebb_smoke_total = []
@@ -253,6 +289,9 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
 def create_cycle_processor(
     context: SmokeDustContext,
 ) -> AbstractSmokeDustCycleProcessor:
+    """
+    Factory function to create the smoke/dust cycle processor.
+    """
     match context.ebb_dcycle_flag:
         case EbbDCycle.ONE:
             return SmokeDustCycleOne(context)

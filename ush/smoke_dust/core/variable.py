@@ -8,11 +8,11 @@ from pydantic import BaseModel, field_validator, Field
 class SmokeDustVariable(BaseModel):
     """Model for a smoke/dust variable."""
 
-    name: str
-    long_name: str
-    units: str
-    fill_value_str: str
-    fill_value_float: float
+    name: str = Field(description="Standard (short) variable name.")
+    long_name: str = Field(description="Long (descriptive) name for the variable.")
+    units: str = Field(description="Units for the variable.")
+    fill_value_str: str = Field(description="Fill value for the variable in string format.")
+    fill_value_float: float = Field(description="Fill value for the variable in float format.")
 
 
 SmokeDustVariablesType = Tuple[SmokeDustVariable, ...]

@@ -1,3 +1,5 @@
+"""Smoke/dust preprocessor core implementation."""
+
 import fnmatch
 import logging
 from pathlib import Path
@@ -17,10 +19,11 @@ from smoke_dust.core.variable import SD_VARS
 
 
 class SmokeDustPreprocessor:
+    """Implements smoke/dust preprocessing such as regridding and IC value calculations."""
 
     def __init__(self, context: SmokeDustContext) -> None:
         self._context = context
-        self.log(f"__init__: enter")
+        self.log("__init__: enter")
 
         # Processes regridding from source data to destination analysis grid
         self._regrid_processor = SmokeDustRegridProcessor(context)
@@ -35,10 +38,12 @@ class SmokeDustPreprocessor:
         self.log("__init__: exit")
 
     def log(self, *args: Any, **kwargs: Any) -> None:
+        """See `SmokeDustContext.log`."""
         self._context.log(*args, **kwargs)
 
     @property
     def forecast_dates(self) -> pd.DatetimeIndex:
+        """Create the forecast dates for cycle."""
         if self._forecast_dates is not None:
             return self._forecast_dates
         start_datetime = self._cycle_processor.create_start_datetime()
@@ -51,11 +56,18 @@ class SmokeDustPreprocessor:
 
     @property
     def forecast_metadata(self) -> pd.DataFrame:
+        """Create forecast metadata consisting of:
+
+        * `forecast_date`: The forecast timestep as a `datetime` object.
+        * `rave_interpolated`: To the date's corresponding interpolated RAVE file. Null if not
+            found.
+        * `rave_raw`: Raw RAVE data before interpolation. Null if not found.
+        """
         if self._forecast_metadata is not None:
             return self._forecast_metadata
 
         # Collect metadata on data files related to forecast dates
-        self.log(f"creating forecast metadata")
+        self.log("creating forecast metadata")
         intp_path = []
         rave_to_forecast = []
         for date in self.forecast_dates:
@@ -102,6 +114,9 @@ class SmokeDustPreprocessor:
 
     @property
     def is_first_day(self) -> bool:
+        """`True` if this is considered the "first day" of the simulation where there is no
+        interpolated or raw RAVE data available."""
+
         is_first_day = (
             self.forecast_metadata["rave_interpolated"].isnull().all()
             and self.forecast_metadata["rave_raw"].isnull().all()
@@ -110,6 +125,7 @@ class SmokeDustPreprocessor:
         return is_first_day
 
     def run(self) -> None:
+        """Run the preprocessor."""
         self.log("run: entering")
         if self.is_first_day:
             if self._context.rank == 0:
@@ -121,6 +137,8 @@ class SmokeDustPreprocessor:
         self.log("run: exiting")
 
     def create_dummy_emissions_file(self) -> None:
+        """Create a dummy emissions file. This occurs if it is the first day of the forecast or
+        there is an exception and the context is set to not exit on error."""
         self.log("create_dummy_emissions_file: enter")
         self.log(f"{self._context.emissions_path=}")
         with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds:
@@ -140,4 +158,5 @@ class SmokeDustPreprocessor:
         self.log("create_dummy_emissions_file: exit")
 
     def finalize(self) -> None:
+        """Finalize the preprocessor."""
         self.log("finalize: exiting")
