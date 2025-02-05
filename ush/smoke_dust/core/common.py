@@ -53,8 +53,8 @@ def create_sd_coordinate_variable(
     Create a smoke/dust netCDF spatial coordinate variable.
 
     Args:
-        ds: Dataset to update
-        sd_variable: Contains variable metadata
+        ds: Dataset to update.
+        sd_variable: Contains variable metadata.
     """
     var_out = ds.createVariable(
         sd_variable.name, "f4", ("lat", "lon"), fill_value=sd_variable.fill_value_float

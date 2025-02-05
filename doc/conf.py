@@ -52,6 +52,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
     'sphinxcontrib.bibtex',
+    'sphinxcontrib.autodoc_pydantic',
 ]
 
 bibtex_bibfiles = ['references.bib']
@@ -322,3 +323,5 @@ extlinks = {'github-docs': ('https://docs.github.com/en/%s', '%s'),
 # the autodoc_mock_imports list above, not via use of the METPLUS_ROOT environment variable.
 os.environ["METPLUS_ROOT"] = ""
 
+# Configuration related to autodoc_pydantic
+autodoc_pydantic_model_show_validator_summary = False

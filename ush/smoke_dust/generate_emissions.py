@@ -26,7 +26,7 @@ from smoke_dust.core.preprocessor import SmokeDustPreprocessor
 # pylint: enable=wrong-import-position
 
 
-app = typer.Typer(pretty_exceptions_enable=True, pretty_exceptions_show_locals=True)
+app = typer.Typer(pretty_exceptions_enable=False)
 
 
 @unique

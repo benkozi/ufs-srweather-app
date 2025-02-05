@@ -6,11 +6,7 @@ from pydantic import BaseModel, field_validator, Field
 
 
 class SmokeDustVariable(BaseModel):
-    """
-    Model for a smoke/dust variable.
-
-    :cvar name: Standard (short) variable name. #tdk:test make sure this works
-    """
+    """Model for a smoke/dust variable."""
 
     name: str = Field(description="Standard (short) variable name.")
     long_name: str = Field(description="Long (descriptive) name for the variable.")
