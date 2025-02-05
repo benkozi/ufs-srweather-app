@@ -6,6 +6,7 @@ Author: johana.romero-alvarez@noaa.gov
 """
 
 import sys
+from enum import StrEnum, unique
 from pathlib import Path
 
 import typer
@@ -17,6 +18,14 @@ from smoke_dust.core.context import PredefinedGrid, EbbDCycle, RaveQaFilter, Log
 from smoke_dust.core.preprocessor import SmokeDustPreprocessor
 
 
+app = typer.Typer(pretty_exceptions_enable=True, pretty_exceptions_show_locals=True)
+
+@unique
+class StringBool(StrEnum):
+    true = "true"
+    false = "false"
+
+@app.command()
 def main(
     staticdir: Path = typer.Option(
         ..., "--staticdir", help="Path to the smoke and dust fixed files."
@@ -36,7 +45,7 @@ def main(
         "--restart-interval",
         help="Restart intervals used for restart file search. For example '6 12 18 24'.",
     ),
-    persistence: bool = typer.Option(
+    persistence: StringBool = typer.Option(
         ...,
         "--persistence",
         help="If true, use satellite observations from the previous day. Otherwise, use observations from the same day.",
@@ -47,13 +56,13 @@ def main(
     log_level: LogLevel = typer.Option(
         LogLevel.INFO, "--log-level", help="Logging level to use for the preprocessor."
     ),
-    exit_on_error: bool = typer.Option(
-        True,
+    exit_on_error: StringBool = typer.Option(
+        StringBool.true,
         "--exit-on-error",
         help="If false, log errors and write a dummy emissions file but do not raise an exception.",
     ),
-    regrid_in_memory: bool = typer.Option(
-        False,
+    regrid_in_memory: StringBool = typer.Option(
+        StringBool.false,
         "--regrid-in-memory",
         help="If true, do esmpy regridding in-memory as opposed to reading from the fixed weight file.",
     ),
@@ -85,4 +94,4 @@ def main(
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    app()

@@ -87,9 +87,12 @@ def create_fake_context(
     }
     if overrides is not None:
         kwds.update(overrides)
-    context = SmokeDustContext.model_validate(kwds)
-    for ii in ["CDATE", "DATA"]:
-        os.unsetenv(ii)
+    try:
+        context = SmokeDustContext.model_validate(kwds)
+    except:
+        for ii in ["CDATE", "DATA"]:
+            os.unsetenv(ii)
+        raise
     return context
 
 
