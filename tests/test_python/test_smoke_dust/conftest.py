@@ -80,10 +80,10 @@ def create_fake_context(
         "predef_grid": "RRFS_CONUS_3km",
         "ebb_dcycle": "2",
         "restart_interval": "6 12 18 24",
-        "persistence": "FALSE",
-        "rave_qa_filter": "NONE",
+        "persistence": "false",
+        "rave_qa_filter": "none",
         "exit_on_error": "TRUE",
-        "log_level": "DEBUG",
+        "log_level": "debug",
     }
     if overrides is not None:
         kwds.update(overrides)

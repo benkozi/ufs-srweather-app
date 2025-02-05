@@ -121,7 +121,7 @@ class SmokeDustRegridProcessor:
             self.log(f"{src_fwrap.value.data.shape=}", level=logging.DEBUG)
             self.log(f"{dst_fwrap.value.data.shape=}", level=logging.DEBUG)
             if (
-                self._context.predef_grid == PredefinedGrid.RRFS_NA_13km
+                self._context.predef_grid == PredefinedGrid.RRFS_NA_13KM
                 or self._context.regrid_in_memory
             ):
                 # ESMF does not like reading the weights for this field combination (rc=-1). The

@@ -18,13 +18,11 @@ from smoke_dust.core.common import open_nc
 class PredefinedGrid(StrEnum):
     """Predefined grids supported by smoke/dust."""
 
-    # pylint: disable=invalid-name
-    RRFS_CONUS_25km = "RRFS_CONUS_25km"
-    RRFS_CONUS_13km = "RRFS_CONUS_13km"
-    RRFS_CONUS_3km = "RRFS_CONUS_3km"
-    RRFS_NA_3km = "RRFS_NA_3km"
-    RRFS_NA_13km = "RRFS_NA_13km"
-    # pyline: enable=invalid-name
+    RRFS_CONUS_25KM = "RRFS_CONUS_25km"
+    RRFS_CONUS_13KM = "RRFS_CONUS_13km"
+    RRFS_CONUS_3KM = "RRFS_CONUS_3km"
+    RRFS_NA_3KM = "RRFS_NA_3km"
+    RRFS_NA_13KM = "RRFS_NA_13km"
 
 
 @unique
@@ -45,20 +43,20 @@ class RaveQaFilter(StrEnum):
     Quality assurance flag filtering to apply to input RAVE data. RAVE QA filter values range from
     one to three.
 
-    * `NONE`: Do not apply any QA filtering.
-    * `HIGH`: QA flag values less than `2` are set to zero for derived fire radiative energy fields.
+    * `none`: Do not apply any QA filtering.
+    * `high`: QA flag values less than `2` are set to zero for derived fire radiative energy fields.
     """
 
-    NONE = "NONE"
-    HIGH = "HIGH"
+    NONE = "none"
+    HIGH = "high"
 
 
 @unique
 class LogLevel(StrEnum):
     """Logging level for the preprocessor."""
 
-    INFO = "INFO"
-    DEBUG = "DEBUG"
+    INFO = "info"
+    DEBUG = "debug"
 
 
 @unique
@@ -262,7 +260,7 @@ class SmokeDustContext(BaseModel):
             "loggers": {
                 project_name: {
                     "handlers": ["default"],
-                    "level": getattr(logging, self.log_level.value),
+                    "level": getattr(logging, self.log_level.value.upper()),
                 },
             },
         }
