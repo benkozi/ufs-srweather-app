@@ -155,6 +155,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
 
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
         # tdk:story: figure out restart file copying
+        # pylint: disable=too-many-statements
         self.log("process_emissions: enter")
 
         hwp_ave = []
@@ -237,6 +238,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
                 ds_out.variables[varname][0, :, :] = fill_array
 
         self.log("process_emissions: exit")
+        # pylint: enable=too-many-statements
 
     def average_frp(self, forecast_metadata: pd.DataFrame) -> AverageFrpOutput:
         self.log("average_frp: entering")

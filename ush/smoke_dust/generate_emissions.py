@@ -1,26 +1,15 @@
 #!/usr/bin/env python3
 
-"""Generate fire-related ICs."""
-
-#########################################################################
-#                                                                       #
-# Python script for fire emissions preprocessing from RAVE FRP and FRE  #
-# (Li et al.,2022).                                                     #
-# johana.romero-alvarez@noaa.gov                                        #
-#                                                                       #
-#########################################################################
+"""
+Python script for fire emissions preprocessing from RAVE FRP and FRE (Li et al.,2022)
+Author: johana.romero-alvarez@noaa.gov
+"""
 
 import sys
 from pathlib import Path
-from typing import List
-
-sys.path.append(str(Path(__file__).parent.parent))
-
-from smoke_dust.core.context import SmokeDustContext
-from smoke_dust.core.preprocessor import SmokeDustPreprocessor
 
 
-def main(args: List[str]) -> None:
+def main(args: list[str]) -> None:
     """
     Prepares fire-related ICs. This is the main function that handles data movement and
     interpolation.
@@ -34,6 +23,13 @@ def main(args: List[str]) -> None:
         restart_interval: Indicates if restart files should be copied. The actual interval values are not used
         persistence: If ``TRUE``, use satellite observations from the previous day. Otherwise, use observations from the same day.
     """
+    sys.path.append(str(Path(__file__).parent.parent))
+
+    # pylint: disable=import-outside-toplevel
+    from smoke_dust.core.context import SmokeDustContext
+    from smoke_dust.core.preprocessor import SmokeDustPreprocessor
+
+    # pylint: enable=import-outside-toplevel
 
     context = SmokeDustContext.create_from_args(args)
     processor = SmokeDustPreprocessor(context)
