@@ -26,7 +26,7 @@ Glossary
 
    chgres_cube
        The preprocessing software used to create initial and boundary condition files to 
-       "cold start" the forecast model. It is part of :term:`UFS_UTILS`.
+       “cold start” the forecast model. It is part of :term:`UFS_UTILS`.
 
    CIN
       Convective Inhibition.
@@ -47,9 +47,6 @@ Glossary
 
    Component Repository
       A :term:`repository` that contains, at a minimum, source code for a single component.
-
-   composite reflectivity
-      `Composite reflectivity <https://glossary.ametsoc.org/wiki/Composite_reflectivity>`__ is a display or mapping of the maximum radar reflectivity factor at any altitude as a function of position on the ground.
 
    Container
       `Docker <https://www.docker.com/resources/what-container>`__ describes a container as "a standard unit of software that packages up code and all its dependencies so the application runs quickly and reliably from one computing environment to another."
@@ -73,9 +70,6 @@ Glossary
    data assimilation
       Data assimilation is the process of combining observations, model data, and error statistics to achieve the best estimate of the state of a system. One of the major sources of error in weather and climate forecasts is uncertainty related to the initial conditions that are used to generate future predictions. Even the most precise instruments have a small range of unavoidable measurement error, which means that tiny measurement errors (e.g., related to atmospheric conditions and instrument location) can compound over time. These small differences result in very similar forecasts in the short term (i.e., minutes, hours), but they cause widely divergent forecasts in the long term. Errors in weather and climate forecasts can also arise because models are imperfect representations of reality. Data assimilation systems seek to mitigate these problems by combining the most timely observational data with a "first guess" of the atmospheric state (usually a previous forecast) and other sources of data to provide a "best guess" analysis of the atmospheric state to start a weather or climate simulation. When combined with an "ensemble" of model runs (many forecasts with slightly different conditions), data assimilation helps predict a range of possible atmospheric states, giving an overall measure of uncertainty in a given forecast.
 
-   DTC
-      The `Developmental Testbed Center <https://dtcenter.org>`__ is a distributed facility where the NWP community can test and evaluate new models and techniques for use in research and operations.
-
    dycore
    dynamical core
       Global atmospheric model based on fluid dynamics principles, including Euler's equations of motion.
@@ -93,7 +87,7 @@ Glossary
       Extended Schmidt Gnomonic (ESG) grid. The ESG grid uses the map projection developed by Jim Purser of NOAA :term:`EMC` (:cite:t:`Purser_2020`). 
 
    ESMF
-      `Earth System Modeling Framework <https://earthsystemmodeling.org/docs/release/latest/ESMF_usrdoc/>`__. The ESMF defines itself as "a suite of software tools for developing high-performance, multi-component Earth science modeling applications."
+      `Earth System Modeling Framework <https://earthsystemmodeling.org/docs/release/latest/ESMF_usrdoc/>`__. The ESMF defines itself as “a suite of software tools for developing high-performance, multi-component Earth science modeling applications.” 
 
    ex-scripts
       Scripting layer (contained in ``ufs-srweather-app/scripts/``) that should be called by a :term:`J-job <J-jobs>` for each workflow componentto run a specific task or sub-task in the workflow. The different scripting layers are described in detail in the :nco:`NCO Implementation Standards document <ImplementationStandards.v11.0.0.pdf>`
@@ -103,7 +97,7 @@ Glossary
       Fluid Dynamics Laboratory <https://www.gfdl.noaa.gov/>`__ (GFDL), it is a scalable and flexible dycore capable of both hydrostatic and non-hydrostatic atmospheric simulations. It is the dycore used in the UFS Weather Model.
 
    FVCOM
-      foobar #tdk: add back in the original text here
+      `Finite Volume Community Ocean Model <https://www.fvcom.org/>`__. FVCOM is used in modeling work for the `Great Lakes Coastal Forecasting System (next-gen FVCOM) <https://www.glerl.noaa.gov/res/glcfs/>`__ conducted by the `Great Lakes Environmental Research Laboratory <https://www.glerl.noaa.gov/>`__.
 
    GFS
       `Global Forecast System <https://www.ncei.noaa.gov/products/weather-climate-models/global-forecast>`_. The GFS is a National Centers for Environmental Prediction (:term:`NCEP`) weather forecast model that generates data for dozens of atmospheric and land-soil variables, including temperatures, winds, precipitation, soil moisture, and atmospheric ozone concentration. The system couples four separate models (atmosphere, ocean, land/soil, and sea ice) that work together to accurately depict weather conditions.
@@ -158,9 +152,6 @@ Glossary
    MERRA2
       The `Modern-Era Retrospective analysis for Research and Applications, Version 2 <https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/>`__ provides satellite observation data back to 1980. According to NASA, "It was introduced to replace the original MERRA dataset because of the advances made in the assimilation system that enable assimilation of modern hyperspectral radiance and microwave observations, along with GPS-Radio Occultation datasets. It also uses NASA's ozone profile observations that began in late 2004. Additional advances in both the GEOS model and the GSI assimilation system are included in MERRA-2. Spatial resolution remains about the same (about 50 km in the latitudinal direction) as in MERRA."
 
-   MET
-      The `Model Evaluation Tools <https://dtcenter.org/community-code/model-evaluation-tools-met>`__ is a highly-configurable, state-of-the-art suite of verification tools developed at the :term:`DTC`.
-
    MPI
       MPI stands for Message Passing Interface. An MPI is a standardized communication system used in parallel programming. It establishes portable and efficient syntax for the exchange of messages and data between multiple processors that are used by a single computer program. An MPI is required for high-performance computing (HPC) systems.
 
@@ -178,7 +169,7 @@ Glossary
 
    NCEP
       National Centers for Environmental Prediction (NCEP) is an arm of the National Weather Service
-      consisting of nine centers. More information can be found at https://www.weather.gov/ncep/.
+      consisting of nine centers. More information can be found at https://www.ncep.noaa.gov.
 
    NCEPLIBS
       The software libraries created and maintained by :term:`NCEP` that are required for running 
@@ -224,7 +215,7 @@ Glossary
       The branch of physical geography dealing with mountains.
 
    Parameterizations
-      Simplified functions that approximate the effects of small-scale processes (e.g., microphysics, gravity wave drag) that cannot be explicitly resolved by a model grid's representation of the earth.
+      Simplified functions that approximate the effects of small-scale processes (e.g., microphysics, gravity wave drag) that cannot be explicitly resolved by a model grid’s representation of the earth.
 
    RAP
       `Rapid Refresh <https://rapidrefresh.noaa.gov/>`__. The continental-scale NOAA hourly-updated assimilation/modeling system operational at :term:`NCEP`. RAP covers North America and is comprised primarily of a numerical forecast model and an analysis/assimilation system to initialize that model. RAP is complemented by the higher-resolution 3km High-Resolution Rapid Refresh (:term:`HRRR`) model.
@@ -247,9 +238,6 @@ Glossary
 
    spack-stack
       The `spack-stack <https://github.com/JCSDA/spack-stack>`_ is a collaborative effort between the NOAA Environmental Modeling Center (EMC), the UCAR Joint Center for Satellite Data Assimilation (JCSDA), and the Earth Prediction Innovation Center (EPIC). *spack-stack* is a repository that provides a :term:`Spack`-based method for building the software stack required for numerical weather prediction (NWP) tools such as the `Unified Forecast System (UFS) <https://ufs.epic.noaa.gov/>`_ and the `Joint Effort for Data assimilation Integration (JEDI) <https://jointcenterforsatellitedataassimilation-jedi-docs.readthedocs-hosted.com/en/latest/>`_ framework. *spack-stack* uses the Spack package manager along with custom Spack configuration files and Python scripts to simplify installation of the libraries required to run various applications. The *spack-stack* can be installed on a range of platforms and comes pre-configured for many systems. Users can install the necessary packages for a particular application and later add the missing packages for another application without having to rebuild the entire stack. To get started, check out the documentation :doc:`here <spack-stack:index>`.
-
-   submodule
-      A `submodule <https://git-scm.com/book/en/v2/Git-Tools-Submodules>`_ is a git repository linked to another repository as a subdirectory. Many UFS components are linked in this way; for example, the :term:`UPP` repository is a submodule of the :term:`FV3` repository.
 
    tracer
       According to the American Meteorological Society (AMS) definition, a `tracer <https://glossary.ametsoc.org/wiki/Tracer>`_ is "Any substance in the atmosphere that can be used to track the history [i.e., movement] of an air mass." Tracers are carried around by the motion of the atmosphere (i.e., by :term:`advection`). These substances are usually gases (e.g., water vapor, CO2), but they can also be non-gaseous (e.g., rain drops in microphysics parameterizations). In weather models, temperature (or potential temperature), absolute humidity, and radioactivity are also usually treated as tracers. According to AMS, "The main requirement for a tracer is that its lifetime be substantially longer than the transport process under study."

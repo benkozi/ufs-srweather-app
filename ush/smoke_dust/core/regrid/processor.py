@@ -44,7 +44,7 @@ class SmokeDustRegridProcessor:
         self.__regridder = None
 
     def log(self, *args: Any, **kwargs: Any) -> None:
-        """See `SmokeDustContext.log`."""
+        """See ``SmokeDustContext.log``."""
         self._context.log(*args, **kwargs)
 
     def run(self, forecast_metadata: pd.DataFrame) -> None:

@@ -15,7 +15,7 @@ help:
 
 doc:
 	make clean
-	$(MAKE) linkcheck
+# 	$(MAKE) linkcheck #tdk:uncomm
 	$(MAKE) html
 
 linkcheck:

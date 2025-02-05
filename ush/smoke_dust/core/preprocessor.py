@@ -38,7 +38,7 @@ class SmokeDustPreprocessor:
         self.log("__init__: exit")
 
     def log(self, *args: Any, **kwargs: Any) -> None:
-        """See `SmokeDustContext.log`."""
+        """See ``SmokeDustContext.log``."""
         self._context.log(*args, **kwargs)
 
     @property

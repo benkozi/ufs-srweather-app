@@ -33,8 +33,8 @@ app = typer.Typer(pretty_exceptions_enable=True, pretty_exceptions_show_locals=T
 class StringBool(StrEnum):
     """Allow CLI to use boolean string arguments to avoid logic in shell scripts."""
 
-    TRUE = "true"
-    FALSE = "false"
+    TRUE = "True"
+    FALSE = "False"
 
 
 # pylint: disable=line-too-long
@@ -81,7 +81,7 @@ def main(  # pylint:disable=too-many-arguments,too-many-positional-arguments
     ),
 ):
     # pylint:enable=line-too-long
-    """Main entrypoint for generate emissions."""
+    """Main entrypoint for generating ICs for smoke and dust."""
     typer.echo("Welcome to interpolating RAVE and processing fire emissions!")
 
     context = SmokeDustContext(
