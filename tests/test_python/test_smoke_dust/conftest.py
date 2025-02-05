@@ -10,7 +10,7 @@ import netCDF4 as nc
 import numpy as np
 import pytest
 
-from smoke_dust.core.context import SmokeDustContext, LogLevel
+from smoke_dust.core.context import SmokeDustContext
 
 
 @dataclass
@@ -55,9 +55,7 @@ def create_fake_grid_out(root_dir: Path, shape: FakeGridOutShape) -> None:
             var[:] = np.ones((shape.y_size, shape.x_size))
 
 
-def create_fake_context(
-    root_dir: Path, overrides: Union[dict, None] = None
-) -> SmokeDustContext:
+def create_fake_context(root_dir: Path, overrides: Union[dict, None] = None) -> SmokeDustContext:
     """
     Create a fake context for the test runner.
 

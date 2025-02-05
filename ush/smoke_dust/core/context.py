@@ -76,8 +76,10 @@ class EmissionVariable(StrEnum):
         other = {self.FRP: "frp_avg_hr", self.FRE: "FRE"}
         return other[self]
 
+
 def _format_path_(value: Union[Path, str]) -> Path:
     return Path(value).expanduser().resolve(strict=True)
+
 
 def _format_read_path_(value: Union[Path, str]) -> Path:
     path = _format_path_(value)
@@ -92,6 +94,7 @@ def _format_read_path_(value: Union[Path, str]) -> Path:
         raise OSError(errors)
     return path
 
+
 def _format_write_path_(value: Union[Path, str]) -> Path:
     path = _format_path_(value)
     errors = []
@@ -105,13 +108,16 @@ def _format_write_path_(value: Union[Path, str]) -> Path:
         raise OSError(errors)
     return path
 
+
 def _format_restart_interval_(value: Any) -> tuple[int, ...]:
     if isinstance(value, str):
-        return tuple([int(num) for num in value.split(" ")])
+        return tuple(int(num) for num in value.split(" "))
     return value
+
 
 ReadPathType = Annotated[Path, BeforeValidator(_format_read_path_)]
 WritePathType = Annotated[Path, BeforeValidator(_format_write_path_)]
+
 
 class SmokeDustContext(BaseModel):
     """Context object for smoke/dust."""
@@ -148,9 +154,7 @@ class SmokeDustContext(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _initialize_values_(
-        cls, values: dict
-    ) -> dict:
+    def _initialize_values_(cls, values: dict) -> dict:
 
         # Format environment-level variables
         values["current_day"] = os.environ["CDATE"]

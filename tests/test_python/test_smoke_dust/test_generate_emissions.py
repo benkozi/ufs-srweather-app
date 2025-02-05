@@ -1,3 +1,5 @@
+"""Test the main entrypoint for generating fire emission ICs."""
+
 import os
 from pathlib import Path
 
@@ -10,6 +12,7 @@ from test_python.test_smoke_dust.conftest import create_fake_grid_out, FakeGridO
 
 
 def test(tmp_path: Path, fake_grid_out_shape: FakeGridOutShape, mocker: MockerFixture) -> None:
+    """Test invoking emissions generation."""
     mock_proc = mocker.Mock(spec=SmokeDustPreprocessor)
     mocker.patch("smoke_dust.generate_emissions.SmokeDustPreprocessor", return_value=mock_proc)
     create_fake_grid_out(tmp_path, fake_grid_out_shape)
@@ -19,12 +22,27 @@ def test(tmp_path: Path, fake_grid_out_shape: FakeGridOutShape, mocker: MockerFi
     os.environ["DATA"] = strpath
 
     try:
-        args = ["--staticdir", strpath, "--ravedir", strpath, "--intp-dir", strpath,
-                 "--predef-grid", "RRFS_CONUS_25km", "--ebb-dcycle", "2",
-                 "--restart-interval", "6 12 18 24", "--persistence", "false", "--rave-qa-filter",
-                 "none", "--log-level", "debug"]
-        result = runner.invoke(app,
-                               args, catch_exceptions=False)
+        args = [
+            "--staticdir",
+            strpath,
+            "--ravedir",
+            strpath,
+            "--intp-dir",
+            strpath,
+            "--predef-grid",
+            "RRFS_CONUS_25km",
+            "--ebb-dcycle",
+            "2",
+            "--restart-interval",
+            "6 12 18 24",
+            "--persistence",
+            "false",
+            "--rave-qa-filter",
+            "none",
+            "--log-level",
+            "debug",
+        ]
+        result = runner.invoke(app, args, catch_exceptions=False)
     except:
         for ii in ["CDATE", "DATA"]:
             os.unsetenv(ii)

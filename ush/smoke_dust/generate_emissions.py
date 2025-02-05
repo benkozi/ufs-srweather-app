@@ -13,20 +13,33 @@ import typer
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from smoke_dust.core.context import PredefinedGrid, EbbDCycle, RaveQaFilter, LogLevel, \
-    SmokeDustContext
+# pylint: disable=wrong-import-position
+from smoke_dust.core.context import (
+    PredefinedGrid,
+    EbbDCycle,
+    RaveQaFilter,
+    LogLevel,
+    SmokeDustContext,
+)
 from smoke_dust.core.preprocessor import SmokeDustPreprocessor
+
+# pylint: enable=wrong-import-position
 
 
 app = typer.Typer(pretty_exceptions_enable=True, pretty_exceptions_show_locals=True)
 
+
 @unique
 class StringBool(StrEnum):
-    true = "true"
-    false = "false"
+    """Allow CLI to use boolean string arguments to avoid logic in shell scripts."""
 
+    TRUE = "true"
+    FALSE = "false"
+
+
+# pylint: disable=line-too-long
 @app.command()
-def main(
+def main(  # pylint:disable=too-many-arguments,too-many-positional-arguments
     staticdir: Path = typer.Option(
         ..., "--staticdir", help="Path to the smoke and dust fixed files."
     ),
@@ -57,16 +70,18 @@ def main(
         LogLevel.INFO, "--log-level", help="Logging level to use for the preprocessor."
     ),
     exit_on_error: StringBool = typer.Option(
-        StringBool.true,
+        StringBool.TRUE,
         "--exit-on-error",
         help="If false, log errors and write a dummy emissions file but do not raise an exception.",
     ),
     regrid_in_memory: StringBool = typer.Option(
-        StringBool.false,
+        StringBool.FALSE,
         "--regrid-in-memory",
         help="If true, do esmpy regridding in-memory as opposed to reading from the fixed weight file.",
     ),
 ):
+    # pylint:enable=line-too-long
+    """Main entrypoint for generate emissions."""
     typer.echo("Welcome to interpolating RAVE and processing fire emissions!")
 
     context = SmokeDustContext(
