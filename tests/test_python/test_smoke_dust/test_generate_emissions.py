@@ -1,6 +1,7 @@
 """Test the main entrypoint for generating fire emission ICs."""
 
 import os
+import subprocess
 from pathlib import Path
 
 from pytest_mock import MockerFixture
@@ -52,3 +53,8 @@ def test(tmp_path: Path, fake_grid_out_shape: FakeGridOutShape, mocker: MockerFi
     assert result.exit_code == 0
     mock_proc.run.assert_called_once()
     mock_proc.finalize.assert_called_once()
+
+
+def test_help() -> None:
+    """Test that the help message can be displayed."""
+    subprocess.check_call(["python", "../../../ush/smoke_dust/generate_emissions.py", "--help"])
