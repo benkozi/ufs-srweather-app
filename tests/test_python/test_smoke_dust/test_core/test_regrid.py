@@ -88,7 +88,7 @@ def data_for_test(
         _ = create_fake_rave_and_rrfs_like_data(
             FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["area"], ntime=None)
         )
-    context = create_fake_context(tmp_path, extra={"regrid_in_memory": request.param})
+    context = create_fake_context(tmp_path, overrides={"regrid_in_memory": request.param})
     preprocessor = SmokeDustPreprocessor(context)
     for date in preprocessor.forecast_dates:
         path = tmp_path / f"Hourly_Emissions_3km_{date}_{date}.nc"

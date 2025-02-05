@@ -14,3 +14,4 @@ dependencies:
   - scipy=1.10.*
   - uwtools=2.3.*
   - xarray=2022.11.*
+  - typer=0.15.*

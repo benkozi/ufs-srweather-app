@@ -10,7 +10,7 @@ import netCDF4 as nc
 import numpy as np
 import pytest
 
-from smoke_dust.core.context import SmokeDustContext
+from smoke_dust.core.context import SmokeDustContext, LogLevel
 
 
 @dataclass
@@ -56,15 +56,15 @@ def create_fake_grid_out(root_dir: Path, shape: FakeGridOutShape) -> None:
 
 
 def create_fake_context(
-    root_dir: Path, overrides: Union[dict, None] = None, extra: Union[dict, None] = None
+    root_dir: Path, overrides: Union[dict, None] = None
 ) -> SmokeDustContext:
     """
     Create a fake context for the test runner.
+
     Args:
         root_dir: Path to write fake test files to.
         overrides: If provided, override the required context arguments - the arguments provided to
             the CLI program.
-        extra: If provided, override context parameters not used in the CLI.
 
     Returns:
         A fake context to use for testing.
@@ -78,16 +78,16 @@ def create_fake_context(
         "ravedir": root_dir,
         "intp_dir": root_dir,
         "predef_grid": "RRFS_CONUS_3km",
-        "ebb_dcycle_flag": "2",
+        "ebb_dcycle": "2",
         "restart_interval": "6 12 18 24",
         "persistence": "FALSE",
         "rave_qa_filter": "NONE",
         "exit_on_error": "TRUE",
-        "log_level": "debug",
+        "log_level": "DEBUG",
     }
     if overrides is not None:
         kwds.update(overrides)
-    context = SmokeDustContext.create_from_args(kwds.values(), extra=extra)
+    context = SmokeDustContext.model_validate(kwds)
     for ii in ["CDATE", "DATA"]:
         os.unsetenv(ii)
     return context

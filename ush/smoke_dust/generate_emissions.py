@@ -8,30 +8,71 @@ Author: johana.romero-alvarez@noaa.gov
 import sys
 from pathlib import Path
 
+import typer
 
-def main(args: list[str]) -> None:
-    """
-    Prepares fire-related ICs. This is the main function that handles data movement and
-    interpolation.
-    #tdk: doc
-    Args:
-        staticdir: Path to fix files for the smoke and dust component
-        ravedir: Path to the directory containing RAVE fire data files (hourly). This is typically the working directory (DATA)
-        intp_dir: Path to interpolated RAVE data files from the previous cycles (DATA_SHARE)
-        predef_grid: If ``RRFS_NA_3km``, use pre-defined grid dimensions
-        ebb_dcycle_flag: Select the EBB cycle to run. Valid values are ``"1"`` or ``"2"``
-        restart_interval: Indicates if restart files should be copied. The actual interval values are not used
-        persistence: If ``TRUE``, use satellite observations from the previous day. Otherwise, use observations from the same day.
-    """
-    sys.path.append(str(Path(__file__).parent.parent))
+sys.path.append(str(Path(__file__).parent.parent))
 
-    # pylint: disable=import-outside-toplevel
-    from smoke_dust.core.context import SmokeDustContext
-    from smoke_dust.core.preprocessor import SmokeDustPreprocessor
+from smoke_dust.core.context import PredefinedGrid, EbbDCycle, RaveQaFilter, LogLevel, \
+    SmokeDustContext
+from smoke_dust.core.preprocessor import SmokeDustPreprocessor
 
-    # pylint: enable=import-outside-toplevel
 
-    context = SmokeDustContext.create_from_args(args)
+def main(
+    staticdir: Path = typer.Option(
+        ..., "--staticdir", help="Path to the smoke and dust fixed files."
+    ),
+    ravedir: Path = typer.Option(
+        ..., "--ravedir", help="Path to the directory containing RAVE data files (hourly)."
+    ),
+    intp_dir: Path = typer.Option(
+        ..., "--intp-dir", help="Path to the directory containing interpolated RAVE data files."
+    ),
+    predef_grid: PredefinedGrid = typer.Option(
+        ..., "--predef-grid", help="SRW predefined grid to use as the forecast domain."
+    ),
+    ebb_dcycle: EbbDCycle = typer.Option(..., "--ebb-dcycle", help="The forecast cycle to run."),
+    restart_interval: str = typer.Option(
+        ...,
+        "--restart-interval",
+        help="Restart intervals used for restart file search. For example '6 12 18 24'.",
+    ),
+    persistence: bool = typer.Option(
+        ...,
+        "--persistence",
+        help="If true, use satellite observations from the previous day. Otherwise, use observations from the same day.",
+    ),
+    rave_qa_filter: RaveQaFilter = typer.Option(
+        ..., "--rave-qa-filter", help="Filter level for RAVE QA flags when regridding fields."
+    ),
+    log_level: LogLevel = typer.Option(
+        LogLevel.INFO, "--log-level", help="Logging level to use for the preprocessor."
+    ),
+    exit_on_error: bool = typer.Option(
+        True,
+        "--exit-on-error",
+        help="If false, log errors and write a dummy emissions file but do not raise an exception.",
+    ),
+    regrid_in_memory: bool = typer.Option(
+        False,
+        "--regrid-in-memory",
+        help="If true, do esmpy regridding in-memory as opposed to reading from the fixed weight file.",
+    ),
+):
+    typer.echo("Welcome to interpolating RAVE and processing fire emissions!")
+
+    context = SmokeDustContext(
+        staticdir=staticdir,
+        ravedir=ravedir,
+        intp_dir=intp_dir,
+        predef_grid=predef_grid,
+        ebb_dcycle=ebb_dcycle,
+        restart_interval=restart_interval,
+        persistence=persistence,
+        rave_qa_filter=rave_qa_filter,
+        log_level=log_level,
+        exit_on_error=exit_on_error,
+        regrid_in_memory=regrid_in_memory,
+    )
     processor = SmokeDustPreprocessor(context)
     try:
         processor.run()
@@ -40,17 +81,8 @@ def main(args: list[str]) -> None:
         processor.create_dummy_emissions_file()
         context.log("unhandled error", exc_info=e)
 
+    typer.echo("Exiting. Bye!")
+
 
 if __name__ == "__main__":
-    print("")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("Welcome to interpolating RAVE and processing fire emissions!")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("")
-    # tdk:story: use argparse
-    main(sys.argv[1:])
-    print("")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("Exiting. Bye!")
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("")
+    typer.run(main)

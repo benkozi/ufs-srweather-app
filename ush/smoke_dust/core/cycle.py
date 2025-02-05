@@ -305,10 +305,10 @@ def create_cycle_processor(
     """
     Factory function to create the smoke/dust cycle processor.
     """
-    match context.ebb_dcycle_flag:
+    match context.ebb_dcycle:
         case EbbDCycle.ONE:
             return SmokeDustCycleOne(context)
         case EbbDCycle.TWO:
             return SmokeDustCycleTwo(context)
         case _:
-            raise NotImplementedError(context.ebb_dcycle_flag)
+            raise NotImplementedError(context.ebb_dcycle)
