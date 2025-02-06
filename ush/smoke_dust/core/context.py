@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Union, Annotated, Any
 
 from mpi4py import MPI
-from pydantic import BaseModel, model_validator, BeforeValidator
+from pydantic import BaseModel, model_validator, BeforeValidator, Field
 
 from smoke_dust.core.common import open_nc
 
@@ -29,8 +29,8 @@ class PredefinedGrid(StrEnum):
 class EbbDCycle(StrEnum):
     """Emission forecast cycle method.
 
-    * `1`: Estimate emissions and fire radiative power.
-    * `2`: In addition to `1`, also create inputs to forecast hourly wildfire potential.
+    * ``1``: Estimate emissions and fire radiative power.
+    * ``2``: In addition to `1`, also create inputs to forecast hourly wildfire potential.
     """
 
     ONE = "1"
@@ -43,8 +43,9 @@ class RaveQaFilter(StrEnum):
     Quality assurance flag filtering to apply to input RAVE data. RAVE QA filter values range from
     one to three.
 
-    * `none`: Do not apply any QA filtering.
-    * `high`: QA flag values less than `2` are set to zero for derived fire radiative energy fields.
+    * ``none``: Do not apply any QA filtering.
+    * ``high``: QA flag values less than `2` are set to zero for derived fire radiative energy
+        fields.
     """
 
     NONE = "none"
@@ -123,21 +124,43 @@ class SmokeDustContext(BaseModel):
     """Context object for smoke/dust."""
 
     # Values provided via command-line
-    staticdir: ReadPathType
-    ravedir: ReadPathType
-    intp_dir: WritePathType
-    predef_grid: PredefinedGrid
-    ebb_dcycle: EbbDCycle
-    restart_interval: Annotated[tuple[int, ...], BeforeValidator(_format_restart_interval_)]
-    persistence: bool
-    rave_qa_filter: RaveQaFilter
-    exit_on_error: bool
-    log_level: LogLevel
-    regrid_in_memory: bool = False
+    staticdir: ReadPathType = Field(description="Path to smoke and dust fixed files.")
+    ravedir: ReadPathType = Field(
+        description="Path to the directory containing RAVE data files (hourly)."
+    )
+    intp_dir: WritePathType = Field(
+        description="Path to the directory containing interpolated RAVE data files."
+    )
+    predef_grid: PredefinedGrid = Field(
+        description="SRW predefined grid to use as the forecast domain."
+    )
+    ebb_dcycle: EbbDCycle = Field(description="The forecast cycle to run.")
+    restart_interval: Annotated[tuple[int, ...], BeforeValidator(_format_restart_interval_)] = (
+        Field(
+            description="Restart intervals used for restart file search. For example '6 12 18 24'."
+        )
+    )
+    persistence: bool = Field(
+        description="If true, use satellite observations from the previous day. Otherwise, use "
+        "observations from the same day."
+    )
+    rave_qa_filter: RaveQaFilter = Field(
+        description="Filter level for RAVE QA flags when regridding fields."
+    )
+    exit_on_error: bool = Field(
+        description="If false, log errors and write a dummy emissions file but do not raise an "
+        "exception."
+    )
+    log_level: LogLevel = Field(description="Logging level for the preprocessor")
+    regrid_in_memory: bool = Field(
+        description="If true, do esmpy regridding in-memory as opposed to reading from the fixed "
+        "weight file.",
+        default=False,
+    )
 
     # Values provided via environment
-    current_day: str
-    nwges_dir: ReadPathType
+    current_day: str = Field(description="The forecast date for the start of the cycle.")
+    nwges_dir: ReadPathType = Field(description="Directory containing restart files.")
 
     # Fixed parameters
     should_calc_desc_stats: bool = False

@@ -1,6 +1,6 @@
 # Makefile for Sphinx documentation
 
-#tdk: add back in -W
+#tdk: add back in -W --keep-going
 SPHINXOPTS    = -a -n
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = .

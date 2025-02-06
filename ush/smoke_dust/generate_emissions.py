@@ -4,7 +4,7 @@
 Python script for fire emissions preprocessing from RAVE FRP and FRE (Li et al.,2022)
 Author: johana.romero-alvarez@noaa.gov
 """
-
+import os
 import sys
 from enum import StrEnum, unique
 from pathlib import Path
@@ -25,7 +25,7 @@ from smoke_dust.core.preprocessor import SmokeDustPreprocessor
 
 # pylint: enable=wrong-import-position
 
-
+os.environ["NO_COLOR"] = "1"
 app = typer.Typer(pretty_exceptions_enable=False)
 
 
