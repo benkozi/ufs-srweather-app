@@ -144,8 +144,8 @@ class SmokeDustPreprocessor:
         with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as nc_ds:
             create_template_emissions_file(nc_ds, self._context.grid_out_shape, is_dummy=True)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
-                nc_ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
-                nc_ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
+                nc_ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:] # pylint: disable=unsubscriptable-object
+                nc_ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:] # pylint: disable=unsubscriptable-object
 
             for varname in [
                 "frp_davg",
