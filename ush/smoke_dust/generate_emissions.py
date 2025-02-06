@@ -80,8 +80,8 @@ def main(  # pylint:disable=too-many-arguments
         help="If true, do esmpy regridding in-memory as opposed to reading from the fixed weight file.",
     ),
 ):
-    # pylint:enable=line-too-long
     """Main entrypoint for generating ICs for smoke and dust."""
+    # pylint:enable=line-too-long
     typer.echo("Welcome to interpolating RAVE and processing fire emissions!")
 
     context = SmokeDustContext(

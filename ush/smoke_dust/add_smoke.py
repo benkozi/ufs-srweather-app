@@ -9,7 +9,7 @@ import numpy as np
 import xarray as xr
 
 
-def populate_data(data: np.ndarray, target_shape: Tuple) -> np.ndarray:
+def _populate_data_(data: np.ndarray, target_shape: Tuple) -> np.ndarray:
     """
     Extracted variables need to match the target shape so we first populating it into a zero array.
 
@@ -62,9 +62,9 @@ def main() -> None:
     lon_dim = file_input.dims["lon"]
 
     # Populate the extracted data to match the target shape
-    # smoke_2_add_populated = populate_data(smoke_2_add, (lev_dim, lat_dim, lon_dim))
-    # dust_2_add_populated = populate_data(dust_2_add, (lev_dim, lat_dim, lon_dim))
-    # coarsepm_2_add_populated = populate_data(coarsepm_2_add, (lev_dim, lat_dim, lon_dim))
+    # smoke_2_add_populated = _populate_data_(smoke_2_add, (lev_dim, lat_dim, lon_dim))
+    # dust_2_add_populated = _populate_data_(dust_2_add, (lev_dim, lat_dim, lon_dim))
+    # coarsepm_2_add_populated = _populate_data_(coarsepm_2_add, (lev_dim, lat_dim, lon_dim))
 
     # Create new data arrays filled with zeros
     smoke_zero = xr.DataArray(
