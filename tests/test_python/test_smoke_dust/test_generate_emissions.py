@@ -45,8 +45,8 @@ def test(tmp_path: Path, fake_grid_out_shape: FakeGridOutShape, mocker: MockerFi
         ]
         result = runner.invoke(app, args, catch_exceptions=False)
     except:
-        for ii in ["CDATE", "DATA"]:
-            os.unsetenv(ii)
+        for env_var in ["CDATE", "DATA"]:
+            os.unsetenv(env_var)
         raise
     print(result.output)
 

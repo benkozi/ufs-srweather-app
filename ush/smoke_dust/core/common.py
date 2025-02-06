@@ -18,7 +18,7 @@ def open_nc(
     mode: Literal["r", "w", "a"] = "r",
     clobber: bool = False,
     parallel: bool = True,
-) -> nc.Dataset:
+) -> Dataset:
     """
     Open a netCDF file for various operations.
 
@@ -31,7 +31,7 @@ def open_nc(
     Returns:
         A netCDF dataset object.
     """
-    ds = nc.Dataset(
+    ds = Dataset(
         path,
         mode=mode,
         clobber=clobber,
@@ -46,7 +46,7 @@ def open_nc(
 
 
 def create_sd_coordinate_variable(
-    ds: nc.Dataset,
+    ds: Dataset,
     sd_variable: SmokeDustVariable,
 ) -> None:
     """
@@ -67,7 +67,7 @@ def create_sd_coordinate_variable(
 
 
 def create_sd_variable(
-    ds: nc.Dataset,
+    ds: Dataset,
     sd_variable: SmokeDustVariable,
     fill_first_time_index: bool = True,
 ) -> None:
@@ -106,7 +106,7 @@ def create_sd_variable(
 
 
 def create_template_emissions_file(
-    ds: nc.Dataset, grid_shape: Tuple[int, int], is_dummy: bool = False
+    ds: Dataset, grid_shape: Tuple[int, int], is_dummy: bool = False
 ):
     """
     Create a smoke/dust template netCDF emissions file.

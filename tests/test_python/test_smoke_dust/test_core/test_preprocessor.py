@@ -3,11 +3,11 @@
 from pathlib import Path
 from typing import Type
 
-import netCDF4 as nc
 import numpy as np
 import pandas as pd
 import pytest
 from _pytest.fixtures import SubRequest
+from netCDF4 import Dataset  # pylint: disable=no-name-in-module
 from pydantic import BaseModel
 from pytest_mock import MockerFixture
 
@@ -41,13 +41,15 @@ def create_fake_restart_files(
     restart_dir.mkdir()
     for date in forecast_dates:
         restart_file = restart_dir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
-        with nc.Dataset(restart_file, "w") as ds:
-            ds.createDimension("Time")
-            ds.createDimension("yaxis_1", shape.y_size)
-            ds.createDimension("xaxis_1", shape.x_size)
-            totprcp_ave = ds.createVariable("totprcp_ave", "f4", ("Time", "yaxis_1", "xaxis_1"))
+        with Dataset(restart_file, "w") as nc_ds:
+            nc_ds.createDimension("Time")
+            nc_ds.createDimension("yaxis_1", shape.y_size)
+            nc_ds.createDimension("xaxis_1", shape.x_size)
+            totprcp_ave = nc_ds.createVariable("totprcp_ave", "f4", ("Time", "yaxis_1", "xaxis_1"))
             totprcp_ave[0, ...] = np.ones(shape.as_tuple)
-            rrfs_hwp_ave = ds.createVariable("rrfs_hwp_ave", "f4", ("Time", "yaxis_1", "xaxis_1"))
+            rrfs_hwp_ave = nc_ds.createVariable(
+                "rrfs_hwp_ave", "f4", ("Time", "yaxis_1", "xaxis_1")
+            )
             rrfs_hwp_ave[0, ...] = totprcp_ave[:] + 2
 
 
@@ -69,12 +71,12 @@ def create_fake_rave_interpolated(
     for date in forecast_dates:
         intp_file = root_dir / f"{rave_to_intp}{date}00_{date}59.nc"
         dims = ("t", "lat", "lon")
-        with nc.Dataset(intp_file, "w") as ds:
-            ds.createDimension("t")
-            ds.createDimension("lat", shape.y_size)
-            ds.createDimension("lon", shape.x_size)
+        with Dataset(intp_file, "w") as nc_ds:
+            nc_ds.createDimension("t")
+            nc_ds.createDimension("lat", shape.y_size)
+            nc_ds.createDimension("lon", shape.x_size)
             for varname in ["frp_avg_hr", "FRE"]:
-                var = ds.createVariable(varname, "f4", dims)
+                var = nc_ds.createVariable(varname, "f4", dims)
                 var[0, ...] = np.ones(shape.as_tuple)
 
 
@@ -86,10 +88,10 @@ def create_fake_veg_map(root_dir: Path, shape: FakeGridOutShape) -> None:
         root_dir: The directory to create the file in.
         shape: Shape of the output grid.
     """
-    with nc.Dataset(root_dir / "veg_map.nc", "w") as ds:
-        ds.createDimension("grid_yt", shape.y_size)
-        ds.createDimension("grid_xt", shape.x_size)
-        emiss_factor = ds.createVariable("emiss_factor", "f4", ("grid_yt", "grid_xt"))
+    with Dataset(root_dir / "veg_map.nc", "w") as nc_ds:
+        nc_ds.createDimension("grid_yt", shape.y_size)
+        nc_ds.createDimension("grid_xt", shape.x_size)
+        emiss_factor = nc_ds.createVariable("emiss_factor", "f4", ("grid_yt", "grid_xt"))
         emiss_factor[:] = np.ones((shape.y_size, shape.x_size))
 
 
