@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from _pytest.fixtures import SubRequest
-from netCDF4 import Dataset  # pylint: disable=no-name-in-module
+from netCDF4 import Dataset
 from pydantic import BaseModel
 from pytest_mock import MockerFixture
 

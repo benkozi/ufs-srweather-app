@@ -111,16 +111,16 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
         ebb_smoke_total = []
         frp_avg_hr = []
 
-        with xr.open_dataset(self._context.veg_map) as ds:
-            emiss_factor = ds["emiss_factor"].values
-        with xr.open_dataset(self._context.grid_out) as ds:
-            target_area = ds["area"].values
+        with xr.open_dataset(self._context.veg_map) as nc_ds:
+            emiss_factor = nc_ds["emiss_factor"].values
+        with xr.open_dataset(self._context.grid_out) as nc_ds:
+            target_area = nc_ds["area"].values
 
         for row_idx, row_df in forecast_metadata.iterrows():
             self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
-            with xr.open_dataset(row_df["rave_interpolated"]) as ds:
-                fre = ds[EmissionVariable.FRE.smoke_dust_name()][0, :, :].values
-                frp = ds[EmissionVariable.FRP.smoke_dust_name()][0, :, :].values
+            with xr.open_dataset(row_df["rave_interpolated"]) as nc_ds:
+                fre = nc_ds[EmissionVariable.FRE.smoke_dust_name()][0, :, :].values
+                frp = nc_ds[EmissionVariable.FRP.smoke_dust_name()][0, :, :].values
 
             frp_avg_hr.append(frp)
             ebb_hourly = (fre * emiss_factor * self._context.beta * self._context.fg_to_ug) / (
@@ -163,9 +163,9 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
             phy_data_path = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
             rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
             self.log(f"processing emissions for: {phy_data_path=}, {rave_path=}")
-            with xr.open_dataset(phy_data_path) as ds:
-                hwp_values = ds.rrfs_hwp_ave.values.ravel()
-                tprcp_values = ds.totprcp_ave.values.ravel()
+            with xr.open_dataset(phy_data_path) as nc_ds:
+                hwp_values = nc_ds.rrfs_hwp_ave.values.ravel()
+                tprcp_values = nc_ds.totprcp_ave.values.ravel()
                 totprcp += np.where(tprcp_values > 0, tprcp_values, 0)
                 hwp_ave.append(hwp_values)
         hwp_ave_arr = np.nanmean(hwp_ave, axis=0).reshape(*self._context.grid_out_shape)
@@ -178,21 +178,21 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         t_fire = np.zeros(self._context.grid_out_shape)
         for date in forecast_metadata["forecast_date"]:
             rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
-            with xr.open_dataset(rave_path) as ds:
-                frp = ds.frp_avg_hr[0, :, :].values
+            with xr.open_dataset(rave_path) as nc_ds:
+                frp = nc_ds.frp_avg_hr[0, :, :].values
             dates_filtered = np.where(frp > 0, int(date[:10]), 0)
             t_fire = np.maximum(t_fire, dates_filtered)
         t_fire_flattened = [int(i) if i != 0 else 0 for i in t_fire.flatten()]
         hr_ends = [
             dt.datetime.strptime(str(hr), "%Y%m%d%H") if hr != 0 else 0 for hr in t_fire_flattened
         ]
-        te = np.array(
+        temp_fire_age = np.array(
             [
                 ((self._context.fcst_datetime - i).total_seconds() / 3600 if i != 0 else 0)
                 for i in hr_ends
             ]
         )
-        fire_age = np.array(te).reshape(self._context.grid_out_shape)
+        fire_age = np.array(temp_fire_age).reshape(self._context.grid_out_shape)
 
         # Ensure arrays are not negative or NaN
         frp_avg_reshaped = np.clip(derived.data["frp_avg_hr"], 0, None)
@@ -245,16 +245,16 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         frp_daily = np.zeros(self._context.grid_out_shape).ravel()
         ebb_smoke_total = []
 
-        with xr.open_dataset(self._context.veg_map) as ds:
-            emiss_factor = ds["emiss_factor"].values
-        with xr.open_dataset(self._context.grid_out) as ds:
-            target_area = ds["area"].values
+        with xr.open_dataset(self._context.veg_map) as nc_ds:
+            emiss_factor = nc_ds["emiss_factor"].values
+        with xr.open_dataset(self._context.grid_out) as nc_ds:
+            target_area = nc_ds["area"].values
 
         for row_idx, row_df in forecast_metadata.iterrows():
             self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
-            with xr.open_dataset(row_df["rave_interpolated"]) as ds:
-                fre = ds[EmissionVariable.FRE.smoke_dust_name()][0, :, :].values
-                frp = ds[EmissionVariable.FRP.smoke_dust_name()][0, :, :].values
+            with xr.open_dataset(row_df["rave_interpolated"]) as nc_ds:
+                fre = nc_ds[EmissionVariable.FRE.smoke_dust_name()][0, :, :].values
+                frp = nc_ds[EmissionVariable.FRP.smoke_dust_name()][0, :, :].values
 
             ebb_hourly = (
                 fre * emiss_factor * self._context.beta * self._context.fg_to_ug / target_area

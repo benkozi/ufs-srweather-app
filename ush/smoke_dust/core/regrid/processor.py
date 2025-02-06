@@ -157,10 +157,10 @@ class SmokeDustRegridProcessor:
                 / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
             )
             self.log(f"creating output file: {output_file_path}")
-            with open_nc(output_file_path, "w") as ds:
-                create_template_emissions_file(ds, self._context.grid_out_shape)
+            with open_nc(output_file_path, "w") as nc_ds:
+                create_template_emissions_file(nc_ds, self._context.grid_out_shape)
                 for varname in ["frp_avg_hr", "FRE"]:
-                    create_sd_variable(ds, SD_VARS.get(varname))
+                    create_sd_variable(nc_ds, SD_VARS.get(varname))
 
             self._dst_output_gwrap.fill_nc_variables(output_file_path)
 
@@ -202,7 +202,10 @@ class SmokeDustRegridProcessor:
 
                 if self._context.rave_qa_filter == RaveQaFilter.HIGH:
                     with open_nc(row_data["rave_raw"], parallel=True) as rave_ds:
-                        rave_qa = load_variable_data(rave_ds.variables["QA"], src_fwrap.dims)
+                        rave_qa = load_variable_data(
+                            rave_ds.variables["QA"],  # pylint: disable=unsubscriptable-object
+                            src_fwrap.dims,
+                        )
                     set_to_zero = rave_qa < 2
                     self.log(
                         f"RAVE QA filter applied: {self._context.rave_qa_filter=}; "
@@ -251,27 +254,27 @@ class SmokeDustRegridProcessor:
             "frp_avg_hr",
             "FRE",
         ]
-        with open_nc(row_data["rave_interpolated"], parallel=False) as ds:
-            dst_data = {ii: ds.variables[ii][:] for ii in field_names_dst}
+        with open_nc(row_data["rave_interpolated"], parallel=False) as nc_ds:
+            dst_data = {ii: nc_ds.variables[ii][:] for ii in field_names_dst}
         if calc_stats:
             # Do these calculations before we modify the arrays since edge masking is inplace
             dst_desc_unmasked = create_descriptive_statistics(dst_data, "dst_unmasked", None)
 
         # Mask edges to reduce model edge effects
         self.log("masking edges", level=logging.DEBUG)
-        for v in dst_data.values():
+        for value in dst_data.values():
             # Operation is inplace
-            mask_edges(v[0, :, :])
+            mask_edges(value[0, :, :])
 
         # Persist masked data to disk
-        with open_nc(row_data["rave_interpolated"], parallel=False, mode="a") as ds:
-            for k, v in dst_data.items():
-                ds.variables[k][:] = v
+        with open_nc(row_data["rave_interpolated"], parallel=False, mode="a") as nc_ds:
+            for key, value in dst_data.items():
+                nc_ds.variables[key][:] = value
 
         if calc_stats:
-            with open_nc(row_data["rave_raw"], parallel=False) as ds:
+            with open_nc(row_data["rave_raw"], parallel=False) as nc_ds:
                 src_desc = create_descriptive_statistics(
-                    {ii: ds.variables[ii][:] for ii in self._context.vars_emis},
+                    {ii: nc_ds.variables[ii][:] for ii in self._context.vars_emis},
                     "src",
                     row_data["rave_raw"],
                 )

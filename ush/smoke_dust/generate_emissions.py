@@ -39,7 +39,7 @@ class StringBool(StrEnum):
 
 # pylint: disable=line-too-long
 @app.command()
-def main(  # pylint:disable=too-many-arguments,too-many-positional-arguments
+def main(  # pylint:disable=too-many-arguments
     staticdir: Path = typer.Option(
         ..., "--staticdir", help="Path to the smoke and dust fixed files."
     ),

@@ -189,10 +189,10 @@ class SmokeDustContext(BaseModel):
     def _finalize_model_(self) -> "SmokeDustContext":
         self._logger = self._init_logging_()
 
-        with open_nc(self.grid_out, parallel=False) as ds:
+        with open_nc(self.grid_out, parallel=False) as nc_ds:
             self.grid_out_shape = (
-                ds.dimensions["grid_yt"].size,
-                ds.dimensions["grid_xt"].size,
+                nc_ds.dimensions["grid_yt"].size,
+                nc_ds.dimensions["grid_xt"].size,
             )
         self.log(f"{self.grid_out_shape=}")
         return self
@@ -205,7 +205,7 @@ class SmokeDustContext(BaseModel):
     @property
     def rave_to_intp(self) -> str:
         """File prefix for interpolated RAVE files."""
-        return self.predef_grid.value + "_intp_"
+        return self.predef_grid.value + "_intp_"  # pylint: disable=no-member
 
     @property
     def grid_in(self) -> Path:
@@ -287,7 +287,9 @@ class SmokeDustContext(BaseModel):
             "loggers": {
                 project_name: {
                     "handlers": ["default"],
-                    "level": getattr(logging, self.log_level.value.upper()),
+                    "level": getattr(
+                        logging, self.log_level.value.upper()  # pylint: disable=no-member
+                    ),
                 },
             },
         }

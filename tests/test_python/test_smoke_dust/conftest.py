@@ -8,7 +8,7 @@ from typing import Union
 
 import numpy as np
 import pytest
-from netCDF4 import Dataset  # pylint: disable=no-name-in-module
+from netCDF4 import Dataset
 
 from smoke_dust.core.context import SmokeDustContext
 

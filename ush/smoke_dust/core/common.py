@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Tuple, Literal, Dict
 
-import netCDF4 as nc
+from netCDF4 import Dataset
 import numpy as np
 import pandas as pd
 from mpi4py import MPI
@@ -31,7 +31,7 @@ def open_nc(
     Returns:
         A netCDF dataset object.
     """
-    ds = Dataset(
+    nc_ds = Dataset(
         path,
         mode=mode,
         clobber=clobber,
@@ -40,23 +40,23 @@ def open_nc(
         info=MPI.Info(),
     )
     try:
-        yield ds
+        yield nc_ds
     finally:
-        ds.close()
+        nc_ds.close()
 
 
 def create_sd_coordinate_variable(
-    ds: Dataset,
+    nc_ds: Dataset,
     sd_variable: SmokeDustVariable,
 ) -> None:
     """
     Create a smoke/dust netCDF spatial coordinate variable.
 
     Args:
-        ds: Dataset to update.
+        nc_ds: Dataset to update.
         sd_variable: Contains variable metadata.
     """
-    var_out = ds.createVariable(
+    var_out = nc_ds.createVariable(
         sd_variable.name, "f4", ("lat", "lon"), fill_value=sd_variable.fill_value_float
     )
     var_out.units = sd_variable.units
@@ -67,7 +67,7 @@ def create_sd_coordinate_variable(
 
 
 def create_sd_variable(
-    ds: Dataset,
+    nc_ds: Dataset,
     sd_variable: SmokeDustVariable,
     fill_first_time_index: bool = True,
 ) -> None:
@@ -75,11 +75,11 @@ def create_sd_variable(
     Create a smoke/dust netCDF variable.
 
     Args:
-        ds: Dataset to update
+        nc_ds: Dataset to update
         sd_variable: Contains variable metadata
         fill_first_time_index: If True, fill the first time index with provided `fill_value_float`
     """
-    var_out = ds.createVariable(
+    var_out = nc_ds.createVariable(
         sd_variable.name,
         "f4",
         ("t", "lat", "lon"),
@@ -106,26 +106,26 @@ def create_sd_variable(
 
 
 def create_template_emissions_file(
-    ds: Dataset, grid_shape: Tuple[int, int], is_dummy: bool = False
+    nc_ds: Dataset, grid_shape: Tuple[int, int], is_dummy: bool = False
 ):
     """
     Create a smoke/dust template netCDF emissions file.
 
     Args:
-        ds: The target netCDF dataset object.
+        nc_ds: The target netCDF dataset object.
         grid_shape: The grid shape to create.
         is_dummy: Converted to a netCDF attribute to indicate if the created file is dummy
             emissions or will contain actual values.
     """
-    ds.createDimension("t", None)
-    ds.createDimension("lat", grid_shape[0])
-    ds.createDimension("lon", grid_shape[1])
-    setattr(ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
-    setattr(ds, "TIME_RANGE", "1 hour")
-    setattr(ds, "is_dummy", str(is_dummy))
+    nc_ds.createDimension("t", None)
+    nc_ds.createDimension("lat", grid_shape[0])
+    nc_ds.createDimension("lon", grid_shape[1])
+    setattr(nc_ds, "PRODUCT_ALGORITHM_VERSION", "Beta")
+    setattr(nc_ds, "TIME_RANGE", "1 hour")
+    setattr(nc_ds, "is_dummy", str(is_dummy))
 
     for varname in ["geolat", "geolon"]:
-        create_sd_coordinate_variable(ds, SD_VARS.get(varname))
+        create_sd_coordinate_variable(nc_ds, SD_VARS.get(varname))
 
 
 def create_descriptive_statistics(
@@ -145,13 +145,13 @@ def create_descriptive_statistics(
     Returns:
         A dataframe containing descriptive statistics fields.
     """
-    df = pd.DataFrame.from_dict({k: v.filled(np.nan).ravel() for k, v in container.items()})
-    desc = df.describe()
+    data_frame = pd.DataFrame.from_dict({k: v.filled(np.nan).ravel() for k, v in container.items()})
+    desc = data_frame.describe()
     adds = {}
     for field_name in container.keys():
         adds[field_name] = [
-            df[field_name].sum(),
-            df[field_name].isnull().sum(),
+            data_frame[field_name].sum(),
+            data_frame[field_name].isnull().sum(),
             origin,
             path,
         ]

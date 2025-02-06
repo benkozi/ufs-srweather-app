@@ -102,15 +102,15 @@ class SmokeDustPreprocessor:
         self.log(f"{self.forecast_dates}", level=logging.DEBUG)
         self.log(f"{intp_path=}", level=logging.DEBUG)
         self.log(f"{rave_to_forecast=}", level=logging.DEBUG)
-        df = pd.DataFrame(
+        data_frame = pd.DataFrame(
             data={
                 "forecast_date": self.forecast_dates,
                 "rave_interpolated": intp_path,
                 "rave_raw": rave_to_forecast,
             }
         )
-        self._forecast_metadata = df
-        return df
+        self._forecast_metadata = data_frame
+        return data_frame
 
     @property
     def is_first_day(self) -> bool:
@@ -141,11 +141,11 @@ class SmokeDustPreprocessor:
         there is an exception and the context is set to not exit on error."""
         self.log("create_dummy_emissions_file: enter")
         self.log(f"{self._context.emissions_path=}")
-        with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds:
-            create_template_emissions_file(ds, self._context.grid_out_shape, is_dummy=True)
+        with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as nc_ds:
+            create_template_emissions_file(nc_ds, self._context.grid_out_shape, is_dummy=True)
             with open_nc(self._context.grid_out, parallel=False) as ds_src:
-                ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
-                ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
+                nc_ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
+                nc_ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
 
             for varname in [
                 "frp_davg",
@@ -154,7 +154,7 @@ class SmokeDustPreprocessor:
                 "hwp_davg",
                 "totprcp_24hrs",
             ]:
-                create_sd_variable(ds, SD_VARS.get(varname))
+                create_sd_variable(nc_ds, SD_VARS.get(varname))
         self.log("create_dummy_emissions_file: exit")
 
     def finalize(self) -> None:
