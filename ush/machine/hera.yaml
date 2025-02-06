@@ -2,10 +2,12 @@ platform:
   WORKFLOW_MANAGER: rocoto
   NCORES_PER_NODE: 40
   SCHED: slurm
+  WE2E_TEST_DATA: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop
   TEST_CCPA_OBS_DIR: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/obs_data/ccpa/proc
+  TEST_NOHRSC_OBS_DIR: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/obs_data/nohrsc/proc
   TEST_MRMS_OBS_DIR: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/obs_data/mrms/proc
   TEST_NDAS_OBS_DIR: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/obs_data/ndas/proc
-  TEST_NOHRSC_OBS_DIR: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/obs_data/nohrsc/proc
+  TEST_GDAS_OBS_DIR: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/obs_data/gdas
   DOMAIN_PREGEN_BASEDIR: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/FV3LAM_pregen
   PARTITION_DEFAULT: hera
   QUEUE_DEFAULT: batch
@@ -28,6 +30,7 @@ platform:
   TEST_PREGEN_BASEDIR: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/FV3LAM_pregen
   TEST_ALT_EXTRN_MDL_SYSBASEDIR_ICS: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/dummy_FV3GFS_sys_dir
   TEST_ALT_EXTRN_MDL_SYSBASEDIR_LBCS: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/dummy_FV3GFS_sys_dir
+  #TEST_VX_FCST_INPUT_BASEDIR: '{{ "/scratch2/BMC/fv3lam/Gerard.Ketefian/forecasts_for_SRW_WE2E_tests.final/fcst_" }}{{ "ens" if (global.NUM_ENS_MEMBERS > 0) else "det" }}{{ "/{{workflow.PREDEF_GRID_NAME}}" }}{% raw %}{% endraw %}'
   TEST_VX_FCST_INPUT_BASEDIR: '{{ "/scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/output_data/fcst_" }}{{ "ens" if (global.NUM_ENS_MEMBERS > 0) else "det" }}{{ "/{{workflow.PREDEF_GRID_NAME}}" }}{% raw %}{% endraw %}'
   FIXaer: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_aer
   FIXgsm: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_am
@@ -37,6 +40,9 @@ platform:
   FIXshp: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/NaturalEarth
   FIXaqm: /scratch2/NAGAPE/epic/SRW-AQM_DATA/fix_aqm
   FIXemis: /scratch1/RDARCH/rda-arl-gpu/Barry.Baker/emissions/nexus
+  FIXsmoke: /scratch2/NAGAPE/epic/SRW-AQM_DATA/fix_smoke
+  FIXupp: /scratch2/NAGAPE/epic/SRW-AQM_DATA/fix_upp
+  FIXcrtm: /scratch2/NAGAPE/epic/SRW-AQM_DATA/fix_crtm
   EXTRN_MDL_DATA_STORES: hpss aws nomads
 
 cpl_aqm_parm:
@@ -44,13 +50,17 @@ cpl_aqm_parm:
   COMINgefs_default: /scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/GEFS_DATA
   NEXUS_GFS_SFC_DIR: /scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/GFS_SFC_DATA
 
+smoke_dust_parm:
+  COMINsmoke_default: /scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_smoke_dust
+  COMINrave_default: /scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAVE_fire
+
 rocoto:
   tasks:
     metatask_run_ensemble:
       task_run_fcst_mem#mem#:
-        cores: '{{ task_run_fcst.PE_MEMBER01 // 1 }}'
+        cores:
         native: '--cpus-per-task {{ task_run_fcst.OMP_NUM_THREADS_RUN_FCST|int }} --exclusive {{ platform.SCHED_NATIVE_CMD }}'
-        nodes:
+        nodes: '{{ task_run_fcst.NNODES_RUN_FCST // 1 }}:ppn={{ task_run_fcst.PPN_RUN_FCST // 1 }}'
         nnodes:
         nodesize:
         ppn:

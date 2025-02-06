@@ -50,6 +50,7 @@ def clean_up_output_dir(expected_subdir, local_archive, output_path, source_path
     unavailable = {}
     expand_source_paths = []
     logging.debug(f"Cleaning up local paths: {source_paths}")
+    logging.debug(f"Looking for these local paths under directory: {os.getcwd()}")
     for p in source_paths:
         expand_source_paths.extend(glob.glob(p.lstrip("/")))
 
@@ -221,6 +222,8 @@ def fill_template(template_str, cycle_date, templates_only=False, **kwargs):
     mem = kwargs.get("mem", "")
     # -----
 
+    # Set some variables to make the format statement more concise
+    f_date = cycle_date + dt.timedelta(hours=fcst_hr)
     cycle_hour = cycle_date.strftime("%H")
 
     # One strategy for binning data files at NCEP is to put them into 6
@@ -240,17 +243,26 @@ def fill_template(template_str, cycle_date, templates_only=False, **kwargs):
         ens_group=ens_group,
         fcst_hr=fcst_hr,
         dd=cycle_date.strftime("%d"),
+        fdd=f_date.strftime("%d"),
         hh=cycle_hour,
+        fhh=f_date.strftime("%H"),
         hh_even=hh_even,
         jjj=cycle_date.strftime("%j"),
+        fjjj=f_date.strftime("%j"),
         mem=mem,
         min=cycle_date.strftime("%M"),
         mm=cycle_date.strftime("%m"),
+        fmm=cycle_date.strftime("%m"),
         yy=cycle_date.strftime("%y"),
+        fyy=f_date.strftime("%y"),
         yyyy=cycle_date.strftime("%Y"),
+        fyyyy=f_date.strftime("%Y"),
         yyyymm=cycle_date.strftime("%Y%m"),
+        fyyyymm=f_date.strftime("%Y%m"),
         yyyymmdd=cycle_date.strftime("%Y%m%d"),
+        fyyyymmdd=f_date.strftime("%Y%m%d"),
         yyyymmddhh=cycle_date.strftime("%Y%m%d%H"),
+        fyyyymmddhh=f_date.strftime("%Y%m%d%H"),
     )
 
     if templates_only:

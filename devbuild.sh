@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # usage instructions
 usage () {
@@ -15,8 +15,10 @@ OPTIONS
       compiler to use; default depends on platform
       (e.g. intel | gnu | cray | gccgfortran)
   -a, --app=APPLICATION
-      weather model application to build; for example, ATMAQ for Online-CMAQ
-      (e.g. ATM | ATMAQ | ATMW | S2S | S2SW)
+      weather model application to build; supported SRW options are
+        ATM    (default) Atmosphere only
+        ATMAQ  Online-CMAQ (air quality)
+        ATMF   UFS_FIRE (coupled Community Fire Behavior Model)
   --ccpp="CCPP_SUITE1,CCPP_SUITE2..."
       CCPP suites (CCPP_SUITES) to include in build; delimited with ','
   --enable-options="OPTION1,OPTION2,..."
@@ -237,6 +239,9 @@ if [ "${BUILD_CONDA}" = "on" ] ; then
   if ! conda env list | grep -q "^srw_graphics\s" ; then
     mamba env create -n srw_graphics --file graphics_environment.yml
   fi
+  if ! conda env list | grep -q "^srw_sd\s" ; then
+    mamba env create -n srw_sd --file sd_environment.yml
+  fi
   if [ "${APPLICATION}" = "ATMAQ" ]; then
     if ! conda env list | grep -q "^srw_aqm\s" ; then
       mamba env create -n srw_aqm --file aqm_environment.yml
@@ -283,7 +288,7 @@ set -eu
 # automatically determine compiler
 if [ -z "${COMPILER}" ] ; then
   case ${PLATFORM} in
-    jet|hera|gaea) COMPILER=intel ;;
+    jet|hera|gaea|gaea-c6) COMPILER=intel ;;
     orion) COMPILER=intel ;;
     wcoss2) COMPILER=intel ;;
     cheyenne) COMPILER=intel ;;
@@ -363,6 +368,7 @@ fi
 
 # cmake settings
 CMAKE_SETTINGS="\
+ -DBUILD_MACHINE=${MACHINE}\
  -DCMAKE_BUILD_TYPE=${BUILD_TYPE}\
  -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}\
  -DCMAKE_INSTALL_BINDIR=${BIN_DIR}\
