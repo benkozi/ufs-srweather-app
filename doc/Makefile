@@ -1,7 +1,6 @@
 # Makefile for Sphinx documentation
 
-#tdk: add back in -W --keep-going
-SPHINXOPTS    = -a -n
+SPHINXOPTS    = -a -n #-W
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = build
@@ -15,7 +14,7 @@ help:
 
 doc:
 	make clean
-# 	$(MAKE) linkcheck #tdk:uncomm
+	$(MAKE) linkcheck
 	$(MAKE) html
 
 linkcheck:

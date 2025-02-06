@@ -154,7 +154,6 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         return self._context.fcst_datetime - dt.timedelta(days=1, hours=1)
 
     def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
-        # tdk:story: figure out restart file copying
         # pylint: disable=too-many-statements
         self.log("process_emissions: enter")
 

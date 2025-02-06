@@ -37,7 +37,6 @@ task_get_extrn_ics:
   EXTRN_MDL_NAME_ICS: RAP
   EXTRN_MDL_ICS_OFFSET_HRS: 0
   USE_USER_STAGED_EXTRN_FILES: true
-  #tdk:pr: can we use overlays to parameterize these?
   EXTRN_MDL_SOURCE_BASEDIR_ICS: /scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAP_DATA_SD/${yyyymmddhh} # hera
 #  EXTRN_MDL_SOURCE_BASEDIR_ICS: /work/noaa/epic/SRW-AQM_DATA/input_model_data/RAP/${yyyymmddhh} # orion/hercules
 #  EXTRN_MDL_SOURCE_BASEDIR_ICS: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/RAP/${yyyymmddhh} # gaea-c6
@@ -61,9 +60,9 @@ task_run_fcst:
   QUILTING: true
   PRINT_ESMF: false
   DO_FCST_RESTART: false
-#task_run_post: #tdk:rm maybe?
-#  POST_OUTPUT_DOMAIN_NAME: conus3km
-#  USE_CUSTOM_POST_CONFIG_FILE: false
+task_run_post:
+  POST_OUTPUT_DOMAIN_NAME: conus3km
+  USE_CUSTOM_POST_CONFIG_FILE: false
 global:
   DO_ENSEMBLE: false
   NUM_ENS_MEMBERS: 2

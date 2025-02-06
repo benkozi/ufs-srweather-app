@@ -176,7 +176,6 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
         tmp_path: Path,
     ) -> None:
         """Test the regrid processor."""
-        # tdk:story: add MPI testing
         spy1 = mocker.spy(SmokeDustRegridProcessor, "_run_impl_")
         regrid_processor = SmokeDustRegridProcessor(data_for_test.context)
         regrid_processor.run(data_for_test.preprocessor.forecast_metadata)
