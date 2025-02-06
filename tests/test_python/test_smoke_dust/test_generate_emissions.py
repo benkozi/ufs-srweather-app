@@ -57,4 +57,7 @@ def test(tmp_path: Path, fake_grid_out_shape: FakeGridOutShape, mocker: MockerFi
 
 def test_help() -> None:
     """Test that the help message can be displayed."""
-    subprocess.check_call(["python", "../../../ush/smoke_dust/generate_emissions.py", "--help"])
+    cli_path = (
+        Path(__file__).parent.parent.parent.parent / "ush" / "smoke_dust" / "generate_emissions.py"
+    )
+    subprocess.check_call(["python", str(cli_path), "--help"])
