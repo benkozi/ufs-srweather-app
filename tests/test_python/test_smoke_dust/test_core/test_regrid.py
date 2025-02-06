@@ -143,27 +143,27 @@ def create_fake_rave_and_rrfs_like_data(params: FakeGridParams) -> xr.Dataset:
     lon = np.arange(params.shape.x_size, dtype=float) + params.min_lon
     lat = np.arange(params.shape.y_size, dtype=float) + params.min_lat
     lon_mesh, lat_mesh = np.meshgrid(lon, lat)
-    ds = xr.Dataset()
+    nc_ds = xr.Dataset()
     dims = ["grid_yt", "grid_xt"]
-    ds["grid_lont"] = xr.DataArray(lon_mesh, dims=dims)
-    ds["grid_latt"] = xr.DataArray(lat_mesh, dims=dims)
+    nc_ds["grid_lont"] = xr.DataArray(lon_mesh, dims=dims)
+    nc_ds["grid_latt"] = xr.DataArray(lat_mesh, dims=dims)
     if params.with_corners:
         lonc = np.hstack((lon - 0.5, [lon[-1] + 0.5]))
         latc = np.hstack((lat - 0.5, [lat[-1] + 0.5]))
         lonc_mesh, latc_mesh = np.meshgrid(lonc, latc)
-        ds["grid_lon"] = xr.DataArray(lonc_mesh, dims=["grid_y", "grid_x"])
-        ds["grid_lat"] = xr.DataArray(latc_mesh, dims=["grid_y", "grid_x"])
+        nc_ds["grid_lon"] = xr.DataArray(lonc_mesh, dims=["grid_y", "grid_x"])
+        nc_ds["grid_lat"] = xr.DataArray(latc_mesh, dims=["grid_y", "grid_x"])
     if params.fields is not None:
         if params.ntime is not None:
             field_dims = ["time"] + dims
         else:
             field_dims = dims
         for field in params.fields:
-            ds[field] = create_analytic_data_array(
+            nc_ds[field] = create_analytic_data_array(
                 field_dims, lon_mesh, lat_mesh, ntime=params.ntime
             )
-    ds.to_netcdf(params.path)
-    return ds
+    nc_ds.to_netcdf(params.path)
+    return nc_ds
 
 
 class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
@@ -184,6 +184,6 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
             f"*{data_for_test.context.rave_to_intp}*nc", root_dir=tmp_path
         )
         assert len(interpolated_files) == 24
-        for f in interpolated_files:
-            fpath = tmp_path / f
+        for intp_file in interpolated_files:
+            fpath = tmp_path / intp_file
             assert create_file_hash(fpath) == "8e90b769137aad054a2e49559d209c4d"

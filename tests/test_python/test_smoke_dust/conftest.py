@@ -6,9 +6,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Union
 
-import netCDF4 as nc
 import numpy as np
 import pytest
+from netCDF4 import Dataset
 
 from smoke_dust.core.context import SmokeDustContext
 
@@ -47,11 +47,11 @@ def create_fake_grid_out(root_dir: Path, shape: FakeGridOutShape) -> None:
         root_dir: Directory to write grid to.
         shape: Grid output shape.
     """
-    with nc.Dataset(root_dir / "ds_out_base.nc", "w") as ds:
-        ds.createDimension("grid_yt", shape.y_size)
-        ds.createDimension("grid_xt", shape.x_size)
+    with Dataset(root_dir / "ds_out_base.nc", "w") as nc_ds:
+        nc_ds.createDimension("grid_yt", shape.y_size)
+        nc_ds.createDimension("grid_xt", shape.x_size)
         for varname in ["area", "grid_latt", "grid_lont"]:
-            var = ds.createVariable(varname, "f4", ("grid_yt", "grid_xt"))
+            var = nc_ds.createVariable(varname, "f4", ("grid_yt", "grid_xt"))
             var[:] = np.ones((shape.y_size, shape.x_size))
 
 
@@ -88,8 +88,8 @@ def create_fake_context(root_dir: Path, overrides: Union[dict, None] = None) -> 
     try:
         context = SmokeDustContext.model_validate(kwds)
     except:
-        for ii in ["CDATE", "DATA"]:
-            os.unsetenv(ii)
+        for env_var in ["CDATE", "DATA"]:
+            os.unsetenv(env_var)
         raise
     return context
 
@@ -103,8 +103,8 @@ def create_file_hash(path: Path) -> str:
     Returns:
         The file's hex digest.
     """
-    with open(path, "rb") as f:
+    with open(path, "rb") as target_file:
         file_hash = hashlib.md5()
-        while chunk := f.read(8192):
+        while chunk := target_file.read(8192):
             file_hash.update(chunk)
     return file_hash.hexdigest()
