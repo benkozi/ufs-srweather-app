@@ -58,10 +58,10 @@ class SmokeDustPreprocessor:
     def forecast_metadata(self) -> pd.DataFrame:
         """Create forecast metadata consisting of:
 
-        * `forecast_date`: The forecast timestep as a `datetime` object.
-        * `rave_interpolated`: To the date's corresponding interpolated RAVE file. Null if not
+        * ``forecast_date``: The forecast timestep as a `datetime` object.
+        * ``rave_interpolated``: To the date's corresponding interpolated RAVE file. Null if not
             found.
-        * `rave_raw`: Raw RAVE data before interpolation. Null if not found.
+        * ``rave_raw``: Raw RAVE data before interpolation. Null if not found.
         """
         if self._forecast_metadata is not None:
             return self._forecast_metadata
@@ -114,7 +114,7 @@ class SmokeDustPreprocessor:
 
     @property
     def is_first_day(self) -> bool:
-        """`True` if this is considered the "first day" of the simulation where there is no
+        """``True`` if this is considered the "first day" of the simulation where there is no
         interpolated or raw RAVE data available."""
 
         is_first_day = (
