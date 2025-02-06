@@ -1,24 +1,33 @@
+"""Variable definitions used by smoke/dust."""
+
 from typing import Tuple
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, Field
 
 
 class SmokeDustVariable(BaseModel):
-    name: str
-    long_name: str
-    units: str
-    fill_value_str: str
-    fill_value_float: float
+    """Model for a smoke/dust variable."""
+
+    name: str = Field(description="Standard (short) variable name.")
+    long_name: str = Field(description="Long (descriptive) name for the variable.")
+    units: str = Field(description="Units for the variable.")
+    fill_value_str: str = Field(description="Fill value for the variable in string format.")
+    fill_value_float: float = Field(description="Fill value for the variable in float format.")
 
 
 SmokeDustVariablesType = Tuple[SmokeDustVariable, ...]
 
 
 class SmokeDustVariables(BaseModel):
-    values: SmokeDustVariablesType
+    """Canonical collection of smoke/dust variables."""
+
+    values: SmokeDustVariablesType = Field(
+        description="All variables associated with the smoke/dust preprocessor."
+    )
 
     def get(self, name: str) -> SmokeDustVariable:
-        for value in self.values:
+        """Get a smoke/dust variable from the collection."""
+        for value in self.values:  # pylint: disable=not-an-iterable
             if value.name == name:
                 return value
         raise ValueError(name)
@@ -26,6 +35,7 @@ class SmokeDustVariables(BaseModel):
     @field_validator("values", mode="after")
     @classmethod
     def _validate_values_(cls, values: SmokeDustVariablesType) -> SmokeDustVariablesType:
+        """Asserts all variable names are unique."""
         names = [ii.name for ii in values]
         if len(names) != len(set(names)):
             raise ValueError("Variable names must be unique")

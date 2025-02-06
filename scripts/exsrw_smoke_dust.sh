@@ -108,16 +108,16 @@ else
   #-----------------------------------------------------------------------
   #
   mpirun -n ${nprocs} ${USHdir}/smoke_dust/generate_emissions.py \
-    "${FIXsmoke}/${PREDEF_GRID_NAME}" \
-    "${DATA}" \
-    "${DATA_SHARE}" \
-    "${PREDEF_GRID_NAME}" \
-    "${EBB_DCYCLE}" \
-    "${RESTART_INTERVAL}" \
-    "${PERSISTENCE}" \
-    "${RAVE_QA_FILTER}" \
-    "${EXIT_ON_ERROR}" \
-    "${LOG_LEVEL}"
+    --staticdir "${FIXsmoke}/${PREDEF_GRID_NAME}" \
+    --ravedir "${DATA}" \
+    --intp-dir "${DATA_SHARE}" \
+    --predef-grid "${PREDEF_GRID_NAME}" \
+    --ebb-dcycle "${EBB_DCYCLE}" \
+    --restart-interval "${RESTART_INTERVAL}" \
+    --persistence "${PERSISTENCE}" \
+    --rave-qa-filter "${RAVE_QA_FILTER}" \
+    --exit-on-error "${EXIT_ON_ERROR}" \
+    --log-level "${LOG_LEVEL}"
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="generate_emissions.py failed with return code $err"
@@ -127,8 +127,7 @@ else
 
   # Copy Smoke file to COMOUT
   cp -p ${DATA_SHARE}/${smokeFile} ${COMOUT}
-  cp -p ${DATA_SHARE}/${smokeFile} ${DATA} #tdk:pr: is this copy of the file needed?
-#  cp -p ${DATA}/${smokeFile} ${COMOUT} #tdk: is this the correct method?
+  cp -p ${DATA_SHARE}/${smokeFile} ${DATA}
 fi
 #
 #-----------------------------------------------------------------------

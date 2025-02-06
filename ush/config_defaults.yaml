@@ -2867,7 +2867,18 @@ smoke_dust_parm:
   #
   # SMOKE_DUST_FILE_PREFIX:
   # Prefix of Smoke and Dust file name
-  #tdk:doc
+  #
+  # RAVE_QA_FILTER:
+  # Apply RAVE QA filtering to source RAVE fields.
+  #   none: No filtering applied
+  #   high: QA flag values < 2 set to zero.
+  #
+  # EXIT_ON_ERROR:
+  # If true, raise and exception in the preprocessor when an error occurs. If false, create a
+  # dummy emissions file, log the error, and continue.
+  #
+  # LOG_LEVEL:
+  # Logging level for the preprocessor: info or debug
   #
   #-----------------------------------------------------------------------
   #

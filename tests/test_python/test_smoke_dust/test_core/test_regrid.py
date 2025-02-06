@@ -4,6 +4,7 @@ import glob
 import shutil
 import subprocess
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 import pytest
@@ -58,7 +59,7 @@ class FakeGridParams(BaseModel):
     with_corners: bool = Field(
         description="If True, create the output grid with corners", default=True
     )
-    fields: list[str] | None = Field(
+    fields: Union[list[str], None] = Field(
         description="If provided, a list of field names to create in the output file.", default=None
     )
     min_lon: int = Field(
@@ -67,7 +68,7 @@ class FakeGridParams(BaseModel):
     min_lat: int = Field(
         description="The minimum latitude value as origin for grid generation.", default=25
     )
-    ntime: int | None = Field(
+    ntime: Union[int, None] = Field(
         description="If provided, create the output fields with this many time steps.", default=1
     )
 
@@ -87,7 +88,7 @@ def data_for_test(
         _ = create_fake_rave_and_rrfs_like_data(
             FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["area"], ntime=None)
         )
-    context = create_fake_context(tmp_path, extra={"regrid_in_memory": request.param})
+    context = create_fake_context(tmp_path, overrides={"regrid_in_memory": request.param})
     preprocessor = SmokeDustPreprocessor(context)
     for date in preprocessor.forecast_dates:
         path = tmp_path / f"Hourly_Emissions_3km_{date}_{date}.nc"
@@ -101,7 +102,7 @@ def create_analytic_data_array(
     dims: list[str],
     lon_mesh: np.ndarray,
     lat_mesh: np.ndarray,
-    ntime: int | None = None,
+    ntime: Union[int, None] = None,
 ) -> xr.DataArray:
     """
     Create an analytic data array using lat/lon values.
@@ -175,7 +176,6 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
         tmp_path: Path,
     ) -> None:
         """Test the regrid processor."""
-        # tdk:story: add MPI testing
         spy1 = mocker.spy(SmokeDustRegridProcessor, "_run_impl_")
         regrid_processor = SmokeDustRegridProcessor(data_for_test.context)
         regrid_processor.run(data_for_test.preprocessor.forecast_metadata)

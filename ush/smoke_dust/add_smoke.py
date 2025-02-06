@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""Add smoke/dust tracers to ICs."""
+
 import os
 from typing import Tuple
 
@@ -12,11 +14,11 @@ def populate_data(data: np.ndarray, target_shape: Tuple) -> np.ndarray:
     Extracted variables need to match the target shape so we first populating it into a zero array.
 
     Args:
-        data: The extracted data to be adjusted
-        target_shape: The shape of the target data array
+        data: The extracted data to be adjusted.
+        target_shape: The shape of the target data array.
 
     Returns:
-        The adjusted data array
+        The adjusted data array.
     """
     populated_data = np.zeros(target_shape)
     populated_data[: data.shape[0], :, :] = data
@@ -24,6 +26,9 @@ def populate_data(data: np.ndarray, target_shape: Tuple) -> np.ndarray:
 
 
 def main() -> None:
+    """
+    The main function ;-).
+    """
     # File paths
     source_file = "fv_tracer.res.tile1.nc"
     target_file = "gfs_data.tile7.halo0.nc"
@@ -60,8 +65,6 @@ def main() -> None:
     # smoke_2_add_populated = populate_data(smoke_2_add, (lev_dim, lat_dim, lon_dim))
     # dust_2_add_populated = populate_data(dust_2_add, (lev_dim, lat_dim, lon_dim))
     # coarsepm_2_add_populated = populate_data(coarsepm_2_add, (lev_dim, lat_dim, lon_dim))
-
-    # print('Max values in populated data:', smoke_2_add_populated.max(), dust_2_add_populated.max(), coarsepm_2_add_populated.max())
 
     # Create new data arrays filled with zeros
     smoke_zero = xr.DataArray(
