@@ -166,7 +166,8 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
             self.log(f"processing emissions for: {phy_data_path=}, {rave_path=}")
             if not phy_data_path.exists() and self._context.allow_dummy_restart:
                 self.log("restart file not found and dummy restart allowed. creating_dummy_emissions", level=logging.WARN)
-                self._context.create_dummy_emissions_file()
+                if self._context.rank == 0:
+                    self._context.create_dummy_emissions_file()
                 return
             with xr.open_dataset(phy_data_path) as nc_ds:
                 hwp_values = nc_ds.rrfs_hwp_ave.values.ravel()
