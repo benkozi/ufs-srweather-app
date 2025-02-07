@@ -129,35 +129,12 @@ class SmokeDustPreprocessor:
         self.log("run: entering")
         if self.is_first_day:
             if self._context.rank == 0:
-                self.create_dummy_emissions_file()
+                self._context.create_dummy_emissions_file()
         else:
             self._regrid_processor.run(self.forecast_metadata)
             if self._context.rank == 0:
                 self._cycle_processor.process_emissions(self.forecast_metadata)
         self.log("run: exiting")
-
-    def create_dummy_emissions_file(self) -> None:
-        """Create a dummy emissions file. This occurs if it is the first day of the forecast or
-        there is an exception and the context is set to not exit on error."""
-        self.log("create_dummy_emissions_file: enter")
-        self.log(f"{self._context.emissions_path=}")
-        with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as nc_ds:
-            create_template_emissions_file(nc_ds, self._context.grid_out_shape, is_dummy=True)
-            with open_nc(self._context.grid_out, parallel=False) as ds_src:
-                # pylint: disable=unsubscriptable-object
-                nc_ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
-                nc_ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
-                # pylint: enable=unsubscriptable-object
-
-            for varname in [
-                "frp_davg",
-                "ebb_rate",
-                "fire_end_hr",
-                "hwp_davg",
-                "totprcp_24hrs",
-            ]:
-                create_sd_variable(nc_ds, SD_VARS.get(varname))
-        self.log("create_dummy_emissions_file: exit")
 
     def finalize(self) -> None:
         """Finalize the preprocessor."""

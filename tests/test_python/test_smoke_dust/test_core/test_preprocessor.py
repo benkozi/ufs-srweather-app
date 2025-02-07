@@ -150,7 +150,7 @@ class TestSmokeDustPreprocessor:  # pylint: disable=too-few-public-methods
         """Test core capabilities of the preprocessor. Note this does not test regridding."""
         # pylint: disable=protected-access
         preprocessor = data_for_test.preprocessor
-        spy1 = mocker.spy(preprocessor, "create_dummy_emissions_file")
+        spy1 = mocker.spy(preprocessor._context.__class__, "create_dummy_emissions_file")
         regrid_processor_class = preprocessor._regrid_processor.__class__
         spy2 = mocker.spy(regrid_processor_class, "_run_impl_")
         spy3 = mocker.spy(regrid_processor_class, "run")

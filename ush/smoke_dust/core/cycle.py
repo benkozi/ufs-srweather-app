@@ -2,6 +2,7 @@
 
 import abc
 import datetime as dt
+import logging
 from typing import Any
 
 import numpy as np
@@ -163,6 +164,10 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
             phy_data_path = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
             rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
             self.log(f"processing emissions for: {phy_data_path=}, {rave_path=}")
+            if not phy_data_path.exists() and self._context.allow_dummy_restart:
+                self.log("restart file not found and dummy restart allowed. creating_dummy_emissions", level=logging.WARN)
+                self._context.create_dummy_emissions_file()
+                return
             with xr.open_dataset(phy_data_path) as nc_ds:
                 hwp_values = nc_ds.rrfs_hwp_ave.values.ravel()
                 tprcp_values = nc_ds.totprcp_ave.values.ravel()

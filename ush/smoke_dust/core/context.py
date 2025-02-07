@@ -11,7 +11,8 @@ from typing import Union, Annotated, Any
 from mpi4py import MPI
 from pydantic import BaseModel, model_validator, BeforeValidator, Field
 
-from smoke_dust.core.common import open_nc
+from smoke_dust.core.common import open_nc, create_template_emissions_file, create_sd_variable
+from smoke_dust.core.variable import SD_VARS
 
 
 @unique
@@ -170,6 +171,7 @@ class SmokeDustContext(BaseModel):
     to_s: int = 3600
     rank: int = MPI.COMM_WORLD.Get_rank()
     esmpy_debug: bool = False
+    allow_dummy_restart: bool = True
 
     # Set in _finalize_model_
     grid_out_shape: tuple[int, int] = (0, 0)
@@ -260,6 +262,29 @@ class SmokeDustContext(BaseModel):
         self._logger.log(level, msg, exc_info=exc_info, stacklevel=stacklevel)
         if exc_info is not None and self.exit_on_error:
             raise exc_info
+
+    def create_dummy_emissions_file(self) -> None:
+        """Create a dummy emissions file. This occurs if it is the first day of the forecast or
+        there is an exception and the context is set to not exit on error."""
+        self.log("create_dummy_emissions_file: enter")
+        self.log(f"{self.emissions_path=}")
+        with open_nc(self.emissions_path, "w", parallel=False, clobber=True) as nc_ds:
+            create_template_emissions_file(nc_ds, self.grid_out_shape, is_dummy=True)
+            with open_nc(self.grid_out, parallel=False) as ds_src:
+                # pylint: disable=unsubscriptable-object
+                nc_ds.variables["geolat"][:] = ds_src.variables["grid_latt"][:]
+                nc_ds.variables["geolon"][:] = ds_src.variables["grid_lont"][:]
+                # pylint: enable=unsubscriptable-object
+
+            for varname in [
+                "frp_davg",
+                "ebb_rate",
+                "fire_end_hr",
+                "hwp_davg",
+                "totprcp_24hrs",
+            ]:
+                create_sd_variable(nc_ds, SD_VARS.get(varname))
+        self.log("create_dummy_emissions_file: exit")
 
     def _init_logging_(self) -> logging.Logger:
         project_name = "smoke-dust-preprocessor"
