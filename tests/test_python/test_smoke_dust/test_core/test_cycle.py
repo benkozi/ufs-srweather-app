@@ -18,11 +18,10 @@ def context_for_test(request: SubRequest, tmp_path: Path, fake_grid_out_shape: F
 
 
 def test_writes_dummy_emissions_with_no_restart_files(context_for_test: SmokeDustContext) -> None:
-    preprocessor = SmokeDustPreprocessor(context_for_test)
     cycle = SmokeDustCycleTwo(context_for_test)
     assert not context_for_test.emissions_path.exists()
     try:
-        cycle.run(preprocessor.forecast_metadata)
+        cycle.run()
     except FileNotFoundError:
         assert not context_for_test.allow_dummy_restart
     else:

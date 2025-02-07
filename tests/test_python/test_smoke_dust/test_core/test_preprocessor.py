@@ -159,7 +159,7 @@ class TestSmokeDustPreprocessor:  # pylint: disable=too-few-public-methods
         spy5 = mocker.spy(cycle_processor_class, "average_frp")
 
         assert isinstance(preprocessor._cycle_processor, data_for_test.expected.klass)
-        assert preprocessor._forecast_metadata is None
+        assert preprocessor._cycle_processor._forecast_metadata is None
         # pylint: enable=protected-access
         assert not data_for_test.context.emissions_path.exists()
 

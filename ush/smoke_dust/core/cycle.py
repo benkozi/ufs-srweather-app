@@ -2,7 +2,9 @@
 
 import abc
 import datetime as dt
+import fnmatch
 import logging
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -39,6 +41,82 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
     def __init__(self, context: SmokeDustContext):
         self._context = context
 
+        # On-demand/cached property values
+        self._forecast_metadata = None
+        self._forecast_dates = None
+
+    @property
+    def forecast_dates(self) -> pd.DatetimeIndex:
+        """Create the forecast dates for cycle."""
+        if self._forecast_dates is not None:
+            return self._forecast_dates
+        start_datetime = self.create_start_datetime()
+        self.log(f"{start_datetime=}")
+        forecast_dates = pd.date_range(start=start_datetime, periods=24, freq="h").strftime(
+            "%Y%m%d%H"
+        )
+        self._forecast_dates = forecast_dates
+        return self._forecast_dates
+
+    @property
+    def forecast_metadata(self) -> pd.DataFrame:
+        """Create forecast metadata consisting of:
+
+        * ``forecast_date``: The forecast timestep as a `datetime` object.
+        * ``rave_interpolated``: To the date's corresponding interpolated RAVE file. Null if not
+            found.
+        * ``rave_raw``: Raw RAVE data before interpolation. Null if not found.
+        """
+        if self._forecast_metadata is not None:
+            return self._forecast_metadata
+
+        # Collect metadata on data files related to forecast dates
+        self.log("creating forecast metadata")
+        intp_path = []
+        rave_to_forecast = []
+        for date in self.forecast_dates:
+            # Check for pre-existing interpolated RAVE data
+            file_path = (
+                    Path(
+                        self._context.intp_dir) / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+            )
+            if file_path.exists() and file_path.is_file():
+                try:
+                    resolved = file_path.resolve(strict=True)
+                except FileNotFoundError:
+                    continue
+                else:
+                    intp_path.append(resolved)
+            else:
+                intp_path.append(None)
+
+            # Check for raw RAVE data
+            wildcard_name = f"*-3km*{date}*{date}59590*.nc"
+            name_retro = f"*3km*{date}*{date}*.nc"
+            found = False
+            for rave_path in self._context.ravedir.iterdir():
+                if fnmatch.fnmatch(str(rave_path), wildcard_name) or fnmatch.fnmatch(
+                        str(rave_path), name_retro
+                ):
+                    rave_to_forecast.append(rave_path)
+                    found = True
+                    break
+            if not found:
+                rave_to_forecast.append(None)
+
+        self.log(f"{self.forecast_dates}", level=logging.DEBUG)
+        self.log(f"{intp_path=}", level=logging.DEBUG)
+        self.log(f"{rave_to_forecast=}", level=logging.DEBUG)
+        data_frame = pd.DataFrame(
+            data={
+                "forecast_date": self.forecast_dates,
+                "rave_interpolated": intp_path,
+                "rave_raw": rave_to_forecast,
+            }
+        )
+        self._forecast_metadata = data_frame
+        return data_frame
+
     def log(self, *args: Any, **kwargs: Any) -> None:
         """
         See ``SmokeDustContext.log``.
@@ -59,23 +137,18 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
         """
 
     @abc.abstractmethod
-    def average_frp(self, forecast_metadata: pd.DataFrame) -> AverageFrpOutput:
+    def average_frp(self) -> AverageFrpOutput:
         """
         Calculate fire radiative power and smoke emissions from biomass burning.
 
-        Args:
-            forecast_metadata: Dataframe containing forecast metadata.
         Returns:
             Fire radiative power and smoke emissions.
         """
 
     @abc.abstractmethod
-    def run(self, forecast_metadata: pd.DataFrame) -> None:
+    def run(self) -> None:
         """
         Create smoke/dust ICs emissions file.
-
-        Args:
-            forecast_metadata: Dataframe containing forecast metadata.
         """
         
     def finalize(self) -> None:
@@ -99,8 +172,8 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
             start_datetime = self._context.fcst_datetime
         return start_datetime
 
-    def run(self, forecast_metadata: pd.DataFrame) -> None:
-        derived = self.average_frp(forecast_metadata)
+    def run(self) -> None:
+        derived = self.average_frp()
         self.log(f"creating 24-hour emissions file: {self._context.emissions_path}")
         with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds_out:
             create_template_emissions_file(ds_out, self._context.grid_out_shape)
@@ -111,7 +184,7 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
                 create_sd_variable(ds_out, SD_VARS.get(var_name))
                 ds_out.variables[var_name][:] = fill_array
 
-    def average_frp(self, forecast_metadata: pd.DataFrame) -> AverageFrpOutput:
+    def average_frp(self) -> AverageFrpOutput:
         ebb_smoke_total = []
         frp_avg_hr = []
 
@@ -120,7 +193,7 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
         with xr.open_dataset(self._context.grid_out) as nc_ds:
             target_area = nc_ds["area"].values
 
-        for row_idx, row_df in forecast_metadata.iterrows():
+        for row_idx, row_df in self.forecast_metadata.iterrows():
             self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
             with xr.open_dataset(row_df["rave_interpolated"]) as nc_ds:
                 fre = nc_ds[EmissionVariable.FRE.smoke_dust_name()][0, :, :].values
@@ -157,10 +230,11 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         self.log("Creating emissions for modulated persistence by Wildfire potential")
         return self._context.fcst_datetime - dt.timedelta(days=1, hours=1)
 
-    def run(self, forecast_metadata: pd.DataFrame) -> None:
+    def run(self) -> None:
         # pylint: disable=too-many-statements
         self.log("run: enter")
 
+        forecast_metadata = self.forecast_metadata
         hwp_ave = []
         totprcp = np.zeros(self._context.grid_out_shape).ravel()
         for date in forecast_metadata["forecast_date"]:
@@ -182,7 +256,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         xarr_hwp = xr.DataArray(hwp_ave_arr)
         xarr_totprcp = xr.DataArray(totprcp_ave_arr)
 
-        derived = self.average_frp(forecast_metadata)
+        derived = self.average_frp()
 
         t_fire = np.zeros(self._context.grid_out_shape)
         for date in forecast_metadata["forecast_date"]:
@@ -248,7 +322,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         self.log("run: exit")
         # pylint: enable=too-many-statements
 
-    def average_frp(self, forecast_metadata: pd.DataFrame) -> AverageFrpOutput:
+    def average_frp(self) -> AverageFrpOutput:
         self.log("average_frp: entering")
 
         frp_daily = np.zeros(self._context.grid_out_shape).ravel()
@@ -259,7 +333,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         with xr.open_dataset(self._context.grid_out) as nc_ds:
             target_area = nc_ds["area"].values
 
-        for row_idx, row_df in forecast_metadata.iterrows():
+        for row_idx, row_df in self.forecast_metadata.iterrows():
             self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
             with xr.open_dataset(row_df["rave_interpolated"]) as nc_ds:
                 fre = nc_ds[EmissionVariable.FRE.smoke_dust_name()][0, :, :].values
