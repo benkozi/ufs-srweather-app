@@ -139,18 +139,5 @@ env
 ${SCRIPTSdir}/exsrw_smoke_dust.sh
 export err=$?; err_chk
 
-if [ -e "$pgmout" ]; then
-  cat $pgmout
-fi
-#
-#-----------------------------------------------------------------------
-#
-# Whether or not working directory DATA should be kept.
-#
-#-----------------------------------------------------------------------
-#
-if [ "${KEEPDATA}" = "NO" ]; then
-  rm -rf ${DATA}
-fi
-date
+job_postamble
 
