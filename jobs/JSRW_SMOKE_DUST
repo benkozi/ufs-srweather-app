@@ -20,8 +20,35 @@ export PS4='+ $SECONDS + '
 for sect in user nco platform workflow global smoke_dust_parm ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
-. $USHdir/job_preamble.sh
+set -xue
+#
+#-----------------------------------------------------------------------
+#
+# Get the full path to the file in which this script/function is located 
+# (scrfunc_fp), the name of that file (scrfunc_fn), and the directory in
+# which the file is located (scrfunc_dir).
+#
+#-----------------------------------------------------------------------
+#
+scrfunc_fp=$( $READLINK -f "${BASH_SOURCE[0]}" )
+scrfunc_fn=$( basename "${scrfunc_fp}" )
+scrfunc_dir=$( dirname "${scrfunc_fp}" )
+#
+#-----------------------------------------------------------------------
+#
+# Print message indicating entry into script.
+#
+#-----------------------------------------------------------------------
+#
+print_info_msg "
+========================================================================
+Entering script:  \"${scrfunc_fn}\"
+In directory:     \"${scrfunc_dir}\"
 
+This is the J-job script for the task that copies or fetches RAVE fire
+emission data files from disk, or HPSS.
+========================================================================"
+#
 #
 #-----------------------------------------------------------------------
 #
@@ -29,23 +56,12 @@ done
 #
 #-----------------------------------------------------------------------
 #
-
+export pgmout="${DATA}/OUTPUT.$$"
 env
+exit 1 #tdk:rm
+
 ${SCRIPTSdir}/exsrw_smoke_dust.sh
 export err=$?; err_chk
 
-if [ -e "$pgmout" ]; then
-  cat $pgmout
-fi
-#
-#-----------------------------------------------------------------------
-#
-# Whether or not working directory DATA should be kept.
-#
-#-----------------------------------------------------------------------
-#
-if [ "${KEEPDATA}" = "NO" ]; then
-  rm -rf ${DATA}
-fi
-date
+job_postamble
 
