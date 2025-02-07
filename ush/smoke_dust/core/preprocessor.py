@@ -133,7 +133,7 @@ class SmokeDustPreprocessor:
         else:
             self._regrid_processor.run(self.forecast_metadata)
             if self._context.rank == 0:
-                self._cycle_processor.process_emissions(self.forecast_metadata)
+                self._cycle_processor.run(self.forecast_metadata)
         self.log("run: exiting")
 
     def finalize(self) -> None:

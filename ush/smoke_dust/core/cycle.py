@@ -70,13 +70,16 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
         """
 
     @abc.abstractmethod
-    def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
+    def run(self, forecast_metadata: pd.DataFrame) -> None:
         """
         Create smoke/dust ICs emissions file.
 
         Args:
             forecast_metadata: Dataframe containing forecast metadata.
         """
+        
+    def finalize(self) -> None:
+        """Optional override for subclasses."""
 
 
 class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
@@ -96,7 +99,7 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
             start_datetime = self._context.fcst_datetime
         return start_datetime
 
-    def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
+    def run(self, forecast_metadata: pd.DataFrame) -> None:
         derived = self.average_frp(forecast_metadata)
         self.log(f"creating 24-hour emissions file: {self._context.emissions_path}")
         with open_nc(self._context.emissions_path, "w", parallel=False, clobber=True) as ds_out:
@@ -154,9 +157,9 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         self.log("Creating emissions for modulated persistence by Wildfire potential")
         return self._context.fcst_datetime - dt.timedelta(days=1, hours=1)
 
-    def process_emissions(self, forecast_metadata: pd.DataFrame) -> None:
+    def run(self, forecast_metadata: pd.DataFrame) -> None:
         # pylint: disable=too-many-statements
-        self.log("process_emissions: enter")
+        self.log("run: enter")
 
         hwp_ave = []
         totprcp = np.zeros(self._context.grid_out_shape).ravel()
@@ -242,7 +245,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
                 create_sd_variable(ds_out, SD_VARS.get(varname))
                 ds_out.variables[varname][0, :, :] = fill_array
 
-        self.log("process_emissions: exit")
+        self.log("run: exit")
         # pylint: enable=too-many-statements
 
     def average_frp(self, forecast_metadata: pd.DataFrame) -> AverageFrpOutput:

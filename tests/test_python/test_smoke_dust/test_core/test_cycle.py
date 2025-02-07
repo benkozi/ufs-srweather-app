@@ -22,7 +22,7 @@ def test_writes_dummy_emissions_with_no_restart_files(context_for_test: SmokeDus
     cycle = SmokeDustCycleTwo(context_for_test)
     assert not context_for_test.emissions_path.exists()
     try:
-        cycle.process_emissions(preprocessor.forecast_metadata)
+        cycle.run(preprocessor.forecast_metadata)
     except FileNotFoundError:
         assert not context_for_test.allow_dummy_restart
     else:

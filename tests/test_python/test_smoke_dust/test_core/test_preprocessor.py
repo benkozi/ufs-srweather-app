@@ -155,7 +155,7 @@ class TestSmokeDustPreprocessor:  # pylint: disable=too-few-public-methods
         spy2 = mocker.spy(regrid_processor_class, "_run_impl_")
         spy3 = mocker.spy(regrid_processor_class, "run")
         cycle_processor_class = preprocessor._cycle_processor.__class__
-        spy4 = mocker.spy(cycle_processor_class, "process_emissions")
+        spy4 = mocker.spy(cycle_processor_class, "run")
         spy5 = mocker.spy(cycle_processor_class, "average_frp")
 
         assert isinstance(preprocessor._cycle_processor, data_for_test.expected.klass)
