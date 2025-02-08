@@ -238,15 +238,20 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         forecast_metadata = self.forecast_metadata
         hwp_ave = []
         totprcp = np.zeros(self._context.grid_out_shape).ravel()
-        for date in forecast_metadata["forecast_date"]:
-            phy_data_path = self._context.hourly_hwpdir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
-            rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
-            self.log(f"processing emissions for: {phy_data_path=}, {rave_path=}")
-            if not phy_data_path.exists() and self._context.allow_dummy_restart:
-                self.log("restart file not found and dummy restart allowed. creating_dummy_emissions", level=logging.WARN)
+
+        phy_data_paths = list(self._iter_restart_files_(self._context.hourly_hwpdir, ("rrfs_hwp_ave", "totprcp_ave")))
+        if len(phy_data_paths) == 0:
+            if self._context.allow_dummy_restart:
+                self.log("restart files not found and dummy restart allowed. creating_dummy_emissions",
+                         level=logging.WARN)
                 if self._context.rank == 0:
                     self._context.create_dummy_emissions_file()
                 return
+            else:
+                raise FileNotFoundError("no restart files found")
+
+        for phy_data_path in phy_data_paths:
+            self.log(f"processing emissions for: {phy_data_path=}")
             with xr.open_dataset(phy_data_path) as nc_ds:
                 hwp_values = nc_ds.rrfs_hwp_ave.values.ravel()
                 tprcp_values = nc_ds.totprcp_ave.values.ravel()
@@ -381,6 +386,20 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
             }
         )
 
+    def _iter_restart_files_(self, root_dir: Path, expected_vars: tuple[str, ...]) -> Iterator[Path]:
+        filenames = glob.glob("**/*phy_data*nc", root_dir=root_dir, recursive=True)
+        for filename in filenames:
+            path = root_dir / filename
+            try:
+                resolved = path.resolve(strict=True)
+            except FileNotFoundError:
+                self.log(f"restart file link not resolvable: {path}", level=logging.WARN)
+                continue
+            with open_nc(resolved) as nc_ds:
+                variables = nc_ds.variables.keys()
+                if all(expected_var in variables for expected_var in expected_vars):
+                    yield path
+
 
 def create_cycle_processor(
     context: SmokeDustContext,
@@ -395,14 +414,3 @@ def create_cycle_processor(
             return SmokeDustCycleTwo(context)
         case _:
             raise NotImplementedError(context.ebb_dcycle)
-
-
-def _iter_restart_files_(root_dir: Path, expected_vars: tuple[str, ...]) -> Iterator[Path]:
-    filenames = glob.glob("**/*phy_data*nc", root_dir=root_dir, recursive=True)
-    for filename in filenames:
-        path = root_dir / filename
-        with open_nc(path) as nc_ds:
-            variables = nc_ds.variables.keys()
-            if all(expected_var in variables for expected_var in expected_vars):
-                yield path
-
