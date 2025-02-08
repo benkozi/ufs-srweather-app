@@ -3,9 +3,10 @@
 import abc
 import datetime as dt
 import fnmatch
+import glob
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 import numpy as np
 import pandas as pd
@@ -394,3 +395,14 @@ def create_cycle_processor(
             return SmokeDustCycleTwo(context)
         case _:
             raise NotImplementedError(context.ebb_dcycle)
+
+
+def _iter_restart_files_(root_dir: Path, expected_vars: tuple[str, ...]) -> Iterator[Path]:
+    filenames = glob.glob("**/*phy_data*nc", root_dir=root_dir, recursive=True)
+    for filename in filenames:
+        path = root_dir / filename
+        with open_nc(path) as nc_ds:
+            variables = nc_ds.variables.keys()
+            if all(expected_var in variables for expected_var in expected_vars):
+                yield path
+
