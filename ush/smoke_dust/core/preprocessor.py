@@ -1,21 +1,12 @@
 """Smoke/dust preprocessor core implementation."""
 
-import fnmatch
-import logging
-from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
-from smoke_dust.core.common import (
-    open_nc,
-    create_template_emissions_file,
-    create_sd_variable,
-)
 from smoke_dust.core.context import SmokeDustContext
 from smoke_dust.core.cycle import create_cycle_processor
 from smoke_dust.core.regrid.processor import SmokeDustRegridProcessor
-from smoke_dust.core.variable import SD_VARS
 
 
 class SmokeDustPreprocessor:

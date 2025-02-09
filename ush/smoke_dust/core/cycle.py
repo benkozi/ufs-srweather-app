@@ -78,8 +78,7 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
         for date in self.forecast_dates:
             # Check for pre-existing interpolated RAVE data
             file_path = (
-                    Path(
-                        self._context.intp_dir) / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
+                Path(self._context.intp_dir) / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
             )
             if file_path.exists() and file_path.is_file():
                 try:
@@ -97,7 +96,7 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
             found = False
             for rave_path in self._context.ravedir.iterdir():
                 if fnmatch.fnmatch(str(rave_path), wildcard_name) or fnmatch.fnmatch(
-                        str(rave_path), name_retro
+                    str(rave_path), name_retro
                 ):
                     rave_to_forecast.append(rave_path)
                     found = True
@@ -151,7 +150,7 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
         """
         Create smoke/dust ICs emissions file.
         """
-        
+
     def finalize(self) -> None:
         """Optional override for subclasses."""
 
@@ -239,11 +238,15 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         hwp_ave = []
         totprcp = np.zeros(self._context.grid_out_shape).ravel()
 
-        phy_data_paths = list(self._iter_restart_files_(self._context.hourly_hwpdir, ("rrfs_hwp_ave", "totprcp_ave")))
+        phy_data_paths = list(
+            self._iter_restart_files_(self._context.hourly_hwpdir, ("rrfs_hwp_ave", "totprcp_ave"))
+        )
         if len(phy_data_paths) == 0:
             if self._context.allow_dummy_restart:
-                self.log("restart files not found and dummy restart allowed. creating_dummy_emissions",
-                         level=logging.WARN)
+                self.log(
+                    "restart files not found and dummy restart allowed. creating_dummy_emissions",
+                    level=logging.WARN,
+                )
                 if self._context.rank == 0:
                     self._context.create_dummy_emissions_file()
                 return
@@ -386,7 +389,9 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
             }
         )
 
-    def _iter_restart_files_(self, root_dir: Path, expected_vars: tuple[str, ...]) -> Iterator[Path]:
+    def _iter_restart_files_(
+        self, root_dir: Path, expected_vars: tuple[str, ...]
+    ) -> Iterator[Path]:
         filenames = glob.glob("**/*phy_data*nc", root_dir=root_dir, recursive=True)
         for filename in filenames:
             path = root_dir / filename
