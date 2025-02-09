@@ -4,10 +4,10 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Tuple, Literal, Dict
 
-from netCDF4 import Dataset
 import numpy as np
 import pandas as pd
 from mpi4py import MPI
+from netCDF4 import Dataset
 
 from smoke_dust.core.variable import SmokeDustVariable, SD_VARS
 
