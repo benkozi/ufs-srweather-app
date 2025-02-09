@@ -30,10 +30,12 @@ class SmokeDustPreprocessor:
 
     @property
     def forecast_dates(self) -> pd.DatetimeIndex:
+        """See ``AbstractSmokeDustCycleProcessor.forecast_dates``."""
         return self._cycle_processor.forecast_dates
 
     @property
     def forecast_metadata(self) -> pd.DataFrame:
+        """See ``AbstractSmokeDustCycleProcessor.forecast_metadata``."""
         return self._cycle_processor.forecast_metadata
 
     @property

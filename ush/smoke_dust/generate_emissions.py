@@ -102,7 +102,7 @@ def main(  # pylint:disable=too-many-arguments
         processor.run()
         processor.finalize()
     except Exception as e:  # pylint: disable=broad-exception-caught
-        processor.create_dummy_emissions_file()
+        context.create_dummy_emissions_file()
         context.log("unhandled error", exc_info=e)
 
     typer.echo("Exiting. Bye!")

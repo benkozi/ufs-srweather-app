@@ -250,8 +250,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
                 if self._context.rank == 0:
                     self._context.create_dummy_emissions_file()
                 return
-            else:
-                raise FileNotFoundError("no restart files found")
+            raise FileNotFoundError("no restart files found")
 
         for phy_data_path in phy_data_paths:
             self.log(f"processing emissions for: {phy_data_path=}")
@@ -401,7 +400,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
                 self.log(f"restart file link not resolvable: {path}", level=logging.WARN)
                 continue
             with open_nc(resolved) as nc_ds:
-                variables = nc_ds.variables.keys()
+                variables = nc_ds.variables.keys()  # pylint: disable=no-member
                 if all(expected_var in variables for expected_var in expected_vars):
                     yield path
 

@@ -1,3 +1,5 @@
+"""Tests related to the smoke/dust cycle processor."""
+
 from pathlib import Path
 
 import pytest
@@ -17,12 +19,14 @@ from test_python.test_smoke_dust.conftest import (
 def context_for_dummy_test(
     request: SubRequest, tmp_path: Path, fake_grid_out_shape: FakeGridOutShape
 ) -> SmokeDustContext:
+    """Create a context for the dummy restart files test."""
     create_fake_grid_out(tmp_path, fake_grid_out_shape)
     context = create_fake_context(tmp_path, overrides={"allow_dummy_restart": request.param})
     return context
 
 
 def create_restart_ncfile(path: Path, varnames: list[str]) -> None:
+    """Create a physics-related restart netCDF file."""
     with open_nc(path, mode="w") as nc_ds:
         dim = nc_ds.createDimension("foo")
         for varname in varnames:
@@ -30,11 +34,12 @@ def create_restart_ncfile(path: Path, varnames: list[str]) -> None:
 
 
 class TestSmokeDustCycleTwo:
+    """..."""
 
     def test_writes_dummy_emissions_with_no_restart_files(
-        self, context_for_dummy_test: SmokeDustContext
+        self, context_for_dummy_test: SmokeDustContext  # pylint: disable=redefined-outer-name
     ) -> None:
-
+        """Test that dummy emissions are handled appropriately when no restart files are present."""
         cycle = SmokeDustCycleTwo(context_for_dummy_test)
         assert not context_for_dummy_test.emissions_path.exists()
         try:
@@ -47,6 +52,7 @@ class TestSmokeDustCycleTwo:
     def test_iter_restart_files(
         self, tmp_path: Path, fake_grid_out_shape: FakeGridOutShape
     ) -> None:
+        """Test iterating over restart files."""
         create_fake_grid_out(tmp_path, fake_grid_out_shape)
         context = create_fake_context(tmp_path)
         cycle = SmokeDustCycleTwo(context)
@@ -60,7 +66,7 @@ class TestSmokeDustCycleTwo:
         for root_dir in [outdir, tmp_path]:
             print(root_dir)
             restart_files = list(
-                cycle._iter_restart_files_(
+                cycle._iter_restart_files_(  # pylint: disable=protected-access
                     root_dir,
                     expected_vars,
                 )
