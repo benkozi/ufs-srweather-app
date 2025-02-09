@@ -30,6 +30,8 @@ class TestSmokeDustCycleTwo:
 
     def test_writes_dummy_emissions_with_no_restart_files(
             self, context_for_dummy_test: SmokeDustContext) -> None:
+
+
         cycle = SmokeDustCycleTwo(context_for_dummy_test)
         assert not context_for_dummy_test.emissions_path.exists()
         try:
