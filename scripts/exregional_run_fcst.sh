@@ -374,6 +374,7 @@ if [ $(boolify "${CPL_AQM}") = "TRUE" ] || [ $(boolify "${DO_SMOKE_DUST}") = "TR
     ln -nsf ${FIXsmoke}/${PREDEF_GRID_NAME}/emi_data.nc .
 
     smokefile="${COMIN}/${SMOKE_DUST_FILE_PREFIX}_${PDY}${cyc}00.nc"
+    echo "smokefile=${smokefile}"
     if [ -f ${smokefile} ]; then
       ln -nsf ${smokefile} ${SMOKE_DUST_FILE_PREFIX}.nc
     else
