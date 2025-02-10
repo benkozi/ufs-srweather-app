@@ -337,6 +337,7 @@ cd ${DATA}/INPUT
 #
 relative_link_flag="FALSE"
 print_info_msg "COMIN original=${COMIN}"
+COMIN_community="${COMIN}"
 if [ $(boolify "${CPL_AQM}") = "TRUE" ] || [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
   COMIN="${COMROOT}/${NET}/${model_ver}/${RUN}.${PDY}/${cyc}${SLASH_ENSMEM_SUBDIR}" #temporary path, should be removed later
 
@@ -373,7 +374,7 @@ if [ $(boolify "${CPL_AQM}") = "TRUE" ] || [ $(boolify "${DO_SMOKE_DUST}") = "TR
     ln -nsf ${FIXsmoke}/${PREDEF_GRID_NAME}/dust12m_data.nc .
     ln -nsf ${FIXsmoke}/${PREDEF_GRID_NAME}/emi_data.nc .
 
-    smokefile="${COMIN}/${SMOKE_DUST_FILE_PREFIX}_${PDY}${cyc}00.nc"
+    smokefile="${COMIN_community}/${SMOKE_DUST_FILE_PREFIX}_${PDY}${cyc}00.nc"
     print_info_msg "smokefile=${smokefile}"
     if [ -f ${smokefile} ]; then
       ln -nsf ${smokefile} ${SMOKE_DUST_FILE_PREFIX}.nc
