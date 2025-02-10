@@ -64,7 +64,7 @@ export COMINrave="${COMINrave:-${COMINrave_default}}"
 #
 # Create the directory to hold interpolated RAVE data
 #
-RAVEdir_intp="${COMOUT}/RAVE_fire_intp"
+export RAVEdir_intp="${COMOUT}/RAVE_fire_intp"
 mkdir -p "${RAVEdir_intp}"
 
 #-----------------------------------------------------------------------
