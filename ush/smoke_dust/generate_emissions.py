@@ -97,6 +97,7 @@ def main(  # pylint:disable=too-many-arguments
         exit_on_error=exit_on_error,
         regrid_in_memory=regrid_in_memory,
     )
+    context.log(f"{os.environ=}", level=LogLevel.DEBUG)
     processor = SmokeDustPreprocessor(context)
     try:
         processor.run()
