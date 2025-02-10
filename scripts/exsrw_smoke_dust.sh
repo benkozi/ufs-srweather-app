@@ -80,19 +80,19 @@ else
     fire_hr_fn="Hourly_Emissions_3km_${fire_hr_cdate}00_${fire_hr_cdate}00.nc"
     if [ -f "${COMINrave}/${fire_hr_fn}" ]; then
       echo "Hourly emission file for $hour was found: ${fire_hr_fn}"
-      ln -nsf ${COMINrave}/${fire_hr_fn} .
+      ln -nsf ${COMINrave}/${fire_hr_fn} "${COMIN}/${fire_hr_fn}"
     else
       # Check various version of RAVE raw data files (new and old)
       rave_raw_fn1="RAVE-HrlyEmiss-3km_v2r0_blend_s${fire_hr_cdate}00000_e${fire_hr_pdy}23*"
       rave_raw_fn2="Hourly_Emissions_3km_${fire_hr_cdate}00_${fire_hr_pdy}23*"
       # Find files matching the specified patterns
       files_found=$(find "${COMINrave}" -type f \( -name "${rave_raw_fn1##*/}" -o -name "${rave_raw_fn2##*/}" \))
-      # Splitting 24-hour RAVE raw data into houly data
+      # Splitting 24-hour RAVE raw data into hourly data
       for file_to_use in $files_found; do
         echo "Using file: $file_to_use"
         echo "Splitting data for hour $hour..."
-        ncks -d time,$hour,$hour "${COMINrave}/${file_to_use}" "${DATA}/${fire_hr_fn}"
-        if [ -f "${DATA}/${fire_hr_fn}" ]; then
+        ncks -d time,$hour,$hour "${COMINrave}/${file_to_use}" "${COMIN}/${fire_hr_fn}"
+        if [ -f "${COMIN}/${fire_hr_fn}" ]; then
           break
         else
           echo "WARNING: Hourly emission file for $hour was NOT created from ${file_to_use}."
@@ -101,16 +101,22 @@ else
     fi
   done
   #
+  # Create the directory to hold interpolated RAVE data
+  #
+#  RAVEdir_intp="${COMOUT%/*}/smoke_dust.RAVE_fire_intp"
+  RAVEdir_intp="${COMOUT}/smoke_dust.RAVE_fire_intp"
+  mkdir -p "${RAVEdir_intp}"
+  #
   #-----------------------------------------------------------------------
   #
   # Call python script to generate fire emission files.
   #
   #-----------------------------------------------------------------------
-  #
+
   mpirun -n ${nprocs} ${USHdir}/smoke_dust/generate_emissions.py \
     --staticdir "${FIXsmoke}/${PREDEF_GRID_NAME}" \
-    --ravedir "${DATA}" \
-    --intp-dir "${DATA_SHARE}" \
+    --ravedir "${COMIN}" \
+    --intp-dir "${RAVEdir_intp}" \
     --predef-grid "${PREDEF_GRID_NAME}" \
     --ebb-dcycle "${EBB_DCYCLE}" \
     --restart-interval "${RESTART_INTERVAL}" \
