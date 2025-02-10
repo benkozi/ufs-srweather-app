@@ -57,13 +57,15 @@ In directory:     \"${scrfunc_dir}\"
 This is the J-job script for the task that copies or fetches RAVE fire
 emission data files from disk, or HPSS.
 ========================================================================"
-#
+
 export COMINsmoke="${COMINsmoke:-${COMINsmoke_default}}"
 export COMINrave="${COMINrave:-${COMINrave_default}}"
 
-# Create a teomporary share directory for RAVE interpolated data files
-export DATA_SHARE="${DATA_SHARE:-${DATAROOT}/DATA_SHARE/RAVE_fire_intp}"
-mkdir -p ${DATA_SHARE}
+#
+# Create the directory to hold interpolated RAVE data
+#
+RAVEdir_intp="${COMOUT}/RAVE_fire_intp"
+mkdir -p "${RAVEdir_intp}"
 
 #-----------------------------------------------------------------------
 #

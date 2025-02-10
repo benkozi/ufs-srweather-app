@@ -101,12 +101,6 @@ else
     fi
   done
   #
-  # Create the directory to hold interpolated RAVE data
-  #
-#  RAVEdir_intp="${COMOUT%/*}/smoke_dust.RAVE_fire_intp"
-  RAVEdir_intp="${COMOUT}/smoke_dust.RAVE_fire_intp"
-  mkdir -p "${RAVEdir_intp}"
-  #
   #-----------------------------------------------------------------------
   #
   # Call python script to generate fire emission files.
@@ -132,7 +126,7 @@ else
   fi
 
   # Copy Smoke file to COMOUT
-  cp -p ${DATA_SHARE}/${smokeFile} ${COMOUT}
+  cp -p "${RAVEdir_intp}/${smokeFile}" "${COMOUT}"
 fi
 #
 #-----------------------------------------------------------------------
