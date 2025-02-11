@@ -335,10 +335,13 @@ cd ${DATA}/INPUT
 # The symlinks to be created point to files in the same directory (INPUT),
 # so it's most straightforward to use relative paths.
 #
+
 relative_link_flag="FALSE"
 print_info_msg "COMIN original=${COMIN}"
 COMIN_community="${COMIN}"
 if [ $(boolify "${CPL_AQM}") = "TRUE" ] || [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
+  print_info_msg "COMROOT.343=${COMIN}"
+  print_info_msg "readlink.344=$(readlink -f .)"
   COMIN="${COMROOT}/${NET}/${model_ver}/${RUN}.${PDY}/${cyc}${SLASH_ENSMEM_SUBDIR}" #temporary path, should be removed later
 
   target="${COMIN}/${NET}.${cycle}${dot_ensmem}.gfs_data.tile${TILE_RGNL}.halo${NH0}.nc"
