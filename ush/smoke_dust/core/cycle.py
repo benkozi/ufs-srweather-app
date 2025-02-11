@@ -397,9 +397,11 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         self,
     ) -> Iterator[Path]:
         root_dir = self._root_restart_dir
+        self.log(f"_iter_restart_files_: {root_dir=}")
         filenames = glob.glob("**/*phy_data*nc", root_dir=root_dir, recursive=True)
         potential_restart_files = [f"{cycle[:8]}.{cycle[8:10]}0000.phy_data.nc" for cycle in self.cycle_dates]
         for filename in filenames:
+            self.log(f"_iter_restart_files_: {filename=}")
             path = root_dir / filename
             if path.name in potential_restart_files:
                 try:
@@ -410,6 +412,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
                 with open_nc(resolved) as nc_ds:
                     variables = nc_ds.variables.keys()  # pylint: disable=no-member
                     if all(expected_var in variables for expected_var in self.expected_restart_varnames):
+                        self.log(f"_iter_restart_files_: found restart path {root_dir=}")
                         yield path
 
 
