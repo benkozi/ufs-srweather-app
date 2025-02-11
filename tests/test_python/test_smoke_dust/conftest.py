@@ -113,19 +113,19 @@ def create_file_hash(path: Path) -> str:
 
 
 def create_fake_restart_files(
-    root_dir: Path, forecast_dates: pd.DatetimeIndex, shape: FakeGridOutShape
+    root_dir: Path, cycle_dates: pd.DatetimeIndex, shape: FakeGridOutShape
 ) -> None:
     """
     Create fake restart files expected for EBB_DCYLE=2.
 
     Args:
         root_dir: Directory to create fake files in.
-        forecast_dates: The series of dates to create the restart files for.
+        cycle_dates: The series of dates to create the restart files for.
         shape: Output grid shape.
     """
     restart_dir = root_dir / "RESTART"
     restart_dir.mkdir(exist_ok=True)
-    for date in forecast_dates:
+    for date in cycle_dates:
         restart_file = restart_dir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
         with Dataset(restart_file, "w") as nc_ds:
             nc_ds.createDimension("Time")

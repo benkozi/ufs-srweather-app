@@ -28,7 +28,7 @@ from test_python.test_smoke_dust.conftest import (
 
 def create_fake_rave_interpolated(
     root_dir: Path,
-    forecast_dates: pd.DatetimeIndex,
+    cycle_dates: pd.DatetimeIndex,
     shape: FakeGridOutShape,
     rave_to_intp: str,
 ) -> None:
@@ -37,11 +37,11 @@ def create_fake_rave_interpolated(
 
     Args:
         root_dir: The directory to create fake interpolated data in.
-        forecast_dates: The series of dates to create the interpolated data for.
+        cycle_dates: The series of dates to create the interpolated data for.
         shape: The output grid shape.
         rave_to_intp: Filename prefix to use for output files.
     """
-    for date in forecast_dates:
+    for date in cycle_dates:
         intp_file = root_dir / f"{rave_to_intp}{date}00_{date}59.nc"
         dims = ("t", "lat", "lon")
         with Dataset(intp_file, "w") as nc_ds:
@@ -102,10 +102,10 @@ def data_for_test(
     create_fake_veg_map(tmp_path, fake_grid_out_shape)
     context = create_fake_context(tmp_path, overrides={"ebb_dcycle": request.param.flag})
     preprocessor = SmokeDustPreprocessor(context)
-    create_fake_restart_files(tmp_path, preprocessor.forecast_dates, fake_grid_out_shape)
+    create_fake_restart_files(tmp_path, preprocessor.cycle_dates, fake_grid_out_shape)
     create_fake_rave_interpolated(
         tmp_path,
-        preprocessor.forecast_dates,
+        preprocessor.cycle_dates,
         fake_grid_out_shape,
         context.predef_grid.value + "_intp_",
     )
@@ -132,7 +132,7 @@ class TestSmokeDustPreprocessor:  # pylint: disable=too-few-public-methods
         spy5 = mocker.spy(cycle_processor_class, "average_frp")
 
         assert isinstance(preprocessor._cycle_processor, data_for_test.expected.klass)
-        assert preprocessor._cycle_processor._forecast_metadata is None
+        assert preprocessor._cycle_processor._cycle_metadata is None
         # pylint: enable=protected-access
         assert not data_for_test.context.emissions_path.exists()
 

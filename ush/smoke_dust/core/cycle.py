@@ -43,24 +43,24 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
         self._context = context
 
         # On-demand/cached property values
-        self._forecast_metadata = None
-        self._forecast_dates = None
+        self._cycle_metadata = None
+        self._cycle_dates = None
 
     @property
-    def forecast_dates(self) -> pd.DatetimeIndex:
+    def cycle_dates(self) -> pd.DatetimeIndex:
         """Create the forecast dates for cycle."""
-        if self._forecast_dates is not None:
-            return self._forecast_dates
+        if self._cycle_dates is not None:
+            return self._cycle_dates
         start_datetime = self.create_start_datetime()
         self.log(f"{start_datetime=}")
-        forecast_dates = pd.date_range(start=start_datetime, periods=24, freq="h").strftime(
+        cycle_dates = pd.date_range(start=start_datetime, periods=24, freq="h").strftime(
             "%Y%m%d%H"
         )
-        self._forecast_dates = forecast_dates
-        return self._forecast_dates
+        self._cycle_dates = cycle_dates
+        return self._cycle_dates
 
     @property
-    def forecast_metadata(self) -> pd.DataFrame:
+    def cycle_metadata(self) -> pd.DataFrame:
         """Create forecast metadata consisting of:
 
         * ``forecast_date``: The forecast timestep as a `datetime` object.
@@ -68,14 +68,14 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
             found.
         * ``rave_raw``: Raw RAVE data before interpolation. Null if not found.
         """
-        if self._forecast_metadata is not None:
-            return self._forecast_metadata
+        if self._cycle_metadata is not None:
+            return self._cycle_metadata
 
         # Collect metadata on data files related to forecast dates
         self.log("creating forecast metadata")
         intp_path = []
         rave_to_forecast = []
-        for date in self.forecast_dates:
+        for date in self.cycle_dates:
             # Check for pre-existing interpolated RAVE data
             file_path = (
                 Path(self._context.intp_dir) / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
@@ -104,17 +104,17 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
             if not found:
                 rave_to_forecast.append(None)
 
-        self.log(f"{self.forecast_dates}", level=logging.DEBUG)
+        self.log(f"{self.cycle_dates}", level=logging.DEBUG)
         self.log(f"{intp_path=}", level=logging.DEBUG)
         self.log(f"{rave_to_forecast=}", level=logging.DEBUG)
         data_frame = pd.DataFrame(
             data={
-                "forecast_date": self.forecast_dates,
+                "forecast_date": self.cycle_dates,
                 "rave_interpolated": intp_path,
                 "rave_raw": rave_to_forecast,
             }
         )
-        self._forecast_metadata = data_frame
+        self._cycle_metadata = data_frame
         return data_frame
 
     def log(self, *args: Any, **kwargs: Any) -> None:
@@ -193,7 +193,7 @@ class SmokeDustCycleOne(AbstractSmokeDustCycleProcessor):
         with xr.open_dataset(self._context.grid_out) as nc_ds:
             target_area = nc_ds["area"].values
 
-        for row_idx, row_df in self.forecast_metadata.iterrows():
+        for row_idx, row_df in self.cycle_metadata.iterrows():
             self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
             with xr.open_dataset(row_df["rave_interpolated"]) as nc_ds:
                 fre = nc_ds[EmissionVariable.FRE.smoke_dust_name()][0, :, :].values
@@ -239,7 +239,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         # pylint: disable=too-many-statements
         self.log("run: enter")
 
-        forecast_metadata = self.forecast_metadata
+        cycle_metadata = self.cycle_metadata
         hwp_ave = []
         totprcp = np.zeros(self._context.grid_out_shape).ravel()
 
@@ -272,7 +272,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         derived = self.average_frp()
 
         t_fire = np.zeros(self._context.grid_out_shape)
-        for date in forecast_metadata["forecast_date"]:
+        for date in cycle_metadata["forecast_date"]:
             rave_path = self._context.intp_dir / f"{self._context.rave_to_intp}{date}00_{date}59.nc"
             with xr.open_dataset(rave_path) as nc_ds:
                 frp = nc_ds.frp_avg_hr[0, :, :].values
@@ -346,7 +346,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         with xr.open_dataset(self._context.grid_out) as nc_ds:
             target_area = nc_ds["area"].values
 
-        for row_idx, row_df in self.forecast_metadata.iterrows():
+        for row_idx, row_df in self.cycle_metadata.iterrows():
             self.log(f"processing emissions: {row_idx}, {row_df.to_dict()}")
             with xr.open_dataset(row_df["rave_interpolated"]) as nc_ds:
                 fre = nc_ds[EmissionVariable.FRE.smoke_dust_name()][0, :, :].values
@@ -398,7 +398,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
     ) -> Iterator[Path]:
         root_dir = self._root_restart_dir
         filenames = glob.glob("**/*phy_data*nc", root_dir=root_dir, recursive=True)
-        potential_restart_files = [f"{cycle[:8]}.{cycle[8:10]}0000.phy_data.nc" for cycle in self.forecast_dates]
+        potential_restart_files = [f"{cycle[:8]}.{cycle[8:10]}0000.phy_data.nc" for cycle in self.cycle_dates]
         for filename in filenames:
             path = root_dir / filename
             if path.name in potential_restart_files:

@@ -47,18 +47,18 @@ class SmokeDustRegridProcessor:
         """See ``SmokeDustContext.log``."""
         self._context.log(*args, **kwargs)
 
-    def run(self, forecast_metadata: pd.DataFrame) -> None:
+    def run(self, cycle_metadata: pd.DataFrame) -> None:
         """Run the regrid processor. This may be run in parallel using MPI."""
         # Select which RAVE files to interpolate
-        rave_to_interpolate = forecast_metadata[
-            forecast_metadata["rave_interpolated"].isnull()
-            & ~forecast_metadata["rave_raw"].isnull()
+        rave_to_interpolate = cycle_metadata[
+            cycle_metadata["rave_interpolated"].isnull()
+            & ~cycle_metadata["rave_raw"].isnull()
         ]
         if len(rave_to_interpolate) == 0:
             self.log("all rave files have been interpolated")
             return
 
-        self._run_impl_(forecast_metadata, rave_to_interpolate)
+        self._run_impl_(cycle_metadata, rave_to_interpolate)
 
     @property
     def _src_gwrap(self) -> GridWrapper:
@@ -146,7 +146,7 @@ class SmokeDustRegridProcessor:
             self.__regridder = regridder
         return self.__regridder
 
-    def _run_impl_(self, forecast_metadata: pd.DataFrame, rave_to_interpolate: pd.Series) -> None:
+    def _run_impl_(self, cycle_metadata: pd.DataFrame, rave_to_interpolate: pd.Series) -> None:
         for row_idx, row_data in rave_to_interpolate.iterrows():
             row_dict = row_data.to_dict()
             self.log(f"processing RAVE interpolation row: {row_idx}, {row_dict}")
@@ -226,7 +226,7 @@ class SmokeDustRegridProcessor:
                 dst_fwrap.fill_nc_variable(output_file_path)
 
             # Update the forecast metadata with the interpolated RAVE file data
-            forecast_metadata.loc[row_idx, "rave_interpolated"] = output_file_path
+            cycle_metadata.loc[row_idx, "rave_interpolated"] = output_file_path
             row_data["rave_interpolated"] = output_file_path
 
             if self._context.rank == 0:
@@ -237,10 +237,10 @@ class SmokeDustRegridProcessor:
             and self._context.should_calc_desc_stats
             and self._interpolation_stats is not None
         ):
-            forecast_dates = forecast_metadata["forecast_date"]
+            cycle_dates = cycle_metadata["forecast_date"]
             stats_path = (
                 self._context.intp_dir
-                / f"stats_regridding_{forecast_dates.min()}_{forecast_dates.max()}.csv"
+                / f"stats_regridding_{cycle_dates.min()}_{cycle_dates.max()}.csv"
             )
             self.log(f"writing interpolation statistics: {stats_path=}")
             self._interpolation_stats.to_csv(stats_path, index=False)

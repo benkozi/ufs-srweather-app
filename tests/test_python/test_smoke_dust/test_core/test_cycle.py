@@ -58,7 +58,7 @@ class TestSmokeDustCycleTwo:
         assert context.hourly_hwpdir.name.endswith('RESTART')
         cycle = SmokeDustCycleTwo(context)
         assert cycle._root_restart_dir == context.hourly_hwpdir.parent.parent
-        create_fake_restart_files(context.nwges_dir, cycle.forecast_dates, fake_grid_out_shape)
-        create_fake_restart_files(context.nwges_dir, [str(datetime.strptime(date, "%Y%m%d%H") + timedelta(days=10)) for date in cycle.forecast_dates], fake_grid_out_shape)
+        create_fake_restart_files(context.nwges_dir, cycle.cycle_dates, fake_grid_out_shape)
+        create_fake_restart_files(context.nwges_dir, [str(datetime.strptime(date, "%Y%m%d%H") + timedelta(days=10)) for date in cycle.cycle_dates], fake_grid_out_shape)
         actual = list(cycle._iter_restart_files_())
-        assert len(actual) == len(cycle.forecast_dates)
+        assert len(actual) == len(cycle.cycle_dates)
