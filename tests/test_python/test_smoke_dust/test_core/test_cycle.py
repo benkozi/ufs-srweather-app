@@ -1,5 +1,4 @@
 """Tests related to the smoke/dust cycle processor."""
-
 from pathlib import Path
 
 import pytest
@@ -11,8 +10,9 @@ from smoke_dust.core.cycle import SmokeDustCycleTwo
 from test_python.test_smoke_dust.conftest import (
     create_fake_context,
     create_fake_grid_out,
-    FakeGridOutShape,
+    FakeGridOutShape, create_fake_restart_files,
 )
+from datetime import datetime, timedelta
 
 
 @pytest.fixture(params=[True, False], ids=lambda p: f"allow_dummy_restart={p}")
@@ -55,20 +55,10 @@ class TestSmokeDustCycleTwo:
         """Test iterating over restart files."""
         create_fake_grid_out(tmp_path, fake_grid_out_shape)
         context = create_fake_context(tmp_path)
+        assert context.hourly_hwpdir.name.endswith('RESTART')
         cycle = SmokeDustCycleTwo(context)
-        expected_vars = ("totprcp_ave", "rrfs_hwp_ave")
-        restart_slug = "phy_data"
-        outdir = tmp_path / "RESTART"
-        outdir.mkdir()
-        create_restart_ncfile(outdir / f"foobar.nonsense.{restart_slug}.0000.nc", expected_vars)
-        create_restart_ncfile(outdir / f"foobar.nonsense.{restart_slug}.1111.nc", [])
-        create_restart_ncfile(outdir / "foobar.nonsense.nc", [])
-        for root_dir in [outdir, tmp_path]:
-            print(root_dir)
-            restart_files = list(
-                cycle._iter_restart_files_(  # pylint: disable=protected-access
-                    root_dir,
-                    expected_vars,
-                )
-            )
-            assert len(restart_files) == 1
+        assert cycle._root_restart_dir == context.hourly_hwpdir.parent.parent
+        create_fake_restart_files(context.nwges_dir, cycle.forecast_dates, fake_grid_out_shape)
+        create_fake_restart_files(context.nwges_dir, [str(datetime.strptime(date, "%Y%m%d%H") + timedelta(days=10)) for date in cycle.forecast_dates], fake_grid_out_shape)
+        actual = list(cycle._iter_restart_files_())
+        assert len(actual) == len(cycle.forecast_dates)

@@ -226,7 +226,7 @@ class SmokeDustContext(BaseModel):
 
     @property
     def hourly_hwpdir(self) -> Path:
-        """Path to the directory containing restart files for `EBB_DCYCLE=2`."""
+        """Path to the root directory containing restart files."""
         return self.nwges_dir / "RESTART"
 
     @property

@@ -22,35 +22,8 @@ from test_python.test_smoke_dust.conftest import (
     FakeGridOutShape,
     create_fake_grid_out,
     create_fake_context,
-    create_file_hash,
+    create_file_hash, create_fake_restart_files,
 )
-
-
-def create_fake_restart_files(
-    root_dir: Path, forecast_dates: pd.DatetimeIndex, shape: FakeGridOutShape
-) -> None:
-    """
-    Create fake restart files expected for EBB_DCYLE=2.
-
-    Args:
-        root_dir: Directory to create fake files in.
-        forecast_dates: The series of dates to create the restart files for.
-        shape: Output grid shape.
-    """
-    restart_dir = root_dir / "RESTART"
-    restart_dir.mkdir()
-    for date in forecast_dates:
-        restart_file = restart_dir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
-        with Dataset(restart_file, "w") as nc_ds:
-            nc_ds.createDimension("Time")
-            nc_ds.createDimension("yaxis_1", shape.y_size)
-            nc_ds.createDimension("xaxis_1", shape.x_size)
-            totprcp_ave = nc_ds.createVariable("totprcp_ave", "f4", ("Time", "yaxis_1", "xaxis_1"))
-            totprcp_ave[0, ...] = np.ones(shape.as_tuple)
-            rrfs_hwp_ave = nc_ds.createVariable(
-                "rrfs_hwp_ave", "f4", ("Time", "yaxis_1", "xaxis_1")
-            )
-            rrfs_hwp_ave[0, ...] = totprcp_ave[:] + 2
 
 
 def create_fake_rave_interpolated(

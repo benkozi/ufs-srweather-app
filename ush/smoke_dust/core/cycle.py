@@ -225,6 +225,11 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
     """
 
     flag = EbbDCycle.TWO
+    expected_restart_varnames = ("totprcp_ave", "rrfs_hwp_ave")
+
+    @property
+    def _root_restart_dir(self) -> Path:
+        return self._context.hourly_hwpdir.parent.parent
 
     def create_start_datetime(self) -> dt.datetime:
         self.log("Creating emissions for modulated persistence by Wildfire potential")
@@ -239,7 +244,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         totprcp = np.zeros(self._context.grid_out_shape).ravel()
 
         phy_data_paths = list(
-            self._iter_restart_files_(self._context.hourly_hwpdir, ("rrfs_hwp_ave", "totprcp_ave"))
+            self._iter_restart_files_()
         )
         if len(phy_data_paths) == 0:
             if self._context.allow_dummy_restart:
@@ -389,20 +394,23 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         )
 
     def _iter_restart_files_(
-        self, root_dir: Path, expected_vars: tuple[str, ...]
+        self,
     ) -> Iterator[Path]:
+        root_dir = self._root_restart_dir
         filenames = glob.glob("**/*phy_data*nc", root_dir=root_dir, recursive=True)
+        potential_restart_files = [f"{cycle[:8]}.{cycle[8:10]}0000.phy_data.nc" for cycle in self.forecast_dates]
         for filename in filenames:
             path = root_dir / filename
-            try:
-                resolved = path.resolve(strict=True)
-            except FileNotFoundError:
-                self.log(f"restart file link not resolvable: {path}", level=logging.WARN)
-                continue
-            with open_nc(resolved) as nc_ds:
-                variables = nc_ds.variables.keys()  # pylint: disable=no-member
-                if all(expected_var in variables for expected_var in expected_vars):
-                    yield path
+            if path.name in potential_restart_files:
+                try:
+                    resolved = path.resolve(strict=True)
+                except FileNotFoundError:
+                    self.log(f"restart file link not resolvable: {path}", level=logging.WARN)
+                    continue
+                with open_nc(resolved) as nc_ds:
+                    variables = nc_ds.variables.keys()  # pylint: disable=no-member
+                    if all(expected_var in variables for expected_var in self.expected_restart_varnames):
+                        yield path
 
 
 def create_cycle_processor(
