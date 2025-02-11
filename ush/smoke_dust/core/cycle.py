@@ -400,6 +400,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         self.log(f"_iter_restart_files_: {root_dir=}") #tdk: debug log
         filenames = glob.glob("**/*phy_data*nc", root_dir=root_dir, recursive=True)
         potential_restart_files = [f"{cycle[:8]}.{cycle[8:10]}0000.phy_data.nc" for cycle in self.cycle_dates]
+        self.log(f"_iter_restart_files_: {potential_restart_files=}")  # tdk: debug log
         for filename in filenames:
             self.log(f"_iter_restart_files_: {filename=}") #tdk: debug log
             path = root_dir / filename
