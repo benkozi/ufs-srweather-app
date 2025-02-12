@@ -70,9 +70,9 @@ def create_fake_context(root_dir: Path, overrides: Union[dict, None] = None) -> 
     """
     current_day = "2019072200"
     comin = root_dir / current_day
-    comin.mkdir()
+    comin.mkdir(exist_ok=True)
     os.environ["CDATE"] = current_day
-    os.environ["COMIN"] = str(comin)
+    os.environ["COMIN_SMOKE_DUST_COMMUNITY"] = str(comin)
     kwds = {
         "staticdir": root_dir,
         "ravedir": root_dir,
@@ -90,7 +90,7 @@ def create_fake_context(root_dir: Path, overrides: Union[dict, None] = None) -> 
     try:
         context = SmokeDustContext.model_validate(kwds)
     except:
-        for env_var in ["CDATE", "COMIN"]:
+        for env_var in ["CDATE", "COMIN_SMOKE_DUST_COMMUNITY"]:
             os.unsetenv(env_var)
         raise
     return context

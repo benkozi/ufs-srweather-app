@@ -183,7 +183,7 @@ class SmokeDustContext(BaseModel):
 
         # Format environment-level variables
         values["current_day"] = os.environ["CDATE"]
-        values["nwges_dir"] = Path(os.environ["LOGDIR"]).parent
+        values["nwges_dir"] = os.environ["COMIN_SMOKE_DUST_COMMUNITY"]
 
         return values
 
@@ -227,7 +227,7 @@ class SmokeDustContext(BaseModel):
     @property
     def hourly_hwpdir(self) -> Path:
         """Path to the root directory containing restart files."""
-        return self.nwges_dir / "RESTART"
+        return self.nwges_dir.parent
 
     @property
     def emissions_path(self) -> Path:

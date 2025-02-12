@@ -20,7 +20,7 @@ def test(tmp_path: Path, fake_grid_out_shape: FakeGridOutShape, mocker: MockerFi
     strpath = str(tmp_path)
     runner = CliRunner()
     os.environ["CDATE"] = "2019072200"
-    os.environ["COMIN"] = strpath
+    os.environ["COMIN_SMOKE_DUST_COMMUNITY"] = strpath
 
     try:
         args = [
@@ -45,7 +45,7 @@ def test(tmp_path: Path, fake_grid_out_shape: FakeGridOutShape, mocker: MockerFi
         ]
         result = runner.invoke(app, args, catch_exceptions=False)
     except:
-        for env_var in ["CDATE", "COMIN"]:
+        for env_var in ["CDATE", "COMIN_SMOKE_DUST_COMMUNITY"]:
             os.unsetenv(env_var)
         raise
     print(result.output)

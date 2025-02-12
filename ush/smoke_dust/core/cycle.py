@@ -227,10 +227,6 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
     flag = EbbDCycle.TWO
     expected_restart_varnames = ("totprcp_ave", "rrfs_hwp_ave")
 
-    @property
-    def _root_restart_dir(self) -> Path:
-        return self._context.hourly_hwpdir.parent.parent
-
     def create_start_datetime(self) -> dt.datetime:
         self.log("Creating emissions for modulated persistence by Wildfire potential")
         return self._context.fcst_datetime - dt.timedelta(days=1, hours=1)
@@ -244,7 +240,7 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
         totprcp = np.zeros(self._context.grid_out_shape).ravel()
 
         phy_data_paths = list(
-            self._iter_restart_files_()
+            self._find_restart_files_()
         )
         if len(phy_data_paths) == 0:
             if self._context.allow_dummy_restart:
@@ -393,18 +389,20 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
             }
         )
 
-    def _iter_restart_files_(
+    def _find_restart_files_(
         self,
-    ) -> Iterator[Path]:
-        root_dir = self._root_restart_dir
-        self.log(f"_iter_restart_files_: {root_dir=}") #tdk: debug log
+    ) -> tuple[Path, ...]:
+        root_dir = self._context.hourly_hwpdir
+        self.log(f"_find_restart_files_: {root_dir=}") #tdk: debug log
         filenames = glob.glob("**/*phy_data*nc", root_dir=root_dir, recursive=True)
         potential_restart_files = [f"{cycle[:8]}.{cycle[8:10]}0000.phy_data.nc" for cycle in self.cycle_dates]
-        self.log(f"_iter_restart_files_: {potential_restart_files=}")  # tdk: debug log
+        self.log(f"_find_restart_files_: {potential_restart_files=}")  # tdk: debug log
+        found_potentials = []
+        restart_files = []
         for filename in filenames:
-            self.log(f"_iter_restart_files_: {filename=}") #tdk: debug log
+            self.log(f"_find_restart_files_: {filename=}") #tdk: debug log
             path = root_dir / filename
-            if path.name in potential_restart_files:
+            if path.name in potential_restart_files and path.name not in found_potentials:
                 try:
                     resolved = path.resolve(strict=True)
                 except FileNotFoundError:
@@ -413,8 +411,10 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
                 with open_nc(resolved) as nc_ds:
                     variables = nc_ds.variables.keys()  # pylint: disable=no-member
                     if all(expected_var in variables for expected_var in self.expected_restart_varnames):
-                        self.log(f"_iter_restart_files_: found restart path {root_dir=}") #tdk: debug log
-                        yield path
+                        self.log(f"_find_restart_files_: found restart path {path=}") #tdk: debug log
+                        restart_files.append(path)
+                        found_potentials.append(path.name)
+        return tuple(restart_files)
 
 
 def create_cycle_processor(
