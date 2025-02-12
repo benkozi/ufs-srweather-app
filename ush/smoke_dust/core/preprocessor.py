@@ -29,24 +29,24 @@ class SmokeDustPreprocessor:
         self._context.log(*args, **kwargs)
 
     @property
-    def forecast_dates(self) -> pd.DatetimeIndex:
-        """See ``AbstractSmokeDustCycleProcessor.forecast_dates``."""
-        return self._cycle_processor.forecast_dates
+    def cycle_dates(self) -> pd.DatetimeIndex:
+        """See ``AbstractSmokeDustCycleProcessor.cycle_dates``."""
+        return self._cycle_processor.cycle_dates
 
     @property
-    def forecast_metadata(self) -> pd.DataFrame:
-        """See ``AbstractSmokeDustCycleProcessor.forecast_metadata``."""
-        return self._cycle_processor.forecast_metadata
+    def cycle_metadata(self) -> pd.DataFrame:
+        """See ``AbstractSmokeDustCycleProcessor.cycle_metadata``."""
+        return self._cycle_processor.cycle_metadata
 
     @property
     def is_first_day(self) -> bool:
         """``True`` if this is considered the "first day" of the simulation where there is no
         interpolated or raw RAVE data available."""
 
-        forecast_metadata = self._cycle_processor.forecast_metadata
+        cycle_metadata = self._cycle_processor.cycle_metadata
         is_first_day = (
-            forecast_metadata["rave_interpolated"].isnull().all()
-            and forecast_metadata["rave_raw"].isnull().all()
+            cycle_metadata["rave_interpolated"].isnull().all()
+            and cycle_metadata["rave_raw"].isnull().all()
         )
         self.log(f"{is_first_day=}")
         return is_first_day
@@ -58,7 +58,7 @@ class SmokeDustPreprocessor:
             if self._context.rank == 0:
                 self._context.create_dummy_emissions_file()
         else:
-            self._regrid_processor.run(self._cycle_processor.forecast_metadata)
+            self._regrid_processor.run(self._cycle_processor.cycle_metadata)
             if self._context.rank == 0:
                 self._cycle_processor.run()
         self.log("run: exiting")

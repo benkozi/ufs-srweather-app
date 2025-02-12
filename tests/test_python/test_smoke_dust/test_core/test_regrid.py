@@ -90,7 +90,7 @@ def data_for_test(
         )
     context = create_fake_context(tmp_path, overrides={"regrid_in_memory": request.param})
     preprocessor = SmokeDustPreprocessor(context)
-    for date in preprocessor.forecast_dates:
+    for date in preprocessor.cycle_dates:
         path = tmp_path / f"Hourly_Emissions_3km_{date}_{date}.nc"
         _ = create_fake_rave_and_rrfs_like_data(
             FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["FRP_MEAN", "FRE"])
@@ -178,7 +178,7 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
         """Test the regrid processor."""
         spy1 = mocker.spy(SmokeDustRegridProcessor, "_run_impl_")
         regrid_processor = SmokeDustRegridProcessor(data_for_test.context)
-        regrid_processor.run(data_for_test.preprocessor.forecast_metadata)
+        regrid_processor.run(data_for_test.preprocessor.cycle_metadata)
         spy1.assert_called_once()
         interpolated_files = glob.glob(
             f"*{data_for_test.context.rave_to_intp}*nc", root_dir=tmp_path

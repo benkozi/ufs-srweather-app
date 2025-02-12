@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Union
 
 import numpy as np
+import pandas as pd
 import pytest
 from netCDF4 import Dataset
 
@@ -68,9 +69,10 @@ def create_fake_context(root_dir: Path, overrides: Union[dict, None] = None) -> 
         A fake context to use for testing.
     """
     current_day = "2019072200"
-    nwges_dir = root_dir
+    comin = root_dir / current_day
+    comin.mkdir(exist_ok=True)
     os.environ["CDATE"] = current_day
-    os.environ["DATA"] = str(nwges_dir)
+    os.environ["COMIN_SMOKE_DUST_COMMUNITY"] = str(comin)
     kwds = {
         "staticdir": root_dir,
         "ravedir": root_dir,
@@ -88,7 +90,7 @@ def create_fake_context(root_dir: Path, overrides: Union[dict, None] = None) -> 
     try:
         context = SmokeDustContext.model_validate(kwds)
     except:
-        for env_var in ["CDATE", "DATA"]:
+        for env_var in ["CDATE", "COMIN_SMOKE_DUST_COMMUNITY"]:
             os.unsetenv(env_var)
         raise
     return context
@@ -108,3 +110,30 @@ def create_file_hash(path: Path) -> str:
         while chunk := target_file.read(8192):
             file_hash.update(chunk)
     return file_hash.hexdigest()
+
+
+def create_fake_restart_files(
+    root_dir: Path, cycle_dates: pd.DatetimeIndex, shape: FakeGridOutShape
+) -> None:
+    """
+    Create fake restart files expected for EBB_DCYLE=2.
+
+    Args:
+        root_dir: Directory to create fake files in.
+        cycle_dates: The series of dates to create the restart files for.
+        shape: Output grid shape.
+    """
+    restart_dir = root_dir / "RESTART"
+    restart_dir.mkdir(exist_ok=True)
+    for date in cycle_dates:
+        restart_file = restart_dir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
+        with Dataset(restart_file, "w") as nc_ds:
+            nc_ds.createDimension("Time")
+            nc_ds.createDimension("yaxis_1", shape.y_size)
+            nc_ds.createDimension("xaxis_1", shape.x_size)
+            totprcp_ave = nc_ds.createVariable("totprcp_ave", "f4", ("Time", "yaxis_1", "xaxis_1"))
+            totprcp_ave[0, ...] = np.ones(shape.as_tuple)
+            rrfs_hwp_ave = nc_ds.createVariable(
+                "rrfs_hwp_ave", "f4", ("Time", "yaxis_1", "xaxis_1")
+            )
+            rrfs_hwp_ave[0, ...] = totprcp_ave[:] + 2

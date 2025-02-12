@@ -183,7 +183,7 @@ class SmokeDustContext(BaseModel):
 
         # Format environment-level variables
         values["current_day"] = os.environ["CDATE"]
-        values["nwges_dir"] = os.environ["DATA"]
+        values["nwges_dir"] = os.environ["COMIN_SMOKE_DUST_COMMUNITY"]
 
         return values
 
@@ -226,8 +226,9 @@ class SmokeDustContext(BaseModel):
 
     @property
     def hourly_hwpdir(self) -> Path:
-        """Path to the directory containing restart files for `EBB_DCYCLE=2`."""
-        return self.nwges_dir / "RESTART"
+        """Path to the root directory containing restart files."""
+        assert isinstance(self.nwges_dir, Path)
+        return self.nwges_dir.parent  # pylint: disable=no-member
 
     @property
     def emissions_path(self) -> Path:
