@@ -14,7 +14,7 @@ help:
 
 doc:
 	make clean
-# 	$(MAKE) linkcheck
+	$(MAKE) linkcheck
 	$(MAKE) html
 
 linkcheck:
