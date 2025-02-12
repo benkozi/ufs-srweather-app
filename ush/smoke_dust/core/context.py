@@ -227,7 +227,8 @@ class SmokeDustContext(BaseModel):
     @property
     def hourly_hwpdir(self) -> Path:
         """Path to the root directory containing restart files."""
-        return self.nwges_dir.parent
+        assert isinstance(self.nwges_dir, Path)
+        return self.nwges_dir.parent  # pylint: disable=no-member
 
     @property
     def emissions_path(self) -> Path:

@@ -1,4 +1,6 @@
 """Tests related to the smoke/dust cycle processor."""
+
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -10,9 +12,9 @@ from smoke_dust.core.cycle import SmokeDustCycleTwo
 from test_python.test_smoke_dust.conftest import (
     create_fake_context,
     create_fake_grid_out,
-    FakeGridOutShape, create_fake_restart_files,
+    FakeGridOutShape,
+    create_fake_restart_files,
 )
-from datetime import datetime, timedelta
 
 
 @pytest.fixture(params=[True, False], ids=lambda p: f"allow_dummy_restart={p}")
@@ -52,11 +54,18 @@ class TestSmokeDustCycleTwo:
     def test_find_restart_files(
         self, tmp_path: Path, fake_grid_out_shape: FakeGridOutShape
     ) -> None:
-        """Test iterating over restart files."""
+        """Test finding restart files."""
         create_fake_grid_out(tmp_path, fake_grid_out_shape)
         context = create_fake_context(tmp_path)
         cycle = SmokeDustCycleTwo(context)
         create_fake_restart_files(context.nwges_dir, cycle.cycle_dates, fake_grid_out_shape)
-        create_fake_restart_files(context.nwges_dir, [str(datetime.strptime(date, "%Y%m%d%H") + timedelta(days=10)) for date in cycle.cycle_dates], fake_grid_out_shape)
-        actual = cycle._find_restart_files_()
+        create_fake_restart_files(
+            context.nwges_dir,
+            [
+                str(datetime.strptime(date, "%Y%m%d%H") + timedelta(days=10))
+                for date in cycle.cycle_dates
+            ],
+            fake_grid_out_shape,
+        )
+        actual = cycle._find_restart_files_()  # pylint: disable=protected-access
         assert len(actual) == len(cycle.cycle_dates)

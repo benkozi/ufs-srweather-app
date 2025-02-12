@@ -22,7 +22,8 @@ from test_python.test_smoke_dust.conftest import (
     FakeGridOutShape,
     create_fake_grid_out,
     create_fake_context,
-    create_file_hash, create_fake_restart_files,
+    create_file_hash,
+    create_fake_restart_files,
 )
 
 

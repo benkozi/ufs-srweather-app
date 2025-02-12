@@ -4,7 +4,6 @@
 Python script for fire emissions preprocessing from RAVE FRP and FRE (Li et al.,2022)
 Author: johana.romero-alvarez@noaa.gov
 """
-import logging
 import os
 import sys
 from enum import StrEnum, unique
@@ -98,8 +97,9 @@ def main(  # pylint:disable=too-many-arguments
         exit_on_error=exit_on_error,
         regrid_in_memory=regrid_in_memory,
     )
-    if context.rank == 0:
-        context.log(f"{os.environ=}") #tdk:rm
+    # Uncomment to write environment data to the output log. Comment again when done.
+    # if context.rank == 0:
+    #     context.log(f"{os.environ=}")
     processor = SmokeDustPreprocessor(context)
     try:
         processor.run()

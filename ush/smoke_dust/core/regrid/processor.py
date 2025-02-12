@@ -51,8 +51,7 @@ class SmokeDustRegridProcessor:
         """Run the regrid processor. This may be run in parallel using MPI."""
         # Select which RAVE files to interpolate
         rave_to_interpolate = cycle_metadata[
-            cycle_metadata["rave_interpolated"].isnull()
-            & ~cycle_metadata["rave_raw"].isnull()
+            cycle_metadata["rave_interpolated"].isnull() & ~cycle_metadata["rave_raw"].isnull()
         ]
         if len(rave_to_interpolate) == 0:
             self.log("all rave files have been interpolated")
