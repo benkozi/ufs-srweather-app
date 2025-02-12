@@ -183,7 +183,7 @@ class SmokeDustContext(BaseModel):
 
         # Format environment-level variables
         values["current_day"] = os.environ["CDATE"]
-        values["nwges_dir"] = os.environ["EXPT_DIR"]
+        values["nwges_dir"] = os.environ["COMIN"]
 
         return values
 

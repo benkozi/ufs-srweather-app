@@ -99,7 +99,7 @@ def main(  # pylint:disable=too-many-arguments
         regrid_in_memory=regrid_in_memory,
     )
     if context.rank == 0:
-        context.log(f"{os.environ=}", level=logging.DEBUG)
+        context.log(f"{os.environ=}") #tdk:rm
     processor = SmokeDustPreprocessor(context)
     try:
         processor.run()
