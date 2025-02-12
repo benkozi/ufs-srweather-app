@@ -192,10 +192,12 @@ class SmokeDustContext(BaseModel):
         self._logger = self._init_logging_()
 
         with open_nc(self.grid_out, parallel=False) as nc_ds:
+            # pylint: disable=unsubscriptable-object
             self.grid_out_shape = (
                 nc_ds.dimensions["grid_yt"].size,
                 nc_ds.dimensions["grid_xt"].size,
             )
+            # pylint: enable=unsubscriptable-object
         self.log(f"{self.grid_out_shape=}")
         return self
 
