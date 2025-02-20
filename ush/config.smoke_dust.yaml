@@ -2,7 +2,7 @@ metadata:
   description: config for Smoke and Dust, RRFS_CONUS_3km
 user:
   RUN_ENVIR: community
-  MACHINE: [hera/orion/hercules/gaea-c6]
+  MACHINE: [machine name]
   ACCOUNT: [account name]
 workflow:
   USE_CRON_TO_RELAUNCH: false
