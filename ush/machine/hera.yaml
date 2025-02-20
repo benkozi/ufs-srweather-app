@@ -46,9 +46,9 @@ platform:
   EXTRN_MDL_DATA_STORES: hpss aws nomads
 
 cpl_aqm_parm:
-  COMINfire_default: ""
-  COMINgefs_default: ""
-  NEXUS_GFS_SFC_DIR: ""
+  COMINfire_default: /scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/RAVE_fire
+  COMINgefs_default: /scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/GEFS_DATA
+  NEXUS_GFS_SFC_DIR: /scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/GFS_SFC_DATA
 
 smoke_dust_parm:
   COMINsmoke_default: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/data_smoke_dust/RAVE_smoke_dust
