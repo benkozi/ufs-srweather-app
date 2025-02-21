@@ -107,7 +107,7 @@ else
   #
   #-----------------------------------------------------------------------
   #
-  mpirun -n ${nprocs} ${USHdir}/smoke_dust/generate_emissions.py \
+  ${RUN_CMD_SMOKE_DUST} ${USHdir}/smoke_dust/generate_emissions.py \
     --staticdir "${FIXsmoke}/${PREDEF_GRID_NAME}" \
     --ravedir "${DATA}" \
     --intp-dir "${DATA_SHARE}" \
