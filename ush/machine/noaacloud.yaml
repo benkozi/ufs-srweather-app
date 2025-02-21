@@ -37,7 +37,8 @@ data:
   ics_lbcs:
     FV3GFS:
       nemsio: /contrib/EPIC/UFS_SRW_data/develop/input_model_data/FV3GFS/nemsio/${yyyymmdd}${hh}
-      grib2: /contrib/EPIC/UFS_SRW_data/develop/input_model_data/FV3GFS/grib2/${yyyymmdd}${hh} 
+      grib2: /contrib/EPIC/UFS_SRW_data/develop/input_model_data/FV3GFS/grib2/${yyyymmdd}${hh}
+
 smoke_dust_parm:
-  COMINsmoke_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_smoke_dust
-  COMINrave_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_fire
+         COMINsmoke_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_smoke_dust
+         COMINrave_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_fire
