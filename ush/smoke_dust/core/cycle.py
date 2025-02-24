@@ -390,32 +390,36 @@ class SmokeDustCycleTwo(AbstractSmokeDustCycleProcessor):
     ) -> tuple[Path, ...]:
         root_dir = self._context.hourly_hwpdir
         self.log(f"_find_restart_files_: {root_dir=}")
-        filenames = glob.glob("**/*phy_data*nc", root_dir=root_dir, recursive=True)
         potential_restart_files = [
             f"{cycle[:8]}.{cycle[8:10]}0000.phy_data.nc" for cycle in self.cycle_dates
         ]
         self.log(f"_find_restart_files_: {potential_restart_files=}")
+        potential_restart_dirs = [root_dir / cycle / "RESTART" for cycle in self.cycle_dates]
+        restart_dirs = [restart_dir for restart_dir in potential_restart_dirs if restart_dir.exists()]
+        self.log(f"_find_restart_files_: {restart_dirs=}")
         found_potentials = []
         restart_files = []
-        for filename in filenames:
-            self.log(f"_find_restart_files_: {filename=}", level=logging.DEBUG)
-            path = root_dir / filename
-            if path.name in potential_restart_files and path.name not in found_potentials:
-                try:
-                    resolved = path.resolve(strict=True)
-                except FileNotFoundError:
-                    self.log(f"restart file link not resolvable: {path=}", level=logging.WARN)
-                    continue
-                with open_nc(resolved) as nc_ds:
-                    variables = nc_ds.variables.keys()  # pylint: disable=no-member
-                    if all(
-                        expected_var in variables for expected_var in self.expected_restart_varnames
-                    ):
-                        self.log(
-                            f"_find_restart_files_: found restart path {path=}", level=logging.DEBUG
-                        )
-                        restart_files.append(path)
-                        found_potentials.append(path.name)
+        for restart_dir in restart_dirs:
+            filenames = glob.glob("**/*phy_data*nc", root_dir=restart_dir, recursive=True)
+            for filename in filenames:
+                self.log(f"_find_restart_files_: {filename=}", level=logging.DEBUG)
+                path = restart_dir / filename
+                if path.name in potential_restart_files and path.name not in found_potentials:
+                    try:
+                        resolved = path.resolve(strict=True)
+                    except FileNotFoundError:
+                        self.log(f"restart file link not resolvable: {path=}", level=logging.WARN)
+                        continue
+                    with open_nc(resolved, parallel=False) as nc_ds:
+                        variables = nc_ds.variables.keys()  # pylint: disable=no-member
+                        if all(
+                            expected_var in variables for expected_var in self.expected_restart_varnames
+                        ):
+                            self.log(
+                                f"_find_restart_files_: found restart path {path=}", level=logging.DEBUG
+                            )
+                            restart_files.append(path)
+                            found_potentials.append(path.name)
         return tuple(restart_files)
 
 
