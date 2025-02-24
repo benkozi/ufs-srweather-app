@@ -123,9 +123,9 @@ def create_fake_restart_files(
         cycle_dates: The series of dates to create the restart files for.
         shape: Output grid shape.
     """
-    restart_dir = root_dir / "RESTART"
-    restart_dir.mkdir(exist_ok=True)
     for date in cycle_dates:
+        restart_dir = root_dir / date / "RESTART"
+        restart_dir.mkdir(exist_ok=True, parents=True)
         restart_file = restart_dir / f"{date[:8]}.{date[8:10]}0000.phy_data.nc"
         with Dataset(restart_file, "w") as nc_ds:
             nc_ds.createDimension("Time")

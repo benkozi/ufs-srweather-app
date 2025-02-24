@@ -58,7 +58,7 @@ class TestSmokeDustCycleTwo:
         create_fake_grid_out(tmp_path, fake_grid_out_shape)
         context = create_fake_context(tmp_path)
         cycle = SmokeDustCycleTwo(context)
-        create_fake_restart_files(context.nwges_dir, cycle.cycle_dates, fake_grid_out_shape)
+        create_fake_restart_files(context.hourly_hwpdir, cycle.cycle_dates, fake_grid_out_shape)
         create_fake_restart_files(
             context.nwges_dir,
             [
