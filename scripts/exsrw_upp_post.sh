@@ -102,7 +102,7 @@ fi
 #
 #-----------------------------------------------------------------------
 #
-cp -p ${PARMsrw}/upp_parm/nam_micro_lookup.dat ./eta_micro_lookup.dat
+cp -p ${FIXsrw}/fix_upp/nam_micro_lookup.dat ./eta_micro_lookup.dat
 if [ $(boolify ${USE_CUSTOM_POST_CONFIG_FILE}) = "TRUE" ]; then
   post_config_fp="${CUSTOM_POST_CONFIG_FP}"
   print_info_msg "
@@ -114,7 +114,7 @@ else
   if [ $(boolify "${CPL_AQM}") = "TRUE" ]; then
     post_config_fp="${PARMsrw}/upp_parm/postxconfig-NT-AQM.txt"
   else
-    post_config_fp="${PARMsrw}/upp_parm/postxconfig-NT-fv3lam_rrfs.txt"
+    post_config_fp="${PARMsrw}/upp_parm/postxconfig-NT-rrfs.txt"
   fi
   print_info_msg "
 ====================================================================
@@ -312,28 +312,26 @@ if [ $(boolify "${DO_SMOKE_DUST}") = "TRUE" ]; then
   bgdawp=${NET}.${cycle}.prslev.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
   bgrd3d=${NET}.${cycle}.natlev.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
   bgifi=${NET}.${cycle}.ififip.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
-  bgavi=${NET}.${cycle}.aviati.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
+  bgavi=${NET}.${cycle}.aviation.f${fhr}.${POST_OUTPUT_DOMAIN_NAME}.grib2
 
   if [ -f "PRSLEV.GrbF${post_fhr}" ]; then
     wgrib2 PRSLEV.GrbF${post_fhr} -set center 7 -grib ${bgdawp} >>$pgmout 2>>errfile
+    cp -p ${bgdawp} ${COMOUT}
   fi
   if [ -f "NATLEV.GrbF${post_fhr}" ]; then
     wgrib2 NATLEV.GrbF${post_fhr} -set center 7 -grib ${bgrd3d} >>$pgmout 2>>errfile
+    cp -p ${bgrd3d} ${COMOUT}
   fi
   if [ -f "IFIFIP.GrbF${post_fhr}" ]; then
     wgrib2 IFIFIP.GrbF${post_fhr} -set center 7 -grib ${bgifi} >>$pgmout 2>>errfile
+    cp -p ${bgifi} ${COMOUT}
   fi
-  if [ -f "AVIATI.GrbF${post_fhr}" ]; then
-    wgrib2 AVIATI.GrbF${post_fhr} -set center 7 -grib ${bgavi} >>$pgmout 2>>errfile
+  if [ -f "AVIATION.GrbF${post_fhr}" ]; then
+    wgrib2 AVIATION.GrbF${post_fhr} -set center 7 -grib ${bgavi} >>$pgmout 2>>errfile
+    cp -p ${bgavi} ${COMOUT}
   fi
-
-  cp -p ${bgdawp} ${COMOUT}
-  cp -p ${bgrd3d} ${COMOUT}
-  cp -p ${bgifi} ${COMOUT}
-  cp -p ${bgavi} ${COMOUT}
 
 else
-
   post_mn_or_null=""
   dot_post_mn_or_null=""
   if [ "${post_mn}" != "00" ]; then
