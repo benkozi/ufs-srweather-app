@@ -424,12 +424,6 @@ def generate_FV3LAM_wflow(
         "print_diff_pgr": PRINT_DIFF_PGR,
     })
 
-    if DO_SMOKE_DUST:
-        gfs_physics_nml_dict.update({
-            "ebb_dcycle": EBB_DCYCLE,
-            "rrfs_sd": True,
-    })
-
     if CPL_AQM:
         gfs_physics_nml_dict.update({
             "cplaqm": True,
@@ -454,7 +448,7 @@ def generate_FV3LAM_wflow(
                 "vsvpo3:0.0", "xopn:0.0", "xylmn:0.0", "*:0.2" ]
         })
 
-    # If UFS_FIRE, activate appropriate flags and update FIELD_TABLE
+    # If UFS_FIRE or smoke/dust, activate appropriate flags and update FIELD_TABLE
     if expt_config['fire'].get('UFS_FIRE'):
         gfs_physics_nml_dict.update({
             "cpl_fire": True,
@@ -467,6 +461,30 @@ def generate_FV3LAM_wflow(
 
         with open(FIELD_TABLE_FP, "a+", encoding='UTF-8') as file:
             file.write(field_table_append)
+    elif expt_config['smoke_dust_parm'].get('DO_SMOKE_DUST'):
+        gfs_physics_nml_dict.update({
+            "ebb_dcycle": EBB_DCYCLE,
+            "rrfs_sd": True,
+        })
+        field_table_append = """
+# prognostic smoke mixing ratio tracer
+  "TRACER", "atmos_mod", "smoke"
+            "longname",     "smoke mixing ratio"
+            "units",        "ug/kg"
+       "profile_type", "fixed", "surface_value=1.e-12" /
+# prognostic dust mixing ratio tracer
+            "TRACER", "atmos_mod", "dust"
+            "longname",     "dust mixing ratio"
+            "units",        "ug/kg"
+       "profile_type", "fixed", "surface_value=1.e-12" /
+# prognostic coarsepm mixing ratio tracer
+  "TRACER", "atmos_mod", "coarsepm"
+            "longname",     "coarsepm mixing ratio"
+            "units",        "ug/kg"
+       "profile_type", "fixed", "surface_value=1.e-12" /\n"""
+        with open(FIELD_TABLE_FP, "a+", encoding='UTF-8') as file:
+            file.write(field_table_append)
+
 
     settings["gfs_physics_nml"] = gfs_physics_nml_dict
 
