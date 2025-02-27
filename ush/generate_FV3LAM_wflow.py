@@ -482,7 +482,7 @@ def generate_FV3LAM_wflow(
             "longname",     "coarsepm mixing ratio"
             "units",        "ug/kg"
        "profile_type", "fixed", "surface_value=1.e-12" /\n"""
-        with open(FIELD_TABLE_FP, "a+", encoding='UTF-8') as file:
+        with open(FIELD_TABLE_FP, "a", encoding='UTF-8') as file:
             file.write(field_table_append)
 
 
