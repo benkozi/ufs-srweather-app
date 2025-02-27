@@ -39,17 +39,7 @@ If running on Orion or Hercules, users will need to change the data paths to :te
 In addition to the UFS SRW fixed files, additional data files are required to run the smoke and dust experiment:
 
    * ``fix_smoke``: Contains analysis grids, regridding weights, a vegetation map, and dummy emissions (used when no in situ emission files are available).
-   * ``data_smoke_dust/RAVE_fire``: Emission estimates and Fire Radiative Power (FRP) observations derived from `RAVE <https://www.ospo.noaa.gov/products/land/rave/>`_ satellite observations.
-
-Users may also wish to change :term:`cron`-related parameters in ``config.yaml``. In the ``config.smoke_dust.yaml`` file, which was copied into ``config.yaml``, cron can be used for automatic submission and resubmission of the workflow by setting the following variables:
-
-.. code-block:: console
-
-   workflow:
-     USE_CRON_TO_RELAUNCH: true
-     CRON_RELAUNCH_INTVL_MNTS: 3
-
-This means that cron will submit the launch script every 3 minutes. Users may choose not to submit using cron or to submit at a different frequency. Note that users should create a crontab by running ``crontab -e`` the first time they use cron.
+   * ``data_smoke_dust/RAVE_fire``: Emission estimates and Fire Radiative Power (FRP) observations derived from `RAVE <https://www.ospo.noaa.gov/products/land/rave/>`_ satellite observations. Additional RAVE data may be downloaded here for the last six months: https://www.ospo.noaa.gov/pub/Blended/RAVE/RAVE-HrlyEmiss-3km/. Note that SRW-SD uses 3-kilometer RAVE data files.
 
 When using the basic ``config.smoke_dust.yaml`` experiment, the usual pre-processing and coldstart forecast tasks are used, because ``"parm/wflow/prep.yaml"`` appears in the list of workflow files in the ``rocoto: tasks: taskgroups:`` section of ``config.yaml`` (see :numref:`Section %s <TasksPrepAQM>` for task descriptions). To turn on AQM *post*-processing tasks in the workflow, include ``"parm/wflow/aqm_post.yaml"`` in the ``rocoto: tasks: taskgroups:`` section, too (see :numref:`Section %s <TasksPostAQM>` for task descriptions).
 
