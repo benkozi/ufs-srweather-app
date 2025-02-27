@@ -6,9 +6,9 @@ SRW Smoke & Dust (SRW-SD) Features
 
 .. attention::
 
-   SRW-SD capabilities are a new SRW App feature supported on Hera and Orion/Hercules; on other systems, users can expect only limited support.
+   SRW-SD capabilities are supported on all :srw-wiki:`Level 1 <Supported-Platforms-and-Compilers>` platforms.
 
-This chapter provides instructions for running a simple, example six-hour forecast for July 22, 2019 at 0z using SRW Smoke & Dust (SRW-SD) features. These features have been merged into an SRW App feature branch from a UFS WM Rapid Refresh Forecast System (RRFS) production branch. This forecast uses RAP data for :term:`ICs` and :term:`LBCs`, the ``RRFS_CONUS_3km`` predefined grid, and the ``FV3_HRRR_gf`` physics suite. This physics suite is similar to the NOAA operational HRRR v4 suite (Dowell et al., 2022), with the addition of the Grell-Freitas deep convective parameterization. `Scientific documentation for the HRRR_gf suite <https://dtcenter.ucar.edu/GMTB/v7.0.0/sci_doc/_h_r_r_r_gf_page.html>`_ and `technical documentation <https://ccpp-techdoc.readthedocs.io/en/v7.0.0/>`_ are available with the CCPP v7.0.0 release but may differ slightly from the version available in the SRW App.
+This chapter provides instructions for running an example six-hour forecast for July 22, 2019 at 0z using SRW Smoke & Dust (SRW-SD) features. These features have been merged into the SRW App from the UFS WM. This experimental forecast uses RAP data for :term:`ICs` and :term:`LBCs`, the ``RRFS_CONUS_3km`` predefined grid, and the ``FV3_HRRR_gf`` physics suite. This physics suite is similar to the NOAA operational HRRR v4 suite (Dowell et al., 2022), with the addition of the Grell-Freitas deep convective parameterization. `Scientific documentation for the HRRR_gf suite <https://dtcenter.ucar.edu/GMTB/v7.0.0/sci_doc/_h_r_r_r_gf_page.html>`_ and `technical documentation <https://ccpp-techdoc.readthedocs.io/en/v7.0.0/>`_ are available with the CCPP v7.0.0 release but may differ slightly from the version available in the SRW App.
 
 .. note::
 
@@ -17,57 +17,10 @@ This chapter provides instructions for running a simple, example six-hour foreca
 Quick Start Guide (SRW-SD)
 ==========================
 
-.. attention::
+Build the SRW & Load the |wflow_env| Environment
+------------------------------------------------
 
-   These instructions should work smoothly on Hera and Orion/Hercules, but users on other systems may need to make additional adjustments.
-
-Download the Code
------------------
-
-Clone the |branch| branch of the authoritative SRW App repository:
-
-.. code-block:: console
-
-   git clone -b main_aqm https://github.com/ufs-community/ufs-srweather-app
-   cd ufs-srweather-app/sorc
-
-Checkout Externals
-------------------
-
-Users must run the ``checkout_externals`` script to collect (or "check out") the individual components of the SRW App (AQM version) from their respective GitHub repositories. 
-
-.. code-block:: console
-
-   ./manage_externals/checkout_externals -e Externals_smoke_dust.cfg
-
-Build the SRW App
------------------
-
-.. code-block:: console
-
-   ./app_build.sh -p=<machine>
-
-where ``<machine>`` is ``hera``, ``orion``, or ``hercules``.
-
-Building the SRW App with SRW-SD on other machines, including other :srw-wiki:`Level 1 <Supported-Platforms-and-Compilers>` platforms, is not currently guaranteed to work, and users may have to make adjustments to the modulefiles for their system. 
-
-If SRW-SD builds correctly, users should see the standard executables listed in :numref:`Table %s <ExecDescription>` in the ``ufs-srweather-app/exec`` directory.
-
-Load the |wflow_env| Environment
---------------------------------
-
-Load the workflow environment:
-
-.. code-block:: console
-
-   module purge
-   source /path/to/ufs-srweather-app/versions/run.ver_<machine>
-   module use /path/to/ufs-srweather-app/modulefiles
-   module load wflow_<machine>
-
-where ``<machine>`` is ``hera``, ``orion``, or ``hercules``. The workflow should load on other platforms listed under the ``MACHINE`` variable in :numref:`Section %s <user>`, but users may need to adjust other elements of the process when running on those platforms.
-
-.. _srw-sd-config:
+Please refer to :ref:`BuildSRW` or :ref:`QuickBuildRun` for step-by-step build instructions.
 
 Configure an Experiment
 -----------------------
@@ -76,29 +29,17 @@ Users will need to configure their experiment by setting parameters in the ``con
 
 .. code-block:: console
 
-   cd /path/to/ufs-srweather-app/parm
+   cd /path/to/ufs-srweather-app/ush
    cp config.smoke_dust.yaml config.yaml
    
-Users will need to change the ``ACCOUNT`` variable in ``config.yaml`` to an account that they have access to. They will also need to indicate which ``MACHINE`` they are working on. Users may also wish to adjust other experiment settings. For more information on each task and variable, see :numref:`Section %s <ConfigWorkflow>`. 
+Users will need to change the ``ACCOUNT`` variable in ``config.yaml`` to an account that they have access to. They will also need to indicate which ``MACHINE`` they are working on. Users may also wish to adjust other experiment settings. For more information on each task and variable, see :ref:`ConfigWorkflow`.
 
 If running on Orion or Hercules, users will need to change the data paths to :term:`ICs/LBCs` on the following lines in the ``task_get_extrn_*:`` sections of ``config.yaml`` by commenting out the Hera lines and uncommenting the Orion/Hercules lines:
-
-.. code-block:: console
-
-   task_get_extrn_ics:
-     # EXTRN_MDL_SOURCE_BASEDIR_ICS: /scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAP_DATA_SD/${yyyymmddhh} # hera
-     EXTRN_MDL_SOURCE_BASEDIR_ICS: /work/noaa/epic/SRW-AQM_DATA/input_model_data/RAP/${yyyymmddhh} # orion/hercules
-   task_get_extrn_lbcs:
-     # EXTRN_MDL_SOURCE_BASEDIR_LBCS: /scratch2/NAGAPE/epic/SRW-AQM_DATA/data_smoke_dust/RAP_DATA_SD/${yyyymmddhh} # hera
-     EXTRN_MDL_SOURCE_BASEDIR_LBCS: /work/noaa/epic/SRW-AQM_DATA/input_model_data/RAP/${yyyymmddhh} # orion/hercules
 
 In addition to the UFS SRW fixed files, additional data files are required to run the smoke and dust experiment:
 
    * ``fix_smoke``: Contains analysis grids, regridding weights, a vegetation map, and dummy emissions (used when no in situ emission files are available).
    * ``data_smoke_dust/RAVE_fire``: Emission estimates and Fire Radiative Power (FRP) observations derived from `RAVE <https://www.ospo.noaa.gov/products/land/rave/>`_ satellite observations.
-
-.. note::
-   Smoke and dust fixed file data has not been added to the `SRW App data bucket <https://registry.opendata.aws/noaa-ufs-shortrangeweather/>`_. Users and developers who would like access to the fixed file data necessary to run the application should reach out the UFS SRW team in a :srw-repo:`GitHub Discussion <discussions>`.
 
 Users may also wish to change :term:`cron`-related parameters in ``config.yaml``. In the ``config.smoke_dust.yaml`` file, which was copied into ``config.yaml``, cron can be used for automatic submission and resubmission of the workflow by setting the following variables:
 
