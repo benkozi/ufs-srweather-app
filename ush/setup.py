@@ -1772,7 +1772,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
         if fire_conf["FIRE_NUM_TASKS"] < 1:
             logger.warning("UFS_FIRE is not enabled; setting FIRE_NUM_TASKS = 0")
 
-
+    # Verify correct LEVP specified for FV3_HRRR_gf
     if expt_config["CCPP_PHYS_SUITE"] == "FV3_HRRR_gf":
         task_names = ("task_make_ics", "task_make_lbcs")
         not_correct_levp = [expt_config[task_name].get("LEVP") != 66 for task_name in task_names]
