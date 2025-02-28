@@ -425,6 +425,7 @@ def generate_FV3LAM_wflow(
                 "VCOORD_FILE": "{{ workflow.FIXam }}/global_hyblev_fcst_rrfsL65.txt",
             },
         }
+        print(f"tdk: found the physics suite")
         for task_name, task_values in preferred_defaults.items():
             if task_name in expt_config:
                 for value_key, value in task_values.items():
@@ -432,6 +433,7 @@ def generate_FV3LAM_wflow(
                         expt_config[task_name][value_key] = value
             else:
                 expt_config[task_name] = task_values
+            print(f"tdk: {expt_config[task_name]=}")
 
     settings["fv_core_nml"] = fv_core_nml_dict
 
