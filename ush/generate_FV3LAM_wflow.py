@@ -414,24 +414,6 @@ def generate_FV3LAM_wflow(
             fv_core_nml_dict.update({
                 "dnats": 0
             })
-    elif CCPP_PHYS_SUITE == "FV3_HRRR_gf":
-        preferred_defaults = {
-            "task_make_ics": {
-                "LEVP": 66,
-                "VCOORD_FILE": "{{ workflow.FIXam }}/global_hyblev_fcst_rrfsL65.txt",
-            },
-            "task_make_lbcs": {
-                "LEVP": 66,
-                "VCOORD_FILE": "{{ workflow.FIXam }}/global_hyblev_fcst_rrfsL65.txt",
-            },
-        }
-        for task_name, task_values in preferred_defaults.items():
-            if task_name in expt_config:
-                for value_key, value in task_values.items():
-                    if value_key not in expt_config[task_name]:
-                        expt_config[task_name][value_key] = value
-            else:
-                expt_config[task_name] = task_values
 
     settings["fv_core_nml"] = fv_core_nml_dict
 

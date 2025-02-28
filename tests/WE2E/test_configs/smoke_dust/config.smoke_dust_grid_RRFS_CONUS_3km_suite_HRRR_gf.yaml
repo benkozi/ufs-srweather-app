@@ -13,8 +13,6 @@ workflow:
   VERBOSE: true
   DEBUG: false
   COMPILER: intel
-  DIAG_TABLE_TMPL_FN: diag_table.FV3_HRRR_gf
-  FIELD_TABLE_TMPL_FN: field_table.FV3_HRRR_gf
   DO_REAL_TIME: false
   COLDSTART: true
 nco:
@@ -63,4 +61,3 @@ smoke_dust_parm:
   DO_SMOKE_DUST: true
   EBB_DCYCLE: 1
   SMOKE_DUST_FILE_PREFIX: "SMOKE_RRFS_data"
-
