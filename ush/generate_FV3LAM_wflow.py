@@ -385,7 +385,7 @@ def generate_FV3LAM_wflow(
         "bc_update_interval": LBC_SPEC_INTVL_HRS,
         "npz": npz,
     })
-    print(f"tdk: {CCPP_PHYS_SUITE=}")
+    log_info(f"tdk: {CCPP_PHYS_SUITE=}")
     if CCPP_PHYS_SUITE == "FV3_GFS_v15p2":
         if CPL_AQM:
             fv_core_nml_dict.update({
@@ -426,7 +426,7 @@ def generate_FV3LAM_wflow(
                 "VCOORD_FILE": "{{ workflow.FIXam }}/global_hyblev_fcst_rrfsL65.txt",
             },
         }
-        print(f"tdk: found the physics suite")
+        log_info(f"tdk: found the physics suite")
         for task_name, task_values in preferred_defaults.items():
             if task_name in expt_config:
                 for value_key, value in task_values.items():
@@ -434,7 +434,7 @@ def generate_FV3LAM_wflow(
                         expt_config[task_name][value_key] = value
             else:
                 expt_config[task_name] = task_values
-            print(f"tdk: {expt_config[task_name]=}")
+            log_info(f"tdk: {expt_config[task_name]=}")
 
     settings["fv_core_nml"] = fv_core_nml_dict
 
