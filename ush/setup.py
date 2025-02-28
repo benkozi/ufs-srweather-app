@@ -1776,7 +1776,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
     if expt_config["workflow"].get("CCPP_PHYS_SUITE") == "FV3_HRRR_gf":
         task_names = ("task_make_ics", "task_make_lbcs")
         vcoord_file = "VCOORD_FILE: \"{{ workflow.FIXam }}/global_hyblev_fcst_rrfsL65.txt\""
-        not_correct_levp = [task_name for task_name in task_names if expt_config[task_name].get("LEVP") != 66 or expt_config[task_name].get("VCOORD_FILE") != vcoord_file]
+        not_correct_levp = [task_name for task_name in task_names if expt_config[task_name].get("LEVP") != 66]
         if len(not_correct_levp) > 0:
             raise ValueError(f"Set 'LEVP: 66' and '{vcoord_file}' in task(s) '{not_correct_levp}' when using 'CCPP_PHYS_SUITE: FV3_HRRR_gf'")
 
