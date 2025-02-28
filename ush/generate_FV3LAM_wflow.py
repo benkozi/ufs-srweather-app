@@ -385,6 +385,7 @@ def generate_FV3LAM_wflow(
         "bc_update_interval": LBC_SPEC_INTVL_HRS,
         "npz": npz,
     })
+    print(f"tdk: {CCPP_PHYS_SUITE=}")
     if CCPP_PHYS_SUITE == "FV3_GFS_v15p2":
         if CPL_AQM:
             fv_core_nml_dict.update({
