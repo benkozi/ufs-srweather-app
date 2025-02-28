@@ -1775,9 +1775,9 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
     # Verify correct LEVP specified for FV3_HRRR_gf
     if expt_config["workflow"].get("CCPP_PHYS_SUITE") == "FV3_HRRR_gf":
         task_names = ("task_make_ics", "task_make_lbcs")
-        not_correct_levp = [expt_config[task_name].get("LEVP") != 66 for task_name in task_names]
+        not_correct_levp = [task_name for task_name in task_names if expt_config[task_name].get("LEVP") != 66]
         if len(not_correct_levp) > 0:
-            raise ValueError(f"Set 'LEVP: 66' in task(s) '{not_correct_levp}' with CCPP_PHYS_SUITE=FV3_HRRR_gf")
+            raise ValueError(f"Set 'LEVP: 66' in task(s) '{not_correct_levp}' with 'CCPP_PHYS_SUITE: FV3_HRRR_gf'")
 
     #
     # -----------------------------------------------------------------------
