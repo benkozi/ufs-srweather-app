@@ -21,6 +21,7 @@ jobs:
         run: .github/scripts/check_tech_doc.sh
       - name: Build documentation
         run: |
+          apt-get update --yes && apt-get install --yes plantuml
           cd doc
           make clean && make html
       - name: Check links
