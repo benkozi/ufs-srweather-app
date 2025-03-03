@@ -30,6 +30,7 @@ dy_tracer_map_start: 11
 
 ctm_aod: true
 ctm_pmdiag: true
+ctm_photdiag: false
 ctm_stdout: maintask
 
 #
@@ -266,7 +267,7 @@ canopy_species::
     FCH        1.00000   FCH      m
     FRT        1.00000   FRT      1
     CLU        1.00000   CLU      1
-    POPU       1.00000   POPU     10000_people/10km2
+    POPU       1.00000   POPU     km-2
     LAIE       1.00000   LAIE     1
     C1R        1.00000   C1R      1
     C2R        1.00000   C2R      1
