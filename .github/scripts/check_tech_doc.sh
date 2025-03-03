@@ -4,8 +4,6 @@
 
 set -eo pipefail
 
-apt-get update --yes && apt-get install --yes plantuml
-
 # Install prerequisites
 pip install Sphinx==7.4.7
 pip install sphinx-rtd-theme
