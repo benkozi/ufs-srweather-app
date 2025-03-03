@@ -20,7 +20,7 @@ Quick Start Guide (SRW-SD)
 Build the SRW & Load the |wflow_env| Environment
 ------------------------------------------------
 
-Please refer to :ref:`BuildSRW` or :ref:`QuickBuildRun` for step-by-step build instructions.
+Please refer to :ref:`QuickBuildRun` or :ref:`BuildSRW` for step-by-step build instructions.
 
 Configure an Experiment
 -----------------------
@@ -34,11 +34,9 @@ Users will need to configure their experiment by setting parameters in the ``con
    
 Users will need to change the ``ACCOUNT`` variable in ``config.yaml`` to an account that they have access to. They will also need to indicate which ``MACHINE`` they are working on. Users may also wish to adjust other experiment settings. For more information on each task and variable, see :ref:`ConfigWorkflow`.
 
-If running on Orion or Hercules, users will need to change the data paths to :term:`ICs/LBCs` on the following lines in the ``task_get_extrn_*:`` sections of ``config.yaml`` by commenting out the Hera lines and uncommenting the Orion/Hercules lines:
-
 In addition to the UFS SRW fixed files, additional data files are required to run the smoke and dust experiment:
 
-   * ``fix_smoke``: Contains analysis grids, regridding weights, a vegetation map, and dummy emissions (used when no in situ emission files are available).
+   * ``fix_smoke``: Contains forecast grids, regridding weights, a vegetation map, and dummy emissions (used when no in situ emission files are available).
    * ``data_smoke_dust/RAVE_fire``: Emission estimates and Fire Radiative Power (FRP) observations derived from `RAVE <https://www.ospo.noaa.gov/products/land/rave/>`_ satellite observations. Additional RAVE data may be downloaded here for the last six months: https://www.ospo.noaa.gov/pub/Blended/RAVE/RAVE-HrlyEmiss-3km/. Note that SRW-SD uses 3-kilometer RAVE data files.
 
 When using the basic ``config.smoke_dust.yaml`` experiment, the usual pre-processing and coldstart forecast tasks are used, because ``"parm/wflow/prep.yaml"`` appears in the list of workflow files in the ``rocoto: tasks: taskgroups:`` section of ``config.yaml`` (see :numref:`Section %s <TasksPrepAQM>` for task descriptions). To turn on AQM *post*-processing tasks in the workflow, include ``"parm/wflow/aqm_post.yaml"`` in the ``rocoto: tasks: taskgroups:`` section, too (see :numref:`Section %s <TasksPostAQM>` for task descriptions).
@@ -69,61 +67,28 @@ The new tasks for SRW-SD are shown in :numref:`Table %s <pre-srw-sd>`.
    * - prepstart
      - Adds the smoke and dust fields to the ICs file from the restart file in the previous cycle.
      - ``parm/wflow/smoke_dust.yaml``
-   * - upp_post
-     - Performs post-processing with UPP.
-     - ``parm/wflow/upp_post.yaml``
 
-The Python scripts listed in :numref:`Table %s <sd-scripts>` are used to perform data processing and calculations required for the SRW-SD forecast. 
+The Python utilities listed in :numref:`Table %s <sd-scripts>` are used to perform data processing and calculations required for the SRW-SD forecast.
 
 .. _sd-scripts:
 
-.. list-table:: *Python Scripts Used by Smoke and Dust Tasks*
+.. list-table:: *Python Utilities Used by Smoke and Dust Tasks*
    :widths: 20 50
    :header-rows: 1
 
    * - Script
      - Description
-   * - ``ush/smoke_dust_add_smoke.py``
+   * - ``ush/smoke_dust/add_smoke.py``
      - Transfers smoke and dust-related variables from FV3 tracer outputs to GFS initial conditions.
-   * - ``ush/smoke_dust_fire_emiss_tools.py``
-     - Calculates fire behavior and emission variables and creates input for the smoke and dust tracers.
-   * - ``ush/smoke_dust_generate_fire_emissions.py``
-     - Entry point for the smoke and dust fire-related initial conditions generated during the ``smoke_dust`` task.
-   * - ``ush/smoke_dust_hwp_tools.py``
-     - Utilities for calculating Hourly Wildfire Potential (HWP).
-   * - ``ush/smoke_dust_interp_tools.py``
-     - Regridding utilities using `esmpy <https://earthsystemmodeling.org/esmpy/>`_ that interpolate data from the RAVE observational grid to the RRFS grid.
+   * - ``ush/smoke_dust/generate_emissions.py``
+     - Calculates fire behavior and emission variables, creating input for the smoke and dust tracers.
 
-Generate the Workflow
----------------------
+Unit tests can be found in ``tests/test_python/test_smoke_dust``. The SRW-SD Python utilities run under their own Anaconda environment. Required packages are located in ``sd_environment.yml``.
 
-Generate the workflow:
+Generate and Run the Workflow
+-----------------------------
 
-.. code-block:: console
-
-   ./generate_FV3LAM_wflow.py
-
-Run the Workflow
-------------------
-
-If ``USE_CRON_TO_RELAUNCH`` is set to true in ``config.yaml`` (see :numref:`Section %s <srw-sd-config>`), the workflow will run automatically. If it was set to false, users must submit the workflow manually from the experiment directory:
-
-.. code-block:: console
-
-   cd ../../expt_dirs/smoke_dust_conus3km
-   ./launch_FV3LAM_wflow.sh
-
-Repeat the launch command regularly until a SUCCESS or FAILURE message appears on the terminal window. 
-
-Users may check experiment status from the experiment directory with either of the following commands: 
-
-.. code-block:: console
-
-   # Check the experiment status (for cron jobs)
-   rocotostat -w FV3LAM_wflow.xml -d FV3LAM_wflow.db -v 10
-
-   # Check the experiment status and relaunch the workflow (for manual jobs)
-   ./launch_FV3LAM_wflow.sh; tail -n 40 log.launch_FV3LAM_wflow
+Please refer to :ref:`QuickBuildRun` or :ref:`BuildSRW` for step-by-step instructions on how to build and run the workflow.
 
 .. _srw-sd-success:
 
@@ -134,7 +99,7 @@ The workflow run is complete when all tasks display a "SUCCEEDED" message. If ev
 
 .. code-block:: console
 
-   [orion-login smoke_dust_conus3km]$ rocotostat -w FV3LAM_wflow.xml -d FV3LAM_wflow.db -v 10
+   $ rocotostat -w FV3LAM_wflow.xml -d FV3LAM_wflow.db -v 10
          CYCLE                    TASK       JOBID        STATE   EXIT STATUS   TRIES   DURATION
    ==============================================================================================
    201907220000               make_grid    18984137    SUCCEEDED            0       1       29.0
@@ -170,4 +135,4 @@ The workflow run is complete when all tasks display a "SUCCEEDED" message. If ev
    201907220600    upp_post_mem000_f005    18989110    SUCCEEDED            0       1      294.0
    201907220600    upp_post_mem000_f006    18989111    SUCCEEDED            0       1      294.0
 
-If something goes wrong, users can check the log files, which are located by default in ``expt_dirs/smoke_dust_conus3km/nco_logs/20190722``.
+If something goes wrong, users can check the log files, which are located by default in ``expt_dirs/smoke_dust_conus3km/logs``.
