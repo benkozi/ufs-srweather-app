@@ -61,10 +61,10 @@ The new tasks for SRW-SD are shown in :numref:`Table %s <pre-srw-sd>`.
    * - Task Name
      - Description
      - File
-   * - smoke_dust
+   * - ``smoke_dust``
      - Generates the input data file for smoke and dust to be used in the UFS Weather Model.
      - ``parm/wflow/smoke_dust.yaml``
-   * - prepstart
+   * - ``prepstart``
      - Adds the smoke and dust fields to the ICs file from the restart file in the previous cycle.
      - ``parm/wflow/smoke_dust.yaml``
 
@@ -83,7 +83,96 @@ The Python utilities listed in :numref:`Table %s <sd-scripts>` are used to perfo
    * - ``ush/smoke_dust/generate_emissions.py``
      - Calculates fire behavior and emission variables, creating input for the smoke and dust tracers.
 
-Unit tests can be found in ``tests/test_python/test_smoke_dust``. The SRW-SD Python utilities run under their own Anaconda environment. Required packages are located in ``sd_environment.yml``.
+.. plantuml::
+    :caption: Overview of the major steps occurring in the ``smoke_dust`` task.
+    :align: center
+
+    participant rocoto as R
+    participant task_smoke_dust as T
+    participant JSRW_SMOKE_DUST as J
+    participant exsrw_smoke_dust.sh as E
+    participant generate_emissions.py as G
+
+    == Task: smoke_dust ==
+
+    R -> T: Run task
+    T -> J: Submit job card
+    J -> E: Run wrapper script
+    E -> G: Run emissions generation
+    G -> G: Process emissions
+    E <- G
+    J <- E
+    T <- J
+    R <- T
+
+.. plantuml::
+    :caption: Deep dive into the sequence of operations occurring in ``generate_emissions.py``.
+    :align: center
+
+    collections "Input Data" as SD
+    participant generate_emissions.py as G
+    participant SmokeDustContext as C
+    participant SmokeDustPreprocessor as P
+    participant SmokeDustCycleProcessor as CP
+    participant SmokeDustRegridProcessor as RP
+    collections "Output Data" as OD
+
+    == Task: smoke_dust (generate_emissions.py) ==
+
+    activate G
+    G -> C: Intialize context
+    activate C
+    SD <-- C: Validate input structure
+    G -> P: Run preprocessor
+    activate P
+    C <-- P: Read context
+    P -> CP: Initialize cycle processor
+    C <-- CP: Read context
+    activate CP
+    P <- CP: Get forecast dates
+    P -> RP: Initialize regrid processor
+    activate RP
+    C <-- RP: Read context
+    P -> RP: Run regridding
+    SD <-- RP: Read input data
+    OD <- RP: Write interpolated data
+    activate OD
+    P <- RP
+    deactivate RP
+    P -> CP: Run cycle processor
+    SD <-- CP: Read input data
+    OD <-- CP: Read interpolated data
+    OD <- CP: Write emissions file
+    P <- CP
+    deactivate CP
+    G <- P
+    deactivate P
+    deactivate C
+    deactivate G
+
+.. plantuml::
+    :caption: Overview of the major steps occurring in the ``prepstart`` task.
+    :align: center
+
+    participant rocoto as R
+    participant task_prepstart as T
+    participant JSRW_PREPSTART as J
+    participant exsrw_prepstart.sh as E
+    participant add_smoke.py as G
+
+    == Task: prep_start ==
+
+    R -> T: Run task
+    T -> J: Submit job card
+    J -> E: Run wrapper script
+    E -> G: Run transfer script
+    G -> G: Transfer tracers
+    E <- G
+    J <- E
+    T <- J
+    R <- T
+
+Unit tests can be found in ``tests/test_python/test_smoke_dust``. The SRW-SD Python utilities run under their own Anaconda environment similar to the ``srw_app`` environment: ``sd_environment.yml``.
 
 Generate and Run the Workflow
 -----------------------------
