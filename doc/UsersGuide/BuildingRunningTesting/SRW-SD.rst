@@ -20,7 +20,7 @@ Quick Start Guide (SRW-SD)
 Build the SRW & Load the |wflow_env| Environment
 ------------------------------------------------
 
-Please refer to :ref:`QuickBuildRun` or :ref:`BuildSRW` for step-by-step build instructions.
+Please refer to :ref:`QuickBuildRun` (quick build/run) or :ref:`BuildSRW` for step-by-step build instructions.
 
 Configure an Experiment
 -----------------------
@@ -32,23 +32,37 @@ Users will need to configure their experiment by setting parameters in the ``con
    cd /path/to/ufs-srweather-app/ush
    cp config.smoke_dust.yaml config.yaml
    
-Users will need to change the ``ACCOUNT`` variable in ``config.yaml`` to an account that they have access to. They will also need to indicate which ``MACHINE`` they are working on. Users may also wish to adjust other experiment settings. For more information on each task and variable, see :ref:`ConfigWorkflow`.
+Users will need to change the ``ACCOUNT`` variable in ``config.yaml`` to an account that they have access to. They will also need to indicate which ``MACHINE`` they are working on. Users may also wish to adjust other experiment settings. For more information on each task and variable, see :ref:`ConfigWorkflow`. For smoke/dust specific parameters please see :ref:`smoke-dust-parameters`.
 
 In addition to the UFS SRW fixed files, additional data files are required to run the smoke and dust experiment:
 
    * ``fix_smoke``: Contains forecast grids, regridding weights, a vegetation map, and dummy emissions (used when no in situ emission files are available).
    * ``data_smoke_dust/RAVE_fire``: Emission estimates and Fire Radiative Power (FRP) observations derived from `RAVE <https://www.ospo.noaa.gov/products/land/rave/>`_ satellite observations. Additional RAVE data may be downloaded here for the last six months: https://www.ospo.noaa.gov/pub/Blended/RAVE/RAVE-HrlyEmiss-3km/. Note that SRW-SD uses 3-kilometer RAVE data files.
 
-When using the basic ``config.smoke_dust.yaml`` experiment, the usual pre-processing and coldstart forecast tasks are used, because ``"parm/wflow/prep.yaml"`` appears in the list of workflow files in the ``rocoto: tasks: taskgroups:`` section of ``config.yaml`` (see :numref:`Section %s <TasksPrepAQM>` for task descriptions). To turn on AQM *post*-processing tasks in the workflow, include ``"parm/wflow/aqm_post.yaml"`` in the ``rocoto: tasks: taskgroups:`` section, too (see :numref:`Section %s <TasksPostAQM>` for task descriptions).
+When using the basic ``config.smoke_dust.yaml`` experiment, the usual pre-processing and coldstart forecast tasks are used, because ``"parm/wflow/prep.yaml"`` appears in the list of workflow files in the ``rocoto: tasks: taskgroups:`` section of ``config.yaml`` (see :numref:`Section %s <TasksPrepAQM>` for task descriptions).
+
+Predefined Grid Support in SRW-SD
+---------------------------------
+
+SRW-SD supports these predefined grids:
+
+* ``RRFS_CONUS_3km``
+* ``RRFS_CONUS_13km``
+* ``RRFS_CONUS_25km``
+* ``RRFS_NA_13km``
+* ``RRFS_NA_3km``
+
+Please see :ref:`LAMGrids` for more information on predefined grids in the SRW. User-generated grids are *not* supported with SRW-SD.
+
+.. note::
+   North American ICs and LBCs are not staged for the predefined SRW-SD experiment.
 
 .. _srw-sd-more-tasks:
 
 Additional SRW-SD Tasks
 -----------------------
 
-.. COMMENT: Add workflow diagram in the future. 
-
-Compared to the typical SRW App workflow, the SRW-SD has slightly different tasks for pre- and post-processing. As in the SRW App default workflow, the SRW-SD workflow uses the preprocessing tasks from ``prep.yaml``, but it adds smoke-and-dust-specific tasks from ``smoke_dust.yaml``. For post-processing, it uses the NCO-compliant ``upp_post.yaml`` instead of the usual ``post.yaml``. 
+Compared to the typical SRW App workflow, the SRW-SD has slightly different tasks for pre-processing. As in the SRW App default workflow, the SRW-SD workflow uses the preprocessing tasks from ``prep.yaml``, but it adds smoke-and-dust-specific tasks from ``smoke_dust.yaml``.
 
 The new tasks for SRW-SD are shown in :numref:`Table %s <pre-srw-sd>`. 
 
@@ -83,6 +97,8 @@ The Python utilities listed in :numref:`Table %s <sd-scripts>` are used to perfo
    * - ``ush/smoke_dust/generate_emissions.py``
      - Calculates fire behavior and emission variables, creating input for the smoke and dust tracers.
 
+----
+
 .. plantuml::
     :caption: Overview of the major steps occurring in the ``smoke_dust`` task.
     :align: center
@@ -104,6 +120,8 @@ The Python utilities listed in :numref:`Table %s <sd-scripts>` are used to perfo
     J <- E
     T <- J
     R <- T
+
+----
 
 .. plantuml::
     :caption: Deep dive into the sequence of operations occurring in ``generate_emissions.py``.
@@ -150,6 +168,8 @@ The Python utilities listed in :numref:`Table %s <sd-scripts>` are used to perfo
     deactivate C
     deactivate G
 
+----
+
 .. plantuml::
     :caption: Overview of the major steps occurring in the ``prepstart`` task.
     :align: center
@@ -172,12 +192,14 @@ The Python utilities listed in :numref:`Table %s <sd-scripts>` are used to perfo
     T <- J
     R <- T
 
+----
+
 Unit tests can be found in ``tests/test_python/test_smoke_dust``. The SRW-SD Python utilities run under their own Anaconda environment similar to the ``srw_app`` environment: ``sd_environment.yml``.
 
 Generate and Run the Workflow
 -----------------------------
 
-Please refer to :ref:`QuickBuildRun` or :ref:`BuildSRW` for step-by-step instructions on how to build and run the workflow.
+Please refer to :ref:`QuickBuildRun` (quick build/run) or :ref:`BuildSRW` for step-by-step instructions on how to build and run the workflow.
 
 .. _srw-sd-success:
 
