@@ -68,7 +68,7 @@ The new tasks for SRW-SD are shown in :numref:`Table %s <pre-srw-sd>`.
 
 .. _pre-srw-sd:
 
-.. list-table:: *Tasks for SRW-SD Pre- and Post-Processing*
+.. list-table:: *Tasks for SRW-SD Pre-Processing*
    :widths: 20 50 30
    :header-rows: 1
 
@@ -222,14 +222,14 @@ The workflow run is complete when all tasks display a "SUCCEEDED" message. If ev
    201907220000          get_extrn_lbcs    18984149    SUCCEEDED            0       1       12.0
    201907220000         make_ics_mem000    18984185    SUCCEEDED            0       1      157.0
    201907220000        make_lbcs_mem000    18984187    SUCCEEDED            0       1       85.0
-   201907220000         forecast_mem000    18984328    SUCCEEDED            0       1     6199.0
-   201907220000    upp_post_mem000_f000    18988282    SUCCEEDED            0       1      212.0
-   201907220000    upp_post_mem000_f001    18988283    SUCCEEDED            0       1      247.0
-   201907220000    upp_post_mem000_f002    18988284    SUCCEEDED            0       1      258.0
-   201907220000    upp_post_mem000_f003    18988285    SUCCEEDED            0       1      271.0
-   201907220000    upp_post_mem000_f004    18988286    SUCCEEDED            0       1      284.0
-   201907220000    upp_post_mem000_f005    18988287    SUCCEEDED            0       1      286.0
-   201907220000    upp_post_mem000_f006    18988288    SUCCEEDED            0       1      292.0
+   201907220000     run_forecast_mem000    18984328    SUCCEEDED            0       1     6199.0
+   201907220000    run_post_mem000_f000    18988282    SUCCEEDED            0       1      212.0
+   201907220000    run_post_mem000_f001    18988283    SUCCEEDED            0       1      247.0
+   201907220000    run_post_mem000_f002    18988284    SUCCEEDED            0       1      258.0
+   201907220000    run_post_mem000_f003    18988285    SUCCEEDED            0       1      271.0
+   201907220000    run_post_mem000_f004    18988286    SUCCEEDED            0       1      284.0
+   201907220000    run_post_mem000_f005    18988287    SUCCEEDED            0       1      286.0
+   201907220000    run_post_mem000_f006    18988288    SUCCEEDED            0       1      292.0
    ==============================================================================================
    201907220600              smoke_dust    18988289    SUCCEEDED            0       1      225.0
    201907220600               prepstart    18988302    SUCCEEDED            0       1      112.0
@@ -237,13 +237,13 @@ The workflow run is complete when all tasks display a "SUCCEEDED" message. If ev
    201907220600          get_extrn_lbcs    18984151    SUCCEEDED            0       1       14.0
    201907220600         make_ics_mem000    18984188    SUCCEEDED            0       1      152.0
    201907220600        make_lbcs_mem000    18984189    SUCCEEDED            0       1       79.0
-   201907220600         forecast_mem000    18988311    SUCCEEDED            0       1     6191.0
-   201907220600    upp_post_mem000_f000    18989105    SUCCEEDED            0       1      212.0
-   201907220600    upp_post_mem000_f001    18989106    SUCCEEDED            0       1      283.0
-   201907220600    upp_post_mem000_f002    18989107    SUCCEEDED            0       1      287.0
-   201907220600    upp_post_mem000_f003    18989108    SUCCEEDED            0       1      284.0
-   201907220600    upp_post_mem000_f004    18989109    SUCCEEDED            0       1      289.0
-   201907220600    upp_post_mem000_f005    18989110    SUCCEEDED            0       1      294.0
-   201907220600    upp_post_mem000_f006    18989111    SUCCEEDED            0       1      294.0
+   201907220600     run_forecast_mem000    18988311    SUCCEEDED            0       1     6191.0
+   201907220600    run_post_mem000_f000    18989105    SUCCEEDED            0       1      212.0
+   201907220600    run_post_mem000_f001    18989106    SUCCEEDED            0       1      283.0
+   201907220600    run_post_mem000_f002    18989107    SUCCEEDED            0       1      287.0
+   201907220600    run_post_mem000_f003    18989108    SUCCEEDED            0       1      284.0
+   201907220600    run_post_mem000_f004    18989109    SUCCEEDED            0       1      289.0
+   201907220600    run_post_mem000_f005    18989110    SUCCEEDED            0       1      294.0
+   201907220600    run_post_mem000_f006    18989111    SUCCEEDED            0       1      294.0
 
 If something goes wrong, users can check the log files, which are located by default in ``expt_dirs/smoke_dust_conus3km/logs``.
