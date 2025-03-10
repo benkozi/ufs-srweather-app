@@ -1,5 +1,5 @@
 """Contains common functionality used across smoke/dust."""
-
+import subprocess
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Tuple, Literal, Dict
@@ -157,3 +157,13 @@ def create_descriptive_statistics(
         ]
     desc = pd.concat([desc, pd.DataFrame(data=adds, index=["sum", "count_null", "origin", "path"])])
     return desc
+
+
+def nccmp(lhs: Path, rhs: Path, compare_data: bool = True, silent_mode: bool = True) -> None:
+    cmd = ['nccmp', '-i']
+    if compare_data:
+        cmd.append('-d')
+    if silent_mode:
+        cmd.append('-S')
+    cmd += [str(lhs), str(rhs)]
+    subprocess.check_call(cmd)
