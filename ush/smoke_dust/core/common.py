@@ -1,4 +1,5 @@
 """Contains common functionality used across smoke/dust."""
+
 import subprocess
 from contextlib import contextmanager
 from pathlib import Path
@@ -160,11 +161,11 @@ def create_descriptive_statistics(
 
 
 def nccmp(lhs: Path, rhs: Path, compare_data: bool = True, silent_mode: bool = True) -> None:
-    cmd = ['nccmp', '-i']
+    cmd = ["nccmp", "-i"]
     if compare_data:
-        cmd.append('-d')
+        cmd.append("-d")
     if silent_mode:
-        cmd.append('-S')
+        cmd.append("-S")
     cmd += [str(lhs), str(rhs)]
     subprocess.check_call(cmd)
 

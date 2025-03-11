@@ -24,6 +24,6 @@ def test_nccmp_with_diff(tmp_path: Path) -> None:
     create_nc_file(lhs)
     create_nc_file(rhs)
     with open_nc(rhs, mode="a", parallel=False) as nc_ds:
-        nc_ds.variables["var"][:] = 10.
+        nc_ds.variables["var"][:] = 10.0
     with pytest.raises(CalledProcessError):
         nccmp(lhs, rhs)

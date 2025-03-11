@@ -140,8 +140,8 @@ def create_fake_restart_files(
 
 
 def create_analytic_array(shape: FakeGridOutShape) -> np.ndarray:
-    lat_vec = np.linspace(-80., 80., num=shape.y_size)
-    lon_vec = np.linspace(-170., 170., num=shape.x_size)
+    lat_vec = np.linspace(-80.0, 80.0, num=shape.y_size)
+    lon_vec = np.linspace(-170.0, 170.0, num=shape.x_size)
     lat_mesh, lon_mesh = np.meshgrid(lon_vec, lat_vec)
     deg_to_rad = 3.141592653589793 / 180.0
     analytic_data = 2.0 + np.cos(deg_to_rad * lon_mesh) ** 2 * np.cos(

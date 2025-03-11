@@ -1,32 +1,11 @@
 """Implements the smoke/dust regrid processor."""
 
-import logging
-from copy import copy, deepcopy
 from typing import Any
 
-import esmpy
-import numpy as np
 import pandas as pd
 
-from smoke_dust.core.common import (
-    create_template_emissions_file,
-    create_sd_variable,
-    create_descriptive_statistics,
-    open_nc,
-)
-from smoke_dust.core.context import RaveQaFilter, SmokeDustContext, PredefinedGrid
-from smoke_dust.core.regrid.common import (
-    GridSpec,
-    GridWrapper,
-    FieldWrapper,
-    load_variable_data,
-    NcToGrid,
-    NcToField,
-    mask_edges,
-)
-from smoke_dust.core.regrid.operation.context import EsmpyContext, RegridOptimizations, \
-    RegridOperationContext, RaveToGridProcessor
-from smoke_dust.core.variable import SD_VARS
+from smoke_dust.core.context import SmokeDustContext
+from smoke_dust.core.regrid.operation.context import RegridOperationContext, RaveToGridProcessor
 
 
 class SmokeDustRegridProcessor:
@@ -59,10 +38,11 @@ class SmokeDustRegridProcessor:
         #     self.log("all rave files have been interpolated")
         #     return
 
-        context = RegridOperationContext(smoke_dust_context=self._context,
-                                         cycle_metadata=cycle_metadata,
-                                         create_weight_file=False
-                                         )
+        context = RegridOperationContext(
+            smoke_dust_context=self._context,
+            cycle_metadata=cycle_metadata,
+            create_weight_file=False,
+        )
         rave_to_grid_processor = RaveToGridProcessor(context)
         rave_to_grid_processor.run()
         rave_to_grid_processor.finalize()
@@ -187,75 +167,75 @@ class SmokeDustRegridProcessor:
     #                 case _:
     #                     raise NotImplementedError(field_name)
 
-                # self.log("creating destination field", level=logging.DEBUG)
-                # dst_nc2field = NcToField(
-                #     path=output_file_path,
-                #     name=dst_field_name,
-                #     gwrap=self._dst_output_gwrap,
-                #     dim_time=("t",),
-                # )
-                # dst_fwrap = dst_nc2field.create_field_wrapper()
-                #
-                # self.log("creating source field", level=logging.DEBUG)
-                # src_nc2field = NcToField(
-                #     path=row_data["rave_raw"],
-                #     name=field_name,
-                #     gwrap=self._src_gwrap,
-                #     dim_time=("time",),
-                # )
-                # src_fwrap = src_nc2field.create_field_wrapper()
+    # self.log("creating destination field", level=logging.DEBUG)
+    # dst_nc2field = NcToField(
+    #     path=output_file_path,
+    #     name=dst_field_name,
+    #     gwrap=self._dst_output_gwrap,
+    #     dim_time=("t",),
+    # )
+    # dst_fwrap = dst_nc2field.create_field_wrapper()
+    #
+    # self.log("creating source field", level=logging.DEBUG)
+    # src_nc2field = NcToField(
+    #     path=row_data["rave_raw"],
+    #     name=field_name,
+    #     gwrap=self._src_gwrap,
+    #     dim_time=("time",),
+    # )
+    # src_fwrap = src_nc2field.create_field_wrapper()
 
-                # src_fwrap = operation._src_fwrap
-                # src_data = src_fwrap.value.data
-                # match field_name:
-                #     case "FRP_MEAN":
-                #         src_data[:] = np.where(src_data == -1.0, 0.0, src_data)
-                #     case "FRE":
-                #         src_data[:] = np.where(src_data > 1000.0, src_data, 0.0)
-                #     case _:
-                #         raise NotImplementedError(field_name)
-                #
-                # if self._context.rave_qa_filter == RaveQaFilter.HIGH:
-                #     with open_nc(row_data["rave_raw"], parallel=True) as rave_ds:
-                #         rave_qa = load_variable_data(
-                #             rave_ds.variables["QA"],  # pylint: disable=unsubscriptable-object
-                #             src_fwrap.dims,
-                #         )
-                #     set_to_zero = rave_qa < 2
-                #     self.log(
-                #         f"RAVE QA filter applied: {self._context.rave_qa_filter=}; "
-                #         f"{set_to_zero.size=}; {np.sum(set_to_zero)=}"
-                #     )
-                #     src_data[set_to_zero] = 0.0
-                # else:
-                #     if self._context.rave_qa_filter != RaveQaFilter.NONE:
-                #         raise NotImplementedError
-                #
-                # # Execute the ESMF regridding
-                # self.log("run regridding", level=logging.DEBUG)
-                # regridder = self._get_regridder_(src_fwrap, dst_fwrap)
-                # _ = regridder(src_fwrap.value, dst_fwrap.value)
-                #
-                # # Persist the destination field
-                # self.log("filling netcdf", level=logging.DEBUG)
-                # dst_fwrap.fill_nc_variable(output_file_path)
+    # src_fwrap = operation._src_fwrap
+    # src_data = src_fwrap.value.data
+    # match field_name:
+    #     case "FRP_MEAN":
+    #         src_data[:] = np.where(src_data == -1.0, 0.0, src_data)
+    #     case "FRE":
+    #         src_data[:] = np.where(src_data > 1000.0, src_data, 0.0)
+    #     case _:
+    #         raise NotImplementedError(field_name)
+    #
+    # if self._context.rave_qa_filter == RaveQaFilter.HIGH:
+    #     with open_nc(row_data["rave_raw"], parallel=True) as rave_ds:
+    #         rave_qa = load_variable_data(
+    #             rave_ds.variables["QA"],  # pylint: disable=unsubscriptable-object
+    #             src_fwrap.dims,
+    #         )
+    #     set_to_zero = rave_qa < 2
+    #     self.log(
+    #         f"RAVE QA filter applied: {self._context.rave_qa_filter=}; "
+    #         f"{set_to_zero.size=}; {np.sum(set_to_zero)=}"
+    #     )
+    #     src_data[set_to_zero] = 0.0
+    # else:
+    #     if self._context.rave_qa_filter != RaveQaFilter.NONE:
+    #         raise NotImplementedError
+    #
+    # # Execute the ESMF regridding
+    # self.log("run regridding", level=logging.DEBUG)
+    # regridder = self._get_regridder_(src_fwrap, dst_fwrap)
+    # _ = regridder(src_fwrap.value, dst_fwrap.value)
+    #
+    # # Persist the destination field
+    # self.log("filling netcdf", level=logging.DEBUG)
+    # dst_fwrap.fill_nc_variable(output_file_path)
 
-        #     # Update the forecast metadata with the interpolated RAVE file data
-        #     cycle_metadata.loc[row_idx, "rave_interpolated"] = output_file_path
-        #     row_data["rave_interpolated"] = output_file_path
-        #
-        #     if self._context.rank == 0:
-        #         self._regrid_postprocessing_(row_data)
-        #
-        # if (
-        #     self._context.rank == 0
-        #     and self._context.should_calc_desc_stats
-        #     and self._interpolation_stats is not None
-        # ):
-        #     cycle_dates = cycle_metadata["forecast_date"]
-        #     stats_path = (
-        #         self._context.intp_dir
-        #         / f"stats_regridding_{cycle_dates.min()}_{cycle_dates.max()}.csv"
-        #     )
-        #     self.log(f"writing interpolation statistics: {stats_path=}")
-        #     self._interpolation_stats.to_csv(stats_path, index=False)
+    #     # Update the forecast metadata with the interpolated RAVE file data
+    #     cycle_metadata.loc[row_idx, "rave_interpolated"] = output_file_path
+    #     row_data["rave_interpolated"] = output_file_path
+    #
+    #     if self._context.rank == 0:
+    #         self._regrid_postprocessing_(row_data)
+    #
+    # if (
+    #     self._context.rank == 0
+    #     and self._context.should_calc_desc_stats
+    #     and self._interpolation_stats is not None
+    # ):
+    #     cycle_dates = cycle_metadata["forecast_date"]
+    #     stats_path = (
+    #         self._context.intp_dir
+    #         / f"stats_regridding_{cycle_dates.min()}_{cycle_dates.max()}.csv"
+    #     )
+    #     self.log(f"writing interpolation statistics: {stats_path=}")
+    #     self._interpolation_stats.to_csv(stats_path, index=False)
