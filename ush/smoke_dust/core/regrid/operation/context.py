@@ -1,15 +1,18 @@
+import logging
 from functools import cached_property
 import copy
 from pathlib import Path
 from typing import Any
 
 import esmpy
+import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict
 
 from smoke_dust.core.common import open_nc, create_template_emissions_file, create_sd_variable
-from smoke_dust.core.context import SmokeDustContext, PredefinedGrid
-from smoke_dust.core.regrid.common import NcToGrid, GridSpec, GridWrapper, FieldWrapper, NcToField
+from smoke_dust.core.context import SmokeDustContext, PredefinedGrid, RaveQaFilter
+from smoke_dust.core.regrid.common import NcToGrid, GridSpec, GridWrapper, FieldWrapper, NcToField, \
+    load_variable_data
 from smoke_dust.core.variable import SD_VARS
 
 
@@ -24,16 +27,16 @@ class EsmpyContext(BaseModel):
 
 
 class RegridOptimizations(BaseModel):
+    model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
     src_fwrap: FieldWrapper | None = None
     dst_fwrap: FieldWrapper | None = None
     regridder: esmpy.Regrid | None = None
 
 
 class RegridOperationContext(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
 
     smoke_dust_context: SmokeDustContext
-    esmpy_context: EsmpyContext
     cycle_metadata: pd.DataFrame
     create_weight_file: bool = False
 
@@ -45,9 +48,11 @@ class RegridFieldName(BaseModel):
 
 class RegridOperationSpec(BaseModel):
     #tdk: doc
+    esmpy_context: EsmpyContext
     field_names: tuple[RegridFieldName, ...] #tdk:last: move to RegridOperationContext?
     src_path: Path
     dst_path: Path
+    output_path: Path
     weight_path: Path | None = None
     optimizations: RegridOptimizations | None = None
 
@@ -68,7 +73,21 @@ class RaveToGridOperation:
         self._context.smoke_dust_context.log(*args, **kwargs)
 
     def run(self) -> RegridOptimizations | None:
-        ...
+        self._dst_gwrap_output.fill_nc_variables(self._spec.output_path)
+        #tdk:test: add parallel testing
+        for field_name in self._spec.field_names:
+            src_fwrap = self._create_src_field_wrapper_(field_name.src)
+
+            # Execute the ESMF regridding
+            dst_fwrap = self._dst_fwrap
+            self.log("run regridding", level=logging.DEBUG)
+            self._regridder(src_fwrap.value, dst_fwrap.value)
+
+            # Persist the destination field
+            self.log("filling netcdf", level=logging.DEBUG)
+            dst_fwrap.fill_nc_variable(self._context.output_path)
+
+        tdk #tdk: implement postprocessing
 
     def finalize(self) -> None:
         self.log("finalize")
@@ -121,21 +140,46 @@ class RaveToGridOperation:
         dst_output_gwrap.dims.value[1].name = ("lat",)
         return dst_output_gwrap
 
-    @cached_property
-    def _src_fwrap(self) -> FieldWrapper:
-        self.log(f"creating source field: {self._context.src_field_name}")
+    def _create_src_field_wrapper_(self, name: str) -> FieldWrapper:
+        self.log(f"creating source field: {name=}")
+        src_path = self._spec.src_path
         nc_to_field = NcToField(
-            path=self._spec.src_path,
-            name=self._spec.src_field_name,
+            path=src_path,
+            name=name,
             gwrap=self._src_gwrap,
             dim_time=("time",),
         )
         # tdk: optimization to provide an esmpy field and load into it
-        return nc_to_field.create_field_wrapper()
+        fwrap = nc_to_field.create_field_wrapper()
+        src_data = fwrap.value.data
+        match name:
+            case "FRP_MEAN":
+                src_data[:] = np.where(src_data == -1.0, 0.0, src_data)
+            case "FRE":
+                src_data[:] = np.where(src_data > 1000.0, src_data, 0.0)
+            case _:
+                raise NotImplementedError(name)
+        rave_qa_filter = self._context.smoke_dust_context.rave_qa_filter
+        if rave_qa_filter == RaveQaFilter.HIGH:
+            with open_nc(src_path, parallel=True) as rave_ds:
+                rave_qa = load_variable_data(
+                    rave_ds.variables["QA"],  # pylint: disable=unsubscriptable-object
+                    fwrap.dims,
+                )
+            set_to_zero = rave_qa < 2
+            self.log(
+                f"RAVE QA filter applied: {rave_qa_filter=}; "
+                f"{set_to_zero.size=}; {np.sum(set_to_zero)=}"
+            )
+            src_data[set_to_zero] = 0.0
+        else:
+            if rave_qa_filter != RaveQaFilter.NONE:
+                raise NotImplementedError
+        return fwrap
 
     @cached_property
     def _src_gwrap(self) -> GridWrapper:
-        optimization = self._context.get_optimization("src_fwrap")
+        optimization = self._spec.get_optimization("src_fwrap")
         if optimization is not None:
             self.log("using optimization for src_gwrap")
             assert isinstance(optimization, FieldWrapper)
@@ -207,7 +251,7 @@ class RaveToGridProcessor:
 
     def log(self, *args: Any, **kwargs: Any) -> None:
         """See ``SmokeDustContext.log``."""
-        self._context.log(*args, **kwargs)
+        self._context.smoke_dust_context.log(*args, **kwargs)
 
     def run(self) -> None:
         cycle_metadata = self._context.cycle_metadata
@@ -222,9 +266,10 @@ class RaveToGridProcessor:
         self._run_impl_(rave_to_interpolate)
 
     def _run_impl_(self, rave_to_interpolate: pd.Series) -> None:
+        smoke_dust_context = self._context.smoke_dust_context
         esmpy_context = EsmpyContext(regrid_method=esmpy.RegridMethod.CONSERVE,
                                      zero_region=esmpy.Region.TOTAL,
-                                     debug=self._context.esmpy_debug,
+                                     debug=smoke_dust_context.esmpy_debug,
                                      ignore_degenerate=True,
                                      unmapped_action=esmpy.UnmappedAction.IGNORE)
         optimizations = RegridOptimizations()
@@ -237,18 +282,17 @@ class RaveToGridProcessor:
 
             forecast_date = row_data["forecast_date"]
             output_file_path = (
-                self._context.intp_dir
-                / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
+                    smoke_dust_context.intp_dir
+                    / f"{smoke_dust_context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
             )
             self.log(f"creating output file: {output_file_path}")
             with open_nc(output_file_path, "w") as nc_ds:
-                create_template_emissions_file(nc_ds, self._context.grid_out_shape)
+                create_template_emissions_file(nc_ds, smoke_dust_context.grid_out_shape)
                 for varname in ["frp_avg_hr", "FRE"]:
                     create_sd_variable(nc_ds, SD_VARS.get(varname))
 
-            spec = RegridOperationSpec(field_names=field_names, src_path=row_data["rave_raw"],
-                                       dst_path=output_file_path, optimizations=optimizations)
+            spec = RegridOperationSpec(field_names=field_names, src_path=row_data["rave_raw"], dst_path=smoke_dust_context.grid_in,
+                                       output_path=output_file_path, optimizations=optimizations, esmpy_context=esmpy_context)
             operation = RaveToGridOperation(context=self._context, spec=spec)
-
-            operation._dst_output_gwrap.fill_nc_variables(output_file_path)
-
+            operation.run()
+            operation.finalize()

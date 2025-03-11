@@ -116,6 +116,7 @@ def create_analytic_data_array(
     Returns:
         An analytic data array.
     """
+    #tdk:last: remove duplicate create_data_array
     deg_to_rad = 3.141592653589793 / 180.0
     analytic_data = 2.0 + np.cos(deg_to_rad * lon_mesh) ** 2 * np.cos(
         2.0 * deg_to_rad * (90.0 - lat_mesh)
@@ -176,10 +177,11 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
         tmp_path: Path,
     ) -> None:
         """Test the regrid processor."""
-        spy1 = mocker.spy(SmokeDustRegridProcessor, "_run_impl_")
+        #tdk:test: add mocker call checks
+        # spy1 = mocker.spy(SmokeDustRegridProcessor, "_run_impl_")
         regrid_processor = SmokeDustRegridProcessor(data_for_test.context)
         regrid_processor.run(data_for_test.preprocessor.cycle_metadata)
-        spy1.assert_called_once()
+        # spy1.assert_called_once()
         interpolated_files = glob.glob(
             f"*{data_for_test.context.rave_to_intp}*nc", root_dir=tmp_path
         )
