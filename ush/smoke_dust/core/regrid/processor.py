@@ -65,6 +65,7 @@ class SmokeDustRegridProcessor:
                                          )
         rave_to_grid_processor = RaveToGridProcessor(context)
         rave_to_grid_processor.run()
+        rave_to_grid_processor.finalize()
 
     # @property
     # def _src_gwrap(self) -> GridWrapper:
@@ -258,53 +259,3 @@ class SmokeDustRegridProcessor:
         #     )
         #     self.log(f"writing interpolation statistics: {stats_path=}")
         #     self._interpolation_stats.to_csv(stats_path, index=False)
-
-    # def _regrid_postprocessing_(self, row_data: pd.Series) -> None:
-    #     self.log("_run_interpolation_postprocessing: enter", level=logging.DEBUG)
-    #
-    #     calc_stats = self._context.should_calc_desc_stats
-    #
-    #     field_names_dst = [
-    #         "frp_avg_hr",
-    #         "FRE",
-    #     ]
-    #     with open_nc(row_data["rave_interpolated"], parallel=False) as nc_ds:
-    #         dst_data = {ii: nc_ds.variables[ii][:] for ii in field_names_dst}
-    #     if calc_stats:
-    #         # Do these calculations before we modify the arrays since edge masking is inplace
-    #         dst_desc_unmasked = create_descriptive_statistics(dst_data, "dst_unmasked", None)
-    #
-    #     # Mask edges to reduce model edge effects
-    #     self.log("masking edges", level=logging.DEBUG)
-    #     for value in dst_data.values():
-    #         # Operation is inplace
-    #         mask_edges(value[0, :, :])
-    #
-    #     # Persist masked data to disk
-    #     with open_nc(row_data["rave_interpolated"], parallel=False, mode="a") as nc_ds:
-    #         for key, value in dst_data.items():
-    #             nc_ds.variables[key][:] = value
-    #
-    #     if calc_stats:
-    #         with open_nc(row_data["rave_raw"], parallel=False) as nc_ds:
-    #             src_desc = create_descriptive_statistics(
-    #                 {ii: nc_ds.variables[ii][:] for ii in self._context.vars_emis},
-    #                 "src",
-    #                 row_data["rave_raw"],
-    #             )
-    #             src_desc.rename(columns={"FRP_MEAN": "frp_avg_hr"}, inplace=True)
-    #         dst_desc_masked = create_descriptive_statistics(
-    #             dst_data, "dst_masked", row_data["rave_interpolated"]
-    #         )
-    #         summary = pd.concat(
-    #             [ii.transpose() for ii in [src_desc, dst_desc_unmasked, dst_desc_masked]]
-    #         )
-    #         summary.index.name = "variable"
-    #         summary["forecast_date"] = row_data["forecast_date"]
-    #         summary.reset_index(inplace=True)
-    #         if self._interpolation_stats is None:
-    #             self._interpolation_stats = summary
-    #         else:
-    #             self._interpolation_stats = pd.concat([self._interpolation_stats, summary])
-    #
-    #     self.log("_run_interpolation_postprocessing: exit", level=logging.DEBUG)

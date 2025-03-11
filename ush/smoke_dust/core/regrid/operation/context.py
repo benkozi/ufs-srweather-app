@@ -9,10 +9,11 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict
 
-from smoke_dust.core.common import open_nc, create_template_emissions_file, create_sd_variable
+from smoke_dust.core.common import open_nc, create_template_emissions_file, create_sd_variable, \
+    ncdump, create_descriptive_statistics
 from smoke_dust.core.context import SmokeDustContext, PredefinedGrid, RaveQaFilter
 from smoke_dust.core.regrid.common import NcToGrid, GridSpec, GridWrapper, FieldWrapper, NcToField, \
-    load_variable_data
+    load_variable_data, mask_edges
 from smoke_dust.core.variable import SD_VARS
 
 
@@ -68,6 +69,8 @@ class RaveToGridOperation:
         self._context = context
         self._spec = spec
 
+        self._regridder: esmpy.Regrid | None = None
+
     def log(self, *args: Any, **kwargs: Any) -> None:
         """See ``SmokeDustContext.log``."""
         self._context.smoke_dust_context.log(*args, **kwargs)
@@ -81,20 +84,18 @@ class RaveToGridOperation:
             # Execute the ESMF regridding
             dst_fwrap = self._dst_fwrap
             self.log("run regridding", level=logging.DEBUG)
-            self._regridder(src_fwrap.value, dst_fwrap.value)
+            self._get_regridder_(src_fwrap, dst_fwrap)
 
             # Persist the destination field
             self.log("filling netcdf", level=logging.DEBUG)
-            dst_fwrap.fill_nc_variable(self._context.output_path)
-
-        tdk #tdk: implement postprocessing
+            dst_fwrap.fill_nc_variable(self._spec.output_path)
 
     def finalize(self) -> None:
         self.log("finalize")
 
     @cached_property
     def _dst_fwrap(self) -> FieldWrapper:
-        optimization = self._context.get_optimization("dst_fwrap")
+        optimization = self._spec.get_optimization("dst_fwrap")
         if optimization is not None:
             self.log("using optimization for dst_fwrap")
             assert isinstance(optimization, FieldWrapper)
@@ -102,11 +103,12 @@ class RaveToGridOperation:
 
         self.log("creating destination field")
         nc_to_field = NcToField(
-                    path=self._spec.dst_path,
-                    name=self._spec.dst_field_name,
-                    gwrap=self._dst_output_gwrap,
+                    path=self._spec.output_path,
+                    name=self._spec.field_names[0].dst,
+                    gwrap=self._dst_gwrap_output,
                     dim_time=("t",),
                 )
+        ncdump(self._spec.output_path) #tdk:rm
         return nc_to_field.create_field_wrapper()
 
     @cached_property
@@ -201,17 +203,17 @@ class RaveToGridOperation:
         )
         return src_nc2grid.create_grid_wrapper()
 
-    @cached_property
-    def _regridder(self) -> esmpy.Regrid:
-        optimization = self._context.get_optimization("regridder")
+    def _get_regridder_(self, src_fwrap: FieldWrapper, dst_fwrap: FieldWrapper) -> esmpy.Regrid:
+        optimization = self._spec.get_optimization("regridder")
         if optimization is not None:
             self.log("using regridder optimization")
             assert isinstance(optimization, esmpy.Regrid)
-            return optimization
+            self._regridder = optimization
+            return self._regridder
+        if self._regridder is not None:
+            return self._regridder
 
         self.log("creating regridder")
-        src_fwrap = self._src_fwrap
-        dst_fwrap = self._dst_fwrap
         self.log(f"{src_fwrap.value.data.shape=}")
         self.log(f"{dst_fwrap.value.data.shape=}")
         if (
@@ -225,12 +227,13 @@ class RaveToGridOperation:
                 filename = str(self._context.weight_path)
             else:
                 filename = None
+            esmpy_context = self._spec.esmpy_context
             regridder = esmpy.Regrid(
                 src_fwrap.value,
                 dst_fwrap.value,
-                regrid_method=self._context.esmpy_context.regrid_method,
-                unmapped_action=self._context.esmpy_context.unmapped_action,
-                ignore_degenerate=self._context.esmpy_context.ignore_degenerate,
+                regrid_method=esmpy_context.regrid_method,
+                unmapped_action=esmpy_context.unmapped_action,
+                ignore_degenerate=esmpy_context.ignore_degenerate,
                 # Can be used to create a weight file for testing
                 filename=filename
             )
@@ -239,15 +242,19 @@ class RaveToGridOperation:
             regridder = esmpy.RegridFromFile(
                 src_fwrap.value,
                 dst_fwrap.value,
-                filename=str(self._context.weight_path),
+                filename=str(self._spec.weight_path),
             )
-        return regridder
+        self._regridder = regridder
+        return self._regridder
 
 
 class RaveToGridProcessor:
 
     def __init__(self, context: RegridOperationContext):
         self._context = context
+
+        # Holds interpolation descriptive statistics
+        self._interpolation_stats: None | pd.DataFrame = None
 
     def log(self, *args: Any, **kwargs: Any) -> None:
         """See ``SmokeDustContext.log``."""
@@ -265,6 +272,9 @@ class RaveToGridProcessor:
 
         self._run_impl_(rave_to_interpolate)
 
+    def finalize(self) -> None:
+        self.log("finalize")
+
     def _run_impl_(self, rave_to_interpolate: pd.Series) -> None:
         smoke_dust_context = self._context.smoke_dust_context
         esmpy_context = EsmpyContext(regrid_method=esmpy.RegridMethod.CONSERVE,
@@ -276,6 +286,7 @@ class RaveToGridProcessor:
         field_names = (RegridFieldName(src="FRP_MEAN", dst="frp_avg_hr"),
                        RegridFieldName(src="FRE", dst="FRE"))
 
+        cycle_metadata = self._context.cycle_metadata
         for row_idx, row_data in rave_to_interpolate.iterrows():
             row_dict = row_data.to_dict()
             self.log(f"processing RAVE interpolation row: {row_idx}, {row_dict}")
@@ -288,11 +299,84 @@ class RaveToGridProcessor:
             self.log(f"creating output file: {output_file_path}")
             with open_nc(output_file_path, "w") as nc_ds:
                 create_template_emissions_file(nc_ds, smoke_dust_context.grid_out_shape)
-                for varname in ["frp_avg_hr", "FRE"]:
-                    create_sd_variable(nc_ds, SD_VARS.get(varname))
+                for field_name in field_names:
+                    create_sd_variable(nc_ds, SD_VARS.get(field_name.dst))
 
             spec = RegridOperationSpec(field_names=field_names, src_path=row_data["rave_raw"], dst_path=smoke_dust_context.grid_in,
-                                       output_path=output_file_path, optimizations=optimizations, esmpy_context=esmpy_context)
+                                       output_path=output_file_path, optimizations=optimizations, esmpy_context=esmpy_context,
+                                       weight_path=smoke_dust_context.weightfile)
             operation = RaveToGridOperation(context=self._context, spec=spec)
-            operation.run()
+            optimizations = operation.run()
             operation.finalize()
+
+            # Update the forecast metadata with the interpolated RAVE file data
+            cycle_metadata.loc[row_idx, "rave_interpolated"] = output_file_path
+            row_data["rave_interpolated"] = output_file_path
+
+            if smoke_dust_context.rank == 0:
+                self._regrid_postprocessing_(row_data)
+
+        if (
+            smoke_dust_context.rank == 0
+            and smoke_dust_context.should_calc_desc_stats
+            and self._interpolation_stats is not None
+        ):
+            cycle_dates = cycle_metadata["forecast_date"]
+            stats_path = (
+                self._context.intp_dir
+                / f"stats_regridding_{cycle_dates.min()}_{cycle_dates.max()}.csv"
+            )
+            self.log(f"writing interpolation statistics: {stats_path=}")
+            self._interpolation_stats.to_csv(stats_path, index=False)
+
+
+
+    def _regrid_postprocessing_(self, row_data: pd.Series) -> None:
+        self.log("_run_interpolation_postprocessing: enter", level=logging.DEBUG)
+
+        calc_stats = self._context.smoke_dust_context.should_calc_desc_stats
+
+        field_names_dst = [
+            "frp_avg_hr",
+            "FRE",
+        ]
+        with open_nc(row_data["rave_interpolated"], parallel=False) as nc_ds:
+            dst_data = {ii: nc_ds.variables[ii][:] for ii in field_names_dst}
+        if calc_stats:
+            # Do these calculations before we modify the arrays since edge masking is inplace
+            dst_desc_unmasked = create_descriptive_statistics(dst_data, "dst_unmasked", None)
+
+        # Mask edges to reduce model edge effects
+        self.log("masking edges", level=logging.DEBUG)
+        for value in dst_data.values():
+            # Operation is inplace
+            mask_edges(value[0, :, :])
+
+        # Persist masked data to disk
+        with open_nc(row_data["rave_interpolated"], parallel=False, mode="a") as nc_ds:
+            for key, value in dst_data.items():
+                nc_ds.variables[key][:] = value
+
+        if calc_stats:
+            with open_nc(row_data["rave_raw"], parallel=False) as nc_ds:
+                src_desc = create_descriptive_statistics(
+                    {ii: nc_ds.variables[ii][:] for ii in self._context.vars_emis},
+                    "src",
+                    row_data["rave_raw"],
+                )
+                src_desc.rename(columns={"FRP_MEAN": "frp_avg_hr"}, inplace=True)
+            dst_desc_masked = create_descriptive_statistics(
+                dst_data, "dst_masked", row_data["rave_interpolated"]
+            )
+            summary = pd.concat(
+                [ii.transpose() for ii in [src_desc, dst_desc_unmasked, dst_desc_masked]]
+            )
+            summary.index.name = "variable"
+            summary["forecast_date"] = row_data["forecast_date"]
+            summary.reset_index(inplace=True)
+            if self._interpolation_stats is None:
+                self._interpolation_stats = summary
+            else:
+                self._interpolation_stats = pd.concat([self._interpolation_stats, summary])
+
+        self.log("_run_interpolation_postprocessing: exit", level=logging.DEBUG)

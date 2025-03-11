@@ -2,7 +2,6 @@
 
 import glob
 import shutil
-import subprocess
 from pathlib import Path
 from typing import Union
 
@@ -21,26 +20,6 @@ from test_python.test_smoke_dust.conftest import (
     create_fake_context,
     create_file_hash,
 )
-
-
-def ncdump(path: Path, header_only: bool = True) -> str:
-    """
-    Convenience wrapper for calling the ncdump utility.
-
-    Args:
-        path: Target netCDF file.
-        header_only: If True, return only netCDF header information.
-
-    Returns:
-        Output from the ncdump program.
-    """
-    args = ["ncdump"]
-    if header_only:
-        args.append("-h")
-    args.append(str(path))
-    ret = subprocess.check_output(args).decode()
-    print(ret, flush=True)
-    return ret
 
 
 class DataForTest(BaseModel):
