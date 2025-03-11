@@ -24,6 +24,7 @@ from smoke_dust.core.regrid.common import (
     NcToField,
     mask_edges,
 )
+from smoke_dust.core.regrid.operation.context import EsmpyContext, RegridOptimizations
 from smoke_dust.core.variable import SD_VARS
 
 
@@ -32,16 +33,16 @@ class SmokeDustRegridProcessor:
 
     def __init__(self, context: SmokeDustContext):
         self._context = context
-        self._esmpy_manager = esmpy.Manager(debug=self._context.esmpy_debug)
-
-        # Holds interpolation descriptive statistics
-        self._interpolation_stats = None
-
-        # Caches regridding objects
-        self.__src_gwrap = None
-        self.__dst_gwrap = None
-        self.__dst_output_gwrap = None
-        self.__regridder = None
+        # self._esmpy_manager = esmpy.Manager(debug=self._context.esmpy_debug)
+        #
+        # # Holds interpolation descriptive statistics
+        # self._interpolation_stats = None
+        #
+        # # Caches regridding objects
+        # self.__src_gwrap = None
+        # self.__dst_gwrap = None
+        # self.__dst_output_gwrap = None
+        # self.__regridder = None
 
     def log(self, *args: Any, **kwargs: Any) -> None:
         """See ``SmokeDustContext.log``."""
@@ -59,93 +60,100 @@ class SmokeDustRegridProcessor:
 
         self._run_impl_(cycle_metadata, rave_to_interpolate)
 
-    @property
-    def _src_gwrap(self) -> GridWrapper:
-        if self.__src_gwrap is None:
-            self.log("creating source grid from RAVE file")
-            src_nc2grid = NcToGrid(
-                path=self._context.grid_in,
-                spec=GridSpec(
-                    x_center="grid_lont",
-                    y_center="grid_latt",
-                    x_dim=("grid_xt",),
-                    y_dim=("grid_yt",),
-                    x_corner="grid_lon",
-                    y_corner="grid_lat",
-                    x_corner_dim=("grid_x",),
-                    y_corner_dim=("grid_y",),
-                ),
-            )
-            self.__src_gwrap = src_nc2grid.create_grid_wrapper()
-        return self.__src_gwrap
-
-    @property
-    def _dst_gwrap(self) -> GridWrapper:
-        if self.__dst_gwrap is None:
-            self.log("creating destination grid from RRFS grid file")
-            dst_nc2grid = NcToGrid(
-                path=self._context.grid_out,
-                spec=GridSpec(
-                    x_center="grid_lont",
-                    y_center="grid_latt",
-                    x_dim=("grid_xt",),
-                    y_dim=("grid_yt",),
-                    x_corner="grid_lon",
-                    y_corner="grid_lat",
-                    x_corner_dim=("grid_x",),
-                    y_corner_dim=("grid_y",),
-                ),
-            )
-            self.__dst_gwrap = dst_nc2grid.create_grid_wrapper()
-        return self.__dst_gwrap
-
-    @property
-    def _dst_output_gwrap(self) -> GridWrapper:
-        if self.__dst_output_gwrap is None:
-            # We are translating metadata and some structure for the destination grid.
-            dst_output_gwrap = copy(self._dst_gwrap)
-            dst_output_gwrap.corner_dims = None
-            dst_output_gwrap.spec = GridSpec(
-                x_center="geolon", y_center="geolat", x_dim=("lon",), y_dim=("lat",)
-            )
-            dst_output_gwrap.dims = deepcopy(self._dst_gwrap.dims)
-            dst_output_gwrap.dims.value[0].name = ("lon",)
-            dst_output_gwrap.dims.value[1].name = ("lat",)
-            self.__dst_output_gwrap = dst_output_gwrap
-        return self.__dst_output_gwrap
-
-    def _get_regridder_(self, src_fwrap: FieldWrapper, dst_fwrap: FieldWrapper) -> esmpy.Regrid:
-        if self.__regridder is None:
-            self.log("creating regridder")
-            self.log(f"{src_fwrap.value.data.shape=}", level=logging.DEBUG)
-            self.log(f"{dst_fwrap.value.data.shape=}", level=logging.DEBUG)
-            if (
-                self._context.predef_grid == PredefinedGrid.RRFS_NA_13KM
-                or self._context.regrid_in_memory
-            ):
-                # ESMF does not like reading the weights for this field combination (rc=-1). The
-                # error can be bypassed by creating weights in-memory.
-                self.log("creating regridding in-memory")
-                regridder = esmpy.Regrid(
-                    src_fwrap.value,
-                    dst_fwrap.value,
-                    regrid_method=esmpy.RegridMethod.CONSERVE,
-                    unmapped_action=esmpy.UnmappedAction.IGNORE,
-                    ignore_degenerate=True,
-                    # Can be used to create a weight file for testing
-                    # filename="/opt/project/weight_file.nc"
-                )
-            else:
-                self.log("creating regridding from file")
-                regridder = esmpy.RegridFromFile(
-                    src_fwrap.value,
-                    dst_fwrap.value,
-                    filename=str(self._context.weightfile),
-                )
-            self.__regridder = regridder
-        return self.__regridder
+    # @property
+    # def _src_gwrap(self) -> GridWrapper:
+    #     if self.__src_gwrap is None:
+    #         self.log("creating source grid from RAVE file")
+    #         src_nc2grid = NcToGrid(
+    #             path=self._context.grid_in,
+    #             spec=GridSpec(
+    #                 x_center="grid_lont",
+    #                 y_center="grid_latt",
+    #                 x_dim=("grid_xt",),
+    #                 y_dim=("grid_yt",),
+    #                 x_corner="grid_lon",
+    #                 y_corner="grid_lat",
+    #                 x_corner_dim=("grid_x",),
+    #                 y_corner_dim=("grid_y",),
+    #             ),
+    #         )
+    #         self.__src_gwrap = src_nc2grid.create_grid_wrapper()
+    #     return self.__src_gwrap
+    #
+    # @property
+    # def _dst_gwrap(self) -> GridWrapper:
+    #     if self.__dst_gwrap is None:
+    #         self.log("creating destination grid from RRFS grid file")
+    #         dst_nc2grid = NcToGrid(
+    #             path=self._context.grid_out,
+    #             spec=GridSpec(
+    #                 x_center="grid_lont",
+    #                 y_center="grid_latt",
+    #                 x_dim=("grid_xt",),
+    #                 y_dim=("grid_yt",),
+    #                 x_corner="grid_lon",
+    #                 y_corner="grid_lat",
+    #                 x_corner_dim=("grid_x",),
+    #                 y_corner_dim=("grid_y",),
+    #             ),
+    #         )
+    #         self.__dst_gwrap = dst_nc2grid.create_grid_wrapper()
+    #     return self.__dst_gwrap
+    #
+    # @property
+    # def _dst_output_gwrap(self) -> GridWrapper:
+    #     if self.__dst_output_gwrap is None:
+    #         # We are translating metadata and some structure for the destination grid.
+    #         dst_output_gwrap = copy(self._dst_gwrap)
+    #         dst_output_gwrap.corner_dims = None
+    #         dst_output_gwrap.spec = GridSpec(
+    #             x_center="geolon", y_center="geolat", x_dim=("lon",), y_dim=("lat",)
+    #         )
+    #         dst_output_gwrap.dims = deepcopy(self._dst_gwrap.dims)
+    #         dst_output_gwrap.dims.value[0].name = ("lon",)
+    #         dst_output_gwrap.dims.value[1].name = ("lat",)
+    #         self.__dst_output_gwrap = dst_output_gwrap
+    #     return self.__dst_output_gwrap
+    #
+    # def _get_regridder_(self, src_fwrap: FieldWrapper, dst_fwrap: FieldWrapper) -> esmpy.Regrid:
+    #     if self.__regridder is None:
+    #         self.log("creating regridder")
+    #         self.log(f"{src_fwrap.value.data.shape=}", level=logging.DEBUG)
+    #         self.log(f"{dst_fwrap.value.data.shape=}", level=logging.DEBUG)
+    #         if (
+    #             self._context.predef_grid == PredefinedGrid.RRFS_NA_13KM
+    #             or self._context.regrid_in_memory
+    #         ):
+    #             # ESMF does not like reading the weights for this field combination (rc=-1). The
+    #             # error can be bypassed by creating weights in-memory.
+    #             self.log("creating regridding in-memory")
+    #             regridder = esmpy.Regrid(
+    #                 src_fwrap.value,
+    #                 dst_fwrap.value,
+    #                 regrid_method=esmpy.RegridMethod.CONSERVE,
+    #                 unmapped_action=esmpy.UnmappedAction.IGNORE,
+    #                 ignore_degenerate=True,
+    #                 # Can be used to create a weight file for testing
+    #                 # filename="/opt/project/weight_file.nc"
+    #             )
+    #         else:
+    #             self.log("creating regridding from file")
+    #             regridder = esmpy.RegridFromFile(
+    #                 src_fwrap.value,
+    #                 dst_fwrap.value,
+    #                 filename=str(self._context.weightfile),
+    #             )
+    #         self.__regridder = regridder
+    #     return self.__regridder
 
     def _run_impl_(self, cycle_metadata: pd.DataFrame, rave_to_interpolate: pd.Series) -> None:
+        esmpy_context = EsmpyContext(regrid_method=esmpy.RegridMethod.CONSERVE,
+                                     zero_region=esmpy.Region.TOTAL,
+                                     debug=self._context.esmpy_debug,
+                                     ignore_degenerate=True,
+                                     unmapped_action=esmpy.UnmappedAction.IGNORE)
+        optimizations = RegridOptimizations()
+
         for row_idx, row_data in rave_to_interpolate.iterrows():
             row_dict = row_data.to_dict()
             self.log(f"processing RAVE interpolation row: {row_idx}, {row_dict}")
@@ -172,24 +180,25 @@ class SmokeDustRegridProcessor:
                     case _:
                         raise NotImplementedError(field_name)
 
-                self.log("creating destination field", level=logging.DEBUG)
-                dst_nc2field = NcToField(
-                    path=output_file_path,
-                    name=dst_field_name,
-                    gwrap=self._dst_output_gwrap,
-                    dim_time=("t",),
-                )
-                dst_fwrap = dst_nc2field.create_field_wrapper()
+                # self.log("creating destination field", level=logging.DEBUG)
+                # dst_nc2field = NcToField(
+                #     path=output_file_path,
+                #     name=dst_field_name,
+                #     gwrap=self._dst_output_gwrap,
+                #     dim_time=("t",),
+                # )
+                # dst_fwrap = dst_nc2field.create_field_wrapper()
+                #
+                # self.log("creating source field", level=logging.DEBUG)
+                # src_nc2field = NcToField(
+                #     path=row_data["rave_raw"],
+                #     name=field_name,
+                #     gwrap=self._src_gwrap,
+                #     dim_time=("time",),
+                # )
+                # src_fwrap = src_nc2field.create_field_wrapper()
 
-                self.log("creating source field", level=logging.DEBUG)
-                src_nc2field = NcToField(
-                    path=row_data["rave_raw"],
-                    name=field_name,
-                    gwrap=self._src_gwrap,
-                    dim_time=("time",),
-                )
-                src_fwrap = src_nc2field.create_field_wrapper()
-
+                src_fwrap = operation._src_fwrap
                 src_data = src_fwrap.value.data
                 match field_name:
                     case "FRP_MEAN":
