@@ -88,8 +88,8 @@ class DataForTest(BaseModel):
 
 @pytest.fixture(
     params=[
-        ExpectedData(flag="1", klass=SmokeDustCycleOne, hash="d124734dfce7ca914391e35a02e4a7d2"),
-        ExpectedData(flag="2", klass=SmokeDustCycleTwo, hash="6752199f1039edc936a942f3885af38b"),
+        ExpectedData(flag="1", klass=SmokeDustCycleOne, hash="1ecc9333122ff38d0feaf628a6ecdf93"),
+        ExpectedData(flag="2", klass=SmokeDustCycleTwo, hash="83cfcc4fbfb9f6c53873dffab4f84db4"),
     ],
     ids=lambda p: f"ebb_dcycle={p.flag}",
 )

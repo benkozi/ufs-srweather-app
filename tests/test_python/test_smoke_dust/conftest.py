@@ -53,7 +53,7 @@ def create_fake_grid_out(root_dir: Path, shape: FakeGridOutShape) -> None:
         nc_ds.createDimension("grid_xt", shape.x_size)
         for varname in ["area", "grid_latt", "grid_lont"]:
             var = nc_ds.createVariable(varname, "f4", ("grid_yt", "grid_xt"))
-            var[:] = np.ones((shape.y_size, shape.x_size))
+            var[:] = create_analytic_array(shape)
 
 
 def create_fake_context(root_dir: Path, overrides: Union[dict, None] = None) -> SmokeDustContext:
@@ -137,3 +137,14 @@ def create_fake_restart_files(
                 "rrfs_hwp_ave", "f4", ("Time", "yaxis_1", "xaxis_1")
             )
             rrfs_hwp_ave[0, ...] = totprcp_ave[:] + 2
+
+
+def create_analytic_array(shape: FakeGridOutShape) -> np.ndarray:
+    lat_vec = np.linspace(-80., 80., num=shape.y_size)
+    lon_vec = np.linspace(-170., 170., num=shape.x_size)
+    lat_mesh, lon_mesh = np.meshgrid(lon_vec, lat_vec)
+    deg_to_rad = 3.141592653589793 / 180.0
+    analytic_data = 2.0 + np.cos(deg_to_rad * lon_mesh) ** 2 * np.cos(
+        2.0 * deg_to_rad * (90.0 - lat_mesh)
+    )
+    return analytic_data
