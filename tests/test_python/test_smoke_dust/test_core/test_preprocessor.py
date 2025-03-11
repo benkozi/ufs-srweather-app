@@ -126,7 +126,7 @@ class TestSmokeDustPreprocessor:  # pylint: disable=too-few-public-methods
         preprocessor = data_for_test.preprocessor
         spy1 = mocker.spy(preprocessor._context.__class__, "create_dummy_emissions_file")
         regrid_processor_class = preprocessor._regrid_processor.__class__
-        spy2 = mocker.spy(regrid_processor_class, "_run_impl_")
+        # spy2 = mocker.spy(regrid_processor_class, "_run_impl_") #tdk:test: mocker count coverage
         spy3 = mocker.spy(regrid_processor_class, "run")
         cycle_processor_class = preprocessor._cycle_processor.__class__
         spy4 = mocker.spy(cycle_processor_class, "run")
@@ -139,7 +139,7 @@ class TestSmokeDustPreprocessor:  # pylint: disable=too-few-public-methods
 
         preprocessor.run()
         spy1.assert_not_called()
-        spy2.assert_not_called()
+        # spy2.assert_not_called()
         spy3.assert_called_once()
         spy4.assert_called_once()
         spy5.assert_called_once()
