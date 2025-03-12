@@ -164,15 +164,16 @@ class GridWrapper(AbstractWrapper):
 
 
 class FieldWrapper(AbstractWrapper):
-    """Wraps an ``esmpy`` field with dimension metadata."""
+    """Wraps an ``esmpy`` field with dimension and name metadata."""
 
+    name: str
     value: esmpy.Field
     gwrap: GridWrapper
 
     def fill_nc_variable(self, path: Path):
         """Fill the netCDF variable associated with the ``esmpy`` field."""
         with open_nc(path, "a") as nc_ds:
-            var = nc_ds.variables[self.value.name]
+            var = nc_ds.variables[self.name]
             _set_variable_data_(var, self.dims, self.value.data)
 
 
@@ -325,7 +326,7 @@ class NcToField(BaseModel):
             field.data[:] = load_variable_data(
                 nc_ds.variables[self.name], target_dims  # pylint: disable=unsubscriptable-object
             )
-            fwrap = FieldWrapper(value=field, dims=target_dims, gwrap=self.gwrap)
+            fwrap = FieldWrapper(value=field, dims=target_dims, gwrap=self.gwrap, name=self.name)
             return fwrap
 
 

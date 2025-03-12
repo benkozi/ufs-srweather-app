@@ -40,7 +40,8 @@ class EsmpyContext(BaseModel):
 
 
 class RegridOptimizations(BaseModel):
-    model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     src_fwrap: FieldWrapper | None = None
     dst_fwrap: FieldWrapper | None = None
     regridder: esmpy.Regrid | esmpy.RegridFromFile | None = None
@@ -66,13 +67,8 @@ class RegridOperationSpec(BaseModel):
     src_path: Path
     dst_path: Path
     output_path: Path
+    optimizations: RegridOptimizations
     weight_path: Path | None = None
-    optimizations: RegridOptimizations | None = None
-
-    def get_optimization(self, name: str) -> FieldWrapper | esmpy.Regrid | None:
-        if self.optimizations is None:
-            return
-        return getattr(self.optimizations, name)
 
 
 class RaveToGridOperation:
@@ -81,13 +77,11 @@ class RaveToGridOperation:
         self._context = context
         self._spec = spec
 
-        self._regridder: esmpy.Regrid | None = None
-
     def log(self, *args: Any, **kwargs: Any) -> None:
         """See ``SmokeDustContext.log``."""
         self._context.smoke_dust_context.log(*args, **kwargs)
 
-    def run(self) -> RegridOptimizations:
+    def run(self) -> None:
         self._dst_gwrap_output.fill_nc_variables(self._spec.output_path)
         # tdk:test: add parallel testing
         for field_name in self._spec.field_names:
@@ -98,27 +92,19 @@ class RaveToGridOperation:
             self.log("run regridding", level=logging.DEBUG)
             regridder = self._get_regridder_(src_fwrap, dst_fwrap)
             regridder(src_fwrap.value, dst_fwrap.value)
-            summ = dst_fwrap.value.data.sum() #tdk:rm
-            print('tdk:') #tdk:rm
 
             # Persist the destination field
             self.log("filling netcdf", level=logging.DEBUG)
             dst_fwrap.fill_nc_variable(self._spec.output_path)
-            output = ncdump(self._spec.output_path, header_only=False) #tdk:rm
-            print('tdk:') #tdk:rm
-
-        return RegridOptimizations(src_fwrap=src_fwrap, dst_fwrap=dst_fwrap, regridder=regridder)
 
     def finalize(self) -> None:
         self.log("finalize")
 
     def _create_dst_field_wrapper_(self, name: str) -> FieldWrapper:
-        #tdk:last: add optimization to
-        # optimization = self._spec.get_optimization("dst_fwrap")
-        # if optimization is not None:
-        #     self.log("using optimization for dst_fwrap")
-        #     assert isinstance(optimization, FieldWrapper)
-        #     return optimization
+        optimization = self._spec.optimizations.dst_fwrap
+        if optimization is not None:
+            optimization.name = name
+            return optimization
 
         self.log("creating destination field")
         nc_to_field = NcToField(
@@ -132,7 +118,8 @@ class RaveToGridOperation:
 
     @cached_property
     def _dst_gwrap(self) -> GridWrapper:
-        #tdk: optimization
+        optimi
+        
         self.log("creating destination grid from RRFS grid file")
         dst_nc2grid = NcToGrid(
             path=self._context.smoke_dust_context.grid_out,
@@ -201,12 +188,6 @@ class RaveToGridOperation:
 
     @cached_property
     def _src_gwrap(self) -> GridWrapper:
-        optimization = self._spec.get_optimization("src_fwrap")
-        if optimization is not None:
-            self.log("using optimization for src_gwrap")
-            assert isinstance(optimization, FieldWrapper)
-            return optimization.gwrap
-
         self.log("creating source grid from RAVE file")
         src_nc2grid = NcToGrid(
             path=self._context.smoke_dust_context.grid_in,
@@ -224,12 +205,6 @@ class RaveToGridOperation:
         return src_nc2grid.create_grid_wrapper()
 
     def _get_regridder_(self, src_fwrap: FieldWrapper, dst_fwrap: FieldWrapper) -> esmpy.Regrid:
-        optimization = self._spec.get_optimization("regridder")
-        if optimization is not None:
-            self.log("using regridder optimization")
-            assert isinstance(optimization, (esmpy.Regrid, esmpy.RegridFromFile))
-            self._regridder = optimization
-            return self._regridder
         if self._regridder is not None:
             return self._regridder
 
@@ -336,7 +311,6 @@ class RaveToGridProcessor:
                 weight_path=smoke_dust_context.weightfile,
             )
             operation = RaveToGridOperation(context=self._context, spec=spec)
-            optimizations = operation.run()
             operation.finalize()
 
             # Update the forecast metadata with the interpolated RAVE file data
