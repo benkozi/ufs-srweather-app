@@ -20,28 +20,36 @@ from smoke_dust.core.regrid.operation.common import RegridOperationContext, Esmp
 from smoke_dust.core.variable import SD_VARS
 
 
-class RaveToGridStrategyContext(RegridOperationContext):
+class RaveToGeomStrategyContext(RegridOperationContext):
     # tdk: doc
     model_config = ConfigDict(frozen=False)
 
-    esmpy_context: EsmpyContext
     field_names: tuple[RegridFieldName, ...]  # tdk:last: move to RegridOperationContext?
-    src_path: Path
     dst_path: Path
-    output_path: Path
 
 
 class RaveToGridStrategy(AbstractSmokeDustObject):
 
-    def __init__(self, context: RaveToGridStrategyContext) -> None:
+    def __init__(self, context: RaveToGeomStrategyContext) -> None:
         self._context = context
 
         # Holds the current operation's required info
+        self._curr_src_path: Path | None = None
+        self._curr_output_path: Path | None = None
 
         self._regridder: esmpy.Regrid | esmpy.RegridFromFile | None = None
 
-    def run(self) -> None:
-        self._dst_gwrap_output.fill_nc_variables(self._context.output_path)
+    def run(self, src_path: Path, output_path: Path) -> None:
+        self._curr_src_path = src_path
+        self._curr_output_path = output_path
+
+        self.log(f"creating output file: {self._curr_output_path}")
+        with open_nc(self._curr_output_path, "w") as nc_ds:
+            create_template_emissions_file(nc_ds, self._context.grid_out_shape)
+            for field_name in self._context.field_names:
+                create_sd_variable(nc_ds, SD_VARS.get(field_name.dst))
+        self._dst_gwrap_output.fill_nc_variables(self._curr_output_path)
+
         # tdk:test: add parallel testing
         for field_name in self._context.field_names:
             src_fwrap = self._create_src_field_wrapper_(field_name.src)
@@ -54,15 +62,25 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
 
             # Persist the destination field
             self.log("filling netcdf", level=logging.DEBUG)
-            dst_fwrap.fill_nc_variable(self._context.output_path)
+            dst_fwrap.fill_nc_variable(self._curr_output_path)
 
     def finalize(self) -> None:
         self.log("finalize")
 
     @cached_property
+    def _esmpy_context(self) -> EsmpyContext:
+        return EsmpyContext(
+            regrid_method=esmpy.RegridMethod.CONSERVE,
+            zero_region=esmpy.Region.TOTAL,
+            debug=self._context.esmpy_debug,
+            ignore_degenerate=True,
+            unmapped_action=esmpy.UnmappedAction.IGNORE,
+        )
+
+    @cached_property
     def _dst_fwrap(self) -> FieldWrapper:
         nc_to_field = NcToField(
-            path=self._context.output_path,
+            path=self._curr_output_path,
             name=self._context.field_names[0].dst,
             gwrap=self._dst_gwrap_output,
             dim_time=("t",),
@@ -111,7 +129,7 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
     @cached_property
     def _src_fwrap(self) -> FieldWrapper:
         nc_to_field = NcToField(
-            path=self._context.src_path,
+            path=self._curr_src_path,
             name=self._context.field_names[0].src,
             gwrap=self._src_gwrap,
             dim_time=("time",),
@@ -120,7 +138,7 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
 
     def _create_src_field_wrapper_(self, name: str) -> FieldWrapper:
         self.log(f"creating source field: {name=}")
-        src_path = self._context.src_path
+        src_path = self._curr_src_path
         fwrap = NcToField.create_field_wrapper_from_template(src_path, self._src_fwrap, name)
         assert fwrap.name == name
         src_data = fwrap.value.data
@@ -187,7 +205,7 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
                 filename = str(self._context.weightfile)
             else:
                 filename = None
-            esmpy_context = self._context.esmpy_context
+            esmpy_context = self._esmpy_context
             regridder = esmpy.Regrid(
                 src_fwrap.value,
                 dst_fwrap.value,
@@ -231,19 +249,29 @@ class RaveToGeomProcessor(AbstractSmokeDustObject):
     def finalize(self) -> None:
         self.log("finalize")
 
-    def _run_impl_(self, rave_to_interpolate: pd.Series) -> None:
-        esmpy_context = EsmpyContext(
-            regrid_method=esmpy.RegridMethod.CONSERVE,
-            zero_region=esmpy.Region.TOTAL,
-            debug=self._context.esmpy_debug,
-            ignore_degenerate=True,
-            unmapped_action=esmpy.UnmappedAction.IGNORE,
-        )
+    def _create_strategy_(self) -> RaveToGridStrategy:
         field_names = (
             RegridFieldName(src="FRP_MEAN", dst="frp_avg_hr"),
             RegridFieldName(src="FRE", dst="FRE"),
         )
+        kwds = self._context.model_dump()
+        kwds.update({'field_names': field_names,
+                     'dst_path': self._context.grid_in,
+                     })
+        context = RaveToGeomStrategyContext.model_validate(kwds)
 
+        match self._context.predef_grid:
+            case PredefinedGrid.MPAS_NA_15KM:
+                raise NotImplementedError #tdk:resume
+            case _:
+                strategy_klass = RaveToGridStrategy
+
+        self.log(f"{strategy_klass=}")
+        strategy = strategy_klass(context=context)
+        return strategy
+
+    def _run_impl_(self, rave_to_interpolate: pd.Series) -> None:
+        strategy = self._create_strategy_()
         cycle_metadata = self._context.cycle_metadata
         for row_idx, row_data in rave_to_interpolate.iterrows():
             row_dict = row_data.to_dict()
@@ -254,25 +282,9 @@ class RaveToGeomProcessor(AbstractSmokeDustObject):
                 self._context.intp_dir
                 / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
             )
-            self.log(f"creating output file: {output_file_path}")
-            with open_nc(output_file_path, "w") as nc_ds:
-                create_template_emissions_file(nc_ds, self._context.grid_out_shape)
-                for field_name in field_names:
-                    create_sd_variable(nc_ds, SD_VARS.get(field_name.dst))
 
-            if row_idx == 0:
-                kwds = self._context.model_dump()
-                kwds.update({'esmpy_context': esmpy_context, 'field_names': field_names,
-                             'src_path': row_data['rave_raw'], 'dst_path': self._context.grid_in,
-                             'output_path': output_file_path})
-                context = RaveToGridStrategyContext.model_validate(kwds)
-                operation = RaveToGridStrategy(context=context)
-            else:
-                context.src_path = row_data["rave_raw"]
-                context.output_path = output_file_path
-
-            operation.run()
-            operation.finalize()
+            strategy.run(row_data['rave_raw'], output_file_path)
+            strategy.finalize()
 
             # Update the forecast metadata with the interpolated RAVE file data
             cycle_metadata.loc[row_idx, "rave_interpolated"] = output_file_path

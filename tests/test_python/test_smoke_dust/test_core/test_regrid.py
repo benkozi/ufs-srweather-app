@@ -61,8 +61,12 @@ def iterate_params() -> Iterator[dict[str, Any]]:
         for element in value:
             yield {key: element}
 
-    parms = {'regrid_in_memory': [True, False],
-    'predef_grid': [PredefinedGrid.RRFS_CONUS_3KM, PredefinedGrid.MPAS_NA_15KM]}
+    parms = {'regrid_in_memory': [True,
+                                  False
+                                  ],
+    'predef_grid': [PredefinedGrid.RRFS_CONUS_3KM,
+                    PredefinedGrid.MPAS_NA_15KM
+                    ]}
     iterators = (element_iterator(k, v) for k, v in parms.items())
     for elements in itertools.product(*iterators):
         yld = {}
