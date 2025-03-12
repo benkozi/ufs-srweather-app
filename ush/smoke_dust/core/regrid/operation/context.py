@@ -93,15 +93,22 @@ class RaveToGridOperation:
     def finalize(self) -> None:
         self.log("finalize")
 
-    def _create_dst_field_wrapper_(self, name: str) -> FieldWrapper:
-        self.log("creating destination field")
+    @cached_property
+    def _dst_fwrap(self) -> FieldWrapper:
         nc_to_field = NcToField(
             path=self._spec.output_path,
-            name=name,
+            name=self._spec.field_names[0].dst,
             gwrap=self._dst_gwrap_output,
             dim_time=("t",),
         )
         return nc_to_field.create_field_wrapper()
+
+    def _create_dst_field_wrapper_(self, name: str) -> FieldWrapper:
+        self.log("creating destination field")
+        fwrap = self._dst_fwrap
+        fwrap.name = name
+        return fwrap
+
 
     @cached_property
     def _dst_gwrap(self) -> GridWrapper:
@@ -135,17 +142,21 @@ class RaveToGridOperation:
         dst_output_gwrap.dims.value[1].name = ("lat",)
         return dst_output_gwrap
 
-    def _create_src_field_wrapper_(self, name: str) -> FieldWrapper:
-        self.log(f"creating source field: {name=}")
-        src_path = self._spec.src_path
+    @cached_property
+    def _src_fwrap(self) -> FieldWrapper:
         nc_to_field = NcToField(
-            path=src_path,
-            name=name,
+            path=self._spec.src_path,
+            name=self._spec.field_names[0].src,
             gwrap=self._src_gwrap,
             dim_time=("time",),
         )
-        # tdk: optimization to provide an esmpy field and load into it
-        fwrap = nc_to_field.create_field_wrapper()
+        return nc_to_field.create_field_wrapper()
+
+    def _create_src_field_wrapper_(self, name: str) -> FieldWrapper:
+        self.log(f"creating source field: {name=}")
+        src_path = self._spec.src_path
+        fwrap = NcToField.create_field_wrapper_from_template(src_path, self._src_fwrap, name)
+        assert fwrap.name == name
         src_data = fwrap.value.data
         match name:
             case "FRP_MEAN":

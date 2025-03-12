@@ -326,8 +326,18 @@ class NcToField(BaseModel):
             field.data[:] = load_variable_data(
                 nc_ds.variables[self.name], target_dims  # pylint: disable=unsubscriptable-object
             )
-            fwrap = FieldWrapper(value=field, dims=target_dims, gwrap=self.gwrap, name=self.name)
-            return fwrap
+        fwrap = FieldWrapper(value=field, dims=target_dims, gwrap=self.gwrap, name=self.name)
+        return fwrap
+
+    @staticmethod
+    def create_field_wrapper_from_template(path: Path, template: FieldWrapper, name: str) -> FieldWrapper:
+        with open_nc(path, "r") as nc_ds:
+            template.value.data[:] = load_variable_data(
+                nc_ds.variables[name], template.dims  # pylint: disable=unsubscriptable-object
+            )
+        kwds = template.model_dump()
+        kwds['name'] = name
+        return FieldWrapper.model_validate(kwds)
 
 
 def mask_edges(data: np.ma.MaskedArray, mask_width: int = 1) -> None:
