@@ -39,7 +39,8 @@ class LoggerWrapper:
 
     def initialize(self, rank: int, log_level: LogLevel, exit_on_error: bool) -> None:
         if self.logger is not None:
-            self("logging already initialized")
+            self("logging already initialized", level=logging.DEBUG)
+            return
         self.exit_on_error = exit_on_error
 
         project_name = "smoke-dust-preprocessor"

@@ -35,11 +35,9 @@ class SmokeDustRegridProcessor(AbstractSmokeDustObject):
         #     self.log("all rave files have been interpolated")
         #     return
 
-        context = RegridOperationContext(
-            smoke_dust_context=self._context,
-            cycle_metadata=cycle_metadata,
-            create_weight_file=False,
-        )
+        kwds = self._context.model_dump()
+        kwds.update({'cycle_metadata': cycle_metadata, 'create_weight_file': False})
+        context = RegridOperationContext.model_validate(kwds)
         rave_to_grid_processor = RaveToGridProcessor(context)
         rave_to_grid_processor.run()
         rave_to_grid_processor.finalize()

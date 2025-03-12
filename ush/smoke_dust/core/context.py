@@ -157,7 +157,7 @@ class SmokeDustContext(BaseModel, AbstractSmokeDustObject):
 
     # Fixed parameters
     should_calc_desc_stats: bool = False
-    vars_emis: tuple[str] = ("FRP_MEAN", "FRE")
+    vars_emis: tuple[str, str] = ("FRP_MEAN", "FRE")
     beta: float = 0.3
     fg_to_ug: float = 1e6
     to_s: int = 3600
@@ -182,14 +182,15 @@ class SmokeDustContext(BaseModel, AbstractSmokeDustObject):
     def _finalize_model_(self) -> "SmokeDustContext":
         LOGGER.initialize(self.rank, self.log_level, self.exit_on_error)
 
-        with open_nc(self.grid_out, parallel=False) as nc_ds:
-            # pylint: disable=unsubscriptable-object
-            self.grid_out_shape = (
-                nc_ds.dimensions["grid_yt"].size,
-                nc_ds.dimensions["grid_xt"].size,
-            )
-            # pylint: enable=unsubscriptable-object
-        self.log(f"{self.grid_out_shape=}")
+        if sum(self.grid_out_shape) == 0:
+            with open_nc(self.grid_out, parallel=False) as nc_ds:
+                # pylint: disable=unsubscriptable-object
+                self.grid_out_shape = (
+                    nc_ds.dimensions["grid_yt"].size,
+                    nc_ds.dimensions["grid_xt"].size,
+                )
+                # pylint: enable=unsubscriptable-object
+            self.log(f"{self.grid_out_shape=}")
         return self
 
     @property

@@ -39,10 +39,9 @@ class EsmpyContext(BaseModel):
     unmapped_action: int = esmpy.UnmappedAction.ERROR
 
 
-class RegridOperationContext(BaseModel):
+class RegridOperationContext(SmokeDustContext):
     model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
 
-    smoke_dust_context: SmokeDustContext
     cycle_metadata: pd.DataFrame
     create_weight_file: bool = False
 
@@ -52,20 +51,15 @@ class RegridFieldName(BaseModel):
     dst: str
 
 
-class RaveToGridOperationContext(BaseModel):
+class RaveToGridOperationContext(RegridOperationContext):
     # tdk: doc
+    model_config = ConfigDict(frozen=False)
+
     esmpy_context: EsmpyContext
-    grid_in: Path
-    grid_out: Path
-    rave_qa_filter: RaveQaFilter
     field_names: tuple[RegridFieldName, ...]  # tdk:last: move to RegridOperationContext?
     src_path: Path
     dst_path: Path
     output_path: Path
-    predef_grid: PredefinedGrid
-    regrid_in_memory: bool
-    create_weight_file: bool
-    weight_path: Path | None = None
 
 
 class RaveToGridOperation(AbstractSmokeDustObject):
@@ -215,9 +209,11 @@ class RaveToGridOperation(AbstractSmokeDustObject):
         ):
             # ESMF does not like reading the weights for this field combination (rc=-1). The
             # error can be bypassed by creating weights in-memory.
-            self.log("creating regridding in-memory")
+            self.log("creating regridder in-memory")
             if self._context.create_weight_file:
-                filename = str(self._context.weight_path)
+                if self._context.weightfile.exists():
+                    raise ValueError(f"cannot overwrite weight file: {self._context.weightfile}")
+                filename = str(self._context.weightfile)
             else:
                 filename = None
             esmpy_context = self._context.esmpy_context
@@ -235,7 +231,7 @@ class RaveToGridOperation(AbstractSmokeDustObject):
             regridder = esmpy.RegridFromFile(
                 src_fwrap.value,
                 dst_fwrap.value,
-                filename=str(self._context.weight_path),
+                filename=str(self._context.weightfile),
             )
         self._regridder = regridder
         return self._regridder
@@ -265,11 +261,10 @@ class RaveToGridProcessor(AbstractSmokeDustObject):
         self.log("finalize")
 
     def _run_impl_(self, rave_to_interpolate: pd.Series) -> None:
-        smoke_dust_context = self._context.smoke_dust_context
         esmpy_context = EsmpyContext(
             regrid_method=esmpy.RegridMethod.CONSERVE,
             zero_region=esmpy.Region.TOTAL,
-            debug=smoke_dust_context.esmpy_debug,
+            debug=self._context.esmpy_debug,
             ignore_degenerate=True,
             unmapped_action=esmpy.UnmappedAction.IGNORE,
         )
@@ -285,30 +280,21 @@ class RaveToGridProcessor(AbstractSmokeDustObject):
 
             forecast_date = row_data["forecast_date"]
             output_file_path = (
-                smoke_dust_context.intp_dir
-                / f"{smoke_dust_context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
+                self._context.intp_dir
+                / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
             )
             self.log(f"creating output file: {output_file_path}")
             with open_nc(output_file_path, "w") as nc_ds:
-                create_template_emissions_file(nc_ds, smoke_dust_context.grid_out_shape)
+                create_template_emissions_file(nc_ds, self._context.grid_out_shape)
                 for field_name in field_names:
                     create_sd_variable(nc_ds, SD_VARS.get(field_name.dst))
 
             if row_idx == 0:
-                context = RaveToGridOperationContext(
-                    field_names=field_names,
-                    src_path=row_data["rave_raw"],
-                    dst_path=smoke_dust_context.grid_in,
-                    output_path=output_file_path,
-                    esmpy_context=esmpy_context,
-                    weight_path=smoke_dust_context.weightfile,
-                    grid_in=smoke_dust_context.grid_in,
-                    grid_out=smoke_dust_context.grid_out,
-                    rave_qa_filter=smoke_dust_context.rave_qa_filter,
-                    regrid_in_memory=smoke_dust_context.regrid_in_memory,
-                    predef_grid=smoke_dust_context.predef_grid,
-                    create_weight_file=self._context.create_weight_file
-                )
+                kwds = self._context.model_dump()
+                kwds.update({'esmpy_context': esmpy_context, 'field_names': field_names,
+                             'src_path': row_data['rave_raw'], 'dst_path': self._context.grid_in,
+                             'output_path': output_file_path})
+                context = RaveToGridOperationContext.model_validate(kwds)
                 operation = RaveToGridOperation(context=context)
             else:
                 context.src_path = row_data["rave_raw"]
@@ -321,12 +307,12 @@ class RaveToGridProcessor(AbstractSmokeDustObject):
             cycle_metadata.loc[row_idx, "rave_interpolated"] = output_file_path
             row_data["rave_interpolated"] = output_file_path
 
-            if smoke_dust_context.rank == 0:
+            if self._context.rank == 0:
                 self._regrid_postprocessing_(row_data)
 
         if (
-            smoke_dust_context.rank == 0
-            and smoke_dust_context.should_calc_desc_stats
+            self._context.rank == 0
+            and self._context.should_calc_desc_stats
             and self._interpolation_stats is not None
         ):
             cycle_dates = cycle_metadata["forecast_date"]
@@ -340,7 +326,7 @@ class RaveToGridProcessor(AbstractSmokeDustObject):
     def _regrid_postprocessing_(self, row_data: pd.Series) -> None:
         self.log("_run_interpolation_postprocessing: enter", level=logging.DEBUG)
 
-        calc_stats = self._context.smoke_dust_context.should_calc_desc_stats
+        calc_stats = self._context.should_calc_desc_stats
 
         field_names_dst = [
             "frp_avg_hr",
