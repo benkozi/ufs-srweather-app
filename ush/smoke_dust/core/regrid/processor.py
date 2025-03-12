@@ -6,7 +6,7 @@ import pandas as pd
 
 from smoke_dust.core.common import AbstractSmokeDustObject
 from smoke_dust.core.context import SmokeDustContext
-from smoke_dust.core.regrid.operation.context import RegridOperationContext, RaveToGridProcessor
+from smoke_dust.core.regrid.operation.context import RegridOperationContext, RaveToGeomProcessor
 
 
 class SmokeDustRegridProcessor(AbstractSmokeDustObject):
@@ -38,9 +38,9 @@ class SmokeDustRegridProcessor(AbstractSmokeDustObject):
         kwds = self._context.model_dump()
         kwds.update({'cycle_metadata': cycle_metadata, 'create_weight_file': False})
         context = RegridOperationContext.model_validate(kwds)
-        rave_to_grid_processor = RaveToGridProcessor(context)
-        rave_to_grid_processor.run()
-        rave_to_grid_processor.finalize()
+        rave_to_geom_processor = RaveToGeomProcessor(context)
+        rave_to_geom_processor.run()
+        rave_to_geom_processor.finalize()
 
     # @property
     # def _src_gwrap(self) -> GridWrapper:

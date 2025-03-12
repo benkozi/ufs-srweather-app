@@ -1,9 +1,10 @@
 """Tests the regrid processor."""
 
 import glob
+import itertools
 import shutil
 from pathlib import Path
-from typing import Union
+from typing import Union, Iterator, Any
 
 import numpy as np
 import pytest
@@ -13,9 +14,9 @@ from pydantic import BaseModel, Field
 from pytest_mock import MockerFixture
 
 from smoke_dust.core.common import ncdump
-from smoke_dust.core.context import SmokeDustContext
+from smoke_dust.core.context import SmokeDustContext, PredefinedGrid
 from smoke_dust.core.preprocessor import SmokeDustPreprocessor
-from smoke_dust.core.regrid.operation.context import RaveToGridProcessor, RaveToGridOperation
+from smoke_dust.core.regrid.operation.context import RaveToGeomProcessor, RaveToGridOperation
 from smoke_dust.core.regrid.processor import SmokeDustRegridProcessor
 from test_python.test_smoke_dust.conftest import (
     FakeGridOutShape,
@@ -54,7 +55,24 @@ class FakeGridParams(BaseModel):
     )
 
 
-@pytest.fixture(params=[True, False], ids=lambda p: f"regrid_in_memory={p}")
+def iterate_params() -> Iterator[dict[str, Any]]:
+
+    def element_iterator(key: str, value: list[Any]) -> Iterator[dict[str, Any]]:
+        for element in value:
+            yield {key: element}
+
+    parms = {'regrid_in_memory': [True, False],
+    'predef_grid': [PredefinedGrid.RRFS_CONUS_3KM, PredefinedGrid.MPAS_NA_15KM]}
+    iterators = (element_iterator(k, v) for k, v in parms.items())
+    for elements in itertools.product(*iterators):
+        yld = {}
+        for element in elements:
+            yld.update(element)
+        yield yld
+
+
+
+@pytest.fixture(params=iterate_params(), ids=lambda p: f"params={p}")
 def data_for_test(
     request: SubRequest,
     tmp_path: Path,
@@ -69,7 +87,7 @@ def data_for_test(
         _ = create_fake_rave_and_rrfs_like_data(
             FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["area"], ntime=None)
         )
-    context = create_fake_context(tmp_path, overrides={"regrid_in_memory": request.param})
+    context = create_fake_context(tmp_path, overrides=request.param)
     preprocessor = SmokeDustPreprocessor(context)
     for date in preprocessor.cycle_dates:
         path = tmp_path / f"Hourly_Emissions_3km_{date}_{date}.nc"
@@ -158,7 +176,7 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
         tmp_path: Path,
     ) -> None:
         """Test the regrid processor."""
-        spy1 = mocker.spy(RaveToGridProcessor, "run")
+        spy1 = mocker.spy(RaveToGeomProcessor, "run")
         spy2 = mocker.spy(RaveToGridOperation, "run")
         regrid_processor = SmokeDustRegridProcessor(data_for_test.context)
         regrid_processor.run(data_for_test.preprocessor.cycle_metadata)

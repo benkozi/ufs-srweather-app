@@ -237,7 +237,7 @@ class RaveToGridOperation(AbstractSmokeDustObject):
         return self._regridder
 
 
-class RaveToGridProcessor(AbstractSmokeDustObject):
+class RaveToGeomProcessor(AbstractSmokeDustObject):
 
     def __init__(self, context: RegridOperationContext):
         self._context = context
