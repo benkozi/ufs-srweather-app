@@ -39,14 +39,6 @@ class EsmpyContext(BaseModel):
     unmapped_action: int = esmpy.UnmappedAction.ERROR
 
 
-class RegridOptimizations(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    src_fwrap: FieldWrapper | None = None
-    dst_fwrap: FieldWrapper | None = None
-    regridder: esmpy.Regrid | esmpy.RegridFromFile | None = None
-
-
 class RegridOperationContext(BaseModel):
     model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
 
@@ -67,7 +59,6 @@ class RegridOperationSpec(BaseModel):
     src_path: Path
     dst_path: Path
     output_path: Path
-    optimizations: RegridOptimizations
     weight_path: Path | None = None
 
 
@@ -76,6 +67,8 @@ class RaveToGridOperation:
     def __init__(self, context: RegridOperationContext, spec: RegridOperationSpec) -> None:
         self._context = context
         self._spec = spec
+
+        self._regridder: esmpy.Regrid | esmpy.RegridFromFile = None
 
     def log(self, *args: Any, **kwargs: Any) -> None:
         """See ``SmokeDustContext.log``."""
@@ -101,11 +94,6 @@ class RaveToGridOperation:
         self.log("finalize")
 
     def _create_dst_field_wrapper_(self, name: str) -> FieldWrapper:
-        optimization = self._spec.optimizations.dst_fwrap
-        if optimization is not None:
-            optimization.name = name
-            return optimization
-
         self.log("creating destination field")
         nc_to_field = NcToField(
             path=self._spec.output_path,
@@ -113,13 +101,10 @@ class RaveToGridOperation:
             gwrap=self._dst_gwrap_output,
             dim_time=("t",),
         )
-        ncdump(self._spec.output_path)  # tdk:rm
         return nc_to_field.create_field_wrapper()
 
     @cached_property
     def _dst_gwrap(self) -> GridWrapper:
-        optimi
-        
         self.log("creating destination grid from RRFS grid file")
         dst_nc2grid = NcToGrid(
             path=self._context.smoke_dust_context.grid_out,
@@ -138,6 +123,7 @@ class RaveToGridOperation:
 
     @cached_property
     def _dst_gwrap_output(self) -> GridWrapper:
+        self.log("creating destination grid wrapper")
         # We are translating metadata and some structure for the destination grid.
         dst_output_gwrap = copy.copy(self._dst_gwrap)
         dst_output_gwrap.corner_dims = None
@@ -279,7 +265,6 @@ class RaveToGridProcessor:
             ignore_degenerate=True,
             unmapped_action=esmpy.UnmappedAction.IGNORE,
         )
-        optimizations = RegridOptimizations()
         field_names = (
             RegridFieldName(src="FRP_MEAN", dst="frp_avg_hr"),
             RegridFieldName(src="FRE", dst="FRE"),
@@ -301,16 +286,21 @@ class RaveToGridProcessor:
                 for field_name in field_names:
                     create_sd_variable(nc_ds, SD_VARS.get(field_name.dst))
 
-            spec = RegridOperationSpec(
-                field_names=field_names,
-                src_path=row_data["rave_raw"],
-                dst_path=smoke_dust_context.grid_in,
-                output_path=output_file_path,
-                optimizations=optimizations,
-                esmpy_context=esmpy_context,
-                weight_path=smoke_dust_context.weightfile,
-            )
-            operation = RaveToGridOperation(context=self._context, spec=spec)
+            if row_idx == 0:
+                spec = RegridOperationSpec(
+                    field_names=field_names,
+                    src_path=row_data["rave_raw"],
+                    dst_path=smoke_dust_context.grid_in,
+                    output_path=output_file_path,
+                    esmpy_context=esmpy_context,
+                    weight_path=smoke_dust_context.weightfile,
+                )
+                operation = RaveToGridOperation(context=self._context, spec=spec)
+            else:
+                spec.src_path = row_data["rave_raw"]
+                spec.output_path = output_file_path
+
+            operation.run()
             operation.finalize()
 
             # Update the forecast metadata with the interpolated RAVE file data
