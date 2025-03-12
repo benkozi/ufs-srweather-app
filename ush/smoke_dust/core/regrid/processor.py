@@ -4,11 +4,12 @@ from typing import Any
 
 import pandas as pd
 
+from smoke_dust.core.common import AbstractSmokeDustObject
 from smoke_dust.core.context import SmokeDustContext
 from smoke_dust.core.regrid.operation.context import RegridOperationContext, RaveToGridProcessor
 
 
-class SmokeDustRegridProcessor:
+class SmokeDustRegridProcessor(AbstractSmokeDustObject):
     """Regrids smoke/dust data to the forecast grid."""
 
     def __init__(self, context: SmokeDustContext):
@@ -23,10 +24,6 @@ class SmokeDustRegridProcessor:
         # self.__dst_gwrap = None
         # self.__dst_output_gwrap = None
         # self.__regridder = None
-
-    def log(self, *args: Any, **kwargs: Any) -> None:
-        """See ``SmokeDustContext.log``."""
-        self._context.log(*args, **kwargs)
 
     def run(self, cycle_metadata: pd.DataFrame) -> None:
         """Run the regrid processor. This may be run in parallel using MPI."""

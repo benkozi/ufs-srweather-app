@@ -14,7 +14,7 @@ from smoke_dust.core.common import (
     create_template_emissions_file,
     create_sd_variable,
     ncdump,
-    create_descriptive_statistics,
+    create_descriptive_statistics, AbstractSmokeDustObject,
 )
 from smoke_dust.core.context import SmokeDustContext, PredefinedGrid, RaveQaFilter
 from smoke_dust.core.regrid.common import (
@@ -52,7 +52,7 @@ class RegridFieldName(BaseModel):
     dst: str
 
 
-class RegridOperationSpec(BaseModel):
+class RaveToGridOperationContext(BaseModel):
     # tdk: doc
     esmpy_context: EsmpyContext
     field_names: tuple[RegridFieldName, ...]  # tdk:last: move to RegridOperationContext?
@@ -62,17 +62,12 @@ class RegridOperationSpec(BaseModel):
     weight_path: Path | None = None
 
 
-class RaveToGridOperation:
+class RaveToGridOperation(AbstractSmokeDustObject):
 
-    def __init__(self, context: RegridOperationContext, spec: RegridOperationSpec) -> None:
+    def __init__(self, context: RaveToGridOperationContext) -> None:
         self._context = context
-        self._spec = spec
 
-        self._regridder: esmpy.Regrid | esmpy.RegridFromFile = None
-
-    def log(self, *args: Any, **kwargs: Any) -> None:
-        """See ``SmokeDustContext.log``."""
-        self._context.smoke_dust_context.log(*args, **kwargs)
+        self._regridder: esmpy.Regrid | esmpy.RegridFromFile | None = None
 
     def run(self) -> None:
         self._dst_gwrap_output.fill_nc_variables(self._spec.output_path)
@@ -240,17 +235,13 @@ class RaveToGridOperation:
         return self._regridder
 
 
-class RaveToGridProcessor:
+class RaveToGridProcessor(AbstractSmokeDustObject):
 
     def __init__(self, context: RegridOperationContext):
         self._context = context
 
         # Holds interpolation descriptive statistics
         self._interpolation_stats: None | pd.DataFrame = None
-
-    def log(self, *args: Any, **kwargs: Any) -> None:
-        """See ``SmokeDustContext.log``."""
-        self._context.smoke_dust_context.log(*args, **kwargs)
 
     def run(self) -> None:
         cycle_metadata = self._context.cycle_metadata
@@ -298,7 +289,7 @@ class RaveToGridProcessor:
                     create_sd_variable(nc_ds, SD_VARS.get(field_name.dst))
 
             if row_idx == 0:
-                spec = RegridOperationSpec(
+                context = RaveToGridOperationContext(
                     field_names=field_names,
                     src_path=row_data["rave_raw"],
                     dst_path=smoke_dust_context.grid_in,
@@ -306,10 +297,10 @@ class RaveToGridProcessor:
                     esmpy_context=esmpy_context,
                     weight_path=smoke_dust_context.weightfile,
                 )
-                operation = RaveToGridOperation(context=self._context, spec=spec)
+                operation = RaveToGridOperation(context=context)
             else:
-                spec.src_path = row_data["rave_raw"]
-                spec.output_path = output_file_path
+                context.src_path = row_data["rave_raw"]
+                context.output_path = output_file_path
 
             operation.run()
             operation.finalize()

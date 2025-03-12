@@ -4,12 +4,13 @@ from typing import Any
 
 import pandas as pd
 
+from smoke_dust.core.common import AbstractSmokeDustObject
 from smoke_dust.core.context import SmokeDustContext
 from smoke_dust.core.cycle import create_cycle_processor
 from smoke_dust.core.regrid.processor import SmokeDustRegridProcessor
 
 
-class SmokeDustPreprocessor:
+class SmokeDustPreprocessor(AbstractSmokeDustObject):
     """Implements smoke/dust preprocessing such as regridding and IC value calculations."""
 
     def __init__(self, context: SmokeDustContext) -> None:
@@ -23,10 +24,6 @@ class SmokeDustPreprocessor:
 
         self.log(f"{self._context=}")
         self.log("__init__: exit")
-
-    def log(self, *args: Any, **kwargs: Any) -> None:
-        """See ``SmokeDustContext.log``."""
-        self._context.log(*args, **kwargs)
 
     @property
     def cycle_dates(self) -> pd.DatetimeIndex:

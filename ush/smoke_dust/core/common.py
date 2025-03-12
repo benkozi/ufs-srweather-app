@@ -1,9 +1,9 @@
 """Contains common functionality used across smoke/dust."""
-
+import abc
 import subprocess
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Tuple, Literal, Dict
+from typing import Tuple, Literal, Dict, Any
 
 import numpy as np
 import pandas as pd
@@ -11,6 +11,7 @@ from mpi4py import MPI
 from netCDF4 import Dataset
 
 from smoke_dust.core.variable import SmokeDustVariable, SD_VARS
+from smoke_dust.logging_sd import LOGGER
 
 
 @contextmanager
@@ -188,3 +189,10 @@ def ncdump(path: Path, header_only: bool = True) -> str:
     ret = subprocess.check_output(args).decode()
     print(ret, flush=True)
     return ret
+
+
+class AbstractSmokeDustObject(abc.ABC):
+
+    @staticmethod
+    def log(*args: Any, **kwargs: Any) -> None:
+        LOGGER(*args, stacklevel=3, **kwargs)
