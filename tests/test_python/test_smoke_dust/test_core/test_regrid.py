@@ -12,8 +12,10 @@ from _pytest.fixtures import SubRequest
 from pydantic import BaseModel, Field
 from pytest_mock import MockerFixture
 
+from smoke_dust.core.common import ncdump
 from smoke_dust.core.context import SmokeDustContext
 from smoke_dust.core.preprocessor import SmokeDustPreprocessor
+from smoke_dust.core.regrid.operation.context import RaveToGridProcessor
 from smoke_dust.core.regrid.processor import SmokeDustRegridProcessor
 from test_python.test_smoke_dust.conftest import (
     FakeGridOutShape,
@@ -156,15 +158,15 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
         tmp_path: Path,
     ) -> None:
         """Test the regrid processor."""
-        # tdk:test: add mocker call checks
-        # spy1 = mocker.spy(SmokeDustRegridProcessor, "_run_impl_")
+        spy1 = mocker.spy(RaveToGridProcessor, "run")
         regrid_processor = SmokeDustRegridProcessor(data_for_test.context)
         regrid_processor.run(data_for_test.preprocessor.cycle_metadata)
-        # spy1.assert_called_once()
+        spy1.assert_called_once()
         interpolated_files = glob.glob(
             f"*{data_for_test.context.rave_to_intp}*nc", root_dir=tmp_path
         )
         assert len(interpolated_files) == 24
         for intp_file in interpolated_files:
             fpath = tmp_path / intp_file
+            ncdump(fpath, header_only=False) #tdk:rm
             assert create_file_hash(fpath) == "8e90b769137aad054a2e49559d209c4d"

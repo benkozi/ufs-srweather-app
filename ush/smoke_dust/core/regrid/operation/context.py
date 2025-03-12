@@ -43,7 +43,7 @@ class RegridOptimizations(BaseModel):
     model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
     src_fwrap: FieldWrapper | None = None
     dst_fwrap: FieldWrapper | None = None
-    regridder: esmpy.Regrid | None = None
+    regridder: esmpy.Regrid | esmpy.RegridFromFile | None = None
 
 
 class RegridOperationContext(BaseModel):
@@ -87,36 +87,43 @@ class RaveToGridOperation:
         """See ``SmokeDustContext.log``."""
         self._context.smoke_dust_context.log(*args, **kwargs)
 
-    def run(self) -> RegridOptimizations | None:
+    def run(self) -> RegridOptimizations:
         self._dst_gwrap_output.fill_nc_variables(self._spec.output_path)
         # tdk:test: add parallel testing
         for field_name in self._spec.field_names:
             src_fwrap = self._create_src_field_wrapper_(field_name.src)
 
             # Execute the ESMF regridding
-            dst_fwrap = self._dst_fwrap
+            dst_fwrap = self._create_dst_field_wrapper_(field_name.dst)
             self.log("run regridding", level=logging.DEBUG)
-            self._get_regridder_(src_fwrap, dst_fwrap)
+            regridder = self._get_regridder_(src_fwrap, dst_fwrap)
+            regridder(src_fwrap.value, dst_fwrap.value)
+            summ = dst_fwrap.value.data.sum() #tdk:rm
+            print('tdk:') #tdk:rm
 
             # Persist the destination field
             self.log("filling netcdf", level=logging.DEBUG)
             dst_fwrap.fill_nc_variable(self._spec.output_path)
+            output = ncdump(self._spec.output_path, header_only=False) #tdk:rm
+            print('tdk:') #tdk:rm
+
+        return RegridOptimizations(src_fwrap=src_fwrap, dst_fwrap=dst_fwrap, regridder=regridder)
 
     def finalize(self) -> None:
         self.log("finalize")
 
-    @cached_property
-    def _dst_fwrap(self) -> FieldWrapper:
-        optimization = self._spec.get_optimization("dst_fwrap")
-        if optimization is not None:
-            self.log("using optimization for dst_fwrap")
-            assert isinstance(optimization, FieldWrapper)
-            return optimization
+    def _create_dst_field_wrapper_(self, name: str) -> FieldWrapper:
+        #tdk:last: add optimization to
+        # optimization = self._spec.get_optimization("dst_fwrap")
+        # if optimization is not None:
+        #     self.log("using optimization for dst_fwrap")
+        #     assert isinstance(optimization, FieldWrapper)
+        #     return optimization
 
         self.log("creating destination field")
         nc_to_field = NcToField(
             path=self._spec.output_path,
-            name=self._spec.field_names[0].dst,
+            name=name,
             gwrap=self._dst_gwrap_output,
             dim_time=("t",),
         )
@@ -125,6 +132,7 @@ class RaveToGridOperation:
 
     @cached_property
     def _dst_gwrap(self) -> GridWrapper:
+        #tdk: optimization
         self.log("creating destination grid from RRFS grid file")
         dst_nc2grid = NcToGrid(
             path=self._context.smoke_dust_context.grid_out,
@@ -219,7 +227,7 @@ class RaveToGridOperation:
         optimization = self._spec.get_optimization("regridder")
         if optimization is not None:
             self.log("using regridder optimization")
-            assert isinstance(optimization, esmpy.Regrid)
+            assert isinstance(optimization, (esmpy.Regrid, esmpy.RegridFromFile))
             self._regridder = optimization
             return self._regridder
         if self._regridder is not None:

@@ -24,6 +24,7 @@ class PredefinedGrid(StrEnum):
     RRFS_CONUS_3KM = "RRFS_CONUS_3km"
     RRFS_NA_3KM = "RRFS_NA_3km"
     RRFS_NA_13KM = "RRFS_NA_13km"
+    MPAS_NA_15KM = "MPAS_NA_15km"
 
 
 @unique
