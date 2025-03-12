@@ -55,10 +55,16 @@ class RegridFieldName(BaseModel):
 class RaveToGridOperationContext(BaseModel):
     # tdk: doc
     esmpy_context: EsmpyContext
+    grid_in: Path
+    grid_out: Path
+    rave_qa_filter: RaveQaFilter
     field_names: tuple[RegridFieldName, ...]  # tdk:last: move to RegridOperationContext?
     src_path: Path
     dst_path: Path
     output_path: Path
+    predef_grid: PredefinedGrid
+    regrid_in_memory: bool
+    create_weight_file: bool
     weight_path: Path | None = None
 
 
@@ -70,9 +76,9 @@ class RaveToGridOperation(AbstractSmokeDustObject):
         self._regridder: esmpy.Regrid | esmpy.RegridFromFile | None = None
 
     def run(self) -> None:
-        self._dst_gwrap_output.fill_nc_variables(self._spec.output_path)
+        self._dst_gwrap_output.fill_nc_variables(self._context.output_path)
         # tdk:test: add parallel testing
-        for field_name in self._spec.field_names:
+        for field_name in self._context.field_names:
             src_fwrap = self._create_src_field_wrapper_(field_name.src)
 
             # Execute the ESMF regridding
@@ -83,7 +89,7 @@ class RaveToGridOperation(AbstractSmokeDustObject):
 
             # Persist the destination field
             self.log("filling netcdf", level=logging.DEBUG)
-            dst_fwrap.fill_nc_variable(self._spec.output_path)
+            dst_fwrap.fill_nc_variable(self._context.output_path)
 
     def finalize(self) -> None:
         self.log("finalize")
@@ -91,8 +97,8 @@ class RaveToGridOperation(AbstractSmokeDustObject):
     @cached_property
     def _dst_fwrap(self) -> FieldWrapper:
         nc_to_field = NcToField(
-            path=self._spec.output_path,
-            name=self._spec.field_names[0].dst,
+            path=self._context.output_path,
+            name=self._context.field_names[0].dst,
             gwrap=self._dst_gwrap_output,
             dim_time=("t",),
         )
@@ -109,7 +115,7 @@ class RaveToGridOperation(AbstractSmokeDustObject):
     def _dst_gwrap(self) -> GridWrapper:
         self.log("creating destination grid from RRFS grid file")
         dst_nc2grid = NcToGrid(
-            path=self._context.smoke_dust_context.grid_out,
+            path=self._context.grid_out,
             spec=GridSpec(
                 x_center="grid_lont",
                 y_center="grid_latt",
@@ -140,8 +146,8 @@ class RaveToGridOperation(AbstractSmokeDustObject):
     @cached_property
     def _src_fwrap(self) -> FieldWrapper:
         nc_to_field = NcToField(
-            path=self._spec.src_path,
-            name=self._spec.field_names[0].src,
+            path=self._context.src_path,
+            name=self._context.field_names[0].src,
             gwrap=self._src_gwrap,
             dim_time=("time",),
         )
@@ -149,7 +155,7 @@ class RaveToGridOperation(AbstractSmokeDustObject):
 
     def _create_src_field_wrapper_(self, name: str) -> FieldWrapper:
         self.log(f"creating source field: {name=}")
-        src_path = self._spec.src_path
+        src_path = self._context.src_path
         fwrap = NcToField.create_field_wrapper_from_template(src_path, self._src_fwrap, name)
         assert fwrap.name == name
         src_data = fwrap.value.data
@@ -160,7 +166,7 @@ class RaveToGridOperation(AbstractSmokeDustObject):
                 src_data[:] = np.where(src_data > 1000.0, src_data, 0.0)
             case _:
                 raise NotImplementedError(name)
-        rave_qa_filter = self._context.smoke_dust_context.rave_qa_filter
+        rave_qa_filter = self._context.rave_qa_filter
         if rave_qa_filter == RaveQaFilter.HIGH:
             with open_nc(src_path, parallel=True) as rave_ds:
                 rave_qa = load_variable_data(
@@ -182,7 +188,7 @@ class RaveToGridOperation(AbstractSmokeDustObject):
     def _src_gwrap(self) -> GridWrapper:
         self.log("creating source grid from RAVE file")
         src_nc2grid = NcToGrid(
-            path=self._context.smoke_dust_context.grid_in,
+            path=self._context.grid_in,
             spec=GridSpec(
                 x_center="grid_lont",
                 y_center="grid_latt",
@@ -204,8 +210,8 @@ class RaveToGridOperation(AbstractSmokeDustObject):
         self.log(f"{src_fwrap.value.data.shape=}")
         self.log(f"{dst_fwrap.value.data.shape=}")
         if (
-            self._context.smoke_dust_context.predef_grid == PredefinedGrid.RRFS_NA_13KM
-            or self._context.smoke_dust_context.regrid_in_memory
+            self._context.predef_grid == PredefinedGrid.RRFS_NA_13KM
+            or self._context.regrid_in_memory
         ):
             # ESMF does not like reading the weights for this field combination (rc=-1). The
             # error can be bypassed by creating weights in-memory.
@@ -214,7 +220,7 @@ class RaveToGridOperation(AbstractSmokeDustObject):
                 filename = str(self._context.weight_path)
             else:
                 filename = None
-            esmpy_context = self._spec.esmpy_context
+            esmpy_context = self._context.esmpy_context
             regridder = esmpy.Regrid(
                 src_fwrap.value,
                 dst_fwrap.value,
@@ -229,7 +235,7 @@ class RaveToGridOperation(AbstractSmokeDustObject):
             regridder = esmpy.RegridFromFile(
                 src_fwrap.value,
                 dst_fwrap.value,
-                filename=str(self._spec.weight_path),
+                filename=str(self._context.weight_path),
             )
         self._regridder = regridder
         return self._regridder
@@ -296,6 +302,12 @@ class RaveToGridProcessor(AbstractSmokeDustObject):
                     output_path=output_file_path,
                     esmpy_context=esmpy_context,
                     weight_path=smoke_dust_context.weightfile,
+                    grid_in=smoke_dust_context.grid_in,
+                    grid_out=smoke_dust_context.grid_out,
+                    rave_qa_filter=smoke_dust_context.rave_qa_filter,
+                    regrid_in_memory=smoke_dust_context.regrid_in_memory,
+                    predef_grid=smoke_dust_context.predef_grid,
+                    create_weight_file=self._context.create_weight_file
                 )
                 operation = RaveToGridOperation(context=context)
             else:
