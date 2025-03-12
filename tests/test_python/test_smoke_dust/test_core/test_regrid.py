@@ -16,7 +16,7 @@ from pytest_mock import MockerFixture
 from smoke_dust.core.common import ncdump
 from smoke_dust.core.context import SmokeDustContext, PredefinedGrid
 from smoke_dust.core.preprocessor import SmokeDustPreprocessor
-from smoke_dust.core.regrid.operation.context import RaveToGeomProcessor, RaveToGridOperation
+from smoke_dust.core.regrid.operation.rave import RaveToGridStrategy, RaveToGeomProcessor
 from smoke_dust.core.regrid.processor import SmokeDustRegridProcessor
 from test_python.test_smoke_dust.conftest import (
     FakeGridOutShape,
@@ -177,7 +177,7 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
     ) -> None:
         """Test the regrid processor."""
         spy1 = mocker.spy(RaveToGeomProcessor, "run")
-        spy2 = mocker.spy(RaveToGridOperation, "run")
+        spy2 = mocker.spy(RaveToGridStrategy, "run")
         regrid_processor = SmokeDustRegridProcessor(data_for_test.context)
         regrid_processor.run(data_for_test.preprocessor.cycle_metadata)
         spy1.assert_called_once()

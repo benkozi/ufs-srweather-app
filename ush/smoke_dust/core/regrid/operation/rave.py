@@ -2,56 +2,25 @@ import copy
 import logging
 from functools import cached_property
 from pathlib import Path
-from typing import Any
 
 import esmpy
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, ConfigDict
 
-from smoke_dust.core.common import (
-    open_nc,
-    create_template_emissions_file,
-    create_sd_variable,
-    ncdump,
-    create_descriptive_statistics, AbstractSmokeDustObject,
-)
-from smoke_dust.core.context import SmokeDustContext, PredefinedGrid, RaveQaFilter
-from smoke_dust.core.regrid.common import (
-    NcToGrid,
-    GridSpec,
-    GridWrapper,
-    FieldWrapper,
-    NcToField,
-    load_variable_data,
-    mask_edges,
-)
+from pydantic import ConfigDict
+
+from smoke_dust.core.common import AbstractSmokeDustObject, open_nc, create_template_emissions_file, \
+    create_sd_variable, create_descriptive_statistics
+from smoke_dust.core.context import RaveQaFilter, PredefinedGrid
+from smoke_dust.core.regrid.common import FieldWrapper, NcToField, GridWrapper, NcToGrid, GridSpec, \
+    load_variable_data, mask_edges
+
+from smoke_dust.core.regrid.operation.common import RegridOperationContext, EsmpyContext, \
+    RegridFieldName
 from smoke_dust.core.variable import SD_VARS
 
 
-class EsmpyContext(BaseModel):
-    model_config = ConfigDict(frozen=True)
-
-    regrid_method: int
-    zero_region: int
-    debug: bool = False
-    ignore_degenerate: bool = False
-    unmapped_action: int = esmpy.UnmappedAction.ERROR
-
-
-class RegridOperationContext(SmokeDustContext):
-    model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
-
-    cycle_metadata: pd.DataFrame
-    create_weight_file: bool = False
-
-
-class RegridFieldName(BaseModel):
-    src: str
-    dst: str
-
-
-class RaveToGridOperationContext(RegridOperationContext):
+class RaveToGridStrategyContext(RegridOperationContext):
     # tdk: doc
     model_config = ConfigDict(frozen=False)
 
@@ -62,10 +31,12 @@ class RaveToGridOperationContext(RegridOperationContext):
     output_path: Path
 
 
-class RaveToGridOperation(AbstractSmokeDustObject):
+class RaveToGridStrategy(AbstractSmokeDustObject):
 
-    def __init__(self, context: RaveToGridOperationContext) -> None:
+    def __init__(self, context: RaveToGridStrategyContext) -> None:
         self._context = context
+
+        # Holds the current operation's required info
 
         self._regridder: esmpy.Regrid | esmpy.RegridFromFile | None = None
 
@@ -294,8 +265,8 @@ class RaveToGeomProcessor(AbstractSmokeDustObject):
                 kwds.update({'esmpy_context': esmpy_context, 'field_names': field_names,
                              'src_path': row_data['rave_raw'], 'dst_path': self._context.grid_in,
                              'output_path': output_file_path})
-                context = RaveToGridOperationContext.model_validate(kwds)
-                operation = RaveToGridOperation(context=context)
+                context = RaveToGridStrategyContext.model_validate(kwds)
+                operation = RaveToGridStrategy(context=context)
             else:
                 context.src_path = row_data["rave_raw"]
                 context.output_path = output_file_path

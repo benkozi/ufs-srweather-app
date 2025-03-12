@@ -6,7 +6,8 @@ import pandas as pd
 
 from smoke_dust.core.common import AbstractSmokeDustObject
 from smoke_dust.core.context import SmokeDustContext
-from smoke_dust.core.regrid.operation.context import RegridOperationContext, RaveToGeomProcessor
+from smoke_dust.core.regrid.operation.common import RegridOperationContext
+from smoke_dust.core.regrid.operation.rave import RaveToGeomProcessor
 
 
 class SmokeDustRegridProcessor(AbstractSmokeDustObject):
