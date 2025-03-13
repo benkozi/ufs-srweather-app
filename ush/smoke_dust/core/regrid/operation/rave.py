@@ -37,8 +37,6 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
         self._curr_src_path: Path | None = None
         self._curr_output_path: Path | None = None
 
-        self._regridder: esmpy.Regrid | esmpy.RegridFromFile | None = None
-
     def run(self, src_path: Path, output_path: Path) -> None:
         self._curr_src_path = src_path
         self._curr_output_path = output_path
@@ -57,8 +55,7 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
             # Execute the ESMF regridding
             dst_fwrap = self._create_dst_field_wrapper_(field_name.dst)
             self.log("run regridding", level=logging.DEBUG)
-            regridder = self._get_regridder_(src_fwrap, dst_fwrap)
-            regridder(src_fwrap.value, dst_fwrap.value)
+            self._regridder(src_fwrap.value, dst_fwrap.value)
 
             # Persist the destination field
             self.log("filling netcdf", level=logging.DEBUG)
@@ -185,13 +182,14 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
         )
         return src_nc2grid.create_grid_wrapper()
 
-    def _get_regridder_(self, src_fwrap: FieldWrapper, dst_fwrap: FieldWrapper) -> esmpy.Regrid:
-        if self._regridder is not None:
-            return self._regridder
-
+    @cached_property
+    def _regridder(self) -> esmpy.Regrid | esmpy.RegridFromFile:
         self.log("creating regridder")
+        src_fwrap = self._src_fwrap
+        dst_fwrap = self._dst_fwrap
         self.log(f"{src_fwrap.value.data.shape=}")
         self.log(f"{dst_fwrap.value.data.shape=}")
+
         if (
             self._context.predef_grid == PredefinedGrid.RRFS_NA_13KM
             or self._context.regrid_in_memory
@@ -222,8 +220,7 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
                 dst_fwrap.value,
                 filename=str(self._context.weightfile),
             )
-        self._regridder = regridder
-        return self._regridder
+        return regridder
 
 
 class RaveToGeomProcessor(AbstractSmokeDustObject):
