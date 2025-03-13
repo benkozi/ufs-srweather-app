@@ -1,5 +1,6 @@
 import copy
 import logging
+from datetime import datetime, timezone
 from functools import cached_property
 from pathlib import Path
 
@@ -10,10 +11,11 @@ import pandas as pd
 from pydantic import ConfigDict
 
 from smoke_dust.core.common import AbstractSmokeDustObject, open_nc, create_template_emissions_file, \
-    create_sd_variable, create_descriptive_statistics
+    create_sd_variable, create_descriptive_statistics, copy_nc_variable, ncdump, \
+    create_sd_variable_mpas
 from smoke_dust.core.context import RaveQaFilter, PredefinedGrid
 from smoke_dust.core.regrid.common import FieldWrapper, NcToField, GridWrapper, NcToGrid, GridSpec, \
-    load_variable_data, mask_edges
+    load_variable_data, mask_edges, MeshWrapper, NcToMesh
 
 from smoke_dust.core.regrid.operation.common import RegridOperationContext, EsmpyContext, \
     RegridFieldName
@@ -42,11 +44,7 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
         self._curr_output_path = output_path
 
         self.log(f"creating output file: {self._curr_output_path}")
-        with open_nc(self._curr_output_path, "w") as nc_ds:
-            create_template_emissions_file(nc_ds, self._context.grid_out_shape)
-            for field_name in self._context.field_names:
-                create_sd_variable(nc_ds, SD_VARS.get(field_name.dst))
-        self._dst_gwrap_output.fill_nc_variables(self._curr_output_path)
+        self._create_template_emissions_file_()
 
         # tdk:test: add parallel testing
         for field_name in self._context.field_names:
@@ -60,6 +58,13 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
             # Persist the destination field
             self.log("filling netcdf", level=logging.DEBUG)
             dst_fwrap.fill_nc_variable(self._curr_output_path)
+
+    def _create_template_emissions_file_(self) -> None:
+        with open_nc(self._curr_output_path, "w") as nc_ds:
+            create_template_emissions_file(nc_ds, self._context.grid_out_shape)
+            for field_name in self._context.field_names:
+                create_sd_variable(nc_ds, SD_VARS.get(field_name.dst))
+        self._dst_gwrap_output.fill_nc_variables(self._curr_output_path)
 
     def finalize(self) -> None:
         self.log("finalize")
@@ -222,6 +227,57 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
             )
         return regridder
 
+    def mask_edges(self, dst_data):
+        # Mask edges to reduce model edge effects
+        self.log("masking edges", level=logging.DEBUG)
+        for value in dst_data.values():
+            # Operation is inplace
+            mask_edges(value[0, :, :])
+
+
+class RaveToMpasStrategy(RaveToGridStrategy):
+    #tdk: story to integrate pyremap
+
+    @cached_property
+    def _dst_fwrap(self) -> FieldWrapper:
+        nc_to_field = NcToField(
+            path=self._curr_output_path,
+            name=self._context.field_names[0].dst,
+            gwrap=self._dst_gwrap_output,
+            dim_time=("Time",),
+            meshloc=esmpy.MeshLoc.ELEMENT
+        )
+        output = ncdump(self._curr_output_path) #tdk:rm
+        return nc_to_field.create_field_wrapper()
+
+    @cached_property
+    def _dst_gwrap(self) -> MeshWrapper:
+        gwrap = NcToMesh(path=self._context.grid_out, n_elements=self._context.grid_out_shape[0]).create_mesh_wrapper()
+        return gwrap
+
+    @cached_property
+    def _dst_gwrap_output(self) -> MeshWrapper:
+        return self._dst_gwrap
+
+    def _create_template_emissions_file_(self) -> None:
+        if self._context.rank == 0:
+            with open_nc(self._curr_output_path, mode="w", parallel=False) as dst_nc:
+                dst_nc.createDimension("nCells", self._context.grid_out_shape[0])
+                dst_nc.createDimension("nkfire", 1)
+                dst_nc.createDimension("Time")
+                #tdk: need to think about how to use baselines to allow these attributes to not affect file hashes
+                # dst_nc.setncattr("created_at", str(datetime.now(timezone.utc)))
+                # dst_nc.setncattr("src_path", str(self._curr_src_path))
+                # dst_nc.setncattr("dst_path", str(self._curr_output_path))
+                for field_name in self._context.field_names:
+                    create_sd_variable_mpas(dst_nc, SD_VARS.get(field_name.dst))
+                with open_nc(self._context.grid_out, mode="r", parallel=False) as src_nc:
+                    for varname, new_name in zip(("grid_center_lat", "grid_center_lon"), ("latCell", "lonCell")):
+                        copy_nc_variable(src_nc, dst_nc, varname, copy_data=True, new_name=new_name)
+
+    def mask_edges(self, dst_data):
+        self.log("no masking with MPAS")
+
 
 class RaveToGeomProcessor(AbstractSmokeDustObject):
 
@@ -246,7 +302,8 @@ class RaveToGeomProcessor(AbstractSmokeDustObject):
     def finalize(self) -> None:
         self.log("finalize")
 
-    def _create_strategy_(self) -> RaveToGridStrategy:
+    @cached_property
+    def _strategy(self) -> RaveToGridStrategy:
         field_names = (
             RegridFieldName(src="FRP_MEAN", dst="frp_avg_hr"),
             RegridFieldName(src="FRE", dst="FRE"),
@@ -259,7 +316,7 @@ class RaveToGeomProcessor(AbstractSmokeDustObject):
 
         match self._context.predef_grid:
             case PredefinedGrid.MPAS_NA_15KM:
-                raise NotImplementedError #tdk:resume
+                strategy_klass = RaveToMpasStrategy
             case _:
                 strategy_klass = RaveToGridStrategy
 
@@ -268,7 +325,6 @@ class RaveToGeomProcessor(AbstractSmokeDustObject):
         return strategy
 
     def _run_impl_(self, rave_to_interpolate: pd.Series) -> None:
-        strategy = self._create_strategy_()
         cycle_metadata = self._context.cycle_metadata
         for row_idx, row_data in rave_to_interpolate.iterrows():
             row_dict = row_data.to_dict()
@@ -280,8 +336,8 @@ class RaveToGeomProcessor(AbstractSmokeDustObject):
                 / f"{self._context.rave_to_intp}{forecast_date}00_{forecast_date}59.nc"
             )
 
-            strategy.run(row_data['rave_raw'], output_file_path)
-            strategy.finalize()
+            self._strategy.run(row_data['rave_raw'], output_file_path)
+            self._strategy.finalize()
 
             # Update the forecast metadata with the interpolated RAVE file data
             cycle_metadata.loc[row_idx, "rave_interpolated"] = output_file_path
@@ -318,11 +374,7 @@ class RaveToGeomProcessor(AbstractSmokeDustObject):
             # Do these calculations before we modify the arrays since edge masking is inplace
             dst_desc_unmasked = create_descriptive_statistics(dst_data, "dst_unmasked", None)
 
-        # Mask edges to reduce model edge effects
-        self.log("masking edges", level=logging.DEBUG)
-        for value in dst_data.values():
-            # Operation is inplace
-            mask_edges(value[0, :, :])
+        self._strategy.mask_edges(dst_data)
 
         # Persist masked data to disk
         with open_nc(row_data["rave_interpolated"], parallel=False, mode="a") as nc_ds:

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Union, Annotated, Any
 
 from mpi4py import MPI
-from pydantic import BaseModel, model_validator, BeforeValidator, Field
+from pydantic import BaseModel, model_validator, BeforeValidator, Field, field_validator
 
 from smoke_dust.core.common import open_nc, create_template_emissions_file, create_sd_variable, \
     AbstractSmokeDustObject
@@ -166,7 +166,7 @@ class SmokeDustContext(BaseModel, AbstractSmokeDustObject):
     allow_dummy_restart: bool = True
 
     # Set in _finalize_model_
-    grid_out_shape: tuple[int, int] = (0, 0)
+    grid_out_shape: tuple[int, ...] = (0, 0)
 
     @model_validator(mode="before")
     @classmethod
@@ -185,12 +185,19 @@ class SmokeDustContext(BaseModel, AbstractSmokeDustObject):
         if sum(self.grid_out_shape) == 0:
             with open_nc(self.grid_out, parallel=False) as nc_ds:
                 # pylint: disable=unsubscriptable-object
-                self.grid_out_shape = (
-                    nc_ds.dimensions["grid_yt"].size,
-                    nc_ds.dimensions["grid_xt"].size,
-                )
+                if self.predef_grid == PredefinedGrid.MPAS_NA_15KM:
+                    self.grid_out_shape = (nc_ds.dimensions["grid_size"].size,)
+                else:
+                    self.grid_out_shape = (
+                        nc_ds.dimensions["grid_yt"].size,
+                        nc_ds.dimensions["grid_xt"].size,
+                    )
                 # pylint: enable=unsubscriptable-object
             self.log(f"{self.grid_out_shape=}")
+
+        if not self.regrid_in_memory and self.predef_grid == PredefinedGrid.MPAS_NA_15KM:
+            raise ValueError("MPAS only supports in-memory regridding")
+
         return self
 
     @property

@@ -7,14 +7,16 @@ from pathlib import Path
 from typing import Union, Iterator, Any
 
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 from _pytest.fixtures import SubRequest
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from pytest_mock import MockerFixture
 
 from smoke_dust.core.common import ncdump
 from smoke_dust.core.context import SmokeDustContext, PredefinedGrid
+from smoke_dust.core.describe import DescribeParams, describe
 from smoke_dust.core.preprocessor import SmokeDustPreprocessor
 from smoke_dust.core.regrid.operation.rave import RaveToGridStrategy, RaveToGeomProcessor
 from smoke_dust.core.regrid.processor import SmokeDustRegridProcessor
@@ -31,6 +33,7 @@ class DataForTest(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
     context: SmokeDustContext
     preprocessor: SmokeDustPreprocessor
+    hash: str
 
 
 class FakeGridParams(BaseModel):
@@ -61,10 +64,13 @@ def iterate_params() -> Iterator[dict[str, Any]]:
         for element in value:
             yield {key: element}
 
-    parms = {'regrid_in_memory': [True,
+    #tdk:uncomm
+    parms = {'regrid_in_memory': [
+        True,
                                   False
                                   ],
-    'predef_grid': [PredefinedGrid.RRFS_CONUS_3KM,
+    'predef_grid': [
+        PredefinedGrid.RRFS_CONUS_3KM,
                     PredefinedGrid.MPAS_NA_15KM
                     ]}
     iterators = (element_iterator(k, v) for k, v in parms.items())
@@ -84,21 +90,36 @@ def data_for_test(
     bin_dir: Path,
 ) -> DataForTest:
     """Create test data including any required data files."""
-    weight_file = "weight_file.nc"
-    shutil.copy(bin_dir / weight_file, tmp_path / "weight_file.nc")
-    for name in ["ds_out_base.nc", "grid_in.nc"]:
-        path = tmp_path / name
-        _ = create_fake_rave_and_rrfs_like_data(
-            FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["area"], ntime=None)
-        )
-    context = create_fake_context(tmp_path, overrides=request.param)
+
+    match request.param['predef_grid']:
+        case PredefinedGrid.MPAS_NA_15KM:
+            shutil.copy(bin_dir / "na15km.init.scrip.nc", tmp_path / "ds_out_base.nc")
+            _ = create_fake_rave_and_rrfs_like_data(
+                FakeGridParams(path=tmp_path / "grid_in.nc", shape=fake_grid_out_shape, fields=["area"], ntime=None)
+            )
+            hash = "71922d7cd32d9dfe049d2776ae69d06b"
+        case _:
+            hash = "8e90b769137aad054a2e49559d209c4d"
+            weight_file = "weight_file.nc"
+            shutil.copy(bin_dir / weight_file, tmp_path / "weight_file.nc")
+            for name in ["ds_out_base.nc", "grid_in.nc"]:
+                path = tmp_path / name
+                _ = create_fake_rave_and_rrfs_like_data(
+                    FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["area"], ntime=None)
+                )
+    try:
+        context = create_fake_context(tmp_path, overrides=request.param)
+    except ValidationError:
+        assert request.param['predef_grid'] == PredefinedGrid.MPAS_NA_15KM
+        assert request.param["regrid_in_memory"] == False
+        pytest.xfail("validation error expected")
     preprocessor = SmokeDustPreprocessor(context)
     for date in preprocessor.cycle_dates:
         path = tmp_path / f"Hourly_Emissions_3km_{date}_{date}.nc"
         _ = create_fake_rave_and_rrfs_like_data(
             FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["FRP_MEAN", "FRE"])
         )
-    return DataForTest(context=context, preprocessor=preprocessor)
+    return DataForTest(context=context, preprocessor=preprocessor, hash=hash)
 
 
 def create_analytic_data_array(
@@ -170,6 +191,17 @@ def create_fake_rave_and_rrfs_like_data(params: FakeGridParams) -> xr.Dataset:
     return nc_ds
 
 
+def describe_mpas_output(path: Path) -> pd.DataFrame:
+    params = DescribeParams(
+        namespace="mpas.rave",
+        files=(path,),
+        varnames=(
+            "frp_avg_hr", "FRE", "latCell", "lonCell"
+        ),
+    )
+    return describe(params)
+
+
 class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
     """Tests for the smoke/dust regrid processor."""
 
@@ -193,5 +225,6 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
         assert len(interpolated_files) == 24
         for intp_file in interpolated_files:
             fpath = tmp_path / intp_file
-            ncdump(fpath, header_only=False) #tdk:rm
-            assert create_file_hash(fpath) == "8e90b769137aad054a2e49559d209c4d"
+            # ncdump(fpath, header_only=True) #tdk:rm
+            # df = describe_mpas_output(fpath) #tdk:rm
+            assert create_file_hash(fpath) == data_for_test.hash

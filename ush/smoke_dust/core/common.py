@@ -3,7 +3,7 @@ import abc
 import subprocess
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Tuple, Literal, Dict, Any
+from typing import Tuple, Literal, Dict, Any, Union
 
 import numpy as np
 import pandas as pd
@@ -12,6 +12,7 @@ from netCDF4 import Dataset
 
 from smoke_dust.core.variable import SmokeDustVariable, SD_VARS
 from smoke_dust.logging_sd import LOGGER
+import netCDF4 as nc
 
 
 @contextmanager
@@ -107,6 +108,46 @@ def create_sd_variable(
             pass
 
 
+def create_sd_variable_mpas(
+    nc_ds: Dataset,
+    sd_variable: SmokeDustVariable,
+    fill_first_time_index: bool = True,
+) -> None:
+    #tdk:last: figure out how to deduplicate with create_sd_variable
+    """
+    Create a smoke/dust netCDF variable.
+
+    Args:
+        nc_ds: Dataset to update
+        sd_variable: Contains variable metadata
+        fill_first_time_index: If True, fill the first time index with provided `fill_value_float`
+    """
+    var_out = nc_ds.createVariable(
+        sd_variable.name,
+        "f4",
+        ("Time", "nCells"),
+        fill_value=sd_variable.fill_value_float,
+    )
+    var_out.units = sd_variable.units
+    var_out.long_name = sd_variable.long_name
+    var_out.standard_name = sd_variable.long_name
+    var_out.FillValue = sd_variable.fill_value_str
+    var_out.coordinates = "Time nCells"
+    if fill_first_time_index:
+        try:
+            var_out.set_collective(True)
+        except RuntimeError:
+            # Allow this function to work with parallel and non-parallel datasets. If the dataset
+            # is not opened in parallel this error message is returned:
+            # RuntimeError: NetCDF: Parallel operation on file opened for non-parallel access
+            pass
+        var_out[0, :] = sd_variable.fill_value_float
+        try:
+            var_out.set_collective(False)
+        except RuntimeError:
+            pass
+
+
 def create_template_emissions_file(
     nc_ds: Dataset, grid_shape: Tuple[int, int], is_dummy: bool = False
 ):
@@ -196,3 +237,26 @@ class AbstractSmokeDustObject(abc.ABC):
     @staticmethod
     def log(*args: Any, **kwargs: Any) -> None:
         LOGGER(*args, stacklevel=3, **kwargs)
+
+HasNcAttrsType = Union[nc.Dataset, nc.Variable]
+
+def copy_nc_attrs(src: HasNcAttrsType, dst: HasNcAttrsType) -> None:
+    for attr in src.ncattrs():
+        if attr.startswith("_"):
+            continue
+        setattr(dst, attr, getattr(src, attr))
+
+def copy_nc_variable(
+    src: nc.Dataset, dst: nc.Dataset, varname: str, copy_data: bool = False, new_name: Union[str, None] = None
+) -> None:
+    if new_name is None:
+        new_name = varname
+    var = src.variables[varname]
+    fill_value = getattr(var, "_FillValue") if hasattr(var, "_FillValue") else None
+    #tdk:last: allow a dimension name to be specified
+    new_var = dst.createVariable(
+        new_name, var.dtype, ('nCells',), fill_value=fill_value
+    )
+    copy_nc_attrs(var, new_var)
+    if copy_data:
+        new_var[:] = var[:]
