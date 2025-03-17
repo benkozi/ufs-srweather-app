@@ -6,12 +6,12 @@ from pathlib import Path
 from typing import Union, Annotated, Any
 
 from mpi4py import MPI
-from pydantic import BaseModel, model_validator, BeforeValidator, Field, field_validator
+from pydantic import BaseModel, model_validator, BeforeValidator, Field
 
 from smoke_dust.core.common import open_nc, create_template_emissions_file, create_sd_variable, \
     AbstractSmokeDustObject
 from smoke_dust.core.variable import SD_VARS
-from smoke_dust.logging_sd import LogLevel, LOGGER
+from smoke_dust.core.logging_sd import LogLevel, LOGGER
 
 
 @unique

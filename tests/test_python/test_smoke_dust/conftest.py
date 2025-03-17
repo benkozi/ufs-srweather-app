@@ -11,6 +11,7 @@ import pandas as pd
 import pytest
 from netCDF4 import Dataset
 
+from smoke_dust.core.comm import COMM
 from smoke_dust.core.context import SmokeDustContext
 
 
@@ -70,7 +71,9 @@ def create_fake_context(root_dir: Path, overrides: Union[dict, None] = None) -> 
     """
     current_day = "2019072200"
     comin = root_dir / current_day
-    comin.mkdir(exist_ok=True)
+    if COMM.rank == 0:
+        comin.mkdir(exist_ok=True)
+    COMM.barrier()
     os.environ["CDATE"] = current_day
     os.environ["COMIN_SMOKE_DUST_COMMUNITY"] = str(comin)
     kwds = {
@@ -148,3 +151,15 @@ def create_analytic_array(shape: FakeGridOutShape) -> np.ndarray:
         2.0 * deg_to_rad * (90.0 - lat_mesh)
     )
     return analytic_data
+
+
+@pytest.fixture
+def tmp_path_shared(tmp_path: Path) -> Path:
+    #tdk:last: remove mpi4py imports and use comm object
+    return Path(COMM.bcast({"path": str(tmp_path)}, root=0)["path"])
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "mpi: mark test to run under MPI runs"
+    )

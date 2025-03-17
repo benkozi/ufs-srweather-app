@@ -11,7 +11,7 @@ from mpi4py import MPI
 from netCDF4 import Dataset
 
 from smoke_dust.core.variable import SmokeDustVariable, SD_VARS
-from smoke_dust.logging_sd import LOGGER
+from smoke_dust.core.logging_sd import LOGGER
 import netCDF4 as nc
 
 

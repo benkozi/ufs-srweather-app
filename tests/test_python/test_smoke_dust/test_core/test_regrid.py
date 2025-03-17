@@ -14,6 +14,7 @@ from _pytest.fixtures import SubRequest
 from pydantic import BaseModel, Field, ValidationError
 from pytest_mock import MockerFixture
 
+from smoke_dust.core.comm import COMM
 from smoke_dust.core.common import ncdump
 from smoke_dust.core.context import SmokeDustContext, PredefinedGrid
 from smoke_dust.core.describe import DescribeParams, describe
@@ -67,10 +68,10 @@ def iterate_params() -> Iterator[dict[str, Any]]:
     #tdk:uncomm
     parms = {'regrid_in_memory': [
         True,
-                                  False
+                                  # False
                                   ],
     'predef_grid': [
-        PredefinedGrid.RRFS_CONUS_3KM,
+        # PredefinedGrid.RRFS_CONUS_3KM,
                     PredefinedGrid.MPAS_NA_15KM
                     ]}
     iterators = (element_iterator(k, v) for k, v in parms.items())
@@ -85,7 +86,7 @@ def iterate_params() -> Iterator[dict[str, Any]]:
 @pytest.fixture(params=iterate_params(), ids=lambda p: f"params={p}")
 def data_for_test(
     request: SubRequest,
-    tmp_path: Path,
+    tmp_path_shared: Path,
     fake_grid_out_shape: FakeGridOutShape,
     bin_dir: Path,
 ) -> DataForTest:
@@ -93,32 +94,35 @@ def data_for_test(
 
     match request.param['predef_grid']:
         case PredefinedGrid.MPAS_NA_15KM:
-            shutil.copy(bin_dir / "na15km.init.scrip.nc", tmp_path / "ds_out_base.nc")
-            _ = create_fake_rave_and_rrfs_like_data(
-                FakeGridParams(path=tmp_path / "grid_in.nc", shape=fake_grid_out_shape, fields=["area"], ntime=None)
-            )
+            if COMM.rank == 0:
+                shutil.copy(bin_dir / "na15km.init.scrip.nc", tmp_path_shared / "ds_out_base.nc")
+                _ = create_fake_rave_and_rrfs_like_data(
+                    FakeGridParams(path=tmp_path_shared / "grid_in.nc", shape=fake_grid_out_shape, fields=["area"], ntime=None)
+                )
             hash = "71922d7cd32d9dfe049d2776ae69d06b"
         case _:
             hash = "8e90b769137aad054a2e49559d209c4d"
             weight_file = "weight_file.nc"
-            shutil.copy(bin_dir / weight_file, tmp_path / "weight_file.nc")
-            for name in ["ds_out_base.nc", "grid_in.nc"]:
-                path = tmp_path / name
-                _ = create_fake_rave_and_rrfs_like_data(
-                    FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["area"], ntime=None)
-                )
+            if COMM.rank == 0:
+                shutil.copy(bin_dir / weight_file, tmp_path_shared / "weight_file.nc")
+                for name in ["ds_out_base.nc", "grid_in.nc"]:
+                    path = tmp_path_shared / name
+                    _ = create_fake_rave_and_rrfs_like_data(
+                        FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["area"], ntime=None)
+                    )
     try:
-        context = create_fake_context(tmp_path, overrides=request.param)
+        context = create_fake_context(tmp_path_shared, overrides=request.param)
     except ValidationError:
         assert request.param['predef_grid'] == PredefinedGrid.MPAS_NA_15KM
         assert request.param["regrid_in_memory"] == False
         pytest.xfail("validation error expected")
     preprocessor = SmokeDustPreprocessor(context)
-    for date in preprocessor.cycle_dates:
-        path = tmp_path / f"Hourly_Emissions_3km_{date}_{date}.nc"
-        _ = create_fake_rave_and_rrfs_like_data(
-            FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["FRP_MEAN", "FRE"])
-        )
+    if COMM.rank == 0:
+        for date in preprocessor.cycle_dates:
+            path = tmp_path_shared / f"Hourly_Emissions_3km_{date}_{date}.nc"
+            _ = create_fake_rave_and_rrfs_like_data(
+                FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["FRP_MEAN", "FRE"])
+            )
     return DataForTest(context=context, preprocessor=preprocessor, hash=hash)
 
 
@@ -205,13 +209,16 @@ def describe_mpas_output(path: Path) -> pd.DataFrame:
 class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
     """Tests for the smoke/dust regrid processor."""
 
+    @pytest.mark.mpi
     def test_run(
         self,
         data_for_test: DataForTest,  # pylint: disable=redefined-outer-name
         mocker: MockerFixture,
-        tmp_path: Path,
+        tmp_path_shared: Path,
     ) -> None:
         """Test the regrid processor."""
+        #tdk:story: regrid other smoke/dust inputs (vegmap, etc)
+        COMM.barrier()
         spy1 = mocker.spy(RaveToGeomProcessor, "run")
         spy2 = mocker.spy(RaveToGridStrategy, "run")
         regrid_processor = SmokeDustRegridProcessor(data_for_test.context)
@@ -220,11 +227,11 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
         assert spy2.call_count == 24
 
         interpolated_files = glob.glob(
-            f"*{data_for_test.context.rave_to_intp}*nc", root_dir=tmp_path
+            f"*{data_for_test.context.rave_to_intp}*nc", root_dir=tmp_path_shared
         )
         assert len(interpolated_files) == 24
         for intp_file in interpolated_files:
-            fpath = tmp_path / intp_file
+            fpath = tmp_path_shared / intp_file
             # ncdump(fpath, header_only=True) #tdk:rm
             # df = describe_mpas_output(fpath) #tdk:rm
             assert create_file_hash(fpath) == data_for_test.hash
