@@ -5,9 +5,9 @@ from enum import unique, StrEnum
 from pathlib import Path
 from typing import Union, Annotated, Any
 
-from mpi4py import MPI
 from pydantic import BaseModel, model_validator, BeforeValidator, Field
 
+from smoke_dust.core.comm import COMM
 from smoke_dust.core.common import open_nc, create_template_emissions_file, create_sd_variable, \
     AbstractSmokeDustObject
 from smoke_dust.core.variable import SD_VARS
@@ -161,7 +161,7 @@ class SmokeDustContext(BaseModel, AbstractSmokeDustObject):
     beta: float = 0.3
     fg_to_ug: float = 1e6
     to_s: int = 3600
-    rank: int = MPI.COMM_WORLD.Get_rank()
+    rank: int = COMM.rank
     esmpy_debug: bool = False
     allow_dummy_restart: bool = True
 

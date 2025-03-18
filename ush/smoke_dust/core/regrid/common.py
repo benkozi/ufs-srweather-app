@@ -7,9 +7,9 @@ from typing import Tuple, Literal, Union, Dict, Any
 import esmpy
 import netCDF4 as nc
 import numpy as np
-from mpi4py import MPI
 from pydantic import BaseModel, ConfigDict, model_validator
 
+from smoke_dust.core.comm import COMM
 from smoke_dust.core.common import open_nc
 
 NameListType = Tuple[str, ...]
@@ -318,7 +318,7 @@ class NcToMesh(BaseModel):
     @staticmethod
     def _reconcile_bounds_(bounds: tuple[int, int]) -> tuple[int, int]:
         #tdk:last: bring in unit test for this
-        all_bounds = MPI.COMM_WORLD.allgather(bounds)
+        all_bounds = COMM.allgather(bounds)
         reconciled_bounds = [[0, 0] for _ in range(len(all_bounds))]
         for idx in range(len(all_bounds)):
             if idx == 0:
@@ -328,7 +328,7 @@ class NcToMesh(BaseModel):
                 reconciled_bounds[idx][1] = reconciled_bounds[idx - 1][1] + (
                         all_bounds[idx][1] - all_bounds[idx][0]
                 )
-        return tuple(reconciled_bounds[MPI.COMM_WORLD.rank])
+        return tuple(reconciled_bounds[COMM.rank])
 
 
 class NcToField(BaseModel):

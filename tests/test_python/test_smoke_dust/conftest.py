@@ -156,7 +156,6 @@ def create_analytic_array(shape: FakeGridOutShape) -> np.ndarray:
 
 @pytest.fixture
 def tmp_path_shared(tmp_path: Path) -> Path:
-    #tdk:last: remove mpi4py imports and use comm object
     return Path(COMM.bcast({"path": str(tmp_path)}, root=0)["path"])
 
 

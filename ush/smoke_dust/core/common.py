@@ -7,9 +7,9 @@ from typing import Tuple, Literal, Dict, Any, Union
 
 import numpy as np
 import pandas as pd
-from mpi4py import MPI
 from netCDF4 import Dataset
 
+from smoke_dust.core.comm import COMM
 from smoke_dust.core.variable import SmokeDustVariable, SD_VARS
 from smoke_dust.core.logging_sd import LOGGER
 import netCDF4 as nc
@@ -39,8 +39,8 @@ def open_nc(
         mode=mode,
         clobber=clobber,
         parallel=parallel,
-        comm=MPI.COMM_WORLD,
-        info=MPI.Info(),
+        comm=COMM.MPI.COMM_WORLD,
+        info=COMM.MPI.Info(),
     )
     try:
         yield nc_ds
