@@ -208,7 +208,7 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
                 filename = str(self._context.weightfile)
             else:
                 filename = None
-                # filename = "/opt/project/benkozi-data/weights-nproc2.nc" #tdk:rm
+                # filename = "/opt/project/benkozi-data/weights-nproc8.nc" #tdk:rm
             esmpy_context = self._esmpy_context
             regridder = esmpy.Regrid(
                 src_fwrap.value,

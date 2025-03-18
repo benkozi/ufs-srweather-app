@@ -20,6 +20,7 @@ from smoke_dust.core.common import ncdump, nccmp
 from smoke_dust.core.context import SmokeDustContext, PredefinedGrid
 from smoke_dust.core.describe import DescribeParams, describe
 from smoke_dust.core.preprocessor import SmokeDustPreprocessor
+from smoke_dust.core.regrid.common import NcToMesh
 from smoke_dust.core.regrid.operation.rave import RaveToGridStrategy, RaveToGeomProcessor
 from smoke_dust.core.regrid.processor import SmokeDustRegridProcessor
 from test_python.test_smoke_dust.conftest import (
@@ -109,9 +110,8 @@ def data_for_test(
                     FakeGridParams(path=tmp_path_shared / "grid_in.nc", shape=fake_grid_out_shape, fields=["area"], ntime=None)
                 )
         case _:
-            weight_file = "weight_file.nc"
             if COMM.rank == 0:
-                shutil.copy(bin_dir / weight_file, tmp_path_shared / "weight_file.nc")
+                shutil.copy(bin_dir / "baseline" / "weights-nproc8.nc", tmp_path_shared / "weight_file.nc")
                 for name in ["ds_out_base.nc", "grid_in.nc"]:
                     path = tmp_path_shared / name
                     _ = create_fake_rave_and_rrfs_like_data(
@@ -262,3 +262,25 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
                 # assert create_file_hash(fpath) == data_for_test.hash
 
                 nccmp(control_file, Path(fpath))
+
+
+class TestNcToMesh:
+
+    @pytest.mark.mpi
+    def test_reconcile_bounds(self) -> None:
+        if COMM.size < 8:
+            pytest.xfail("need comm size >= 8")
+        total_elements = COMM.size * 10 + 5
+        if COMM.rank <= 4:
+            local_bounds = (0, 11)
+        else:
+            local_bounds = (0, 10)
+        reconciled_bounds = NcToMesh._reconcile_bounds_(local_bounds)
+        all_reconciled_bounds = COMM.allgather(reconciled_bounds)
+        basis = np.arange(total_elements)
+        assert total_elements == all_reconciled_bounds[-1][1]
+        expected = np.sum(basis)
+        actual = 0
+        for bounds in all_reconciled_bounds:
+            actual += np.sum(basis[bounds[0]: bounds[1]])
+        assert actual == expected

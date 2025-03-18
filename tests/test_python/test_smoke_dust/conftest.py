@@ -19,8 +19,8 @@ from smoke_dust.core.context import SmokeDustContext
 class FakeGridOutShape:
     """Explicitly defines the test grid shape."""
 
-    y_size: int = 5
-    x_size: int = 10
+    y_size: int = 50
+    x_size: int = 100
 
     @property
     def as_tuple(self) -> tuple[int, int]:

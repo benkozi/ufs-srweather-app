@@ -317,7 +317,6 @@ class NcToMesh(BaseModel):
 
     @staticmethod
     def _reconcile_bounds_(bounds: tuple[int, int]) -> tuple[int, int]:
-        #tdk:last: bring in unit test for this
         all_bounds = COMM.allgather(bounds)
         reconciled_bounds = [[0, 0] for _ in range(len(all_bounds))]
         for idx in range(len(all_bounds)):
