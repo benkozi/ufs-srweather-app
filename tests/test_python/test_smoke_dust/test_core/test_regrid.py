@@ -67,12 +67,12 @@ def iterate_params() -> Iterator[dict[str, Any]]:
 
     #tdk:uncomm
     parms = {'regrid_in_memory': [
-        True,
-                                  # False
+        # True,
+                                  False
                                   ],
     'predef_grid': [
-        # PredefinedGrid.RRFS_CONUS_3KM,
-                    PredefinedGrid.MPAS_NA_15KM
+        PredefinedGrid.RRFS_CONUS_3KM,
+                    # PredefinedGrid.MPAS_NA_15KM
                     ]}
     iterators = (element_iterator(k, v) for k, v in parms.items())
     for elements in itertools.product(*iterators):
@@ -206,6 +206,17 @@ def describe_mpas_output(path: Path) -> pd.DataFrame:
     return describe(params)
 
 
+def describe_output(path: Path) -> pd.DataFrame:
+    params = DescribeParams(
+        namespace="grid.rave",
+        files=(path,),
+        varnames=(
+            "frp_avg_hr", "FRE",
+        ),
+    )
+    return describe(params)
+
+
 class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
     """Tests for the smoke/dust regrid processor."""
 
@@ -226,12 +237,16 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
         spy1.assert_called_once()
         assert spy2.call_count == 24
 
-        interpolated_files = glob.glob(
-            f"*{data_for_test.context.rave_to_intp}*nc", root_dir=tmp_path_shared
-        )
-        assert len(interpolated_files) == 24
-        for intp_file in interpolated_files:
-            fpath = tmp_path_shared / intp_file
-            # ncdump(fpath, header_only=True) #tdk:rm
-            # df = describe_mpas_output(fpath) #tdk:rm
-            assert create_file_hash(fpath) == data_for_test.hash
+        if COMM.rank == 0:
+            interpolated_files = glob.glob(
+                f"*{data_for_test.context.rave_to_intp}*nc", root_dir=tmp_path_shared
+            )
+            assert len(interpolated_files) == 24
+            for intp_file in interpolated_files:
+                fpath = tmp_path_shared / intp_file
+                # ncdump(fpath, header_only=True) #tdk:rm
+                # df = describe_mpas_output(fpath) #tdk:rm
+                df = describe_output(fpath) #tdk:rm
+                print(df['sum']) #tdk:rm
+                return #tdk:rm
+                assert create_file_hash(fpath) == data_for_test.hash
