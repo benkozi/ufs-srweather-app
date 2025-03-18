@@ -80,6 +80,7 @@ def create_fake_context(root_dir: Path, overrides: Union[dict, None] = None) -> 
         "staticdir": root_dir,
         "ravedir": root_dir,
         "intp_dir": root_dir,
+        # "intp_dir": "/opt/project/benkozi-data/baseline", #tdk: how to generate baselines?
         "predef_grid": "RRFS_CONUS_3km",
         "ebb_dcycle": "2",
         "restart_interval": "6 12 18 24",

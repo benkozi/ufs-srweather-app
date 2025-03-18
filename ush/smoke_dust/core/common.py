@@ -202,12 +202,23 @@ def create_descriptive_statistics(
     return desc
 
 
-def nccmp(lhs: Path, rhs: Path, compare_data: bool = True, silent_mode: bool = True) -> None:
-    cmd = ["nccmp", "-i"]
-    if compare_data:
+def nccmp(lhs: Path, rhs: Path, data: bool = True,
+          silent_mode: bool = True,
+          info: bool = False,
+          metadata: bool = True,
+          global_attrs: bool = False) -> None:
+    # https://gitlab.com/remikz/nccmp#usage
+    cmd = ["nccmp"]
+    if info:
+        cmd.append("-i")
+    if data:
         cmd.append("-d")
     if silent_mode:
         cmd.append("-S")
+    if metadata:
+        cmd.append("-m")
+    if global_attrs:
+        cmd.append("-g")
     cmd += [str(lhs), str(rhs)]
     subprocess.check_call(cmd)
 

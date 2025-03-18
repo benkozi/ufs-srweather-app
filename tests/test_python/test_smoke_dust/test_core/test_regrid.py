@@ -5,17 +5,18 @@ import itertools
 import shutil
 from pathlib import Path
 from typing import Union, Iterator, Any
+from unittest import case
 
 import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
 from _pytest.fixtures import SubRequest
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, computed_field
 from pytest_mock import MockerFixture
 
 from smoke_dust.core.comm import COMM
-from smoke_dust.core.common import ncdump
+from smoke_dust.core.common import ncdump, nccmp
 from smoke_dust.core.context import SmokeDustContext, PredefinedGrid
 from smoke_dust.core.describe import DescribeParams, describe
 from smoke_dust.core.preprocessor import SmokeDustPreprocessor
@@ -34,8 +35,16 @@ class DataForTest(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
     context: SmokeDustContext
     preprocessor: SmokeDustPreprocessor
-    hash: str
 
+    @computed_field
+    def baseline_filename(self) -> str:
+        match self.context.predef_grid:
+            case PredefinedGrid.MPAS_NA_15KM:
+                return "MPAS_NA_15km_intp_baseline.nc"
+            case PredefinedGrid.RRFS_CONUS_3KM:
+                return "RRFS_CONUS_3km_intp_baseline.nc"
+            case _:
+                raise NotImplementedError(self.context.predef_grid)
 
 class FakeGridParams(BaseModel):
     """Model for a fake RAVE/RRFS data file definition."""
@@ -67,12 +76,12 @@ def iterate_params() -> Iterator[dict[str, Any]]:
 
     #tdk:uncomm
     parms = {'regrid_in_memory': [
-        # True,
+        True,
                                   False
                                   ],
     'predef_grid': [
         PredefinedGrid.RRFS_CONUS_3KM,
-                    # PredefinedGrid.MPAS_NA_15KM
+                    PredefinedGrid.MPAS_NA_15KM
                     ]}
     iterators = (element_iterator(k, v) for k, v in parms.items())
     for elements in itertools.product(*iterators):
@@ -99,9 +108,7 @@ def data_for_test(
                 _ = create_fake_rave_and_rrfs_like_data(
                     FakeGridParams(path=tmp_path_shared / "grid_in.nc", shape=fake_grid_out_shape, fields=["area"], ntime=None)
                 )
-            hash = "71922d7cd32d9dfe049d2776ae69d06b"
         case _:
-            hash = "8e90b769137aad054a2e49559d209c4d"
             weight_file = "weight_file.nc"
             if COMM.rank == 0:
                 shutil.copy(bin_dir / weight_file, tmp_path_shared / "weight_file.nc")
@@ -123,7 +130,7 @@ def data_for_test(
             _ = create_fake_rave_and_rrfs_like_data(
                 FakeGridParams(path=path, shape=fake_grid_out_shape, fields=["FRP_MEAN", "FRE"])
             )
-    return DataForTest(context=context, preprocessor=preprocessor, hash=hash)
+    return DataForTest(context=context, preprocessor=preprocessor)
 
 
 def create_analytic_data_array(
@@ -226,6 +233,7 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
         data_for_test: DataForTest,  # pylint: disable=redefined-outer-name
         mocker: MockerFixture,
         tmp_path_shared: Path,
+        bin_dir: Path
     ) -> None:
         """Test the regrid processor."""
         #tdk:story: regrid other smoke/dust inputs (vegmap, etc)
@@ -242,11 +250,15 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
                 f"*{data_for_test.context.rave_to_intp}*nc", root_dir=tmp_path_shared
             )
             assert len(interpolated_files) == 24
+            control_file = bin_dir / "baseline" / data_for_test.baseline_filename
             for intp_file in interpolated_files:
                 fpath = tmp_path_shared / intp_file
                 # ncdump(fpath, header_only=True) #tdk:rm
                 # df = describe_mpas_output(fpath) #tdk:rm
-                df = describe_output(fpath) #tdk:rm
-                print(df['sum']) #tdk:rm
-                return #tdk:rm
-                assert create_file_hash(fpath) == data_for_test.hash
+                # df = describe_output(fpath) #tdk:rm
+                # print(df['sum']) #tdk:rm
+                # return #tdk:rm
+
+                # assert create_file_hash(fpath) == data_for_test.hash
+
+                nccmp(control_file, Path(fpath))

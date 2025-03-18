@@ -266,10 +266,9 @@ class RaveToMpasStrategy(RaveToGridStrategy):
                 dst_nc.createDimension("nCells", self._context.grid_out_shape[0])
                 dst_nc.createDimension("nkfire", 1)
                 dst_nc.createDimension("Time")
-                #tdk: need to think about how to use baselines to allow these attributes to not affect file hashes
-                # dst_nc.setncattr("created_at", str(datetime.now(timezone.utc)))
-                # dst_nc.setncattr("src_path", str(self._curr_src_path))
-                # dst_nc.setncattr("dst_path", str(self._curr_output_path))
+                dst_nc.setncattr("created_at", str(datetime.now(timezone.utc)))
+                dst_nc.setncattr("src_path", str(self._curr_src_path))
+                dst_nc.setncattr("dst_path", str(self._curr_output_path))
                 for field_name in self._context.field_names:
                     create_sd_variable_mpas(dst_nc, SD_VARS.get(field_name.dst))
                 with open_nc(self._context.grid_out, mode="r", parallel=False) as src_nc:
