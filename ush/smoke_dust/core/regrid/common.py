@@ -230,10 +230,7 @@ def _set_variable_data_(
     axes = [_get_aliased_key_(dim_map, ii) for ii in var.dimensions]
     transposed_data = target_data.transpose(axes)
     slices = [slice(target_dims.get(ii).lower, target_dims.get(ii).upper) for ii in var.dimensions]
-    try:
-        var[*slices] = transposed_data
-    except:
-        tdk
+    var[*slices] = transposed_data
     return transposed_data
 
 
