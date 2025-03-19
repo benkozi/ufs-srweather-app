@@ -83,7 +83,10 @@ class SmokeDustRegridProcessor:
     def _dst_gwrap(self) -> GridWrapper:
         if self.__dst_gwrap is None:
             self.log("creating destination grid from RRFS grid file")
-            if self._context.predef_grid in (PredefinedGrid.RRFS_NA_3KM, PredefinedGrid.RRFS_CONUS_3KM):
+            if self._context.predef_grid in (
+                PredefinedGrid.RRFS_NA_3KM,
+                PredefinedGrid.RRFS_CONUS_3KM,
+            ):
                 x_index, y_index = (1, 0)
             else:
                 x_index, y_index = (0, 1)
@@ -111,8 +114,7 @@ class SmokeDustRegridProcessor:
             # We are translating metadata and some structure for the destination grid.
             dst_output_gwrap = copy(self._dst_gwrap)
             dst_output_gwrap.corner_dims = None
-            spec = GridSpec(x_center="geolon", y_center="geolat", x_dim=("lon",),
-                                 y_dim=("lat",))
+            spec = GridSpec(x_center="geolon", y_center="geolat", x_dim=("lon",), y_dim=("lat",))
             dst_output_gwrap.spec = spec
             dst_output_gwrap.dims = deepcopy(self._dst_gwrap.dims)
             dst_output_gwrap.dims.value[spec.x_index].name = ("lon",)
