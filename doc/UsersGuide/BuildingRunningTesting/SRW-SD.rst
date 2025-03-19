@@ -246,4 +246,9 @@ The workflow run is complete when all tasks display a "SUCCEEDED" message. If ev
    201907220600    run_post_mem000_f005    18989110    SUCCEEDED            0       1      294.0
    201907220600    run_post_mem000_f006    18989111    SUCCEEDED            0       1      294.0
 
-If something goes wrong, users can check the log files, which are located by default in ``expt_dirs/smoke_dust_conus3km/logs``. Post-processed smoke/dust output can be found in ``expt_dirs/smoke_dust_conus3km/<cycle>/postprd/smoke_dust.*.grib2``.
+If something goes wrong, users can check the log files, which are located by default in ``expt_dirs/smoke_dust_conus3km/logs``. Post-processed smoke/dust output can be found in ``expt_dirs/smoke_dust_conus3km/<cycle>/postprd/smoke_dust.*.grib2``. Output can also be found in the netCDF physcis/dynamics files: ``expt_dirs/smoke_dust_conus3km/<cycle>/<dynf|phyf><tile>.nc``.
+
+.. csv-table:: Smoke/Dust Output Variables
+   :file: ../../tables/SRW-SD_output-variables.csv
+   :widths: 25, 25, 25, 25
+   :header-rows: 1
