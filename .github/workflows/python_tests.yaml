@@ -57,7 +57,8 @@ jobs:
 
           python -m unittest tests/test_python/*.py
           export PYTHONPATH=${PYTHONPATH}:$(pwd)/tests
-          python -m pytest tests/test_python/test_smoke_dust
+          python -m pytest -m "not mpi" tests/test_python/test_smoke_dust
+          mpirun -n 2 pytest -m mpi tests/test_python/test_smoke_dust
 
       - name: Run python functional tests
         run: |

@@ -9,6 +9,7 @@ import netCDF4 as nc
 import numpy as np
 from pydantic import BaseModel, ConfigDict, model_validator
 
+from smoke_dust.core.comm import COMM
 from smoke_dust.core.common import open_nc
 
 NameListType = Tuple[str, ...]
@@ -22,7 +23,7 @@ class Dimension(BaseModel):
     lower: int
     upper: int
     staggerloc: int
-    coordinate_type: Literal["y", "x", "time"]
+    coordinate_type: Literal["y", "x", "time", "cell", "level"]
 
 
 class DimensionCollection(BaseModel):
@@ -163,16 +164,21 @@ class GridWrapper(AbstractWrapper):
             _set_variable_data_(nc_ds.variables[self.spec.y_center], self.dims, y_center_data)
 
 
-class FieldWrapper(AbstractWrapper):
-    """Wraps an ``esmpy`` field with dimension metadata."""
 
+class MeshWrapper(AbstractWrapper):
+    value: esmpy.Mesh
+
+class FieldWrapper(AbstractWrapper):
+    """Wraps an ``esmpy`` field with dimension and name metadata."""
+
+    name: str
     value: esmpy.Field
-    gwrap: GridWrapper
+    gwrap: GridWrapper | MeshWrapper
 
     def fill_nc_variable(self, path: Path):
         """Fill the netCDF variable associated with the ``esmpy`` field."""
         with open_nc(path, "a") as nc_ds:
-            var = nc_ds.variables[self.value.name]
+            var = nc_ds.variables[self.name]
             _set_variable_data_(var, self.dims, self.value.data)
 
 
@@ -290,14 +296,49 @@ class NcToGrid(BaseModel):
         return dims
 
 
+class NcToMesh(BaseModel):
+    path: Path
+    n_elements: int
+
+    def create_mesh_wrapper(self) -> MeshWrapper:
+        mesh = esmpy.Mesh(
+            filename=str(self.path), filetype=esmpy.FileFormat.SCRIP
+        )
+        local_bounds = (0, mesh.size[1])
+        print(f"{local_bounds=}") #tdk:rm
+        reconciled_bounds = self._reconcile_bounds_(local_bounds)
+        dims = DimensionCollection(value=(Dimension(name=("nCells",),
+                                    size=self.n_elements,
+                                    lower=reconciled_bounds[0],
+                                    upper=reconciled_bounds[1],
+                                    staggerloc=esmpy.MeshLoc.ELEMENT,
+                                                    coordinate_type="cell"),))
+        return MeshWrapper(value=mesh, dims=dims)
+
+    @staticmethod
+    def _reconcile_bounds_(bounds: tuple[int, int]) -> tuple[int, int]:
+        all_bounds = COMM.allgather(bounds)
+        reconciled_bounds = [[0, 0] for _ in range(len(all_bounds))]
+        for idx in range(len(all_bounds)):
+            if idx == 0:
+                reconciled_bounds[idx] = list(all_bounds[idx])
+            else:
+                reconciled_bounds[idx][0] = reconciled_bounds[idx - 1][1]
+                reconciled_bounds[idx][1] = reconciled_bounds[idx - 1][1] + (
+                        all_bounds[idx][1] - all_bounds[idx][0]
+                )
+        return tuple(reconciled_bounds[COMM.rank])
+
+
 class NcToField(BaseModel):
     """Converts a netCDF file to an ``esmpy`` field."""
 
     path: Path
     name: str
-    gwrap: GridWrapper
+    gwrap: Union[GridWrapper, MeshWrapper]
     dim_time: Union[NameListType, None] = None
     staggerloc: int = esmpy.StaggerLoc.CENTER
+    meshloc: int = esmpy.MeshLoc.ELEMENT
 
     def create_field_wrapper(self) -> FieldWrapper:
         """Create a field wrapper."""
@@ -316,17 +357,35 @@ class NcToField(BaseModel):
                     coordinate_type="time",
                 )
                 target_dims = DimensionCollection(value=list(self.gwrap.dims.value) + [time_dim])
-            field = esmpy.Field(
-                self.gwrap.value,
-                name=self.name,
-                ndbounds=ndbounds,
-                staggerloc=self.staggerloc,
-            )
+            if isinstance(self.gwrap, GridWrapper):
+                field = esmpy.Field(
+                    self.gwrap.value,
+                    name=self.name,
+                    ndbounds=ndbounds,
+                    staggerloc=self.staggerloc,
+                )
+            else:
+                field = esmpy.Field(
+                    self.gwrap.value,
+                    name=self.name,
+                    ndbounds=ndbounds,
+                    meshloc=self.meshloc,
+                )
             field.data[:] = load_variable_data(
                 nc_ds.variables[self.name], target_dims  # pylint: disable=unsubscriptable-object
             )
-            fwrap = FieldWrapper(value=field, dims=target_dims, gwrap=self.gwrap)
-            return fwrap
+        fwrap = FieldWrapper(value=field, dims=target_dims, gwrap=self.gwrap, name=self.name)
+        return fwrap
+
+    @staticmethod
+    def create_field_wrapper_from_template(path: Path, template: FieldWrapper, name: str) -> FieldWrapper:
+        with open_nc(path, "r") as nc_ds:
+            template.value.data[:] = load_variable_data(
+                nc_ds.variables[name], template.dims  # pylint: disable=unsubscriptable-object
+            )
+        kwds = template.model_dump()
+        kwds['name'] = name
+        return FieldWrapper.model_validate(kwds)
 
 
 def mask_edges(data: np.ma.MaskedArray, mask_width: int = 1) -> None:

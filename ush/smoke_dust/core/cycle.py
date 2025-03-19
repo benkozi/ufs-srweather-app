@@ -16,7 +16,7 @@ from pydantic import BaseModel, field_validator
 from smoke_dust.core.common import (
     open_nc,
     create_sd_variable,
-    create_template_emissions_file,
+    create_template_emissions_file, AbstractSmokeDustObject,
 )
 from smoke_dust.core.context import SmokeDustContext, EmissionVariable, EbbDCycle
 from smoke_dust.core.variable import SD_VARS
@@ -36,7 +36,7 @@ class AverageFrpOutput(BaseModel):
         return value
 
 
-class AbstractSmokeDustCycleProcessor(abc.ABC):
+class AbstractSmokeDustCycleProcessor(AbstractSmokeDustObject, abc.ABC):
     """Base class for all smoke/dust cycle processors."""
 
     def __init__(self, context: SmokeDustContext):
@@ -114,12 +114,6 @@ class AbstractSmokeDustCycleProcessor(abc.ABC):
         )
         self._cycle_metadata = data_frame
         return data_frame
-
-    def log(self, *args: Any, **kwargs: Any) -> None:
-        """
-        See ``SmokeDustContext.log``.
-        """
-        self._context.log(*args, **kwargs)
 
     @abc.abstractmethod
     def flag(self) -> EbbDCycle:

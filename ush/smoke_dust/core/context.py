@@ -1,18 +1,17 @@
 """Context object for smoke/dust holding external and derived parameters."""
-
 import datetime as dt
-import logging
-import logging.config
 import os
 from enum import unique, StrEnum
 from pathlib import Path
 from typing import Union, Annotated, Any
 
-from mpi4py import MPI
 from pydantic import BaseModel, model_validator, BeforeValidator, Field
 
-from smoke_dust.core.common import open_nc, create_template_emissions_file, create_sd_variable
+from smoke_dust.core.comm import COMM
+from smoke_dust.core.common import open_nc, create_template_emissions_file, create_sd_variable, \
+    AbstractSmokeDustObject
 from smoke_dust.core.variable import SD_VARS
+from smoke_dust.core.logging_sd import LogLevel, LOGGER
 
 
 @unique
@@ -24,6 +23,7 @@ class PredefinedGrid(StrEnum):
     RRFS_CONUS_3KM = "RRFS_CONUS_3km"
     RRFS_NA_3KM = "RRFS_NA_3km"
     RRFS_NA_13KM = "RRFS_NA_13km"
+    MPAS_NA_15KM = "MPAS_NA_15km"
 
 
 @unique
@@ -51,14 +51,6 @@ class RaveQaFilter(StrEnum):
 
     NONE = "none"
     HIGH = "high"
-
-
-@unique
-class LogLevel(StrEnum):
-    """Logging level for the preprocessor."""
-
-    INFO = "info"
-    DEBUG = "debug"
 
 
 @unique
@@ -121,7 +113,7 @@ ReadPathType = Annotated[Path, BeforeValidator(_format_read_path_)]
 WritePathType = Annotated[Path, BeforeValidator(_format_write_path_)]
 
 
-class SmokeDustContext(BaseModel):
+class SmokeDustContext(BaseModel, AbstractSmokeDustObject):
     """Context object for smoke/dust."""
 
     # Values provided via command-line
@@ -165,17 +157,16 @@ class SmokeDustContext(BaseModel):
 
     # Fixed parameters
     should_calc_desc_stats: bool = False
-    vars_emis: tuple[str] = ("FRP_MEAN", "FRE")
+    vars_emis: tuple[str, str] = ("FRP_MEAN", "FRE")
     beta: float = 0.3
     fg_to_ug: float = 1e6
     to_s: int = 3600
-    rank: int = MPI.COMM_WORLD.Get_rank()
+    rank: int = COMM.rank
     esmpy_debug: bool = False
     allow_dummy_restart: bool = True
 
     # Set in _finalize_model_
-    grid_out_shape: tuple[int, int] = (0, 0)
-    _logger: Union[logging.Logger, None] = None
+    grid_out_shape: tuple[int, ...] = (0, 0)
 
     @model_validator(mode="before")
     @classmethod
@@ -189,16 +180,24 @@ class SmokeDustContext(BaseModel):
 
     @model_validator(mode="after")
     def _finalize_model_(self) -> "SmokeDustContext":
-        self._logger = self._init_logging_()
+        LOGGER.initialize(self.rank, self.log_level, self.exit_on_error)
 
-        with open_nc(self.grid_out, parallel=False) as nc_ds:
-            # pylint: disable=unsubscriptable-object
-            self.grid_out_shape = (
-                nc_ds.dimensions["grid_yt"].size,
-                nc_ds.dimensions["grid_xt"].size,
-            )
-            # pylint: enable=unsubscriptable-object
-        self.log(f"{self.grid_out_shape=}")
+        if sum(self.grid_out_shape) == 0:
+            with open_nc(self.grid_out, parallel=False) as nc_ds:
+                # pylint: disable=unsubscriptable-object
+                if self.predef_grid == PredefinedGrid.MPAS_NA_15KM:
+                    self.grid_out_shape = (nc_ds.dimensions["grid_size"].size,)
+                else:
+                    self.grid_out_shape = (
+                        nc_ds.dimensions["grid_yt"].size,
+                        nc_ds.dimensions["grid_xt"].size,
+                    )
+                # pylint: enable=unsubscriptable-object
+            self.log(f"{self.grid_out_shape=}")
+
+        if not self.regrid_in_memory and self.predef_grid == PredefinedGrid.MPAS_NA_15KM:
+            raise ValueError("MPAS only supports in-memory regridding")
+
         return self
 
     @property
@@ -242,30 +241,6 @@ class SmokeDustContext(BaseModel):
         """The starting datetime object parsed from the `current_day`."""
         return dt.datetime.strptime(self.current_day, "%Y%m%d%H")
 
-    def log(
-        self,
-        msg,
-        level=logging.INFO,
-        exc_info: Exception = None,
-        stacklevel: int = 2,
-    ):
-        """
-        Log a message.
-
-        Args:
-            msg: The message to log.
-            level: An optional override for the message level.
-            exc_info: If provided, log this exception and raise an error if `self.exit_on_error`
-                is `True`.
-            stacklevel: If greater than 1, the corresponding number of stack frames are skipped
-                when computing the line number and function name.
-        """
-        if exc_info is not None:
-            level = logging.ERROR
-        self._logger.log(level, msg, exc_info=exc_info, stacklevel=stacklevel)
-        if exc_info is not None and self.exit_on_error:
-            raise exc_info
-
     def create_dummy_emissions_file(self) -> None:
         """Create a dummy emissions file. This occurs if it is the first day of the forecast or
         there is an exception and the context is set to not exit on error."""
@@ -288,38 +263,3 @@ class SmokeDustContext(BaseModel):
             ]:
                 create_sd_variable(nc_ds, SD_VARS.get(varname))
         self.log("create_dummy_emissions_file: exit")
-
-    def _init_logging_(self) -> logging.Logger:
-        project_name = "smoke-dust-preprocessor"
-
-        logging_config: dict = {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "plain": {
-                    # pylint: disable=line-too-long
-                    # Uncomment to report verbose output in logs; try to keep these two in sync
-                    # "format": f"[%(name)s][%(levelname)s][%(asctime)s][%(pathname)s:%(lineno)d][%(process)d][%(thread)d][rank={self._rank}]: %(message)s"
-                    "format": f"[%(name)s][%(levelname)s][%(asctime)s][%(filename)s:%(lineno)d][rank={self.rank}]: %(message)s"
-                    # pylint: enable=line-too-long
-                },
-            },
-            "handlers": {
-                "default": {
-                    "formatter": "plain",
-                    "class": "logging.StreamHandler",
-                    "stream": "ext://sys.stdout",
-                    "filters": [],
-                },
-            },
-            "loggers": {
-                project_name: {
-                    "handlers": ["default"],
-                    "level": getattr(
-                        logging, self.log_level.value.upper()  # pylint: disable=no-member
-                    ),
-                },
-            },
-        }
-        logging.config.dictConfig(logging_config)
-        return logging.getLogger(project_name)

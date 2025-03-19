@@ -16,3 +16,4 @@ dependencies:
   - xarray=2022.11.*
   - typer=0.15.*
   - sphinx=7.4.*
+  - nccmp=1.9.*

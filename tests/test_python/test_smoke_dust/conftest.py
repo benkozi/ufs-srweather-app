@@ -11,6 +11,7 @@ import pandas as pd
 import pytest
 from netCDF4 import Dataset
 
+from smoke_dust.core.comm import COMM
 from smoke_dust.core.context import SmokeDustContext
 
 
@@ -18,8 +19,8 @@ from smoke_dust.core.context import SmokeDustContext
 class FakeGridOutShape:
     """Explicitly defines the test grid shape."""
 
-    y_size: int = 5
-    x_size: int = 10
+    y_size: int = 50
+    x_size: int = 100
 
     @property
     def as_tuple(self) -> tuple[int, int]:
@@ -53,7 +54,7 @@ def create_fake_grid_out(root_dir: Path, shape: FakeGridOutShape) -> None:
         nc_ds.createDimension("grid_xt", shape.x_size)
         for varname in ["area", "grid_latt", "grid_lont"]:
             var = nc_ds.createVariable(varname, "f4", ("grid_yt", "grid_xt"))
-            var[:] = np.ones((shape.y_size, shape.x_size))
+            var[:] = create_analytic_array(shape)
 
 
 def create_fake_context(root_dir: Path, overrides: Union[dict, None] = None) -> SmokeDustContext:
@@ -70,13 +71,16 @@ def create_fake_context(root_dir: Path, overrides: Union[dict, None] = None) -> 
     """
     current_day = "2019072200"
     comin = root_dir / current_day
-    comin.mkdir(exist_ok=True)
+    if COMM.rank == 0:
+        comin.mkdir(exist_ok=True)
+    COMM.barrier()
     os.environ["CDATE"] = current_day
     os.environ["COMIN_SMOKE_DUST_COMMUNITY"] = str(comin)
     kwds = {
         "staticdir": root_dir,
         "ravedir": root_dir,
         "intp_dir": root_dir,
+        # "intp_dir": "/opt/project/benkozi-data/baseline", #tdk: how to generate baselines?
         "predef_grid": "RRFS_CONUS_3km",
         "ebb_dcycle": "2",
         "restart_interval": "6 12 18 24",
@@ -137,3 +141,25 @@ def create_fake_restart_files(
                 "rrfs_hwp_ave", "f4", ("Time", "yaxis_1", "xaxis_1")
             )
             rrfs_hwp_ave[0, ...] = totprcp_ave[:] + 2
+
+
+def create_analytic_array(shape: FakeGridOutShape) -> np.ndarray:
+    lat_vec = np.linspace(-80.0, 80.0, num=shape.y_size)
+    lon_vec = np.linspace(-170.0, 170.0, num=shape.x_size)
+    lat_mesh, lon_mesh = np.meshgrid(lon_vec, lat_vec)
+    deg_to_rad = 3.141592653589793 / 180.0
+    analytic_data = 2.0 + np.cos(deg_to_rad * lon_mesh) ** 2 * np.cos(
+        2.0 * deg_to_rad * (90.0 - lat_mesh)
+    )
+    return analytic_data
+
+
+@pytest.fixture
+def tmp_path_shared(tmp_path: Path) -> Path:
+    return Path(COMM.bcast({"path": str(tmp_path)}, root=0)["path"])
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers", "mpi: mark test to run under MPI runs"
+    )
