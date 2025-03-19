@@ -21,19 +21,14 @@ Download the Code
 
 Clone the |branch| branch of the authoritative SRW App repository:
 
-.. code-block:: console
-
-   git clone -b develop https://github.com/ufs-community/ufs-srweather-app
-   cd ufs-srweather-app
+.. include:: ../../doc-snippets/clone.rst
 
 Checkout Externals
 ---------------------
 
 Users must run the ``checkout_externals`` script to collect (or "check out") the individual components of the SRW App from their respective GitHub repositories.
 
-.. code-block:: console
-
-   ./manage_externals/checkout_externals
+.. include:: ../../doc-snippets/externals.rst
 
 Build the SRW App with Fire Behavior Enabled
 --------------------------------------------
@@ -84,6 +79,11 @@ Users will need to configure their experiment by setting parameters in the ``con
 Users will need to change the ``MACHINE`` and ``ACCOUNT`` variables in ``config.yaml`` to match their system. They may also wish to adjust other experiment settings, especially under the ``fire:`` section, described in further detail below. For more information on other configuration settings, see :numref:`Section %s <ConfigWorkflow>`.
 
 Activating the fire behavior module is done by setting ``UFS_FIRE: True`` in the ``fire:`` section of your ``config.yaml`` file. If this variable is not specified or set to false, a normal atmospheric simulation will be run, without fire settings.
+
+.. note::
+
+  The UFS_FIRE capability requires using a CCPP physics suite containing the parameterizations ``GFS_surface_composites_post`` and ``rrfs_smoke_wrapper``.
+  For the v3.0.0 release, these supported suites are ``FV3_HRRR``, ``FV3_HRRR_gf``, and ``RRFS_sas``.
 
 .. code-block:: console
 
