@@ -68,8 +68,8 @@ class GridSpec(BaseModel):
     y_corner: Union[str, None] = None
     x_corner_dim: Union[NameListType, None] = None
     y_corner_dim: Union[NameListType, None] = None
-    x_index: int = 0
-    y_index: int = 1
+    x_index: int = 1
+    y_index: int = 0
 
     @model_validator(mode="after")
     def _validate_model_(self) -> "GridSpec":
@@ -230,7 +230,10 @@ def _set_variable_data_(
     axes = [_get_aliased_key_(dim_map, ii) for ii in var.dimensions]
     transposed_data = target_data.transpose(axes)
     slices = [slice(target_dims.get(ii).lower, target_dims.get(ii).upper) for ii in var.dimensions]
-    var[*slices] = transposed_data
+    try:
+        var[*slices] = transposed_data
+    except:
+        tdk
     return transposed_data
 
 

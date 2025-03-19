@@ -105,12 +105,12 @@ class SmokeDustRegridProcessor:
             # We are translating metadata and some structure for the destination grid.
             dst_output_gwrap = copy(self._dst_gwrap)
             dst_output_gwrap.corner_dims = None
-            dst_output_gwrap.spec = GridSpec(
-                x_center="geolon", y_center="geolat", x_dim=("lon",), y_dim=("lat",)
-            )
+            spec = GridSpec(x_center="geolon", y_center="geolat", x_dim=("lon",),
+                                 y_dim=("lat",))
+            dst_output_gwrap.spec = spec
             dst_output_gwrap.dims = deepcopy(self._dst_gwrap.dims)
-            dst_output_gwrap.dims.value[0].name = ("lon",)
-            dst_output_gwrap.dims.value[1].name = ("lat",)
+            dst_output_gwrap.dims.value[spec.x_index].name = ("lon",)
+            dst_output_gwrap.dims.value[spec.y_index].name = ("lat",)
             self.__dst_output_gwrap = dst_output_gwrap
         return self.__dst_output_gwrap
 
