@@ -41,6 +41,11 @@ In addition to the UFS SRW fixed files, additional data files are required to ru
 
 When using the basic ``config.smoke_dust.yaml`` experiment, the usual pre-processing and coldstart forecast tasks are used, because ``"parm/wflow/prep.yaml"`` appears in the list of workflow files in the ``rocoto: tasks: taskgroups:`` section of ``config.yaml`` (see :numref:`Section %s <TasksPrepAQM>` for task descriptions).
 
+Smoke simulations can be performed in three ways:
+# Current-day emissions: Using emissions estimated from satellite observations on the same day as the simulation (``EBB_DCYCLE=1, PERSISTENCE=false``).
+# Traditional persistence: Using biomass burning emissions estimated from satellite observations of the previous day (a method commonly used in most smoke forecasting systems, ``EBB_DCYCLE=1, PERSISTENCE=true``).
+# Modulated persistence: The approach currently used by the RRFS-Smoke model, where emissions are forecasted based on a fire weather index that dictates the diurnal cycle (``EBB_DCYCLE=2, PERSISTENCE=true``).
+
 Predefined Grid Support in SRW-SD
 ---------------------------------
 
@@ -246,4 +251,9 @@ The workflow run is complete when all tasks display a "SUCCEEDED" message. If ev
    201907220600    run_post_mem000_f005    18989110    SUCCEEDED            0       1      294.0
    201907220600    run_post_mem000_f006    18989111    SUCCEEDED            0       1      294.0
 
-If something goes wrong, users can check the log files, which are located by default in ``expt_dirs/smoke_dust_conus3km/logs``. Post-processed smoke/dust output can be found in ``expt_dirs/smoke_dust_conus3km/<cycle>/postprd/smoke_dust.*.grib2``.
+If something goes wrong, users can check the log files, which are located by default in ``expt_dirs/smoke_dust_conus3km/logs``. Post-processed smoke/dust output can be found in ``expt_dirs/smoke_dust_conus3km/<cycle>/postprd/smoke_dust.*.grib2``. Output can also be found in the netCDF physcis/dynamics files: ``expt_dirs/smoke_dust_conus3km/<cycle>/<dynf|phyf><tile>.nc``.
+
+.. csv-table:: Smoke/Dust Output Variables
+   :file: ../../tables/SRW-SD_output-variables.csv
+   :widths: 25, 25, 25, 25
+   :header-rows: 1
