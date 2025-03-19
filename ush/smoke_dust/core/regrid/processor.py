@@ -83,6 +83,19 @@ class SmokeDustRegridProcessor:
     def _dst_gwrap(self) -> GridWrapper:
         if self.__dst_gwrap is None:
             self.log("creating destination grid from RRFS grid file")
+            # The fixed weight files for these grids are generated with swapped x/y indices. The
+            # other grid fixed files use ESMF indexing default of (x,y).
+            if (
+                self._context.predef_grid
+                in (
+                    PredefinedGrid.RRFS_NA_3KM,
+                    PredefinedGrid.RRFS_CONUS_3KM,
+                )
+                and not self._context.regrid_in_memory
+            ):
+                x_index, y_index = (1, 0)
+            else:
+                x_index, y_index = (0, 1)
             dst_nc2grid = NcToGrid(
                 path=self._context.grid_out,
                 spec=GridSpec(
