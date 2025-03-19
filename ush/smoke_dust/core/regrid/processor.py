@@ -83,6 +83,10 @@ class SmokeDustRegridProcessor:
     def _dst_gwrap(self) -> GridWrapper:
         if self.__dst_gwrap is None:
             self.log("creating destination grid from RRFS grid file")
+            if self._context.predef_grid in (PredefinedGrid.RRFS_NA_3KM, PredefinedGrid.RRFS_CONUS_3KM):
+                x_index, y_index = (1, 0)
+            else:
+                x_index, y_index = (0, 1)
             dst_nc2grid = NcToGrid(
                 path=self._context.grid_out,
                 spec=GridSpec(
@@ -94,6 +98,8 @@ class SmokeDustRegridProcessor:
                     y_corner="grid_lat",
                     x_corner_dim=("grid_x",),
                     y_corner_dim=("grid_y",),
+                    x_index=x_index,
+                    y_index=y_index,
                 ),
             )
             self.__dst_gwrap = dst_nc2grid.create_grid_wrapper()
