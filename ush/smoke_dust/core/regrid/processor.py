@@ -91,7 +91,6 @@ class SmokeDustRegridProcessor:
                     PredefinedGrid.RRFS_NA_3KM,
                     PredefinedGrid.RRFS_CONUS_3KM,
                 )
-                and not self._context.regrid_in_memory
             ):
                 x_index, y_index = (1, 0)
             else:
@@ -133,10 +132,7 @@ class SmokeDustRegridProcessor:
             self.log("creating regridder")
             self.log(f"{src_fwrap.value.data.shape=}", level=logging.DEBUG)
             self.log(f"{dst_fwrap.value.data.shape=}", level=logging.DEBUG)
-            if (
-                self._context.predef_grid == PredefinedGrid.RRFS_NA_13KM
-                or self._context.regrid_in_memory
-            ):
+            if self._context.predef_grid == PredefinedGrid.RRFS_NA_13KM:
                 # ESMF does not like reading the weights for this field combination (rc=-1). The
                 # error can be bypassed by creating weights in-memory.
                 self.log("creating regridding in-memory")
