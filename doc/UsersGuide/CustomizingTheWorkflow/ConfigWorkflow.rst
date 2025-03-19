@@ -2103,9 +2103,10 @@ Non-default parameters for coupled Air Quality Modeling (AQM) tasks are set in t
 ``NEXUS_GFS_SFC_ARCHV_DIR``:  (Default: "/NCEPPROD/hpssprod/runhistory")
    Path to archive directory for gfs surface files on HPSS.
 
+.. _smoke-dust-parameters:
 
 Smoke and Dust Configuration Parameters
-=========================================
+=======================================
 
 Non-default parameters for Smoke and Dust tasks are set in the ``smoke_dust_parm:`` section of the ``config.yaml`` file.
 
@@ -2113,7 +2114,7 @@ Non-default parameters for Smoke and Dust tasks are set in the ``smoke_dust_parm
    Flag for smoke and dust tasks.
 
 ``EBB_DCYCLE``: (Default: 1)
-   Options for EBB cycle (Retro: 1, Forecast: 2).
+   Options for EBB cycle (1: Retro, 2: Forecast).
 
 ``PERSISTENCE``: (Default: true)
    Flag for emission persistence method. If false, same day FRP is used.
@@ -2125,8 +2126,16 @@ Non-default parameters for Smoke and Dust tasks are set in the ``smoke_dust_parm
    Path to directory containing RAVE fire data files.
 
 ``SMOKE_DUST_FILE_PREFIX``: (Default: SMOKE_RRFS_data)
-   Prefix of Smoke and Dust file name used for ufs_model.
+   Prefix for the generated emissions file.
 
+``RAVE_QA_FILTER``: (Default: none)
+   Options for RAVE data quality filtering (none: No filtering applied, high: Cells with QA values < 2 are set to zero).
+
+``EXIT_ON_ERROR``: (Default: false)
+   If true, raise and exception in the preprocessor when an error occurs. If false, create a dummy emissions file, log the error, and continue.
+
+``LOG_LEVEL``: (Default: info)
+   Options for logging level of the preprocessor. (info or debug)
 
 .. _fire-parameters:
 
