@@ -98,7 +98,7 @@ def create_sd_variable(
             # is not opened in parallel this error message is returned:
             # RuntimeError: NetCDF: Parallel operation on file opened for non-parallel access
             pass
-        var_out[0, :, :] = sd_variable.fill_value_float
+        var_out[0, :, :] = sd_variable.fill_value_actual
         try:
             var_out.set_collective(False)
         except RuntimeError:
