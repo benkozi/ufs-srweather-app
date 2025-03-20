@@ -253,14 +253,6 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
             control_file = bin_dir / "baseline" / data_for_test.baseline_filename
             for intp_file in interpolated_files:
                 fpath = tmp_path_shared / intp_file
-                # ncdump(fpath, header_only=True) #tdk:rm
-                # df = describe_mpas_output(fpath) #tdk:rm
-                # df = describe_output(fpath) #tdk:rm
-                # print(df['sum']) #tdk:rm
-                # return #tdk:rm
-
-                # assert create_file_hash(fpath) == data_for_test.hash
-
                 nccmp(control_file, Path(fpath))
 
 

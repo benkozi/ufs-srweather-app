@@ -305,7 +305,6 @@ class NcToMesh(BaseModel):
             filename=str(self.path), filetype=esmpy.FileFormat.SCRIP
         )
         local_bounds = (0, mesh.size[1])
-        print(f"{local_bounds=}") #tdk:rm
         reconciled_bounds = self._reconcile_bounds_(local_bounds)
         dims = DimensionCollection(value=(Dimension(name=("nCells",),
                                     size=self.n_elements,

@@ -23,7 +23,6 @@ from smoke_dust.core.variable import SD_VARS
 
 
 class RaveToGeomStrategyContext(RegridOperationContext):
-    # tdk: doc
     model_config = ConfigDict(frozen=False)
 
     field_names: tuple[RegridFieldName, ...]  # tdk:last: move to RegridOperationContext?
@@ -46,7 +45,6 @@ class RaveToGridStrategy(AbstractSmokeDustObject):
         self.log(f"creating output file: {self._curr_output_path}")
         self._create_template_emissions_file_()
 
-        # tdk:test: add parallel testing
         for field_name in self._context.field_names:
             src_fwrap = self._create_src_field_wrapper_(field_name.src)
 
