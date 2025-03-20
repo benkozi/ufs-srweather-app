@@ -184,3 +184,15 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "mpi: mark test to run under MPI runs"
     )
+
+def pytest_addoption(parser) -> None:
+    parser.addoption("--baseline-dir", action="store", default=None, help="If provided, create baselines in this directory.")
+
+@pytest.fixture(scope="session")
+def baseline_dir(request) -> Path | None:
+    option = request.config.getoption("--baseline-dir")
+    if option is not None:
+        ret = Path(option)
+        if COMM.rank == 0:
+            ret.mkdir(exist_ok=True, parents=True)
+        return ret.expanduser().resolve(strict=True)

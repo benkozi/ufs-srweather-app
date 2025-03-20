@@ -26,7 +26,7 @@ from smoke_dust.core.regrid.processor import SmokeDustRegridProcessor
 from test_python.test_smoke_dust.conftest import (
     FakeGridOutShape,
     create_fake_context,
-    create_file_hash,
+    create_file_hash, baseline_dir,
 )
 
 
@@ -233,7 +233,8 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
         data_for_test: DataForTest,  # pylint: disable=redefined-outer-name
         mocker: MockerFixture,
         tmp_path_shared: Path,
-        bin_dir: Path
+        bin_dir: Path,
+        baseline_dir: Path | None
     ) -> None:
         """Test the regrid processor."""
         #tdk:story: regrid other smoke/dust inputs (vegmap, etc)
@@ -250,6 +251,8 @@ class TestSmokeDustRegridProcessor:  # pylint: disable=too-few-public-methods
                 f"*{data_for_test.context.rave_to_intp}*nc", root_dir=tmp_path_shared
             )
             assert len(interpolated_files) == 24
+            if baseline_dir is not None:
+                shutil.copyfile(tmp_path_shared / interpolated_files[0], baseline_dir / data_for_test.baseline_filename)
             control_file = bin_dir / "baseline" / data_for_test.baseline_filename
             for intp_file in interpolated_files:
                 fpath = tmp_path_shared / intp_file
