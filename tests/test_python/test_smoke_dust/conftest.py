@@ -2,6 +2,8 @@
 
 import hashlib
 import os
+import subprocess
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Union
@@ -39,7 +41,26 @@ def fake_grid_out_shape() -> FakeGridOutShape:
 @pytest.fixture
 def bin_dir() -> Path:
     """Fixture returning the path to the binary test directory for this package."""
-    return (Path(__file__).parent / "bin").expanduser().resolve(strict=True)
+    path = Path(__file__).parent / "bin"
+    if COMM.rank == 0:
+        if not path.exists():
+            path.mkdir(exist_ok=False, parents=False)
+            zip_name = "srw-smokedust-test-data-20250320.zip"
+            current_dir = os.getcwd()
+            os.chdir(path)
+            try:
+                subprocess.check_call(["wget",
+                                       "-O", zip_name,
+                                       f"https://www.dropbox.com/scl/fi/qxukhxtchuof161be4uoe/srw-smokedust-test-data-20250320.zip?rlkey=tmoiti07hq296hjvfyg8wxex4&st=ja2ktc23&dl=1"])
+            finally:
+                os.chdir(current_dir)
+            try:
+                with zipfile.ZipFile(str(path / zip_name), 'r') as zip_ref:
+                    zip_ref.extractall(path)
+            finally:
+                os.remove(path/zip_name)
+    COMM.barrier()
+    return path.expanduser().resolve(strict=True)
 
 
 def create_fake_grid_out(root_dir: Path, shape: FakeGridOutShape) -> None:
