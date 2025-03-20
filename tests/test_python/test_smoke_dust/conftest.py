@@ -51,7 +51,7 @@ def bin_dir() -> Path:
             try:
                 subprocess.check_call(["wget",
                                        "-O", zip_name,
-                                       f"https://www.dropbox.com/scl/fi/qxukhxtchuof161be4uoe/srw-smokedust-test-data-20250320.zip?rlkey=tmoiti07hq296hjvfyg8wxex4&st=ja2ktc23&dl=1"])
+                                       f"https://www.dropbox.com/scl/fi/qxukhxtchuof161be4uoe/{zip_name}?rlkey=tmoiti07hq296hjvfyg8wxex4&st=ja2ktc23&dl=1"])
             finally:
                 os.chdir(current_dir)
             try:
