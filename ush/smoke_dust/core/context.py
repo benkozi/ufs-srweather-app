@@ -191,6 +191,9 @@ class SmokeDustContext(BaseModel):
     def _finalize_model_(self) -> "SmokeDustContext":
         self._logger = self._init_logging_()
 
+        if self.ebb_dcycle == EbbDCycle.TWO and not self.persistence:
+            raise ValueError(f"{self.ebb_dcycle=} does not support {self.persistence=}")
+
         with open_nc(self.grid_out, parallel=False) as nc_ds:
             # pylint: disable=unsubscriptable-object
             self.grid_out_shape = (
