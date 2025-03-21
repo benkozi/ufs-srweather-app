@@ -2137,6 +2137,9 @@ Non-default parameters for Smoke and Dust tasks are set in the ``smoke_dust_parm
 ``LOG_LEVEL``: (Default: info)
    Options for logging level of the preprocessor. (info or debug)
 
+``DUST_OPTION``: (Default: -1)
+   Set to 1 to enable dust simulations. Disabled by default as it may affect SRW PM2.5 simulations.
+
 .. _fire-parameters:
 
 Community Fire Behavior Model Parameters
