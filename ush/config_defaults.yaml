@@ -2918,6 +2918,9 @@ smoke_dust_parm:
   # LOG_LEVEL:
   # Logging level for the preprocessor: info or debug
   #
+  # DUST_OPTION:
+  # Set to 1 to enable (-1 to disable) dust simulations. Disabled by default as it may affect SRW
+  # PM2.5 simulations.
   #-----------------------------------------------------------------------
   #
   DO_SMOKE_DUST: false
@@ -2929,6 +2932,7 @@ smoke_dust_parm:
   RAVE_QA_FILTER: none
   EXIT_ON_ERROR: true
   LOG_LEVEL: info
+  DUST_OPTION: -1
 
 #----------------------------
 # UFS FIRE config parameters
