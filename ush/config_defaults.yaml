@@ -2892,7 +2892,7 @@ smoke_dust_parm:
   # Flag turning on/off Smoke and Dust
   #
   # EBB_DCYCLE:
-  # 1: for retro, 2: for forecast (considered experimental in the SRW)
+  # 1: for retro, 2: for forecast (considered experimental in the SRW App)
   #
   # PERSISTENCE:
   # Flag turning on/off emissions persistence method, if off same day FRP is used
