@@ -270,13 +270,37 @@
 "gfs_phys",    "nbdsf_ave",    "nbdsf_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "nddsf_ave",    "nddsf_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "trans_ave",    "trans_ave",     "fv3_history2d",  "all",  .false.,  "none",  2
+#IVAI: Auxiliary 2D
+#"gfs_phys",    "aux2d_01",     "aux2d_01",      "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "aux2d_02",     "aux2d_02",      "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "aux2d_03",     "aux2d_03",      "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "aux2d_04",     "aux2d_04",      "fv3_history2d",  "all",  .false.,  "none",  2
+#"gfs_phys",    "aux2d_05",     "aux2d_05",      "fv3_history2d",  "all",  .false.,  "none",  2
+#IVAI
 # Stochastic physics
 "gfs_phys",    "sppt_wts",      "sppt_wts",      "fv3_history",  "all", .false., "none", 2
 "gfs_phys",    "skebu_wts",     "skebu_wts",     "fv3_history",  "all", .false., "none", 2
 "gfs_phys",    "skebv_wts",     "skebv_wts",     "fv3_history",  "all", .false., "none", 2
 "dynamics",    "diss_est",      "diss_est",      "fv3_history",  "all", .false., "none", 2
 "gfs_phys",    "shum_wts",      "shum_wts",      "fv3_history",  "all", .false., "none", 2
-
+#IVAI: diffusivities t=heat/u=momentum
+#"gfs_phys",    "dkt"     ,       "dkt",          "fv3_history",  "all", .false., "none", 2
+#"gfs_phys",    "dku"     ,       "dku",          "fv3_history",  "all", .false., "none", 2
+#IVAI: Auxiliary 3D
+#"gfs_phys",    "aux3d_01",       "aux3d_01",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_02",       "aux3d_02",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_03",       "aux3d_03",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_04",       "aux3d_04",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_05",       "aux3d_05",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_06",       "aux3d_06",     "fv3_history", "all", .false., "none",  2
+#"gfs_phys",    "aux3d_07",       "aux3d_07",     "fv3_history", "all", .false., "none",  2
+#IVAI: PBL tendencies
+#"gfs_phys",  "dtend_temp_pbl", "dtend_temp_pbl", "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_qv_pbl",   "dtend_qv_pbl",   "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_u_pbl",    "dtend_u_pbl",    "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_v_pbl",    "dtend_v_pbl",    "fv3_history", "all", .false., "none",  2
+#"gfs_phys",  "dtend_o3_pbl",   "dtend_o3_pbl",   "fv3_history", "all", .false., "none",  2
+#IVAI
 ###
 # chemical tracers advected by FV3
 ###
@@ -473,7 +497,10 @@
 "gfs_dyn",         "no_ave",        "no_ave",        "fv3_history",   "all",  .false.,  "none",  2
 "gfs_dyn",         "no2_ave",       "no2_ave",       "fv3_history",   "all",  .false.,  "none",  2
 "gfs_dyn",         "pm25_ave",      "pm25_ave",      "fv3_history",   "all",  .false.,  "none",  2
-
+#IVAI: dynamical tendencies
+#"gfs_dyn",  "dtend_temp_nophys", "dtend_temp_nophys", "fv3_history", "all", .false., "none", 2
+#"gfs_dyn",  "dtend_o3_nophys",   "dtend_o3_nophys",   "fv3_history", "all", .false., "none", 2
+#IVAI
 ###
 # aerosol diagnostics
 ###
@@ -482,6 +509,22 @@
 #"gfs_dyn",   "pm25co",        "pm25co",      "fv3_history",           "all",  .false.,  "none",  2
 #"gfs_dyn",   "pm25_tot",      "pm25_tot",    "fv3_history",           "all",  .false.,  "none",  2
 "gfs_phys",  "aod",           "aod",         "fv3_history2d",         "all",  .false.,  "none",  2
+#IVAI:
+###
+# canopy diagnostics
+###
+#"gfs_phys",  "claie",         "claie",       "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cfch",          "cfch",        "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cfrt",          "cfrt",        "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cclu",          "cclu",        "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "cpopu",         "cpopu",       "fv3_history2d",         "all",  .false.,  "none",  2
+###
+# photolysis diagnostics
+###
+#"gfs_phys",  "coszens",       "coszens",     "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "jo3o1d",        "jo3o1d",      "fv3_history2d",         "all",  .false.,  "none",  2
+#"gfs_phys",  "jno2",          "jno2",        "fv3_history2d",         "all",  .false.,  "none",  2
+#=============================================================================================
 #=============================================================================================
 #
 #====> This file can be used with diag_manager/v2.0a (or higher) <====
