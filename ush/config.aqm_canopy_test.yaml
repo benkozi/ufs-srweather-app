@@ -31,6 +31,7 @@ nco:
   envir_default: test_aqm_warmstart
   NET_default: aqm
   RUN_default: aqm
+  PTMP: /scratch1/NCEPDEV/stmp4/Patrick.C.Campbell/expt_dirs/aqm_AQMNA13km_warmstart_feature_aqmcanopy4_canopy-off
 rocoto:
   tasks:
     taskgroups: '{{ ["parm/wflow/prep.yaml", "parm/wflow/aqm_prep.yaml", "parm/wflow/coldstart.yaml", "parm/wflow/post.yaml"]|include }}'
