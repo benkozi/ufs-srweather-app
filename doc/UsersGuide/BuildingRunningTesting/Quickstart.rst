@@ -9,7 +9,8 @@ This chapter provides a brief summary of how to build and run the SRW Applicatio
 
 Install the Prerequisite Software Stack
 =========================================
-SRW App users who are **not** working on a :srw-wiki:`Level 1 <Supported-Platforms-and-Compilers>` platform will need to install the prerequisite software stack via :term:`spack-stack` prior to building the SRW App on a new machine. Users can find installation instructions in the :doc:`spack-stack documentation <spack-stack:index>`. The steps will vary slightly depending on the user's platform, but detailed instructions for a variety of platforms are available in the documentation. Users may also post questions in the `ufs-community Discussions tab <https://github.com/orgs/ufs-community/discussions/categories/q-a>`__.
+
+SRW App users who are **not** working on a :srw-wiki:`Level 1 <Supported-Platforms-and-Compilers>` platform will need to install the prerequisite software stack via :term:`spack-stack` prior to building the SRW App on a new machine. Users can find installation instructions in the :doc:`spack-stack documentation <spack-stack:index>`. The steps will vary slightly depending on the user's platform, but detailed instructions for a variety of platforms are available in the documentation. Users may also post questions in the `ufs-community Discussions tab <https://github.com/orgs/ufs-community/discussions/categories/q-a>`_.
 
 Once spack-stack has been successfully installed, users can move on to building the SRW Application.
 
@@ -22,16 +23,11 @@ For a detailed explanation of how to build and run the SRW App on any supported 
 
    #. Clone the SRW App from GitHub:
 
-      .. code-block:: console
-
-         git clone -b develop https://github.com/ufs-community/ufs-srweather-app.git
+      .. include:: ../../doc-snippets/clone.rst
 
    #. Check out the external repositories:
 
-      .. code-block:: console
-
-         cd ufs-srweather-app
-         ./manage_externals/checkout_externals
+      .. include:: ../../doc-snippets/externals.rst
 
    #. Set up the build environment and build the executables:
 

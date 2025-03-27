@@ -96,7 +96,7 @@ Glossary
       The `Earth Prediction Innovation Center <https://epic.noaa.gov/>`_ seeks to accelerate scientific research and modeling contributions through continuous and sustained community engagement in order to produce the most accurate and reliable operational modeling system in the world. 
 
    ESG
-      Extended Schmidt Gnomonic (ESG) grid. The ESG grid uses the map projection developed by Jim Purser of NOAA :term:`EMC` (:cite:t:`Purser_2020`). 
+      Extended Schmidt Gnomonic (ESG) grid. The ESG grid uses the map projection developed by Jim Purser of NOAA :term:`EMC` (:cite:t:`Purser_2023`). 
 
    ESMF
       `Earth System Modeling Framework <https://earthsystemmodeling.org/docs/release/latest/ESMF_usrdoc/>`__. The ESMF defines itself as "a suite of software tools for developing high-performance, multi-component Earth science modeling applications."
@@ -178,7 +178,7 @@ Glossary
       A namelist defines a group of variables or arrays. Namelists are an I/O feature for format-free input and output of variables by key-value assignments in Fortran compilers. Fortran variables can be read from and written to plain-text files in a standardised format, usually with a ``.nml`` file ending.
 
    NCAR
-      The `National Center for Atmospheric Research <https://ncar.ucar.edu/>`__. 
+      The `National Center for Atmospheric Research <https://ncar.ucar.edu/>`_. 
 
    NCEP
       National Centers for Environmental Prediction (NCEP) is an arm of the National Weather Service
@@ -186,11 +186,11 @@ Glossary
 
    NCEPLIBS
       The software libraries created and maintained by :term:`NCEP` that are required for running 
-      :term:`chgres_cube`, the UFS Weather Model, and the :term:`UPP`. They are included in the `HPC-Stack <https://github.com/NOAA-EMC/hpc-stack>`__. 
+      :term:`chgres_cube`, the UFS Weather Model, and the :term:`UPP`. They are included in the `spack-stack <https://github.com/JCSDA/spack-stack>`_. 
 
    NCEPLIBS-external
       A collection of third-party libraries required to build :term:`NCEPLIBS`, :term:`chgres_cube`, 
-      the UFS Weather Model, and :term:`UPP`. They are included in the :term:`HPC-Stack`.  
+      the UFS Weather Model, and :term:`UPP`. They are included in the :term:`spack-stack`.  
 
    NCL
       An interpreted programming language designed specifically for scientific data analysis and 

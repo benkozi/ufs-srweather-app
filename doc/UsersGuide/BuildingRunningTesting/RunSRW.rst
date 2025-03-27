@@ -318,23 +318,23 @@ When running with GNU compilers (i.e., if the modulefile used to set up the buil
 
    On ``JET``, users should add ``PARTITION_DEFAULT: xjet`` and ``PARTITION_FCST: xjet`` to the ``platform:`` section of the ``config.yaml`` file.
 
-For example, to run the out-of-the-box experiment on Derecho using cron to automate job submission, users can add or modify variables in the ``user``, ``workflow``, ``task_get_extrn_ics``, and ``task_get_extrn_lbcs`` sections of ``config.yaml`` according to the following example (unmodified variables are not shown here): 
+For example, to run the out-of-the-box experiment on Hercules using cron to automate job submission, users can ``ssh`` to the hercules-login-1 node and add or modify variables in the ``user``, ``workflow``, ``task_get_extrn_ics``, and ``task_get_extrn_lbcs`` sections of ``config.yaml`` according to the following example (unmodified variables are not shown here): 
 
    .. code-block::
       
       user:
-         MACHINE: derecho
-         ACCOUNT: NRAL0000
+         MACHINE: hercules
+         ACCOUNT: epic
       workflow:
          EXPT_SUBDIR: run_basic_srw
          USE_CRON_TO_RELAUNCH: true
          CRON_RELAUNCH_INTVL_MNTS: 3
       task_get_extrn_ics:
          USE_USER_STAGED_EXTRN_FILES: true
-         EXTRN_MDL_SOURCE_BASEDIR_ICS: /glade/work/epicufsrt/contrib/UFS_SRW_data/v3p0/input_model_data/FV3GFS/grib2/2019061518
+         EXTRN_MDL_SOURCE_BASEDIR_ICS: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/v3p0/input_model_data/FV3GFS/grib2/2019061518
       task_get_extrn_lbcs:
          USE_USER_STAGED_EXTRN_FILES: true
-         EXTRN_MDL_SOURCE_BASEDIR_LBCS: /glade/work/epicufsrt/contrib/UFS_SRW_data/v3p0/input_model_data/FV3GFS/grib2/2019061518
+         EXTRN_MDL_SOURCE_BASEDIR_LBCS: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/v3p0/input_model_data/FV3GFS/grib2/2019061518
 
 .. hint::
 
@@ -343,20 +343,6 @@ For example, to run the out-of-the-box experiment on Derecho using cron to autom
    * Various sample configuration files can be found within the subdirectories of ``tests/WE2E/test_configs``.
 
    * Users can find detailed information on configuration parameter options in :numref:`Section %s: Configuring the Workflow <ConfigWorkflow>`. 
-
-.. COMMENT: Add back if script is fixed: 
-   To determine whether the ``config.yaml`` file adjustments are valid, users can run the following script from the ``ush`` directory:
-
-   .. code-block:: console
-
-      ./config_utils.py -c config.yaml -v config_defaults.yaml -k "(?\!rocoto\b)"
-
-   A correct ``config.yaml`` file will output a ``SUCCESS`` message. A ``config.yaml`` file with problems will output a ``FAILURE`` message describing the problem. For example:
-
-   .. code-block:: console
-
-      INVALID ENTRY: EXTRN_MDL_FILES_ICS=[]
-      FAILURE
 
 .. _ConfigTasks:
 
@@ -450,7 +436,7 @@ the same cycle starting date/time and forecast hours. Other parameters may diffe
 Cartopy Shapefiles
 `````````````````````
 
-The Python plotting tasks require a path to the directory where the Cartopy Natural Earth shapefiles are located. The medium scale (1:50m) cultural and physical shapefiles are used to create coastlines and other geopolitical borders on the map. On :srw-wiki:`Level 1 <Supported-Platforms-and-Compilers>` systems, this path is already set in the system's machine file using the variable ``FIXshp``. Users on other systems will need to download the shapefiles and update the path of ``$FIXshp`` in the machine file they are using (e.g., ``$SRW/ush/machine/macos.yaml`` for a generic MacOS system, where ``$SRW`` is the path to the ``ufs-srweather-app`` directory). The subset of shapefiles required for the plotting task can be obtained from the `SRW Data Bucket <https://noaa-ufs-srw-pds.s3.amazonaws.com/develop-20240618/NaturalEarth/NaturalEarth.tgz>`__. The full set of medium-scale (1:50m) Cartopy shapefiles can be downloaded `here <https://www.naturalearthdata.com/downloads/>`__. 
+The Python plotting tasks require a path to the directory where the Cartopy Natural Earth shapefiles are located. The medium scale (1:50m) cultural and physical shapefiles are used to create coastlines and other geopolitical borders on the map. On :srw-wiki:`Level 1 <Supported-Platforms-and-Compilers>` systems, this path is already set in the system's machine file using the variable ``FIXshp``. Users on other systems will need to download the shapefiles and update the path of ``$FIXshp`` in the machine file they are using (e.g., ``$SRW/ush/machine/macos.yaml`` for a generic MacOS system, where ``$SRW`` is the path to the ``ufs-srweather-app`` directory). The subset of shapefiles required for the plotting task can be obtained from the `SRW Data Bucket <https://noaa-ufs-srw-pds.s3.amazonaws.com/experiment-user-cases/release-public-v3.0.0/NaturalEarth/NaturalEarth.tar.gz>`_. The full set of medium-scale (1:50m) Cartopy shapefiles can be downloaded `here <https://www.naturalearthdata.com/downloads/>`__. 
 
 Task Configuration
 `````````````````````
