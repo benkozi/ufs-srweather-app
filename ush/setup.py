@@ -47,7 +47,6 @@ from set_cycle_and_obs_timeinfo import \
      get_obs_retrieve_times_by_day
 from set_predef_grid_params import set_predef_grid_params
 from set_gridparams_ESGgrid import set_gridparams_ESGgrid
-from set_gridparams_GFDLgrid import set_gridparams_GFDLgrid
 from link_fix import link_fix
 
 def load_config_for_setup(ushdir, default_config, user_config):
@@ -752,7 +751,11 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
         #
         # -----------------------------------------------------------------------
         #
-        # Remove all verification (meta)tasks for which no fields are specified.
+        # Remove all verification (meta)tasks which are not needed for the specified
+        # list of verification field groups.
+        # Note that if the metatask specification depends on the field group, it
+        # does not need to be listed here because those metatasks will be removed
+        # later by clean_rocoto_dict()
         #
         # -----------------------------------------------------------------------
         #
@@ -780,28 +783,21 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
         vx_field_groups_all_by_obtype["MRMS"] = ["REFC", "RETOP"]
         vx_metatasks_all_by_obtype["MRMS"] \
         = ["task_get_obs_mrms",
-           "metatask_GridStat_REFC_RETOP_all_mems",
-           "metatask_GenEnsProd_EnsembleStat_REFC_RETOP",
-           "metatask_GridStat_REFC_RETOP_ensprob"]
+           "metatask_GridStat_REFC_RETOP_all_mems"]
     
         vx_field_groups_all_by_obtype["NDAS"] = ["SFC", "UPA"]
         vx_metatasks_all_by_obtype["NDAS"] \
         = ["task_get_obs_ndas",
            "task_run_MET_Pb2nc_obs_NDAS",
-           "metatask_PointStat_SFC_UPA_all_mems",
-           "metatask_GenEnsProd_EnsembleStat_SFC_UPA",
            "metatask_PointStat_SFC_UPA_ensmeanprob"]
 
         vx_field_groups_all_by_obtype["AERONET"] = ["AOD"]
         vx_metatasks_all_by_obtype["AERONET"] \
-        = ["task_get_obs_aeronet",
-           "metatask_ASCII2nc_obs"]
+        = ["task_get_obs_aeronet"]
 
         vx_field_groups_all_by_obtype["AIRNOW"] = ["PM25", "PM10"]
         vx_metatasks_all_by_obtype["AIRNOW"] \
-        = ["task_get_obs_airnow",
-           "metatask_ASCII2nc_obs",
-           "metatask_PcpCombine_fcst_PM_all_mems"]
+        = ["task_get_obs_airnow"]
 
         # If there are no field groups specified for verification, remove those
         # tasks that are common to all observation types.
@@ -1115,23 +1111,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
     #
 
     grid_gen_method = workflow_config["GRID_GEN_METHOD"]
-    if grid_gen_method == "GFDLgrid":
-        grid_params = set_gridparams_GFDLgrid(
-            lon_of_t6_ctr=grid_config["GFDLgrid_LON_T6_CTR"],
-            lat_of_t6_ctr=grid_config["GFDLgrid_LAT_T6_CTR"],
-            res_of_t6g=grid_config["GFDLgrid_NUM_CELLS"],
-            stretch_factor=grid_config["GFDLgrid_STRETCH_FAC"],
-            refine_ratio_t6g_to_t7g=grid_config["GFDLgrid_REFINE_RATIO"],
-            istart_of_t7_on_t6g=grid_config["GFDLgrid_ISTART_OF_RGNL_DOM_ON_T6G"],
-            iend_of_t7_on_t6g=grid_config["GFDLgrid_IEND_OF_RGNL_DOM_ON_T6G"],
-            jstart_of_t7_on_t6g=grid_config["GFDLgrid_JSTART_OF_RGNL_DOM_ON_T6G"],
-            jend_of_t7_on_t6g=grid_config["GFDLgrid_JEND_OF_RGNL_DOM_ON_T6G"],
-            verbose=verbose,
-            nh4=expt_config["constants"]["NH4"],
-            run_envir=run_envir,
-        )
-        expt_config["grid_params"] = grid_params
-    elif grid_gen_method == "ESGgrid":
+    if grid_gen_method == "ESGgrid":
         grid_params = set_gridparams_ESGgrid(
             lon_ctr=grid_config["ESGgrid_LON_CTR"],
             lat_ctr=grid_config["ESGgrid_LAT_CTR"],
@@ -1149,7 +1129,7 @@ def setup(USHdir, user_config_fn="config.yaml", debug: bool = False):
     else:
         errmsg = dedent(
             f"""
-            Valid values of GRID_GEN_METHOD are GFDLgrid and ESGgrid.
+            Valid value of GRID_GEN_METHOD is ESGgrid.
             The value provided is:
               GRID_GEN_METHOD = {grid_gen_method}
             """
@@ -1877,16 +1857,28 @@ def clean_rocoto_dict(rocotodict):
     """Removes any invalid entries from ``rocotodict``. Examples of invalid entries are:
 
     1. A task dictionary containing no "command" key
-    2. A metatask dictionary containing no task dictionaries
+    2. A metatask definition dependent on a variable with no entries
+    3. A metatask dictionary containing no task dictionaries
 
     Args:
         rocotodict (dict): A dictionary containing Rocoto workflow settings
     """
 
-    # Loop 1: search for tasks with no command key, iterating over metatasks
+
+    # Loop 1: search for tasks with no command key, iterating over metatasks, and popping metatasks with
+    # var keys having empty values
     for key in list(rocotodict.keys()):
         if key.split("_", maxsplit=1)[0] == "metatask":
             clean_rocoto_dict(rocotodict[key])
+            # After checking for metatasks with no command key, now check for empty var entries
+            if rocotodict.get(key).get('var'):
+                for varkey in list(rocotodict[key]['var'].keys()):
+                    if not rocotodict[key]['var'][varkey]:
+                        popped = rocotodict.pop(key)
+                        logging.warning(f"Invalid metatask {key} removed due to empty/unset var: {varkey}")
+                        logging.debug(f"Removed entry:\n{popped}")
+                        break
+
         elif key.split("_", maxsplit=1)[0] in ["task"]:
             if not rocotodict[key].get("command"):
                 popped = rocotodict.pop(key)
