@@ -263,7 +263,7 @@ if [ "${NEI2016}" = "TRUE" ]; then
   mkdir -p ${DATAinput}/NEI2016v1
   mkdir -p ${DATAinput}/NEI2016v1/v2022-07
   mkdir -p ${DATAinput}/NEI2016v1/v2022-07/${MM}
-  ${USHsrw}/nexus_utils/python/nexus_nei2016_linker.py --src_dir ${FIXemis} --date ${yyyymmdd} --work_dir ${DATAinput} -v "v2022-07"
+  ${USHsrw}/nexus_utils/python/nexus_nei2016_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2022-07"
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="FATAL ERROR Call to python script \"nexus_nei2016_linker.py\" failed."
@@ -283,7 +283,7 @@ elif [ "${NEI2019}" = "TRUE" ]; then
   mkdir -p ${DATAinput}/NEMO/NEI2019
   mkdir -p ${DATAinput}/NEMO/NEI2019/v2023-03
   mkdir -p ${DATAinput}/NEMO/NEI2019/v2023-03/${MM}
-  ${USHsrw}/nexus_utils/python/nexus_nei2019_linker.py --src_dir ${FIXemis} --date ${yyyymmdd} --work_dir ${DATAinput} -v "v2023-03"
+  ${USHsrw}/nexus_utils/python/nexus_nei2019_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2023-03"
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="FATAL ERROR Call to python script \"nexus_nei2019_linker.py\" failed."
@@ -302,7 +302,7 @@ elif [ "${NEI2019_GLOBTEMPO}" = "TRUE" ]; then
   mkdir -p ${DATAinput}/NEMO/NEI2019
   mkdir -p ${DATAinput}/NEMO/NEI2019/v2023-03
   mkdir -p ${DATAinput}/NEMO/NEI2019/v2023-03/${MM}
-  ${USHsrw}/nexus_utils/python/nexus_nei2019_linker.py --src_dir ${FIXemis} --date ${yyyymmdd} --work_dir ${DATAinput} -v "v2023-03"
+  ${USHsrw}/nexus_utils/python/nexus_nei2019_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2023-03"
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="FATAL ERROR Call to python script \"nexus_nei2019_linker.py\" failed."
@@ -320,7 +320,7 @@ else #Default to NEI2016
   mkdir -p ${DATAinput}/NEI2016v1
   mkdir -p ${DATAinput}/NEI2016v1/v2022-07
   mkdir -p ${DATAinput}/NEI2016v1/v2022-07/${MM}
-  ${USHsrw}/nexus_utils/python/nexus_nei2016_linker.py --src_dir ${FIXemis} --date ${yyyymmdd} --work_dir ${DATAinput} -v "v2022-07"
+  ${USHsrw}/nexus_utils/python/nexus_nei2016_linker.py --src_dir ${FIXemis} --date ${YYYYMMDD} --work_dir ${DATAinput} -v "v2022-07"
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="FATAL ERROR Call to python script \"nexus_nei2016_linker.py\" failed."
