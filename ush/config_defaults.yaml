@@ -2703,6 +2703,9 @@ cpl_aqm_parm:
   # NEXUS_GFS_SFC_ARCHV_DIR: 
   # Path to archive directory for gfs surface files on HPSS
   #
+  # FIXaqmcanopy:
+  # Path to the directory containing AQM canopy files
+  #
   #-----------------------------------------------------------------------
   #
   CPL_AQM: false
@@ -2745,6 +2748,8 @@ cpl_aqm_parm:
   NEXUS_GFS_SFC_OFFSET_HRS: 0
   NEXUS_GFS_SFC_DIR: ""
   NEXUS_GFS_SFC_ARCHV_DIR: "/NCEPPROD/hpssprod/runhistory"
+
+  FIXaqmcanopy: '{{ [user.FIXaqm, "canopy"]|path_join }}'
 
 #------------------------------
 # Smoke/Dust config parameters
