@@ -2749,7 +2749,7 @@ cpl_aqm_parm:
   NEXUS_GFS_SFC_DIR: ""
   NEXUS_GFS_SFC_ARCHV_DIR: "/NCEPPROD/hpssprod/runhistory"
 
-  FIXaqmcanopy: '{{ [user.FIXaqm, "canopy"]|path_join }}'
+  FIXaqmcanopy: '{{ [platform.FIXaqm, "canopy"]|path_join }}'
 
 #------------------------------
 # Smoke/Dust config parameters
