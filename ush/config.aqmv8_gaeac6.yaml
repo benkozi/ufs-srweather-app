@@ -48,6 +48,11 @@ task_get_extrn_lbcs:
   LBC_SPEC_INTVL_HRS: 6
   FV3GFS_FILE_FMT_LBCS: netcdf
   EXTRN_MDL_LBCS_OFFSET_HRS: 0
+#PPN_NEXUS_EMISSION is 96 by default and it is too many and will fail
+task_nexus_emission:
+  PPN_NEXUS_EMISSION: 20
+  NNODES_NEXUS_EMISSION: 4
+  OMP_NUM_THREADS_NEXUS_EMISSION: 2
 task_run_fcst:
   OMP_NUM_THREADS_RUN_FCST: 1
   DT_ATMOS: 180
@@ -87,5 +92,6 @@ cpl_aqm_parm:
   COMINgefs_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/GEFS_Aerosol
   AQM_GEFS_FILE_PREFIX: gfs
   AQM_GEFS_FILE_CYC: '00'
+  NEXUS_GFS_SFC_DIR: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/GFS_SFC_DATA
   NEXUS_GRID_FN: grid_spec_793.nc
   NUM_SPLIT_NEXUS: 3
