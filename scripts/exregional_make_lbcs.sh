@@ -183,8 +183,6 @@ varmap_file=""
 
 case "${CCPP_PHYS_SUITE}" in
 #
-  "FV3_GFS_2017_gfdlmp" | \
-  "FV3_GFS_2017_gfdlmp_regional" | \
   "FV3_GFS_v16" | \
   "FV3_GFS_v15p2" )
     varmap_file="GFSphys_var_map.txt"
@@ -196,7 +194,8 @@ case "${CCPP_PHYS_SUITE}" in
   "FV3_WoFS_v0" | \
   "FV3_HRRR" | \
   "FV3_HRRR_gf" | \
-  "FV3_RAP")
+  "FV3_RAP" | \
+  "RRFS_sas")
     if [ "${EXTRN_MDL_NAME_LBCS}" = "RAP" ] || \
        [ "${EXTRN_MDL_NAME_LBCS}" = "RRFS" ] || \
        [ "${EXTRN_MDL_NAME_LBCS}" = "HRRR" ]; then
