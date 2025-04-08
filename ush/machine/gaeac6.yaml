@@ -39,7 +39,8 @@ platform:
   FIXorg: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_orog
   FIXsfc: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/NaturalEarth
-  FIXaqm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_aqm
+#  FIXaqm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_aqm
+  FIXaqm: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/fix/fix_aqmv8
   FIXemis: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_emis
   FIXsmoke: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_smoke
   FIXupp: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_upp
