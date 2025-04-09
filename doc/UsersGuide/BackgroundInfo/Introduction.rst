@@ -154,7 +154,7 @@ A list of available component documentation is shown in :numref:`Table %s <list_
    * - CCPP Technical Documentation
      - https://ccpp-techdoc.readthedocs.io/en/latest/
    * - CCPP Scientific Documentation
-     - https://dtcenter.ucar.edu/GMTB/UFS_SRW_App_v2.2.0/sci_doc/index.html
+     - https://dtcenter.ucar.edu/GMTB/UFS_SRW_App_v3.0.0/sci_doc/index.html
    * - Stochastic Physics Documentation
      - https://stochastic-physics.readthedocs.io/en/release-public-v3/
    * - ESMF manual
@@ -172,8 +172,6 @@ A list of available component documentation is shown in :numref:`Table %s <list_
    * - HEMCO User's Guide (a component of the NEXUS AQM system)
      - https://hemco.readthedocs.io/en/3.6.2/
 
-.. COMMENT:
-   Add links for CCPP tech docs, CCPP scientific docs, and UFS_UTILS sci docs
 
 .. _user-support:
 
@@ -225,7 +223,7 @@ Users can expect to see incremental improvements and additional capabilities in 
 * Full integration of `Unified Workflow <https://github.com/ufs-community/uwtools>`_ tools.
 * A larger number of pre-defined domains/resolutions and a *fully supported* capability to create a user-defined domain.
 
-.. COMMENT: Anything else to add?
+
 
 
 .. bibliography:: ../../references.bib
