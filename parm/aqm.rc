@@ -309,27 +309,27 @@ fire_species::
     SO2     0.0080     CO          KG/M2/S
     NH3     0.0150     CO          KG/M2/S
     CO      1.0000     CO          KG/M2/S
-    ACET    0.0000     CO          KG/M2/S
-    ALD2    0.0000     CO          KG/M2/S
-    ALDX    0.0000     CO          KG/M2/S
-    BENZ    0.0000     CO          KG/M2/S
-    CH4     0.0000     CO          KG/M2/S
-    ETH     0.0000     CO          KG/M2/S
-    ETHA    0.0000     CO          KG/M2/S
-    ETHY    0.0000     CO          KG/M2/S
+    ACET    0.0011     CO          KG/M2/S
+    ALD2    0.0010     CO          KG/M2/S
+    ALDX    0.0030     CO          KG/M2/S
+    BENZ    0.0010     CO          KG/M2/S
+    CH4     0.0092     CO          KG/M2/S
+    ETH     0.0022     CO          KG/M2/S
+    ETHA    0.0011     CO          KG/M2/S
+    ETHY    0.0005     CO          KG/M2/S
     ETOH    0.0000     CO          KG/M2/S
-    FORM    0.0000     CO          KG/M2/S
-    IOLE    0.0000     CO          KG/M2/S
-    ISOP    0.0000     CO          KG/M2/S
-    KET     0.0000     CO          KG/M2/S
-    MEOH    0.0000     CO          KG/M2/S
-    OLE     0.0000     CO          KG/M2/S
-    PAR     0.0000     CO          KG/M2/S
-    PRPA    0.0000     CO          KG/M2/S
-    TERP    0.0000     CO          KG/M2/S
-    TOL     0.0000     CO          KG/M2/S
-    UNR     0.0000     CO          KG/M2/S
-    XYL     0.0000     CO          KG/M2/S
+    FORM    0.0043     CO          KG/M2/S
+    IOLE    0.0005     CO          KG/M2/S
+    ISOP    0.0002     CO          KG/M2/S
+    KET     0.0003     CO          KG/M2/S
+    MEOH    0.0039     CO          KG/M2/S
+    OLE     0.0034     CO          KG/M2/S
+    PAR     0.0075     CO          KG/M2/S
+    PRPA    0.0005     CO          KG/M2/S
+    TERP    0.0004     CO          KG/M2/S
+    TOL     0.0013     CO          KG/M2/S
+    UNR     0.0100     CO          KG/M2/S
+    XYL     0.0003     CO          KG/M2/S
     FRP     1000000    MeanFRP     1
 ::
 
