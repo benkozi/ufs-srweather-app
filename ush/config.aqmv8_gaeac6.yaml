@@ -86,7 +86,7 @@ cpl_aqm_parm:
   AQM_DUST_FILE_SUFFIX: .nc  
   AQM_CANOPY_FILE_PREFIX: gfs.t12z.geo
   AQM_CANOPY_FILE_SUFFIX: .canopy_regrid.nc
-  COMINfire_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RAVE_fire/RAVE_v2
+  COMINfire_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RAVE_fire
 #  AQM_FIRE_FILE_PREFIX: Hourly_Emissions_regrid_NA_13km
 #  AQM_FIRE_FILE_SUFFIX: _h72.nc
   AQM_RC_FIRE_FREQUENCY: hourly
