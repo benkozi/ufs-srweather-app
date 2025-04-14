@@ -228,6 +228,8 @@ if [ "${BUILD_CONDA}" = "on" ] ; then
   fi
 
   source ${CONDA_BUILD_DIR}/etc/profile.d/conda.sh
+  # Avoid potential conda path mangling
+  export PATH="${CONDA_BUILD_DIR}/bin:${PATH}"
   # Put some additional packages in the base environment on MacOS systems
   if [ "${os}" == "MacOSX" ] ; then
     mamba install -y bash coreutils sed
