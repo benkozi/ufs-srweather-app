@@ -11,8 +11,8 @@ workflow:
   EXPT_SUBDIR: aqmv8p1_testbed_AQMNA13km_warmstart
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v16
-  DATE_FIRST_CYCL: '2023080112'
-  DATE_LAST_CYCL: '2023080212'
+  DATE_FIRST_CYCL: '2023040212'
+  DATE_LAST_CYCL: '2023043012'
   INCR_CYCL_FREQ: 24
   FCST_LEN_HRS: 24
   PREEXISTING_DIR_METHOD: rename
@@ -23,7 +23,7 @@ workflow:
   FIELD_TABLE_TMPL_FN: field_table_aqm.FV3_GFS_v16
   DO_REAL_TIME: false
   COLDSTART: false      # set to true for cold start
-  WARMSTART_CYCLE_DIR: '/gpfs/f6/bil-fire3/world-shared/AQM_Testbed/'  # for gaeac6
+  WARMSTART_CYCLE_DIR: '/gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RESTART/AQMv7/aqm.v7.1.0a/20230402'  # for gaeac6
 #  WARMSTART_CYCLE_DIR: '/scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for hera
 #  WARMSTART_CYCLE_DIR: '/work/noaa/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for orion/hercules
 #  WARMSTART_CYCLE_DIR: '/glade/work/chanhooj/SRW-AQM_DATA/aqm_data/restart/2023111000' # for derecho

@@ -662,6 +662,7 @@ def setup_fv3_namelist(expt_config,debug):
         "bc_update_interval": LBC_SPEC_INTVL_HRS,
         "npz": LEVP - 1,
     })
+
     if CCPP_PHYS_SUITE == "FV3_GFS_v15p2":
         if CPL_AQM:
             fv_core_nml_dict.update({
@@ -734,7 +735,6 @@ def setup_fv3_namelist(expt_config,debug):
                   gfs_physics_nml_dict.update({
                   "do_canopy": True
                   })
-
     # If UFS_FIRE, activate appropriate flags
     if expt_config['fire'].get('UFS_FIRE'):
         gfs_physics_nml_dict.update({
