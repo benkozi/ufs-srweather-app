@@ -498,8 +498,8 @@
 "gfs_dyn",         "no2_ave",       "no2_ave",       "fv3_history",   "all",  .false.,  "none",  2
 "gfs_dyn",         "pm25_ave",      "pm25_ave",      "fv3_history",   "all",  .false.,  "none",  2
 #IVAI: dynamical tendencies
-#"gfs_dyn",  "dtend_temp_nophys", "dtend_temp_nophys", "fv3_history", "all", .false., "none", 2
-#"gfs_dyn",  "dtend_o3_nophys",   "dtend_o3_nophys",   "fv3_history", "all", .false., "none", 2
+"gfs_dyn",  "dtend_temp_nophys", "dtend_temp_nophys", "fv3_history", "all", .false., "none", 2
+"gfs_dyn",  "dtend_o3_nophys",   "dtend_o3_nophys",   "fv3_history", "all", .false., "none", 2
 #IVAI
 ###
 # aerosol diagnostics
