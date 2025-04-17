@@ -1026,119 +1026,6 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         if not isinstance(fcst_config["envvars"]["DT_ATMOS"], int):
             raise ValueError(msg.format(val="envvars.DT_ATMOS"))
 
-        #
-        # -----------------------------------------------------------------------
-        #
-        # Set magnitude of stochastic ad-hoc schemes to -999.0 if they are not
-        # being used. This is required at the moment, since "do_shum/sppt/skeb"
-        # does not override the use of the scheme unless the magnitude is also
-        # specifically set to -999.0.  If all "do_shum/sppt/skeb" are set to
-        # "false," then none will run, regardless of the magnitude values.
-        #
-        # -----------------------------------------------------------------------
-        #
-        if not global_sect.get("DO_SHUM"):
-            global_sect["SHUM_MAG"] = -999.0
-        if not global_sect.get("DO_SKEB"):
-            global_sect["SKEB_MAG"] = -999.0
-        if not global_sect.get("DO_SPPT"):
-            global_sect["SPPT_MAG"] = -999.0
-        #
-        # -----------------------------------------------------------------------
-        #
-        # If running with SPP in MYNN PBL, MYNN SFC, GSL GWD, Thompson MP, or
-        # RRTMG, count the number of entries in SPP_VAR_LIST to correctly set
-        # N_VAR_SPP, otherwise set it to zero.
-        #
-        # -----------------------------------------------------------------------
-        #
-        if global_sect["DO_SPP"]:
-            global_sect["N_VAR_SPP"] = len(global_sect["SPP_VAR_LIST"])
-        else:
-            global_sect["N_VAR_SPP"] = 0
-        #
-        # -----------------------------------------------------------------------
-        #
-        # If running with SPP, confirm that each SPP-related namelist value
-        # contains the same number of entries as N_VAR_SPP (set above to be equal
-        # to the number of entries in SPP_VAR_LIST).
-        #
-        # -----------------------------------------------------------------------
-        #
-        spp_vars = [
-            "SPP_MAG_LIST",
-            "SPP_LSCALE",
-            "SPP_TSCALE",
-            "SPP_SIGTOP1",
-            "SPP_SIGTOP2",
-            "SPP_STDDEV_CUTOFF",
-            "ISEED_SPP",
-        ]
-
-        if global_sect["DO_SPP"]:
-            for spp_var in spp_vars:
-                if len(global_sect[spp_var]) != global_sect["N_VAR_SPP"]:
-                    raise ValueError(
-                        f"""
-                        All MYNN PBL, MYNN SFC, GSL GWD, Thompson MP, or RRTMG SPP-related namelist
-                        variables must be of equal length to SPP_VAR_LIST:
-                          SPP_VAR_LIST (length {global_sect['N_VAR_SPP']})
-                          {spp_var} (length {len(global_sect[spp_var])})
-                        """
-                    )
-        #
-        # -----------------------------------------------------------------------
-        #
-        # If running with Noah or RUC-LSM SPP, count the number of entries in
-        # LSM_SPP_VAR_LIST to correctly set N_VAR_LNDP, otherwise set it to zero.
-        # Also set LNDP_TYPE to 2 for LSM SPP, otherwise set it to zero.  Finally,
-        # initialize an "FHCYC_LSM_SPP" variable to 0 and set it to 999 if LSM SPP
-        # is turned on.  This requirement is necessary since LSM SPP cannot run with
-        # FHCYC=0 at the moment, but FHCYC cannot be set to anything less than the
-        # length of the forecast either.  A bug fix will be submitted to
-        # ufs-weather-model soon, at which point, this requirement can be removed
-        # from regional_workflow.
-        #
-        # -----------------------------------------------------------------------
-        #
-        if global_sect["DO_LSM_SPP"]:
-            global_sect["N_VAR_LNDP"] = len(global_sect["LSM_SPP_VAR_LIST"])
-            global_sect["LNDP_TYPE"] = 2
-            global_sect["LNDP_MODEL_TYPE"] = 2
-            global_sect["FHCYC_LSM_SPP_OR_NOT"] = 999
-        else:
-            global_sect["N_VAR_LNDP"] = 0
-            global_sect["LNDP_TYPE"] = 0
-            global_sect["LNDP_MODEL_TYPE"] = 0
-            global_sect["FHCYC_LSM_SPP_OR_NOT"] = 0
-        #
-        # -----------------------------------------------------------------------
-        #
-        # If running with LSM SPP, confirm that each LSM SPP-related namelist
-        # value contains the same number of entries as N_VAR_LNDP (set above to
-        # be equal to the number of entries in LSM_SPP_VAR_LIST).
-        #
-        # -----------------------------------------------------------------------
-        #
-        lsm_spp_vars = [
-            "LSM_SPP_MAG_LIST",
-            "LSM_SPP_LSCALE",
-            "LSM_SPP_TSCALE",
-        ]
-        if global_sect["DO_LSM_SPP"]:
-            for lsm_spp_var in lsm_spp_vars:
-                if len(global_sect[lsm_spp_var]) != global_sect["N_VAR_LNDP"]:
-                    raise ValueError(
-                        f"""
-                        All MYNN PBL, MYNN SFC, GSL GWD, Thompson MP, or RRTMG SPP-related namelist
-                        variables must be of equal length to SPP_VAR_LIST:
-                        All Noah or RUC-LSM SPP-related namelist variables (except ISEED_LSM_SPP)
-                        must be equal of equal length to LSM_SPP_VAR_LIST:
-                          LSM_SPP_VAR_LIST (length {global_sect['N_VAR_LNDP']})
-                          {lsm_spp_var} (length {len(global_sect[lsm_spp_var])}
-                          """
-                    )
-
         # Check whether the forecast length (FCST_LEN_HRS) is evenly divisible
         # by the BC update interval (LBC_SPEC_INTVL_HRS). If so, generate an
         # array of forecast hours at which the boundary values will be updated.
@@ -1483,7 +1370,170 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
     # -----------------------------------------------------------------------
     #
 
-    ccpp_suite_xml = load_xml_file(workflow_config["CCPP_PHYS_SUITE_IN_CCPP_FP"])
+    if run_run_fcst:
+        ccpp_suite_xml = load_xml_file(workflow_config["CCPP_PHYS_SUITE_IN_CCPP_FP"])
+
+        # For SPP stochastic physics, perturbations can only be applied with the following CCPP schemes:
+        # MYNN PBL (pbl), MYNN SFC (sfc), Thompson MP (mp), RRTMG (rad), GSL GWD (gwd), and GF (cu_deep)
+        # Additionally, LSM perturbations can be applied with RUC LSM or Noah LSM
+        # Here we ensure that the specified schemes are available, and if not, warn/fail as appropriate
+        # This loop also serves to check for invalid values in SPP_VAR_LIST
+
+        spp_arrays = [
+            "SPP_MAG_LIST",
+            "SPP_LSCALE",
+            "SPP_TSCALE",
+            "SPP_SIGTOP1",
+            "SPP_SIGTOP2",
+            "SPP_STDDEV_CUTOFF",
+            "ISEED_SPP",
+        ]
+
+        if global_sect.get("DO_SPP"):
+            spp_valid_dict = {
+                             'pbl': ['mynnedmf_wrapper'],
+                             'sfc': ['mynnsfc_wrapper'],
+                             'mp':  ['mp_thompson'],
+                             'rad': ['rrtmg_sw', 'rrtmg_lw'],
+                             'gwd': ['drag_suite'],
+                             'cu_deep': ['cu_gf_driver'],
+                             }
+            for spp_var in global_sect["SPP_VAR_LIST"]:
+                if spp_var not in spp_valid_dict:
+                    msg = "Invalid SPP variable specified: {spp_var}\n"
+                    msg += "Valid variables are: {spp_valid_dict.keys()}"
+                    raise ValueError(msg)
+
+            for key, value in spp_valid_dict.items():
+                if key in global_sect["SPP_VAR_LIST"]:
+                    if all(not has_tag_with_value(ccpp_suite_xml, "scheme", x) for x in value):
+                        logger.warning(f"Selected CCPP suite ({ccpp_physics_suite})")
+                        logger.warning(f"Does not have required scheme(s) {value}")
+                        logger.warning(f"for {key} in SPP_VAR_LIST; removing {key}")
+                        logger.warning(f"And associated scaling factors")
+                        index = global_sect["SPP_VAR_LIST"].index(key)
+                        global_sect["SPP_VAR_LIST"].pop(index)
+                        logging.debug("New scaling factor arrays:")
+                        for array in spp_arrays:
+                            global_sect[array].pop(index)
+                            logging.debug(f"{array}={global_sect[array]}")
+
+            if len(global_sect["SPP_VAR_LIST"]) == 0:
+                msg = "SPP_VAR_LIST is empty and DO_SPP = True\n"
+                msg += "Check your settings of CCPP_PHYS_SUITE and SPP_VAR_LIST"
+                raise ValueError(msg)
+
+        if global_sect.get("DO_LSM_SPP"):
+            lsm_spp_valid = ["lsm_ruc", "lsm_noah"]
+            if all(not has_tag_with_value(ccpp_suite_xml, "scheme", x) for x in lsm_spp_valid):
+                msg = f"Selected CCPP suite ({workflow_config['CCPP_PHYS_SUITE']})\n"
+                msg += "Does not have a supported surface scheme\n"
+                msg += f"Valid surface schemes are: {lsm_spp_valid}"
+                raise ValueError(msg)
+
+        # Confirm that each SPP-related namelist value contains the same number of entries as
+        # N_VAR_SPP (set above to be equal to the number of entries in SPP_VAR_LIST).
+
+        if global_sect["DO_SPP"]:
+            for spp_var in spp_arrays:
+                if len(global_sect[spp_var]) != global_sect["N_VAR_SPP"]:
+                    raise ValueError(
+                        f"""
+                        All MYNN PBL, MYNN SFC, GSL GWD, Thompson MP, or RRTMG SPP-related namelist
+                        variables must be of equal length to SPP_VAR_LIST:
+                          SPP_VAR_LIST (length {global_sect['N_VAR_SPP']})
+                          {spp_var} (length {len(global_sect[spp_var])})
+                        """
+                    )
+
+        # If running with Noah or RUC-LSM SPP, count the number of entries in
+        # LSM_SPP_VAR_LIST to correctly set N_VAR_LNDP, otherwise set it to zero.
+        # Also set LNDP_TYPE to 2 for LSM SPP, otherwise set it to zero.  Finally,
+        # initialize an "FHCYC_LSM_SPP" variable to 0 and set it to 999 if LSM SPP
+        # is turned on.  This requirement is necessary since LSM SPP cannot run with
+        # FHCYC=0 at the moment, but FHCYC cannot be set to anything less than the
+        # length of the forecast either.  A bug fix will be submitted to
+        # ufs-weather-model soon, at which point, this requirement can be removed
+        # from regional_workflow.
+        #
+        # -----------------------------------------------------------------------
+        #
+        if global_sect["DO_LSM_SPP"]:
+            global_sect["N_VAR_LNDP"] = len(global_sect["LSM_SPP_VAR_LIST"])
+            global_sect["LNDP_TYPE"] = 2
+            global_sect["LNDP_MODEL_TYPE"] = 2
+            global_sect["FHCYC_LSM_SPP_OR_NOT"] = 999
+        else:
+            global_sect["N_VAR_LNDP"] = 0
+            global_sect["LNDP_TYPE"] = 0
+            global_sect["LNDP_MODEL_TYPE"] = 0
+            global_sect["FHCYC_LSM_SPP_OR_NOT"] = 0
+
+        #
+        # -----------------------------------------------------------------------
+        #
+        # If running with LSM SPP, confirm that each LSM SPP-related namelist
+        # value contains the same number of entries as N_VAR_LNDP (set above to
+        # be equal to the number of entries in LSM_SPP_VAR_LIST).
+        #
+        # -----------------------------------------------------------------------
+        #
+        lsm_spp_arrays = [
+            "LSM_SPP_MAG_LIST",
+            "LSM_SPP_LSCALE",
+            "LSM_SPP_TSCALE",
+        ]
+        if global_sect["DO_LSM_SPP"]:
+            for lsm_spp_var in lsm_spp_arrays:
+                if len(global_sect[lsm_spp_var]) != global_sect["N_VAR_LNDP"]:
+                    raise ValueError(
+                        f"""
+                        All MYNN PBL, MYNN SFC, GSL GWD, Thompson MP, or RRTMG SPP-related namelist
+                        variables must be of equal length to SPP_VAR_LIST:
+                        All Noah or RUC-LSM SPP-related namelist variables (except ISEED_LSM_SPP)
+                        must be equal of equal length to LSM_SPP_VAR_LIST:
+                          LSM_SPP_VAR_LIST (length {global_sect['N_VAR_LNDP']})
+                          {lsm_spp_var} (length {len(global_sect[lsm_spp_var])}
+                          """
+                    )
+
+
+
+
+
+
+
+
+        #
+        # -----------------------------------------------------------------------
+        #
+        # Set magnitude of stochastic ad-hoc schemes to -999.0 if they are not
+        # being used. This is required at the moment, since "do_shum/sppt/skeb"
+        # does not override the use of the scheme unless the magnitude is also
+        # specifically set to -999.0.  If all "do_shum/sppt/skeb" are set to
+        # "false," then none will run, regardless of the magnitude values.
+        #
+        # -----------------------------------------------------------------------
+        #
+        if not global_sect.get("DO_SHUM"):
+            global_sect["SHUM_MAG"] = -999.0
+        if not global_sect.get("DO_SKEB"):
+            global_sect["SKEB_MAG"] = -999.0
+        if not global_sect.get("DO_SPPT"):
+            global_sect["SPPT_MAG"] = -999.0
+        #
+        # -----------------------------------------------------------------------
+        #
+        # If running with SPP in MYNN PBL, MYNN SFC, GSL GWD, Thompson MP, or
+        # RRTMG, count the number of entries in SPP_VAR_LIST to correctly set
+        # N_VAR_SPP, otherwise set it to zero.
+        #
+        # -----------------------------------------------------------------------
+        #
+        if global_sect["DO_SPP"]:
+            global_sect["N_VAR_SPP"] = len(global_sect["SPP_VAR_LIST"])
+        else:
+            global_sect["N_VAR_SPP"] = 0
 
     # Need to track if we are using RUC LSM for the make_ics step
     workflow_config["SDF_USES_RUC_LSM"] = has_tag_with_value(
