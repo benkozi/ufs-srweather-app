@@ -789,6 +789,7 @@ for the current cycle's (cdate) run directory (DATA) failed:
     print_err_msg_exit "${message_txt}"
   fi
 fi
+ln -s /home/Benjamin.Koziol/l/sandbox/srw/benkozi/develop/expt_dirs/aqm_AQMNA13km_warmstart/grid/C793_grid.tile7.halo0.nc /home/Benjamin.Koziol/l/sandbox/srw/benkozi/develop/expt_dirs/aqm_AQMNA13km_warmstart/2023111000/INPUT/grid.tile7.halo0.nc
 #
 #-----------------------------------------------------------------------
 #
