@@ -43,7 +43,6 @@ platform:
   FIXemis: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_emis
   # Uncomment these paths (and comment the corresponding above) when working with an AQMv8-enabled UFS-WM
 #  FIXaqm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/SRW-AQM-v8/fix/fix_aqm
-#  FIXemis: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/SRW-AQM-v8/fix/fix_emis
   FIXsmoke: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_smoke
   FIXupp: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_upp
   FIXcrtm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_crtm
