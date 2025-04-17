@@ -497,6 +497,8 @@ make_grid_mosaic_file \
   print_err_msg_exit "\
 Call to function to generate the mosaic file for a grid with a ${NHW}-cell-wide
 halo failed."
+print_info_msg "Linking to support native history file writing"
+ln -s "${CRES}${DOT_OR_USCORE}grid.tile${TILE_RGNL}.halo${NHW}.nc" "grid.tile${TILE_RGNL}.halo${NHW}.nc"
 #
 #-----------------------------------------------------------------------
 #
