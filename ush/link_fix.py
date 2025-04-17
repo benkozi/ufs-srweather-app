@@ -199,6 +199,7 @@ def link_fix(
             f"C*{dot_or_uscore}grid.tile{tile_rgnl}.halo{nhw}.nc",
             f"C*{dot_or_uscore}grid.tile{tile_rgnl}.halo{nh3}.nc",
             f"C*{dot_or_uscore}grid.tile{tile_rgnl}.halo{nh4}.nc",
+            f"C*{dot_or_uscore}grid.tile{tile_rgnl}.halo0.nc",
         ]
 
     elif file_group == "orog":
