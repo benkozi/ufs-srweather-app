@@ -1829,7 +1829,8 @@ task_run_fcst:
   #
   # HISTORY_NATIVE_GRID:
   # If true, write history files on the native FV3 cubed sphere grid. Note,
-  # ths will override the output grid to cubed_sphere_grid when true.
+  # this will override the output grid to cubed_sphere_grid when true which
+  # may break post-processing tasks.
   #-----------------------------------------------------------------------
   #
   QUILTING: true

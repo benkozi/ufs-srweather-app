@@ -1173,7 +1173,10 @@ Write-Component (Quilting) Parameters
    Grid cell size (in meters) along the x-axis of the Lambert conformal projection.
 
 ``WRTCMP_dy``: (Default: "")
-   Grid cell size (in meters) along the y-axis of the Lambert conformal projection. 
+   Grid cell size (in meters) along the y-axis of the Lambert conformal projection.
+
+``HISTORY_NATIVE_GRID``: (Default: ``false``)
+If ``true``, write history files on the native FV3 cubed sphere grid. Note, this will override the output grid to ``cubed_sphere_grid`` when ``true`` which may break post-processing tasks.
 
 Aerosol Climatology Parameter
 ---------------------------------
