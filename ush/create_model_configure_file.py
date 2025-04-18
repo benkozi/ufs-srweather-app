@@ -7,8 +7,6 @@ import os
 import sys
 from textwrap import dedent
 
-from setuptools.tests.config.downloads import output_file
-
 from python_utils import (
     cfg_to_yaml_str,
     flatten_dict,
