@@ -305,11 +305,10 @@ def _parse_args(argv):
     )
 
     parser.add_argument(
-        "-s",
         "--history-native-grid",
         dest="history_native_grid",
         required=True,
-        help="Enable writing history files on native FV3 cubed sphere grid with a TRUE/FALSE "
+        help="Enable writing history files on native FV3 cubed sphere grid with a true/false "
              "string.",
     )
 
