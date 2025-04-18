@@ -7,6 +7,8 @@ import os
 import sys
 from textwrap import dedent
 
+from setuptools.tests.config.downloads import output_file
+
 from python_utils import (
     cfg_to_yaml_str,
     flatten_dict,
@@ -22,7 +24,8 @@ from uwtools.api.template import render
 
 
 def create_model_configure_file(
-    cdate, fcst_len_hrs, fhrot, run_dir, sub_hourly_post, dt_subhourly_post_mnts, dt_atmos
+    cdate, fcst_len_hrs, fhrot, run_dir, sub_hourly_post, dt_subhourly_post_mnts, dt_atmos,
+    history_native_grid
     ): #pylint: disable=too-many-arguments
     """Creates a model configuration file in the specified run directory
 
@@ -35,6 +38,8 @@ def create_model_configure_file(
         dt_subhourly_post_mnts (int): Subhourly forecast model output and post-processing 
                                       frequency in minutes
         dt_atmos (int): Atmospheric forecast model's main timestep in seconds
+        history_native_grid (bool): If ``True``, write history files on the native FV3 cubed sphere
+                                    grid.
 
     Returns:
         True
@@ -70,6 +75,14 @@ def create_model_configure_file(
     #
     # -----------------------------------------------------------------------
     #
+
+    if history_native_grid:
+        output_grid = "cubed_sphere_grid"
+        print_info_msg(f"output_grid set to cubed_sphere_grid when writing history files on native "
+                       f"grid.")
+    else:
+        output_grid = WRTCMP_output_grid
+
     settings = {
         "start_year": cdate.year,
         "start_month": cdate.month,
@@ -82,7 +95,8 @@ def create_model_configure_file(
         "itasks": ITASKS,
         "write_dopost": f".{lowercase(str(WRITE_DOPOST))}.",
         "quilting": f".{lowercase(str(QUILTING))}.",
-        "output_grid": WRTCMP_output_grid,
+        "output_grid": output_grid,
+        "history_file_on_native_grid": ".true." if history_native_grid else ".false.",
     }
     #
     # If the write-component is to be used, then specify a set of computational
@@ -101,7 +115,7 @@ def create_model_configure_file(
             }
         )
 
-        if WRTCMP_output_grid == "lambert_conformal":
+        if output_grid == "lambert_conformal":
             settings.update(
                 {
                     "stdlat1": WRTCMP_stdlat1,
@@ -117,7 +131,7 @@ def create_model_configure_file(
                 }
             )
         elif (
-            WRTCMP_output_grid in ("regional_latlon", "rotated_latlon")
+            output_grid in ("regional_latlon", "rotated_latlon")
         ):
             settings.update(
                 {
@@ -290,6 +304,15 @@ def _parse_args(argv):
         help="Path to var_defns file.",
     )
 
+    parser.add_argument(
+        "-s",
+        "--history-native-grid",
+        dest="history_native_grid",
+        required=True,
+        help="Enable writing history files on native FV3 cubed sphere grid with a TRUE/FALSE "
+             "string.",
+    )
+
     return parser.parse_args(argv)
 
 
@@ -306,4 +329,5 @@ if __name__ == "__main__":
         sub_hourly_post=str_to_type(args.sub_hourly_post),
         dt_subhourly_post_mnts=str_to_type(args.dt_subhourly_post_mnts),
         dt_atmos=str_to_type(args.dt_atmos),
+        history_native_grid=str_to_type(args.history_native_grid),
     )
