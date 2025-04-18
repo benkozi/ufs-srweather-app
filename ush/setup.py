@@ -128,12 +128,6 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
     homedir = Path(__file__).parent.parent.resolve()
     default_config["user"]["HOMEdir"] = str(homedir)
 
-    # Special logic if EXPT_BASEDIR is a relative path; see config_defaults.yaml for explanation
-    expt_basedir = default_config["workflow"]["EXPT_BASEDIR"]
-    if (not expt_basedir) or (expt_basedir[0] != "/"):
-        expt_basedir = homedir.parent / "expt_dirs" / expt_basedir
-    default_config["workflow"]["EXPT_BASEDIR"] = str(Path(expt_basedir).resolve())
-
     # Expand out the workflow tasks now that all settings have been applied
     taskgroups = default_config["workflow"]["taskgroups"]
     default_config["rocoto"]["tasks"] = {}
@@ -145,6 +139,12 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
     # Update one more time in case there are user or machine settings to override the tasks
     for cfg in (machine_config, user_config):
         default_config.update_from(cfg)
+
+    # Special logic if EXPT_BASEDIR is a relative path; see config_defaults.yaml for explanation
+    expt_basedir = default_config["workflow"]["EXPT_BASEDIR"]
+    if (not expt_basedir) or (expt_basedir[0] != "/"):
+        expt_basedir = homedir.parent / "expt_dirs" / expt_basedir
+    default_config["workflow"]["EXPT_BASEDIR"] = str(Path(expt_basedir).resolve())
 
     # Dereference all Jinja expressions
     default_config.dereference(
@@ -1431,21 +1431,6 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                 msg += f"Valid surface schemes are: {lsm_spp_valid}"
                 raise ValueError(msg)
 
-        # Confirm that each SPP-related namelist value contains the same number of entries as
-        # N_VAR_SPP (set above to be equal to the number of entries in SPP_VAR_LIST).
-
-        if global_sect["DO_SPP"]:
-            for spp_var in spp_arrays:
-                if len(global_sect[spp_var]) != global_sect["N_VAR_SPP"]:
-                    raise ValueError(
-                        f"""
-                        All MYNN PBL, MYNN SFC, GSL GWD, Thompson MP, or RRTMG SPP-related namelist
-                        variables must be of equal length to SPP_VAR_LIST:
-                          SPP_VAR_LIST (length {global_sect['N_VAR_SPP']})
-                          {spp_var} (length {len(global_sect[spp_var])})
-                        """
-                    )
-
         # If running with Noah or RUC-LSM SPP, count the number of entries in
         # LSM_SPP_VAR_LIST to correctly set N_VAR_LNDP, otherwise set it to zero.
         # Also set LNDP_TYPE to 2 for LSM SPP, otherwise set it to zero.  Finally,
@@ -1534,6 +1519,21 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
             global_sect["N_VAR_SPP"] = len(global_sect["SPP_VAR_LIST"])
         else:
             global_sect["N_VAR_SPP"] = 0
+
+        # Confirm that each SPP-related namelist value contains the same number of entries as
+        # N_VAR_SPP (set above to be equal to the number of entries in SPP_VAR_LIST).
+
+        if global_sect["DO_SPP"]:
+            for spp_var in spp_arrays:
+                if len(global_sect[spp_var]) != global_sect["N_VAR_SPP"]:
+                    raise ValueError(
+                        f"""
+                        All MYNN PBL, MYNN SFC, GSL GWD, Thompson MP, or RRTMG SPP-related namelist
+                        variables must be of equal length to SPP_VAR_LIST:
+                          SPP_VAR_LIST (length {global_sect['N_VAR_SPP']})
+                          {spp_var} (length {len(global_sect[spp_var])})
+                        """
+                    )
 
     # Need to track if we are using RUC LSM for the make_ics step
     workflow_config["SDF_USES_RUC_LSM"] = has_tag_with_value(

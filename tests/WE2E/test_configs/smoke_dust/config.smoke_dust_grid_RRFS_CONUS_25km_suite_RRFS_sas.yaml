@@ -13,33 +13,38 @@ workflow:
   DO_REAL_TIME: false
   COLDSTART: true
   PREEXISTING_DIR_METHOD: rename
+  taskgroups:
+    - parm/wflow/prep.yaml
+    - parm/wflow/smoke_dust.yaml
+    - parm/wflow/coldstart.yaml
+    - parm/wflow/post.yaml
 nco:
   envir_default: we2e_smoke_dust
   NET_default: smoke_dust
   RUN_default: smoke_dust
-rocoto:
-  tasks:
-    taskgroups: '{{ ["parm/wflow/prep.yaml", "parm/wflow/smoke_dust.yaml", "parm/wflow/coldstart.yaml", "parm/wflow/post.yaml"]|include }}'
-    metatask_run_ensemble:
-      task_run_fcst_mem#mem#:
-        walltime: 02:00:00
 task_get_extrn_ics:
-  EXTRN_MDL_NAME_ICS: RAP
-  EXTRN_MDL_ICS_OFFSET_HRS: 0
-  USE_USER_STAGED_EXTRN_FILES: true
+  envvars:
+    EXTRN_MDL_NAME_ICS: RAP
+    EXTRN_MDL_ICS_OFFSET_HRS: 0
+    USE_USER_STAGED_EXTRN_FILES: true
 task_get_extrn_lbcs:
-  EXTRN_MDL_NAME_LBCS: RAP
-  LBC_SPEC_INTVL_HRS: 6
-  EXTRN_MDL_LBCS_OFFSET_HRS: 0
-  USE_USER_STAGED_EXTRN_FILES: true
+  envvars:
+    EXTRN_MDL_NAME_LBCS: RAP
+    LBC_SPEC_INTVL_HRS: 6
+    EXTRN_MDL_LBCS_OFFSET_HRS: 0
+    USE_USER_STAGED_EXTRN_FILES: true
 task_run_fcst:
-  RESTART_INTERVAL: 6 12 18 24
-  QUILTING: true
-  PRINT_ESMF: false
-  DO_FCST_RESTART: false
+  envvars:
+    RESTART_INTERVAL: 6 12 18 24
+    PRINT_ESMF: false
+  fv3:
+    execution:
+      batchargs:
+        walltime: 02:00:00
 task_run_post:
-  POST_OUTPUT_DOMAIN_NAME: conus25km
-  USE_CUSTOM_POST_CONFIG_FILE: false
+  envvars:
+    POST_OUTPUT_DOMAIN_NAME: conus25km
+    USE_CUSTOM_POST_CONFIG_FILE: false
 global:
   DO_ENSEMBLE: false
   NUM_ENS_MEMBERS: 2
