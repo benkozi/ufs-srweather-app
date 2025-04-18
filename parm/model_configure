@@ -22,7 +22,7 @@ ichunk3d:                -1
 jchunk3d:                -1
 kchunk3d:                -1
 itasks:                  {{ itasks }}
-history_file_on_native_grid: .true.
+history_file_on_native_grid: {{ history_native_grid }}
 quilting:                {{ quilting }}
 {% if quilting  %}
 #
@@ -44,7 +44,7 @@ nsout:      {{ nsout }}
 #
 # Coordinate system used by the output grid.
 #
-output_grid:  'cubed_sphere_grid'
+output_grid:  '{{ output_grid }}'
 #
 # Parameter definitions for an output grid of type "{{ output_grid }}":
 #

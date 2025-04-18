@@ -1672,6 +1672,10 @@ task_run_fcst:
   # DO_FCST_RESTART:
   # Flag to turn on/off restart capability of forecast task
   #
+  # HISTORY_NATIVE_GRID:
+  # If true, write history files on the native FV3 cubed sphere grid. Note,
+  # this will override the output grid to cubed_sphere_grid when true which
+  # may break post-processing tasks.
   #-----------------------------------------------------------------------
   #
   envvars:
@@ -1687,6 +1691,7 @@ task_run_fcst:
     DO_FCST_RESTART: false
     USE_MERRA_CLIMO: '{{ workflow.CCPP_PHYS_SUITE in ["FV3_GFS_v15_thompson_mynn_lam3km", "FV3_HRRR_gf", "FV3_GFS_v17_p8", "RRFS_sas"] }}'
     IO_LAYOUT_Y: '{{ task_run_fcst.IO_LAYOUT_Y }}'
+    HISTORY_NATIVE_GRID: false
 
   ITASKS: 1
   #
@@ -1825,7 +1830,7 @@ task_run_fcst:
   #
   # WRTCMP_dy:
   # Grid cell size (in meters) along the y-axis of the Lambert conformal 
-  # projection. 
+  # projection.
   #
   #-----------------------------------------------------------------------
   #
