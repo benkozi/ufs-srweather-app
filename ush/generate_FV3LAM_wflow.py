@@ -327,7 +327,6 @@ def generate_FV3LAM_wflow(
             "n_var_spp": N_VAR_SPP,
             "n_var_lndp": N_VAR_LNDP,
             "lndp_type": LNDP_TYPE,
-            "fhcyc": FHCYC_LSM_SPP_OR_NOT,
         }
         nam_stochy_dict = {}
         if DO_SPPT:

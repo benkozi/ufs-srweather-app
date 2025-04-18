@@ -1433,13 +1433,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
 
         # If running with Noah or RUC-LSM SPP, count the number of entries in
         # LSM_SPP_VAR_LIST to correctly set N_VAR_LNDP, otherwise set it to zero.
-        # Also set LNDP_TYPE to 2 for LSM SPP, otherwise set it to zero.  Finally,
-        # initialize an "FHCYC_LSM_SPP" variable to 0 and set it to 999 if LSM SPP
-        # is turned on.  This requirement is necessary since LSM SPP cannot run with
-        # FHCYC=0 at the moment, but FHCYC cannot be set to anything less than the
-        # length of the forecast either.  A bug fix will be submitted to
-        # ufs-weather-model soon, at which point, this requirement can be removed
-        # from regional_workflow.
+        # Also set LNDP_TYPE to 2 for LSM SPP, otherwise set it to zero.
         #
         # -----------------------------------------------------------------------
         #
@@ -1447,12 +1441,10 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
             global_sect["N_VAR_LNDP"] = len(global_sect["LSM_SPP_VAR_LIST"])
             global_sect["LNDP_TYPE"] = 2
             global_sect["LNDP_MODEL_TYPE"] = 2
-            global_sect["FHCYC_LSM_SPP_OR_NOT"] = 999
         else:
             global_sect["N_VAR_LNDP"] = 0
             global_sect["LNDP_TYPE"] = 0
             global_sect["LNDP_MODEL_TYPE"] = 0
-            global_sect["FHCYC_LSM_SPP_OR_NOT"] = 0
 
         #
         # -----------------------------------------------------------------------
@@ -1535,126 +1527,126 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                         """
                     )
 
-    # Need to track if we are using RUC LSM for the make_ics step
-    workflow_config["SDF_USES_RUC_LSM"] = has_tag_with_value(
-        ccpp_suite_xml, "scheme", "lsm_ruc"
-    )
-
-    # Thompson microphysics needs additional input files and namelist settings
-    workflow_config["SDF_USES_THOMPSON_MP"] = has_tag_with_value(
-        ccpp_suite_xml, "scheme", "mp_thompson"
-    )
-
-    if workflow_config["SDF_USES_THOMPSON_MP"]:
-
-        logger.debug(f"Selected CCPP suite ({ccpp_physics_suite}) uses Thompson MP")
-        logger.debug("Setting up links for additional fix files")
-
-        # If the model ICs or BCs are not from RAP or HRRR, they will not contain aerosol
-        # climatology data needed by the Thompson scheme, so we need to provide a separate file
-        if get_extrn_ics["EXTRN_MDL_NAME_ICS"] not in [
-            "HRRR",
-            "RRFS",
-            "RAP",
-        ] or get_extrn_lbcs["EXTRN_MDL_NAME_LBCS"] not in ["HRRR", "RRFS", "RAP"]:
-            fixed_files["THOMPSON_FIX_FILES"].append(
-                workflow_config["THOMPSON_MP_CLIMO_FN"]
-            )
-
-        # Add thompson-specific fix files to CYCLEDIR_LINKS_TO_FIXam_FILES_MAPPING and
-        # FIXgsm_FILES_TO_COPY_TO_FIXam; see
-        # parm/fixed_files_mapping.yaml for more info on these variables
-
-        fixed_files["FIXgsm_FILES_TO_COPY_TO_FIXam"].extend(
-            fixed_files["THOMPSON_FIX_FILES"]
+        # Need to track if we are using RUC LSM for the make_ics step
+        workflow_config["SDF_USES_RUC_LSM"] = has_tag_with_value(
+            ccpp_suite_xml, "scheme", "lsm_ruc"
         )
-
-        for fix_file in fixed_files["THOMPSON_FIX_FILES"]:
-            fixed_files["CYCLEDIR_LINKS_TO_FIXam_FILES_MAPPING"].append(
-                f"{fix_file} | {fix_file}"
-            )
-
-        logger.debug(
-            f'New fix file list:\n{fixed_files["FIXgsm_FILES_TO_COPY_TO_FIXam"]=}'
+    
+        # Thompson microphysics needs additional input files and namelist settings
+        workflow_config["SDF_USES_THOMPSON_MP"] = has_tag_with_value(
+            ccpp_suite_xml, "scheme", "mp_thompson"
         )
-        logger.debug(
-            f'New fix file mapping:\n{fixed_files["CYCLEDIR_LINKS_TO_FIXam_FILES_MAPPING"]=}'
-        )
-
-    # -----------------------------------------------------------------------
-    #
-    # Check that UFS FIRE settings are correct and consistent
-    #
-    # -----------------------------------------------------------------------
-    fire_conf = expt_config["fire"]
-    fire_conf_vars = fire_conf["envvars"]
-    if fire_conf_vars["UFS_FIRE"]:
-        if build_config["Application"] != "ATMF":
-            raise ValueError(
-                ("UFS_FIRE == True but UFS SRW has not been built for fire coupling;",
-                "see users guide for details")
-            )
-        fire_input_file = Path(fire_conf_vars["FIRE_INPUT_DIR"], "geo_em.d01.nc")
-        if not Path(fire_input_file).is_file():
-            raise FileNotFoundError(
-                dedent(
-                    f"""
-                The fire input file (geo_em.d01.nc) does not exist in the specified directory:
-                {fire_conf["FIRE_INPUT_DIR"]}
-                Check that the specified path is correct, and that the file exists and is readable
-                """
+    
+        if workflow_config["SDF_USES_THOMPSON_MP"]:
+    
+            logger.debug(f"Selected CCPP suite ({ccpp_physics_suite}) uses Thompson MP")
+            logger.debug("Setting up links for additional fix files")
+    
+            # If the model ICs or BCs are not from RAP or HRRR, they will not contain aerosol
+            # climatology data needed by the Thompson scheme, so we need to provide a separate file
+            if get_extrn_ics["EXTRN_MDL_NAME_ICS"] not in [
+                "HRRR",
+                "RRFS",
+                "RAP",
+            ] or get_extrn_lbcs["EXTRN_MDL_NAME_LBCS"] not in ["HRRR", "RRFS", "RAP"]:
+                fixed_files["THOMPSON_FIX_FILES"].append(
+                    workflow_config["THOMPSON_MP_CLIMO_FN"]
                 )
+    
+            # Add thompson-specific fix files to CYCLEDIR_LINKS_TO_FIXam_FILES_MAPPING and
+            # FIXgsm_FILES_TO_COPY_TO_FIXam; see
+            # parm/fixed_files_mapping.yaml for more info on these variables
+    
+            fixed_files["FIXgsm_FILES_TO_COPY_TO_FIXam"].extend(
+                fixed_files["THOMPSON_FIX_FILES"]
             )
-        # CCPP suite must have these schemes to work correctly with fire capability
-        if not ( has_tag_with_value(ccpp_suite_xml, "scheme", "rrfs_smoke_wrapper") and
-                 has_tag_with_value(ccpp_suite_xml, "scheme", "GFS_surface_composites_post") ):
-            raise ValueError(dedent(
-                  """
-                  UFS_FIRE can only work with smoke-enabled CCPP suites, including
-                  FV3_HRRR, FV3_HRRR_gf, and RRFS_sas""" ))
-        if fire_conf["FIRE_NUM_TASKS"] < 1:
-            raise ValueError("FIRE_NUM_TASKS must be > 0 if UFS_FIRE is True")
-        if fire_conf["FIRE_NUM_TASKS"] > 1:
-            raise ValueError("FIRE_NUM_TASKS > 1 not yet supported")
+    
+            for fix_file in fixed_files["THOMPSON_FIX_FILES"]:
+                fixed_files["CYCLEDIR_LINKS_TO_FIXam_FILES_MAPPING"].append(
+                    f"{fix_file} | {fix_file}"
+                )
+    
+            logger.debug(
+                f'New fix file list:\n{fixed_files["FIXgsm_FILES_TO_COPY_TO_FIXam"]=}'
+            )
+            logger.debug(
+                f'New fix file mapping:\n{fixed_files["CYCLEDIR_LINKS_TO_FIXam_FILES_MAPPING"]=}'
+            )
 
-        if fire_conf["FIRE_NUM_IGNITIONS"] > 5:
-            raise ValueError("Only 5 or fewer fire ignitions supported")
-
-        if fire_conf["FIRE_NUM_IGNITIONS"] > 1:
-            # These settings all need to be lists for multiple fire ignitions
-            each_fire = [
-                "FIRE_IGNITION_ROS",
-                "FIRE_IGNITION_START_LAT",
-                "FIRE_IGNITION_START_LON",
-                "FIRE_IGNITION_END_LAT",
-                "FIRE_IGNITION_END_LON",
-                "FIRE_IGNITION_RADIUS",
-                "FIRE_IGNITION_START_TIME",
-                "FIRE_IGNITION_END_TIME",
-            ]
-            for setting in each_fire:
-                if not isinstance(fire_conf[setting], list):
-                    logger.critical(f"{fire_conf['FIRE_NUM_IGNITIONS']=}")
-                    logger.critical(f"{fire_conf[setting]=}")
-                    raise ValueError(
-                        f"For FIRE_NUM_IGNITIONS > 1, {setting} must be a list of the same length"
+        # -----------------------------------------------------------------------
+        #
+        # Check that UFS FIRE settings are correct and consistent
+        #
+        # -----------------------------------------------------------------------
+        fire_conf = expt_config["fire"]
+        fire_conf_vars = fire_conf["envvars"]
+        if fire_conf_vars["UFS_FIRE"]:
+            if build_config["Application"] != "ATMF":
+                raise ValueError(
+                    ("UFS_FIRE == True but UFS SRW has not been built for fire coupling;",
+                    "see users guide for details")
+                )
+            fire_input_file = Path(fire_conf_vars["FIRE_INPUT_DIR"], "geo_em.d01.nc")
+            if not Path(fire_input_file).is_file():
+                raise FileNotFoundError(
+                    dedent(
+                        f"""
+                    The fire input file (geo_em.d01.nc) does not exist in the specified directory:
+                    {fire_conf["FIRE_INPUT_DIR"]}
+                    Check that the specified path is correct, and that the file exists and is readable
+                    """
                     )
-                if len(fire_conf[setting]) != fire_conf["FIRE_NUM_IGNITIONS"]:
-                    logger.critical(f"{fire_conf['FIRE_NUM_IGNITIONS']=}")
-                    logger.critical(f"{fire_conf[setting]=}")
-                    raise ValueError(
-                        f"For FIRE_NUM_IGNITIONS > 1, {setting} must be a list of the same length"
-                    )
-
-        if fire_conf["FIRE_ATM_FEEDBACK"] < 0.0:
-            raise ValueError("FIRE_ATM_FEEDBACK must be 0 or greater")
-
-        if fire_conf["FIRE_UPWINDING"] == 0 and fire_conf["FIRE_VISCOSITY"] == 0.0:
-            raise ValueError("FIRE_VISCOSITY must be > 0.0 if FIRE_UPWINDING == 0")
-    else:
-        if fire_conf["FIRE_NUM_TASKS"] > 0:
-            logger.warning("UFS_FIRE is not enabled; setting FIRE_NUM_TASKS = 0")
-            fire_conf["FIRE_NUM_TASKS"] = 0
+                )
+            # CCPP suite must have these schemes to work correctly with fire capability
+            if not ( has_tag_with_value(ccpp_suite_xml, "scheme", "rrfs_smoke_wrapper") and
+                     has_tag_with_value(ccpp_suite_xml, "scheme", "GFS_surface_composites_post") ):
+                raise ValueError(dedent(
+                      """
+                      UFS_FIRE can only work with smoke-enabled CCPP suites, including
+                      FV3_HRRR, FV3_HRRR_gf, and RRFS_sas""" ))
+            if fire_conf["FIRE_NUM_TASKS"] < 1:
+                raise ValueError("FIRE_NUM_TASKS must be > 0 if UFS_FIRE is True")
+            if fire_conf["FIRE_NUM_TASKS"] > 1:
+                raise ValueError("FIRE_NUM_TASKS > 1 not yet supported")
+    
+            if fire_conf["FIRE_NUM_IGNITIONS"] > 5:
+                raise ValueError("Only 5 or fewer fire ignitions supported")
+    
+            if fire_conf["FIRE_NUM_IGNITIONS"] > 1:
+                # These settings all need to be lists for multiple fire ignitions
+                each_fire = [
+                    "FIRE_IGNITION_ROS",
+                    "FIRE_IGNITION_START_LAT",
+                    "FIRE_IGNITION_START_LON",
+                    "FIRE_IGNITION_END_LAT",
+                    "FIRE_IGNITION_END_LON",
+                    "FIRE_IGNITION_RADIUS",
+                    "FIRE_IGNITION_START_TIME",
+                    "FIRE_IGNITION_END_TIME",
+                ]
+                for setting in each_fire:
+                    if not isinstance(fire_conf[setting], list):
+                        logger.critical(f"{fire_conf['FIRE_NUM_IGNITIONS']=}")
+                        logger.critical(f"{fire_conf[setting]=}")
+                        raise ValueError(
+                            f"For FIRE_NUM_IGNITIONS > 1, {setting} must be a list of the same length"
+                        )
+                    if len(fire_conf[setting]) != fire_conf["FIRE_NUM_IGNITIONS"]:
+                        logger.critical(f"{fire_conf['FIRE_NUM_IGNITIONS']=}")
+                        logger.critical(f"{fire_conf[setting]=}")
+                        raise ValueError(
+                            f"For FIRE_NUM_IGNITIONS > 1, {setting} must be a list of the same length"
+                        )
+    
+            if fire_conf["FIRE_ATM_FEEDBACK"] < 0.0:
+                raise ValueError("FIRE_ATM_FEEDBACK must be 0 or greater")
+    
+            if fire_conf["FIRE_UPWINDING"] == 0 and fire_conf["FIRE_VISCOSITY"] == 0.0:
+                raise ValueError("FIRE_VISCOSITY must be > 0.0 if FIRE_UPWINDING == 0")
+        else:
+            if fire_conf["FIRE_NUM_TASKS"] > 0:
+                logger.warning("UFS_FIRE is not enabled; setting FIRE_NUM_TASKS = 0")
+                fire_conf["FIRE_NUM_TASKS"] = 0
     #
     # -----------------------------------------------------------------------
     #
