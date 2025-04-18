@@ -29,7 +29,7 @@ workflow:
     - parm/wflow/prep.yaml
     - parm/wflow/aqm_prep.yaml
     - parm/wflow/coldstart.yaml
-    - parm/wflow/post.yaml
+#    - parm/wflow/post.yaml
 nco:
   envir_default: test_aqm_warmstart
   NET_default: aqm
