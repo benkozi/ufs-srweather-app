@@ -895,7 +895,11 @@ fi
 # writing
 #-----------------------------------------------------------------------
 #
-if [[ -d "${EXPTDIR}/grid" ]]; then
+$(boolify "${SUB_HOURLY_POST}") != "TRUE"
+
+
+if [ -d "${EXPTDIR}/grid" ] && [ "$(boolify "${HISTORY_NATIVE_GRID}")" = "TRUE" ]; then
+  print_info_message "Creating link to halo0 file"
   create_symlink_to_file "$(find "${EXPTDIR}/grid" -type f -name "C*_grid.tile7.halo0.nc")" \
                          INPUT/grid.tile7.halo0.nc \
                          || print_info_msg "Link to halo0 grid exists"

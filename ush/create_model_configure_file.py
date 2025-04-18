@@ -147,7 +147,7 @@ def create_model_configure_file(
                     "dy": "",
                 }
             )
-        elif output_grid == "cubed_sphere_grid":
+        else:
             settings.update({
                 "dlat": None,
                 "dlon": None,
@@ -160,8 +160,7 @@ def create_model_configure_file(
                 "ny": None,
                 "dx": None,
             })
-        else:
-            raise NotImplementedError(f"{output_grid=}")
+
     #
     # If not using the write-component (aka quilting), set those variables
     # needed for quilting to None so that it gets rendered in the template appropriately.

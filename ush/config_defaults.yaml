@@ -1672,6 +1672,10 @@ task_run_fcst:
   # DO_FCST_RESTART:
   # Flag to turn on/off restart capability of forecast task
   #
+  # HISTORY_NATIVE_GRID:
+  # If true, write history files on the native FV3 cubed sphere grid. Note,
+  # this will override the output grid to cubed_sphere_grid when true which
+  # may break post-processing tasks.
   #-----------------------------------------------------------------------
   #
   envvars:
@@ -1826,12 +1830,7 @@ task_run_fcst:
   #
   # WRTCMP_dy:
   # Grid cell size (in meters) along the y-axis of the Lambert conformal 
-  # projection. 
-  #
-  # HISTORY_NATIVE_GRID:
-  # If true, write history files on the native FV3 cubed sphere grid. Note,
-  # this will override the output grid to cubed_sphere_grid when true which
-  # may break post-processing tasks.
+  # projection.
   #-----------------------------------------------------------------------
   #
   QUILTING: true
