@@ -96,7 +96,7 @@ def create_model_configure_file(
         "write_dopost": f".{lowercase(str(WRITE_DOPOST))}.",
         "quilting": f".{lowercase(str(QUILTING))}.",
         "output_grid": output_grid,
-        "history_file_on_native_grid": ".true." if history_native_grid else ".false.",
+        "history_native_grid": ".true." if history_native_grid else ".false.",
     }
     #
     # If the write-component is to be used, then specify a set of computational
