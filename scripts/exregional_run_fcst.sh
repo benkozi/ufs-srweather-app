@@ -894,7 +894,14 @@ fi
 # writing
 #-----------------------------------------------------------------------
 #
-create_symlink_to_file ../grid/C793_grid.tile7.halo0.nc INPUT/grid.tile7.halo0.nc || print_info_msg "Link to halo0 grid exists"
+if [[ -d "${EXPTDIR}/grid" ]]; then
+  create_symlink_to_file "$(find "${EXPTDIR}/grid" -type f -name "C*_grid.tile7.halo0.nc")" \
+                         INPUT/grid.tile7.halo0.nc \
+                         || print_info_msg "Link to halo0 grid exists"
+else
+  print_info_message "Dynamically-generated grids not used. No hala0 grid link created."
+fi
+#
 #-----------------------------------------------------------------------
 #
 # Run the FV3-LAM model.  Note that we have to launch the forecast from
