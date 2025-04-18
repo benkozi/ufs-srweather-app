@@ -895,8 +895,6 @@ fi
 # writing
 #-----------------------------------------------------------------------
 #
-$(boolify "${SUB_HOURLY_POST}") != "TRUE"
-
 print_info_message "HISTORY_NATIVE_GRID=${HISTORY_NATIVE_GRID}"
 if [ -d "${EXPTDIR}/grid" ] && [ $(boolify "${HISTORY_NATIVE_GRID}") = "TRUE" ]; then
   print_info_message "Creating link to halo0 file"
