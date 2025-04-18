@@ -1827,7 +1827,7 @@ task_run_fcst:
   # Grid cell size (in meters) along the y-axis of the Lambert conformal 
   # projection. 
   #
-  # HISTORY_NATIVE_GRID
+  # HISTORY_NATIVE_GRID:
   # If true, write history files on the native FV3 cubed sphere grid. Note,
   # ths will override the output grid to cubed_sphere_grid when true.
   #-----------------------------------------------------------------------
