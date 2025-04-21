@@ -5,8 +5,7 @@ Read in the configuration YAMLs and prepare a self-consistent
 experiment configuration file.
 """
 
-# pylint: disable=too-many-lines
-
+# pylint: disable=too-many-lines, logging-fstring-interpolation
 
 import datetime
 import logging
@@ -568,19 +567,19 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
             obs_days_all_cycles["inst"]
         )
         for spec in cycledefs_obs_days_inst:
-             rocoto_config["cycledef"].append({
-                 "attrs": {"group": "cycledefs_obs_days_inst"},
-                 "spec": spec,
-                 })
+            rocoto_config["cycledef"].append({
+                "attrs": {"group": "cycledefs_obs_days_inst"},
+                "spec": spec,
+                })
 
         cycledefs_obs_days_cumul = set_rocoto_cycledefs_for_obs_days(
             obs_days_all_cycles["cumul"]
         )
         for spec in cycledefs_obs_days_cumul:
-             rocoto_config["cycledef"].append({
-                 "attrs": {"group": "cycledefs_obs_days_cumul"},
-                 "spec": spec,
-                 })
+            rocoto_config["cycledef"].append({
+                "attrs": {"group": "cycledefs_obs_days_cumul"},
+                "spec": spec,
+                })
         #
         # -----------------------------------------------------------------------
         #
@@ -1373,10 +1372,10 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
     if run_run_fcst:
         ccpp_suite_xml = load_xml_file(workflow_config["CCPP_PHYS_SUITE_IN_CCPP_FP"])
 
-        # For SPP stochastic physics, perturbations can only be applied with the following CCPP schemes:
-        # MYNN PBL (pbl), MYNN SFC (sfc), Thompson MP (mp), RRTMG (rad), GSL GWD (gwd), and GF (cu_deep)
-        # Additionally, LSM perturbations can be applied with RUC LSM or Noah LSM
-        # Here we ensure that the specified schemes are available, and if not, warn/fail as appropriate
+        # For SPP stochastic physics, perturbations can only be applied with certain CCPP schemes:
+        # MYNN PBL (pbl), MYNN SFC (sfc), Thompson MP (mp), RRTMG (rad), GSL GWD (gwd), and
+        # GF (cu_deep).
+        # Here we ensure that the specified schemes are available, and warn/fail if not as needed.
         # This loop also serves to check for invalid values in SPP_VAR_LIST
 
         spp_arrays = [
@@ -1410,7 +1409,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                         logger.warning(f"Selected CCPP suite ({ccpp_physics_suite})")
                         logger.warning(f"Does not have required scheme(s) {value}")
                         logger.warning(f"for {key} in SPP_VAR_LIST; removing {key}")
-                        logger.warning(f"And associated scaling factors")
+                        logger.warning("And associated scaling factors")
                         index = global_sect["SPP_VAR_LIST"].index(key)
                         global_sect["SPP_VAR_LIST"].pop(index)
                         logging.debug("New scaling factor arrays:")
@@ -1526,17 +1525,17 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         workflow_config["SDF_USES_RUC_LSM"] = has_tag_with_value(
             ccpp_suite_xml, "scheme", "lsm_ruc"
         )
-    
+
         # Thompson microphysics needs additional input files and namelist settings
         workflow_config["SDF_USES_THOMPSON_MP"] = has_tag_with_value(
             ccpp_suite_xml, "scheme", "mp_thompson"
         )
-    
+
         if workflow_config["SDF_USES_THOMPSON_MP"]:
-    
+
             logger.debug(f"Selected CCPP suite ({ccpp_physics_suite}) uses Thompson MP")
             logger.debug("Setting up links for additional fix files")
-    
+
             # If the model ICs or BCs are not from RAP or HRRR, they will not contain aerosol
             # climatology data needed by the Thompson scheme, so we need to provide a separate file
             if get_extrn_ics["EXTRN_MDL_NAME_ICS"] not in [
@@ -1547,20 +1546,20 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                 fixed_files["THOMPSON_FIX_FILES"].append(
                     workflow_config["THOMPSON_MP_CLIMO_FN"]
                 )
-    
+
             # Add thompson-specific fix files to CYCLEDIR_LINKS_TO_FIXam_FILES_MAPPING and
             # FIXgsm_FILES_TO_COPY_TO_FIXam; see
             # parm/fixed_files_mapping.yaml for more info on these variables
-    
+
             fixed_files["FIXgsm_FILES_TO_COPY_TO_FIXam"].extend(
                 fixed_files["THOMPSON_FIX_FILES"]
             )
-    
+
             for fix_file in fixed_files["THOMPSON_FIX_FILES"]:
                 fixed_files["CYCLEDIR_LINKS_TO_FIXam_FILES_MAPPING"].append(
                     f"{fix_file} | {fix_file}"
                 )
-    
+
             logger.debug(
                 f'New fix file list:\n{fixed_files["FIXgsm_FILES_TO_COPY_TO_FIXam"]=}'
             )
@@ -1603,10 +1602,10 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                 raise ValueError("FIRE_NUM_TASKS must be > 0 if UFS_FIRE is True")
             if fire_conf["FIRE_NUM_TASKS"] > 1:
                 raise ValueError("FIRE_NUM_TASKS > 1 not yet supported")
-    
+
             if fire_conf["FIRE_NUM_IGNITIONS"] > 5:
                 raise ValueError("Only 5 or fewer fire ignitions supported")
-    
+
             if fire_conf["FIRE_NUM_IGNITIONS"] > 1:
                 # These settings all need to be lists for multiple fire ignitions
                 each_fire = [
@@ -1620,22 +1619,17 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                     "FIRE_IGNITION_END_TIME",
                 ]
                 for setting in each_fire:
-                    if not isinstance(fire_conf[setting], list):
+                    if (not isinstance(fire_conf[setting], list) or
+                       len(fire_conf[setting]) != fire_conf["FIRE_NUM_IGNITIONS"]):
                         logger.critical(f"{fire_conf['FIRE_NUM_IGNITIONS']=}")
                         logger.critical(f"{fire_conf[setting]=}")
                         raise ValueError(
-                            f"For FIRE_NUM_IGNITIONS > 1, {setting} must be a list of the same length"
+                            f"For FIRE_NUM_IGNITIONS > 1, {setting} must be a list of same length"
                         )
-                    if len(fire_conf[setting]) != fire_conf["FIRE_NUM_IGNITIONS"]:
-                        logger.critical(f"{fire_conf['FIRE_NUM_IGNITIONS']=}")
-                        logger.critical(f"{fire_conf[setting]=}")
-                        raise ValueError(
-                            f"For FIRE_NUM_IGNITIONS > 1, {setting} must be a list of the same length"
-                        )
-    
+
             if fire_conf["FIRE_ATM_FEEDBACK"] < 0.0:
                 raise ValueError("FIRE_ATM_FEEDBACK must be 0 or greater")
-    
+
             if fire_conf["FIRE_UPWINDING"] == 0 and fire_conf["FIRE_VISCOSITY"] == 0.0:
                 raise ValueError("FIRE_VISCOSITY must be > 0.0 if FIRE_UPWINDING == 0")
         else:
@@ -1745,8 +1739,8 @@ def clean_rocoto_dict(rocotodict):
     """
 
 
-    # Loop 1: search for tasks with no command key, iterating over metatasks, and popping metatasks with
-    # var keys having empty values
+    # Loop 1: search for tasks with no command key, iterating over metatasks, and popping metatasks
+    # with var keys having empty values
     for key in list(rocotodict.keys()):
         if key.split("_", maxsplit=1)[0] == "metatask":
             clean_rocoto_dict(rocotodict[key])
@@ -1755,7 +1749,8 @@ def clean_rocoto_dict(rocotodict):
                 for varkey in list(rocotodict[key]['var'].keys()):
                     if not rocotodict[key]['var'][varkey]:
                         popped = rocotodict.pop(key)
-                        logging.warning(f"Invalid metatask {key} removed due to empty/unset var: {varkey}")
+                        logging.warning(f"Invalid metatask {key} removed due to empty/unset var:")
+                        logging.warning(f"{varkey}")
                         logging.debug(f"Removed entry:\n{popped}")
                         break
 
