@@ -1431,18 +1431,11 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                 msg += f"Valid surface schemes are: {lsm_spp_valid}"
                 raise ValueError(msg)
 
-        # If running with Noah or RUC-LSM SPP, count the number of entries in
-        # LSM_SPP_VAR_LIST to correctly set N_VAR_LNDP, otherwise set it to zero.
-        # Also set LNDP_TYPE to 2 for LSM SPP, otherwise set it to zero.
-        #
-        # -----------------------------------------------------------------------
-        #
+        # If running with Noah or RUC-LSM SPP, set LNDP_TYPE to 2, otherwise set it to zero.
         if global_sect["DO_LSM_SPP"]:
-            global_sect["N_VAR_LNDP"] = len(global_sect["LSM_SPP_VAR_LIST"])
             global_sect["LNDP_TYPE"] = 2
             global_sect["LNDP_MODEL_TYPE"] = 2
         else:
-            global_sect["N_VAR_LNDP"] = 0
             global_sect["LNDP_TYPE"] = 0
             global_sect["LNDP_MODEL_TYPE"] = 0
 
@@ -1450,8 +1443,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         # -----------------------------------------------------------------------
         #
         # If running with LSM SPP, confirm that each LSM SPP-related namelist
-        # value contains the same number of entries as N_VAR_LNDP (set above to
-        # be equal to the number of entries in LSM_SPP_VAR_LIST).
+        # value contains the same number of entries as LSM_SPP_VAR_LIST
         #
         # -----------------------------------------------------------------------
         #
@@ -1461,16 +1453,19 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
             "LSM_SPP_TSCALE",
         ]
         if global_sect["DO_LSM_SPP"]:
+            if len(global_sect["LSM_SPP_VAR_LIST"]) > 5:
+                raise ValueError(f"Too many LSM_SPP variables selected:\n"\
+                                 f"({global_sect['LSM_SPP_VAR_LIST']=}),\n"\
+                                  "Choose a subset of 5 or fewer valid variables.")
+
             for lsm_spp_var in lsm_spp_arrays:
-                if len(global_sect[lsm_spp_var]) != global_sect["N_VAR_LNDP"]:
+                if len(global_sect[lsm_spp_var]) != len(global_sect["LSM_SPP_VAR_LIST"]):
                     raise ValueError(
                         f"""
-                        All MYNN PBL, MYNN SFC, GSL GWD, Thompson MP, or RRTMG SPP-related namelist
-                        variables must be of equal length to SPP_VAR_LIST:
                         All Noah or RUC-LSM SPP-related namelist variables (except ISEED_LSM_SPP)
-                        must be equal of equal length to LSM_SPP_VAR_LIST:
-                          LSM_SPP_VAR_LIST (length {global_sect['N_VAR_LNDP']})
-                          {lsm_spp_var} (length {len(global_sect[lsm_spp_var])}
+                        must be of equal length to LSM_SPP_VAR_LIST; found mismatch:
+                          LSM_SPP_VAR_LIST = {global_sect["LSM_SPP_VAR_LIST"]}
+                          {lsm_spp_var} = {global_sect[lsm_spp_var]}
                           """
                     )
 

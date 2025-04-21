@@ -319,13 +319,14 @@ def generate_FV3LAM_wflow(
         import_vars(dictionary=expt_config["global"])
         # pylint: disable=undefined-variable
         settings = {}
+        n_var_lndp = len(LSM_SPP_VAR_LIST) if DO_LSM_SPP else 0
         settings["gfs_physics_nml"] = {
             "do_shum": DO_SHUM,
             "do_sppt": DO_SPPT,
             "do_skeb": DO_SKEB,
             "do_spp": DO_SPP,
             "n_var_spp": N_VAR_SPP,
-            "n_var_lndp": N_VAR_LNDP,
+            "n_var_lndp": n_var_lndp,
             "lndp_type": LNDP_TYPE,
         }
         nam_stochy_dict = {}
