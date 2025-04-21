@@ -5,14 +5,13 @@ Read in the configuration YAMLs and prepare a self-consistent
 experiment configuration file.
 """
 
-# pylint: disable=too-many-lines, logging-fstring-interpolation
+# pylint: disable=too-many-lines, too-many-branches, logging-fstring-interpolation
 
 import datetime
 import logging
 import os
 import re
 import sys
-from contextlib import redirect_stderr
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
@@ -227,7 +226,7 @@ def set_srw_paths(expt_config):
 
 
 def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
-    # pylint: disable=too-many-branches, too-many-statements
+    # pylint: disable=too-many-statements
     """Validates user-provided configuration settings and derives
     a secondary set of parameters needed to configure a Rocoto-based SRW App
     workflow. The secondary parameters are derived from a set of required
@@ -490,7 +489,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
 
         rocoto_config["cycledef"].append({
             "attrs": {"group": "cycled_from_second"},
-            "spec": f"{date_second_cycle.strftime('%Y%m%d%H%S')} {date_last_cycl}00 {incr_cycl_freq}",
+            "spec": f"{date_second_cycle.strftime('%Y%m%d%H%S')} {date_last_cycl}00 {incr_cycl_freq}", # pylint: disable=line-too-long
             })
     #
     # -----------------------------------------------------------------------
@@ -1123,7 +1122,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
 
     if not post_output_domain_name:
         if not predef_grid_name and run_run_post:
-            raise Exception(
+            raise ValueError(
                 f"""
                 The domain name used in naming the run_post output files
                 (POST_OUTPUT_DOMAIN_NAME) has not been set:
@@ -1369,7 +1368,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
     # -----------------------------------------------------------------------
     #
 
-    if run_run_fcst:
+    if run_run_fcst: # pylint: disable=too-many-nested-blocks
         ccpp_suite_xml = load_xml_file(workflow_config["CCPP_PHYS_SUITE_IN_CCPP_FP"])
 
         # For SPP stochastic physics, perturbations can only be applied with certain CCPP schemes:
@@ -1587,7 +1586,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                         f"""
                     The fire input file (geo_em.d01.nc) does not exist in the specified directory:
                     {fire_conf["FIRE_INPUT_DIR"]}
-                    Check that the specified path is correct, and that the file exists and is readable
+                    Check that the specified path is correct, and the file exists and is readable
                     """
                     )
                 )
@@ -1690,8 +1689,8 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         # Regex to match '{{' or '{%' but not '{{ jobname }}', as the rocoto
         # tool adds jobname for each task. Also matches UW-supported tags.
         pattern = r"({{(?! jobname )|{%.*?%})|!bool|!float|!int"
-        line_not_ok = lambda l: any(m for m in re.finditer(pattern, l))
-        unrendered_lines = "\n".join([l.strip() for l in xml_config_str.split("\n") if line_not_ok(l)])
+        line_not_ok = lambda l: any(m for m in re.finditer(pattern, l)) # pylint: disable=unnecessary-lambda-assignment
+        unrendered_lines = "\n".join([l.strip() for l in xml_config_str.split("\n") if line_not_ok(l)]) # pylint: disable=line-too-long
         msg = f"""
         Jinja expressions remain in the XML configuration file.
 
@@ -1707,7 +1706,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
     if expt_config["workflow"].get("COLDSTART"):
         coldstart_date = var_defns_cfg["workflow"]["DATE_FIRST_CYCL"]
         fn_pass=f"task_skip_coldstart_{coldstart_date}.txt"
-        open(os.path.join(exptdir,fn_pass), 'a').close()
+        Path(exptdir,fn_pass).touch()
 
     #
     # -----------------------------------------------------------------------
