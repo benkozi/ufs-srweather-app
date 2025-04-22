@@ -76,8 +76,8 @@ def create_model_configure_file(
 
     if history_native_grid:
         output_grid = "cubed_sphere_grid"
-        print_info_msg(f"output_grid set to cubed_sphere_grid when writing history files on native "
-                       f"grid.")
+        print_info_msg("output_grid set to cubed_sphere_grid when writing history files on native "
+                       "grid.")
     else:
         output_grid = WRTCMP_output_grid
 
