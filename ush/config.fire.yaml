@@ -49,7 +49,7 @@ fire:
   envvars:
     UFS_FIRE: True
 #    FIRE_INPUT_DIR: '/glade/derecho/scratch/kavulich/FIRE/2024/test_data'
-    FIRE_INPUT_DIR: '/glade/work/epicufsrt/contrib/UFS_SRW_data/develop/UFS_FIRE/2020081318'
+#    FIRE_INPUT_DIR: '/glade/work/epicufsrt/contrib/UFS_SRW_data/develop/UFS_FIRE/2020081318'
   FIRE_NUM_TASKS: 1
   DT_FIRE: 0.5
   OUTPUT_DT_FIRE: 300
