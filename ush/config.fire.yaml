@@ -19,7 +19,7 @@ workflow:
 task_get_extrn_ics:
   envvars:
     USE_USER_STAGED_EXTRN_FILES: true
-    EXTRN_MDL_SOURCE_BASEDIR_ICS: '{{ fire.FIRE_INPUT_DIR }}/HRRR'
+    EXTRN_MDL_SOURCE_BASEDIR_ICS: '{{ fire.envvars.FIRE_INPUT_DIR }}/HRRR'
     EXTRN_MDL_NAME_ICS: HRRR
     FV3GFS_FILE_FMT_ICS: grib2
     EXTRN_MDL_FILES_ICS:
@@ -27,7 +27,7 @@ task_get_extrn_ics:
 task_get_extrn_lbcs:
   envvars:
     USE_USER_STAGED_EXTRN_FILES: true
-    EXTRN_MDL_SOURCE_BASEDIR_LBCS: '{{ fire.FIRE_INPUT_DIR }}/HRRR'
+    EXTRN_MDL_SOURCE_BASEDIR_LBCS: '{{ fire.envvars.FIRE_INPUT_DIR }}/HRRR'
     EXTRN_MDL_FILES_LBCS:
       - '{fyyyymmdd}.hrrr.t{fhh}z.wrfprsf00.grib2'
     EXTRN_MDL_NAME_LBCS: HRRR
@@ -48,7 +48,7 @@ task_plot_allvars:
 fire:
   envvars:
     UFS_FIRE: True
-    FIRE_INPUT_DIR: '{{ platform.WE2E_TEST_DATA }}/UFS_FIRE/{{ workflow.DATE_FIRST_CYCL }}'
+    FIRE_INPUT_DIR: '/glade/derecho/scratch/kavulich/FIRE/2024/test_data'
   FIRE_NUM_TASKS: 1
   DT_FIRE: 0.5
   OUTPUT_DT_FIRE: 300
