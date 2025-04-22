@@ -166,7 +166,8 @@
     isubc_lw = 2
     isubc_sw = 2
     ivegsrc = 1
-    ldiag3d = .false.
+    ldiag3d = .true.
+    dtend_select = 'dtend*pbl'
     lheatstrg = .false.
     lradar = .true.
     lsm = 3
