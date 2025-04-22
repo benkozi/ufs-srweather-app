@@ -902,7 +902,7 @@ if [ -d "${EXPTDIR}/grid" ] && [ $(boolify "${HISTORY_NATIVE_GRID}") = "TRUE" ];
                          INPUT/grid.tile7.halo0.nc \
                          || print_info_msg "Link to halo0 grid exists"
 else
-  print_info_msg "Dynamically-generated grids not used. No hala0 grid link created."
+  print_info_msg "History not written to native grid or dynamically-generated grids not used. No hala0 grid link created."
 fi
 #
 #-----------------------------------------------------------------------
