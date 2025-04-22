@@ -46,9 +46,10 @@ task_plot_allvars:
   envvars:
     COMOUT_REF: ""
 fire:
-  UFS_FIRE: True
+  envvars:
+    UFS_FIRE: True
+    FIRE_INPUT_DIR: '{{ platform.WE2E_TEST_DATA }}/UFS_FIRE/{{ workflow.DATE_FIRST_CYCL }}'
   FIRE_NUM_TASKS: 1
-  FIRE_INPUT_DIR: /glade/derecho/scratch/kavulich/FIRE/2024/test_data
   DT_FIRE: 0.5
   OUTPUT_DT_FIRE: 300
   FIRE_NUM_IGNITIONS: 1
