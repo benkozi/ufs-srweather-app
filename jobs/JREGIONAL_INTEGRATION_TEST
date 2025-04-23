@@ -100,7 +100,7 @@ fi
 #-----------------------------------------------------------------------
 #
 if [ $(boolify "${TEST_UFS_FIRE}") = "TRUE" ]; then
-  TEST_UFS_FIRE_FLAG="--test-ufs-fire"
+  TEST_UFS_FIRE_FLAG="--test_ufs_fire"
 else
   TEST_UFS_FIRE_FLAG=""
 fi
