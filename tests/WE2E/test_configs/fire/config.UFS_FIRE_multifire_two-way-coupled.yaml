@@ -78,3 +78,6 @@ task_run_fcst:
     execution:
       batchargs:
         walltime: 01:00:00
+task_integration_test:
+  envvars:
+    TEST_UFS_FIRE: true
