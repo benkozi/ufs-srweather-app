@@ -27,22 +27,27 @@ Python Script Documentation Block
 """
 
 # -------------Import modules --------------------------#
+import abc
 import argparse
 import logging
 import sys
 import unittest
 from pathlib import Path
 
+from python_utils import str_to_type
+
 # --------------Define some functions ------------------#
 
 
-class TestExptFiles(unittest.TestCase):
+class AbstractIntegrationTest(abc.ABC, unittest.TestCase):
+    fcst_dir = ""
+    filename_list = ""
+
+
+class TestExptFiles(AbstractIntegrationTest):
     """
     Set up the test for expected output files.
     """
-
-    fcst_dir = ""
-    filename_list = ""
 
     def test_fcst_files(self):
         """
@@ -53,6 +58,12 @@ class TestExptFiles(unittest.TestCase):
             logging.info(f"Checking existence of: {str(filename_fp)}")
             err_msg = f"Missing file: {str(filename_fp)}"
             self.assertTrue(filename_fp.exists(), err_msg)
+
+
+class TestUfsFire(AbstractIntegrationTest):
+
+    def test_fire_output_files_created(self) -> None:
+        self.assertTrue(False)
 
 
 def setup_logging(debug=False):
@@ -97,6 +108,12 @@ if __name__ == "__main__":
         help="Print debug messages.",
         required=False,
     )
+    parser.add_argument(
+        "--test_ufs_fire",
+        default="false",
+        help="If true, run UFS-Fire tests.",
+        required=False,
+    )
     parser.add_argument("unittest_args", nargs="*")
     args = parser.parse_args()
     sys.argv[1:] = args.unittest_args
@@ -132,4 +149,13 @@ if __name__ == "__main__":
     # Call unittest class
     TestExptFiles.fcst_dir = args.fcst_dir
     TestExptFiles.filename_list = filename_list
-    unittest.main()
+    suite = unittest.TestSuite()
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestExptFiles))
+
+    test_ufs_fire = str_to_type(args.test_ufs_fire)
+    if test_ufs_fire is True:
+        logging.info("adding UFS-Fire tests to the runner")
+        TestUfsFire.fcst_dir = args.fcst_dir
+        suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestUfsFire))
+
+    unittest.TextTestRunner(verbosity=2).run(suite)
