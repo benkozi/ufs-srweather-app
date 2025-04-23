@@ -36,7 +36,7 @@ task_run_fcst:
       batchargs:
         walltime: 01:00:00
   envvars:
-    PRINT_ESMF: True
+    PRINT_ESMF: False
   QUILTING: true
 task_plot_allvars:
   envvars:
