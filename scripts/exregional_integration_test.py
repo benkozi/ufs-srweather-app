@@ -34,8 +34,6 @@ import sys
 import unittest
 from pathlib import Path
 
-from python_utils import str_to_type
-
 # --------------Define some functions ------------------#
 
 
@@ -110,7 +108,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--test_ufs_fire",
-        default="false",
+        default=False,
+        action="store_true",
         help="If true, run UFS-Fire tests.",
         required=False,
     )
@@ -152,8 +151,7 @@ if __name__ == "__main__":
     suite = unittest.TestSuite()
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestExptFiles))
 
-    test_ufs_fire = str_to_type(args.test_ufs_fire)
-    if test_ufs_fire is True:
+    if args.test_ufs_fire is True:
         logging.info("adding UFS-Fire tests to the runner")
         TestUfsFire.fcst_dir = args.fcst_dir
         suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestUfsFire))
