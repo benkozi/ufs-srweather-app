@@ -38,6 +38,7 @@ sections=(
   user
   nco
   workflow
+  task_integration_test.envvars
 )
 for sect in ${sections[*]} ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
