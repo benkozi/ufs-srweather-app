@@ -98,10 +98,15 @@ fi
 #
 #-----------------------------------------------------------------------
 #
+if [ $(boolify "${TEST_UFS_FIRE}") = "TRUE" ]; then
+  TEST_UFS_FIRE_FLAG="--test-ufs-fire"
+else
+  TEST_UFS_FIRE_FLAG=""
+fi
 $SCRIPTSdir/exregional_integration_test.py \
            --fcst_dir=$fcst_dir \
            --fcst_len=${FCST_LEN_HRS} \
-           --test_ufs_fire || \
+           "${TEST_UFS_FIRE_FLAG}" || \
 print_err_msg_exit "\
 Call to ex-script corresponding to J-job \"${scrfunc_fn}\" failed."
 #
