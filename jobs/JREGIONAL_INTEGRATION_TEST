@@ -77,7 +77,7 @@ print_info_msg "
 Entering script:  \"${scrfunc_fn}\"
 In directory:     \"${scrfunc_dir}\"
 
-This is the J-job script for the plotting task
+This is the J-job script for the regional integration test task
 ========================================================================"
 #
 #-----------------------------------------------------------------------
