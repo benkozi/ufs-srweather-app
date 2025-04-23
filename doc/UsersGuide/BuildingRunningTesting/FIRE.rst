@@ -78,18 +78,18 @@ Users will need to configure their experiment by setting parameters in the ``con
    
 Users will need to change the ``MACHINE`` and ``ACCOUNT`` variables in ``config.yaml`` to match their system. They may also wish to adjust other experiment settings, especially under the ``fire:`` section, described in further detail below. For more information on other configuration settings, see :numref:`Section %s <ConfigWorkflow>`.
 
-Activating the fire behavior module is done by setting ``UFS_FIRE: True`` in the ``fire:`` section of your ``config.yaml`` file. If this variable is not specified or set to false, a normal atmospheric simulation will be run, without fire settings.
-
-.. note::
-
-  The UFS_FIRE capability requires using a CCPP physics suite containing the parameterizations ``GFS_surface_composites_post`` and ``rrfs_smoke_wrapper``.
-  For the v3.0.0 release, these supported suites are ``FV3_HRRR``, ``FV3_HRRR_gf``, and ``RRFS_sas``.
+Activating the fire behavior module is done by setting ``UFS_FIRE: True`` in the ``fire/envvars:`` section of your ``config.yaml`` file. If this variable is not specified or set to false, a normal atmospheric simulation will be run, without fire.
 
 .. code-block:: console
 
    fire:
      envvars:
        UFS_FIRE: True
+
+.. note::
+
+  The UFS_FIRE capability requires using a CCPP physics suite containing the parameterizations ``GFS_surface_composites_post`` and ``rrfs_smoke_wrapper``.
+  For the v3.0.0 release, these supported suites are ``FV3_HRRR``, ``FV3_HRRR_gf``, and ``RRFS_sas``.
 
 The fire module has the ability to print out additional messages to the log file for debugging; to enable additional log output (which may slow down the integration considerably, especially at higher levels) set ``FIRE_PRINT_MSG`` > 0
 
@@ -104,7 +104,7 @@ The CFBM, as an independent, coupled component, runs separately from the atmosph
 
 Instructions on how to create this file for your own experiment can be found in the :fire-ug:`CFBM Users Guide <Configuration.html#configuring-a-domain-with-the-wrf-pre-processing-system-wps>`.
 
-Once the file is acquired/created, you will need to specify its location in your ``config.yaml`` file with the setting ``FIRE_INPUT_DIR``.
+Once the file is acquired/created, you will need to specify its location in your ``config.yaml`` file with the setting:
 
 .. code-block:: console
 
@@ -240,7 +240,6 @@ Build the app for FIRE:
 
   ./devbuild.sh -p=hera -a=ATMF
 
-
 Run the WE2E tests:
 
 .. code-block:: console
@@ -249,6 +248,8 @@ Run the WE2E tests:
    $ ./run_WE2E_tests.py -t my_tests.txt -m hera -a gsd-fv3 -q -t fire
 
 You can also run each test individually if needed:
+
+.. code-block:: console
 
    $ ./run_WE2E_tests.py -t my_tests.txt -m hera -a gsd-fv3 -q -t UFS_FIRE_one-way-coupled
    $ ./run_WE2E_tests.py -t my_tests.txt -m hera -a gsd-fv3 -q -t UFS_FIRE_multifire_two-way-coupled
