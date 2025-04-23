@@ -61,7 +61,11 @@ class TestExptFiles(AbstractIntegrationTest):
 class TestUfsFire(AbstractIntegrationTest):
 
     def test_fire_output_files_created(self) -> None:
-        self.assertTrue(False)
+        assert isinstance(self.fcst_dir, Path)
+        fire_files = tuple(self.fcst_dir.glob("*fire_output_*nc"))
+        n_fire_files = len(fire_files)
+        logging.info(f"{n_fire_files=}")
+        self.assertGreater(n_fire_files, 0)
 
 
 def setup_logging(debug=False):
