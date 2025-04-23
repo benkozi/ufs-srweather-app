@@ -3,8 +3,8 @@ metadata:
     Sample fire config
 user:
   RUN_ENVIR: community
-  MACHINE: DERECHO
-  ACCOUNT: ACCOUNT_NUMBER
+  MACHINE: [machine name]
+  ACCOUNT: [account]
 workflow:
   USE_CRON_TO_RELAUNCH: true
   EXPT_SUBDIR: fire_test_case
