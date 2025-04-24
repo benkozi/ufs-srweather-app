@@ -39,7 +39,6 @@ import f90nml
 
 # --------------Define some functions ------------------#
 
-
 class AbstractIntegrationTest(abc.ABC, unittest.TestCase):
     fcst_dir = ""
 
@@ -63,14 +62,14 @@ class TestExptFiles(AbstractIntegrationTest):
 
 class TestUfsFire(AbstractIntegrationTest):
     fcst_len: int | None = None
+    namelist_fire: f90nml.Namelist | None = None
 
-    @cached_property
-    def namelist_fire(self) -> f90nml.Namelist:
-        assert isinstance(self.fcst_dir, Path)
-        namelist_path = self.fcst_dir.parent / "namelist.fire"
-        namelist = f90nml.read(namelist_path)
-        logging.info(f"{namelist=}")
-        return namelist
+    @classmethod
+    def setUpClass(cls):
+        namelist_path = cls.fcst_dir.parent / "namelist.fire"
+        cls.namelist_fire = f90nml.read(namelist_path)
+        logging.info(f"{cls.namelist_fire=}")
+        return cls.namelist_fire
 
     def test_fire_output_files_created(self) -> None:
         assert isinstance(self.fcst_dir, Path)
@@ -193,4 +192,6 @@ if __name__ == "__main__":
         TestUfsFire.fcst_len = args.fcst_len
         suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestUfsFire))
 
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    if not result.wasSuccessful():
+        sys.exit(1)
