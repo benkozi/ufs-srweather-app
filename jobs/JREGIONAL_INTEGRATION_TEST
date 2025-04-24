@@ -99,6 +99,7 @@ fi
 #
 #-----------------------------------------------------------------------
 #
+print_info_msg "${TEST_UFS_FIRE}"
 if [ "${TEST_UFS_FIRE}" = "TRUE" ]; then
   TEST_UFS_FIRE_FLAG="--test_ufs_fire"
 else
