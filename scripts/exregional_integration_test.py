@@ -68,18 +68,24 @@ class TestUfsFire(AbstractIntegrationTest):
     def namelist_fire(self) -> f90nml.Namelist:
         assert isinstance(self.fcst_dir, Path)
         namelist_path = self.fcst_dir.parent / "namelist.fire"
-        return f90nml.read(namelist_path)
+        namelist = f90nml.read(namelist_path)
+        logging.info(f"{namelist=}")
+        return namelist
 
     def test_fire_output_files_created(self) -> None:
         assert isinstance(self.fcst_dir, Path)
         fire_files = tuple(self.fcst_dir.glob("*fire_output_*nc"))
         n_fire_files = len(fire_files)
-        dt_fire = self.namelist_fire["time"]["dt"]
-        logging.info(f"{self.fcst_len=}, {dt_fire=}, {n_fire_files=}")
-        n_expected_files = self.fcst_len / dt_fire
+        interval_output = self.namelist_fire["time"]["interval_output"]
+        logging.info(f"{self.fcst_len=}, {interval_output=}, {n_fire_files=}")
+        n_expected_files = ((self.fcst_len * 60 * 60) / interval_output) + 1
         self.assertEqual(n_fire_files, n_expected_files)
 
     def test_namelist_created(self) -> None:
+        keys = {}
+        for k in self.namelist_fire.keys():
+            keys[k] = tuple(self.namelist_fire[k].keys())
+        logging.info(f"{keys=}")
         self.assertIsInstance(self.namelist_fire, f90nml.Namelist)
 
 
