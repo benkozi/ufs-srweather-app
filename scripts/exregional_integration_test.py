@@ -123,7 +123,7 @@ class TestUfsFire(AbstractIntegrationTest):
         n_actual_files = len(fire_files)
         logging.info(f"{n_actual_files=}")
         interval_output = self._namelist_fire["time"]["interval_output"]
-        n_expected_files = ((cfg.fcst_len * 60 * 60) / interval_output) + 1
+        n_expected_files = int(((cfg.fcst_len * 60 * 60) / interval_output) + 1)
         logging.info(f"{n_expected_files=}")
         self.assertEqual(n_actual_files, n_expected_files)
 
