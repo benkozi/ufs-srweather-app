@@ -12,7 +12,7 @@ Python Script Documentation Block
  Instructions:		1. Pass the appropriate info for the required arguments:
                               --fcst_dir=/path/to/forecast/files
                               --fcst_len=<forecast length as Int>
-                       2. Run script with arguments
+                    2. Run script with arguments
 
  Notes/future work:    - Currently SRW App only accepts netcdf as the UFS WM
                          output file format. If that changes, then additional
@@ -106,11 +106,16 @@ class TestUfsFire(AbstractIntegrationTest):
     _namelist_fire: f90nml.Namelist | None = None
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         namelist_path = cls.get_config().fcst_dir.parent / "namelist.fire"
         cls._namelist_fire = f90nml.read(namelist_path)
         logging.info(f"{cls._namelist_fire=}")
         return cls._namelist_fire
+
+    def get_namelist_fire(self) -> f90nml.Namelist:
+        if self._namelist_fire is None:
+            raise ValueError
+        return self._namelist_fire
 
     def test_output_files_created(self) -> None:
         cfg = self.get_config()
@@ -131,12 +136,11 @@ class TestUfsFire(AbstractIntegrationTest):
                                   'fire_print_msg', 'fire_atm_feedback', 'fire_viscosity',
                                   'fire_upwinding', 'fire_lsm_zcoupling',
                                   'fire_lsm_zcoupling_ref')}
-        actual_keys = {}
-        for k in self._namelist_fire.keys():
-            actual_keys[k] = tuple(self._namelist_fire[k].keys())
-        self.assertEqual(set(actual_keys.keys()), set(expected_keys.keys()))
+
+        namelist_fire = self.get_namelist_fire()
+        self.assertEqual(set(namelist_fire.keys()), set(expected_keys.keys()))
         for key in expected_keys.keys():
-            self.assertEqual(set(actual_keys[key]), set(expected_keys[key]))
+            self.assertEqual(set(namelist_fire[key].keys()), set(expected_keys[key]))
 
 
 def setup_logging(debug=False):
