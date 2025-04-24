@@ -140,7 +140,9 @@ class TestUfsFire(AbstractIntegrationTest):
         namelist_fire = self.get_namelist_fire()
         self.assertEqual(set(namelist_fire.keys()), set(expected_keys.keys()))
         for key in expected_keys.keys():
-            self.assertEqual(set(namelist_fire[key].keys()), set(expected_keys[key]))
+            # There can be multiple entries for keys suffixed with "1". We are not testing multiple
+            # parameter entries here.
+            self.assertTrue(set(expected_keys[key]).issubset(set(namelist_fire[key].keys())))
 
 
 def setup_logging(debug=False):
