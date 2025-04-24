@@ -34,6 +34,8 @@ import sys
 import unittest
 from pathlib import Path
 
+import f90nml
+
 # --------------Define some functions ------------------#
 
 
