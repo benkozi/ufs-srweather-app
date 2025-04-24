@@ -120,11 +120,12 @@ class TestUfsFire(AbstractIntegrationTest):
     def test_output_files_created(self) -> None:
         cfg = self.get_config()
         fire_files = tuple(cfg.fcst_dir.glob("*fire_output_*nc"))
-        n_fire_files = len(fire_files)
+        n_actual_files = len(fire_files)
+        logging.info(f"{n_actual_files=}")
         interval_output = self._namelist_fire["time"]["interval_output"]
-        logging.info(f"{interval_output=}, {n_fire_files=}")
         n_expected_files = ((cfg.fcst_len * 60 * 60) / interval_output) + 1
-        self.assertEqual(n_fire_files, n_expected_files)
+        logging.info(f"{n_expected_files=}")
+        self.assertEqual(n_actual_files, n_expected_files)
 
     def test_namelist_created(self) -> None:
         expected_keys = {'time': ('dt', 'interval_output'), 'atm': ('interval_atm', 'kde'),
