@@ -32,6 +32,7 @@ import argparse
 import logging
 import sys
 import unittest
+from functools import cached_property
 from pathlib import Path
 
 import f90nml
@@ -61,19 +62,25 @@ class TestExptFiles(AbstractIntegrationTest):
 
 
 class TestUfsFire(AbstractIntegrationTest):
+    fcst_len: int | None = None
+
+    @cached_property
+    def namelist_fire(self) -> f90nml.Namelist:
+        assert isinstance(self.fcst_dir, Path)
+        namelist_path = self.fcst_dir.parent / "namelist.fire"
+        return f90nml.read(namelist_path)
 
     def test_fire_output_files_created(self) -> None:
         assert isinstance(self.fcst_dir, Path)
         fire_files = tuple(self.fcst_dir.glob("*fire_output_*nc"))
         n_fire_files = len(fire_files)
-        logging.info(f"{n_fire_files=}")
-        self.assertGreater(n_fire_files, 0)
+        dt_fire = self.namelist_fire["time"]["dt"]
+        logging.info(f"{self.fcst_len=}, {dt_fire=}, {n_fire_files=}")
+        n_expected_files = self.fcst_len / dt_fire
+        self.assertEqual(n_fire_files, n_expected_files)
 
     def test_namelist_created(self) -> None:
-        assert isinstance(self.fcst_dir, Path)
-        namelist_path = self.fcst_dir.parent / "namelist.fire"
-        contents = f90nml.read(namelist_path)
-        logging.info(f"{contents=}")
+        self.assertIsInstance(self.namelist_fire, f90nml.Namelist)
 
 
 def setup_logging(debug=False):
@@ -166,6 +173,7 @@ if __name__ == "__main__":
     if args.test_ufs_fire is True:
         logging.info("adding UFS-Fire tests to the runner")
         TestUfsFire.fcst_dir = args.fcst_dir
+        TestUfsFire.fcst_len = args.fcst_len
         suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestUfsFire))
 
     unittest.TextTestRunner(verbosity=2).run(suite)
