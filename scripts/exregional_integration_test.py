@@ -32,52 +32,93 @@ import argparse
 import logging
 import sys
 import unittest
-from functools import cached_property
+from dataclasses import dataclass
 from pathlib import Path
 
 import f90nml
 
 # --------------Define some functions ------------------#
 
+@dataclass
+class Config:
+    fcst_dir: Path
+    fcst_len: int
+    fcst_inc: int
+
+
 class AbstractIntegrationTest(abc.ABC, unittest.TestCase):
-    fcst_dir = ""
+    _cfg: Config | None = None
+
+    @classmethod
+    def get_config(cls) -> Config:
+        if cls._cfg is None:
+            raise ValueError
+        return cls._cfg
+
+    @classmethod
+    def set_config(cls, cfg: Config) -> None:
+        cls._cfg = cfg
 
 
 class TestExptFiles(AbstractIntegrationTest):
     """
     Set up the test for expected output files.
     """
-    filename_list = ""
 
     def test_fcst_files(self):
         """
         Test that expected files exist.
         """
-        for filename in self.filename_list:
-            filename_fp = self.fcst_dir / filename
+
+        cfg = self.get_config()
+
+        # Check if model_configure exists
+        model_configure_fp = cfg.fcst_dir / "model_configure"
+        self.assertTrue(model_configure_fp.exists())
+
+        # Loop through model_configure file to find the netcdf base names
+        with open(model_configure_fp, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("filename_base"):
+                    filename_base_1 = line.split("'")[1]
+                    filename_base_2 = line.split("'")[3]
+                    break
+
+        # Create list of expected filenames from the experiment
+        filename_list = []
+
+        for x in range(0, args.fcst_len + 1, args.fcst_inc):
+            fhour = str(x).zfill(3)
+            filename_1 = f"{filename_base_1}f{fhour}.nc"
+            filename_2 = f"{filename_base_2}f{fhour}.nc"
+            filename_list.append(filename_1)
+            filename_list.append(filename_2)
+
+        # Confirm that filenames exist
+        for filename in filename_list:
+            filename_fp = cfg.fcst_dir / filename
             logging.info(f"Checking existence of: {str(filename_fp)}")
             err_msg = f"Missing file: {str(filename_fp)}"
             self.assertTrue(filename_fp.exists(), err_msg)
 
 
 class TestUfsFire(AbstractIntegrationTest):
-    fcst_len: int | None = None
-    namelist_fire: f90nml.Namelist | None = None
+    _namelist_fire: f90nml.Namelist | None = None
 
     @classmethod
     def setUpClass(cls):
-        namelist_path = cls.fcst_dir.parent / "namelist.fire"
-        cls.namelist_fire = f90nml.read(namelist_path)
-        logging.info(f"{cls.namelist_fire=}")
-        return cls.namelist_fire
+        namelist_path = cls.get_config().fcst_dir.parent / "namelist.fire"
+        cls._namelist_fire = f90nml.read(namelist_path)
+        logging.info(f"{cls._namelist_fire=}")
+        return cls._namelist_fire
 
     def test_output_files_created(self) -> None:
-        assert isinstance(self.fcst_dir, Path)
-        fire_files = tuple(self.fcst_dir.glob("*fire_output_*nc"))
+        cfg = self.get_config()
+        fire_files = tuple(cfg.fcst_dir.glob("*fire_output_*nc"))
         n_fire_files = len(fire_files)
-        interval_output = self.namelist_fire["time"]["interval_output"]
-        logging.info(f"{self.fcst_len=}, {interval_output=}, {n_fire_files=}")
-        n_expected_files = ((self.fcst_len * 60 * 60) / interval_output) + 1
+        interval_output = self._namelist_fire["time"]["interval_output"]
+        logging.info(f"{interval_output=}, {n_fire_files=}")
+        n_expected_files = ((cfg.fcst_len * 60 * 60) / interval_output) + 1
         self.assertEqual(n_fire_files, n_expected_files)
 
     def test_namelist_created(self) -> None:
@@ -91,8 +132,8 @@ class TestUfsFire(AbstractIntegrationTest):
                                   'fire_upwinding', 'fire_lsm_zcoupling',
                                   'fire_lsm_zcoupling_ref')}
         actual_keys = {}
-        for k in self.namelist_fire.keys():
-            actual_keys[k] = tuple(self.namelist_fire[k].keys())
+        for k in self._namelist_fire.keys():
+            actual_keys[k] = tuple(self._namelist_fire[k].keys())
         self.assertEqual(set(actual_keys.keys()), set(expected_keys.keys()))
         for key in expected_keys.keys():
             self.assertEqual(set(actual_keys[key]), set(expected_keys[key]))
@@ -154,41 +195,17 @@ if __name__ == "__main__":
     # Start logger
     setup_logging()
 
-    # Check if model_configure exists
-    MODEL_CONFIGURE_FP = args.fcst_dir / "model_configure"
-
-    if not MODEL_CONFIGURE_FP.is_file():
-        logging.error("Experiment's model_configure file is missing! Exiting!")
-        sys.exit(1)
-
-    # Loop through model_configure file to find the netcdf base names
-    with open(MODEL_CONFIGURE_FP, "r", encoding="utf-8") as f:
-        for line in f:
-            if line.startswith("filename_base"):
-                filename_base_1 = line.split("'")[1]
-                filename_base_2 = line.split("'")[3]
-                break
-
-    # Create list of expected filenames from the experiment
-    filename_list = []
-
-    for x in range(0, args.fcst_len + 1, args.fcst_inc):
-        fhour = str(x).zfill(3)
-        filename_1 = f"{filename_base_1}f{fhour}.nc"
-        filename_2 = f"{filename_base_2}f{fhour}.nc"
-        filename_list.append(filename_1)
-        filename_list.append(filename_2)
+    config = Config(fcst_dir=args.fcst_dir, fcst_len=args.fcst_len, fcst_inc=args.fcst_inc)
+    logging.info(f"{config=}")
 
     # Call unittest class
-    TestExptFiles.fcst_dir = args.fcst_dir
-    TestExptFiles.filename_list = filename_list
+    TestExptFiles.set_config(config)
     suite = unittest.TestSuite()
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestExptFiles))
 
     if args.test_ufs_fire is True:
         logging.info("adding UFS-Fire tests to the runner")
-        TestUfsFire.fcst_dir = args.fcst_dir
-        TestUfsFire.fcst_len = args.fcst_len
+        TestUfsFire.set_config(config)
         suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestUfsFire))
 
     result = unittest.TextTestRunner(verbosity=2).run(suite)
