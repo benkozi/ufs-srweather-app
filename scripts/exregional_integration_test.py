@@ -82,11 +82,22 @@ class TestUfsFire(AbstractIntegrationTest):
         self.assertEqual(n_fire_files, n_expected_files)
 
     def test_namelist_created(self) -> None:
-        keys = {}
+        expected_keys = {'time': ('dt', 'interval_output'), 'atm': ('interval_atm', 'kde'),
+                         'fire': ('fire_num_ignitions', 'fire_ignition_ros1',
+                                  'fire_ignition_start_lat1', 'fire_ignition_start_lon1',
+                                  'fire_ignition_end_lat1', 'fire_ignition_end_lon1',
+                                  'fire_ignition_radius1', 'fire_ignition_start_time1',
+                                  'fire_ignition_end_time1', 'fire_wind_height',
+                                  'fire_print_msg', 'fire_atm_feedback', 'fire_viscosity',
+                                  'fire_upwinding', 'fire_lsm_zcoupling',
+                                  'fire_lsm_zcoupling_ref')}
+        actual_keys = {}
         for k in self.namelist_fire.keys():
-            keys[k] = tuple(self.namelist_fire[k].keys())
-        logging.info(f"{keys=}")
-        self.assertIsInstance(self.namelist_fire, f90nml.Namelist)
+            actual_keys[k] = tuple(self.namelist_fire[k].keys())
+        self.assertEqual(set(actual_keys.keys()), set(expected_keys.keys()))
+        for key in expected_keys.keys():
+            self.assertEqual(set(actual_keys[key]), set(expected_keys[key]))
+        self.assertTrue(False)
 
 
 def setup_logging(debug=False):
