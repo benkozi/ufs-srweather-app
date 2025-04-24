@@ -71,7 +71,7 @@ class TestUfsFire(AbstractIntegrationTest):
         logging.info(f"{cls.namelist_fire=}")
         return cls.namelist_fire
 
-    def test_fire_output_files_created(self) -> None:
+    def test_output_files_created(self) -> None:
         assert isinstance(self.fcst_dir, Path)
         fire_files = tuple(self.fcst_dir.glob("*fire_output_*nc"))
         n_fire_files = len(fire_files)
@@ -96,7 +96,6 @@ class TestUfsFire(AbstractIntegrationTest):
         self.assertEqual(set(actual_keys.keys()), set(expected_keys.keys()))
         for key in expected_keys.keys():
             self.assertEqual(set(actual_keys[key]), set(expected_keys[key]))
-        self.assertTrue(False)
 
 
 def setup_logging(debug=False):
