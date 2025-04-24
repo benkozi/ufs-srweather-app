@@ -41,13 +41,13 @@ import f90nml
 
 class AbstractIntegrationTest(abc.ABC, unittest.TestCase):
     fcst_dir = ""
-    filename_list = ""
 
 
 class TestExptFiles(AbstractIntegrationTest):
     """
     Set up the test for expected output files.
     """
+    filename_list = ""
 
     def test_fcst_files(self):
         """
@@ -68,6 +68,12 @@ class TestUfsFire(AbstractIntegrationTest):
         n_fire_files = len(fire_files)
         logging.info(f"{n_fire_files=}")
         self.assertGreater(n_fire_files, 0)
+
+    def test_namelist_created(self) -> None:
+        assert isinstance(self.fcst_dir, Path)
+        namelist_path = self.fcst_dir.parent / "namelist.fire"
+        contents = f90nml.read(namelist_path)
+        logging.info(f"{contents=}")
 
 
 def setup_logging(debug=False):
