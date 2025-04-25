@@ -40,6 +40,7 @@ from uwtools.config.formats.nml import NMLConfig
 
 # --------------Define some functions ------------------#
 LOGGER = logging.getLogger("task_integration_test")
+LOGGER.addHandler(logging.StreamHandler(sys.stdout))
 
 
 @dataclass
