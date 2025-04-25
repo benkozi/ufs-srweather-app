@@ -113,7 +113,7 @@ class TestUfsFire(AbstractIntegrationTest):
     def setUpClass(cls) -> None:
         namelist_path = cls.get_context().fcst_dir.parent / "namelist.fire"
         cls._namelist_fire = get_nml_config(namelist_path)
-        LOGGER.info(f"{cls._namelist_fire=}")
+        LOGGER.info(f"{cls._namelist_fire.as_dict()=}")
 
     def get_namelist_fire(self) -> NMLConfig:
         if self._namelist_fire is None:
