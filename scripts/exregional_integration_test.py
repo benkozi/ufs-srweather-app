@@ -39,12 +39,8 @@ from uwtools.api.config import get_nml_config
 from uwtools.config.formats.nml import NMLConfig
 
 # --------------Define some functions ------------------#
+logging.basicConfig(format="[%(levelname)s] %(message)s", level=logging.INFO)
 LOGGER = logging.getLogger("task_integration_test")
-LOGGER.propagate = False
-LOGGER.handlers.clear()
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
-LOGGER.addHandler(logging.StreamHandler(sys.stdout))
 
 
 @dataclass
