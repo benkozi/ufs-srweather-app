@@ -68,7 +68,7 @@ class TestExptFiles(AbstractIntegrationTest):
     Set up the test for expected output files.
     """
 
-    def test_fcst_files(self):
+    def test_fcst_files(self) -> None:
         """
         Test that expected files exist.
         """
@@ -124,27 +124,44 @@ class TestUfsFire(AbstractIntegrationTest):
         fire_files = tuple(ctx.fcst_dir.glob("*fire_output_*nc"))
         n_actual_files = len(fire_files)
         LOGGER.info(f"{n_actual_files=}")
-        interval_output = self._namelist_fire["time"]["interval_output"]
+        interval_output = self.get_namelist_fire()["time"]["interval_output"]
         n_expected_files = int(((ctx.fcst_len * 60 * 60) / interval_output) + 1)
         LOGGER.info(f"{n_expected_files=}")
         self.assertEqual(n_actual_files, n_expected_files)
 
     def test_namelist_creation(self) -> None:
-        base_params = {'time': {'dt', 'interval_output'}, 'atm': {'interval_atm', 'kde'},
-                       'fire': {'fire_num_ignitions', 'fire_wind_height',
-                                'fire_print_msg', 'fire_atm_feedback', 'fire_viscosity',
-                                'fire_upwinding', 'fire_lsm_zcoupling',
-                                'fire_lsm_zcoupling_ref'}}
-        multifire_params = ('fire_ignition_ros', 'fire_ignition_start_lat',
-                            'fire_ignition_start_lon', 'fire_ignition_end_lat',
-                            'fire_ignition_end_lon', 'fire_ignition_radius',
-                            'fire_ignition_start_time', 'fire_ignition_end_time')
+        base_params = {
+            "time": {"dt", "interval_output"},
+            "atm": {"interval_atm", "kde"},
+            "fire": {
+                "fire_num_ignitions",
+                "fire_wind_height",
+                "fire_print_msg",
+                "fire_atm_feedback",
+                "fire_viscosity",
+                "fire_upwinding",
+                "fire_lsm_zcoupling",
+                "fire_lsm_zcoupling_ref",
+            },
+        }
+        multifire_params = (
+            "fire_ignition_ros",
+            "fire_ignition_start_lat",
+            "fire_ignition_start_lon",
+            "fire_ignition_end_lat",
+            "fire_ignition_end_lon",
+            "fire_ignition_radius",
+            "fire_ignition_start_time",
+            "fire_ignition_end_time",
+        )
 
         namelist_fire = self.get_namelist_fire()
         # For each fire we need one of these settings in the namelist with an integer suffix
-        num_fires = namelist_fire['fire']['fire_num_ignitions']
-        multifire_params_with_suffix = [f"{param}{ii + 1}" for ii, param in
-                                        itertools.product(range(num_fires), multifire_params)]
+        num_fires = namelist_fire["fire"]["fire_num_ignitions"]
+        multifire_params_with_suffix = [
+            f"{param}{ii + 1}"
+            for ii, param in itertools.product(range(num_fires), multifire_params)
+        ]
         base_params["fire"].update(multifire_params_with_suffix)
         LOGGER.info(f"{base_params=}")
 
@@ -198,7 +215,9 @@ if __name__ == "__main__":
         LOGGER.debug("logging level set to DEBUG")
     LOGGER.info(f"{args=}")
 
-    config = ContextForTest(fcst_dir=args.fcst_dir, fcst_len=args.fcst_len, fcst_inc=args.fcst_inc)
+    config = ContextForTest(
+        fcst_dir=args.fcst_dir, fcst_len=args.fcst_len, fcst_inc=args.fcst_inc
+    )
     LOGGER.info(f"{config=}")
 
     # Call unittest class
