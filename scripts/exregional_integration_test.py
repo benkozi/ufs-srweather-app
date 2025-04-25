@@ -39,7 +39,7 @@ from uwtools.api.config import get_nml_config
 from uwtools.config.formats.nml import NMLConfig
 
 # --------------Define some functions ------------------#
-logging.basicConfig(format="[%(levelname)s] %(message)s", level=logging.INFO)
+logging.basicConfig(format="[%(name)s][%(levelname)s] %(message)s", level=logging.INFO)
 LOGGER = logging.getLogger("task_integration_test")
 
 
@@ -149,7 +149,7 @@ class TestUfsFire(AbstractIntegrationTest):
             # There can be multiple entries for keys suffixed with "1". We are not testing multiple
             # parameter entries here.
             self.assertTrue(expected_group_keys.issubset(actual_group_keys))
-            LOGGER.info(f"{actual_group_keys.difference(expected_group_keys)=}")
+            LOGGER.info(f"{key=} difference: {actual_group_keys.difference(expected_group_keys)}")
 
 
 # -------------Start of script -------------------------#
