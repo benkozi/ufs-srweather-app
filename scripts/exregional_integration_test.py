@@ -35,28 +35,30 @@ import unittest
 from dataclasses import dataclass
 from pathlib import Path
 
-import f90nml
+from uwtools.api.config import get_nml_config
+from uwtools.config.formats.nml import NMLConfig
+
 
 # --------------Define some functions ------------------#
 
 @dataclass
-class Config:
+class ConfigForTest:
     fcst_dir: Path
     fcst_len: int
     fcst_inc: int
 
 
 class AbstractIntegrationTest(abc.ABC, unittest.TestCase):
-    _cfg: Config | None = None
+    _cfg: ConfigForTest | None = None
 
     @classmethod
-    def get_config(cls) -> Config:
+    def get_config(cls) -> ConfigForTest:
         if cls._cfg is None:
             raise ValueError
         return cls._cfg
 
     @classmethod
-    def set_config(cls, cfg: Config) -> None:
+    def set_config(cls, cfg: ConfigForTest) -> None:
         cls._cfg = cfg
 
 
@@ -103,16 +105,15 @@ class TestExptFiles(AbstractIntegrationTest):
 
 
 class TestUfsFire(AbstractIntegrationTest):
-    _namelist_fire: f90nml.Namelist | None = None
+    _namelist_fire: NMLConfig | None = None
 
     @classmethod
     def setUpClass(cls) -> None:
         namelist_path = cls.get_config().fcst_dir.parent / "namelist.fire"
-        cls._namelist_fire = f90nml.read(namelist_path)
+        cls._namelist_fire = get_nml_config(namelist_path)
         logging.info(f"{cls._namelist_fire=}")
-        return cls._namelist_fire
 
-    def get_namelist_fire(self) -> f90nml.Namelist:
+    def get_namelist_fire(self) -> NMLConfig:
         if self._namelist_fire is None:
             raise ValueError
         return self._namelist_fire
@@ -205,7 +206,7 @@ if __name__ == "__main__":
     # Start logger
     setup_logging()
 
-    config = Config(fcst_dir=args.fcst_dir, fcst_len=args.fcst_len, fcst_inc=args.fcst_inc)
+    config = ConfigForTest(fcst_dir=args.fcst_dir, fcst_len=args.fcst_len, fcst_inc=args.fcst_inc)
     logging.info(f"{config=}")
 
     # Call unittest class
