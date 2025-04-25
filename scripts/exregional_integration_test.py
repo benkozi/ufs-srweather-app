@@ -26,7 +26,6 @@ Python Script Documentation Block
 
 """
 
-# -------------Import modules --------------------------#
 import abc
 import argparse
 import itertools
@@ -39,7 +38,6 @@ from pathlib import Path
 from uwtools.api.config import get_nml_config
 from uwtools.config.formats.nml import NMLConfig
 
-# --------------Define some functions ------------------#
 logging.basicConfig(format="[%(name)s][%(levelname)s] %(message)s", level=logging.INFO)
 LOGGER = logging.getLogger("task_integration_test")
 
@@ -131,7 +129,7 @@ class TestUfsFire(AbstractIntegrationTest):
         LOGGER.info(f"{n_expected_files=}")
         self.assertEqual(n_actual_files, n_expected_files)
 
-    def test_namelist_created(self) -> None:
+    def test_namelist_creation(self) -> None:
         base_params = {'time': {'dt', 'interval_output'}, 'atm': {'interval_atm', 'kde'},
                        'fire': {'fire_num_ignitions', 'fire_wind_height',
                                 'fire_print_msg', 'fire_atm_feedback', 'fire_viscosity',
@@ -197,7 +195,7 @@ if __name__ == "__main__":
 
     if args.debug:
         LOGGER.setLevel(logging.DEBUG)
-        LOGGER.info("logging level set to DEBUG")
+        LOGGER.debug("logging level set to DEBUG")
     LOGGER.info(f"{args=}")
 
     config = ContextForTest(fcst_dir=args.fcst_dir, fcst_len=args.fcst_len, fcst_inc=args.fcst_inc)
