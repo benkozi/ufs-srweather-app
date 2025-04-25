@@ -38,28 +38,29 @@ from pathlib import Path
 from uwtools.api.config import get_nml_config
 from uwtools.config.formats.nml import NMLConfig
 
-
 # --------------Define some functions ------------------#
+LOGGER = logging.getLogger("task_integration_test")
+
 
 @dataclass
-class ConfigForTest:
+class ContextForTest:
     fcst_dir: Path
     fcst_len: int
     fcst_inc: int
 
 
 class AbstractIntegrationTest(abc.ABC, unittest.TestCase):
-    _cfg: ConfigForTest | None = None
+    _ctx: ContextForTest | None = None
 
     @classmethod
-    def get_config(cls) -> ConfigForTest:
-        if cls._cfg is None:
+    def get_context(cls) -> ContextForTest:
+        if cls._ctx is None:
             raise ValueError
-        return cls._cfg
+        return cls._ctx
 
     @classmethod
-    def set_config(cls, cfg: ConfigForTest) -> None:
-        cls._cfg = cfg
+    def set_context(cls, ctx: ContextForTest) -> None:
+        cls._ctx = ctx
 
 
 class TestExptFiles(AbstractIntegrationTest):
@@ -72,10 +73,10 @@ class TestExptFiles(AbstractIntegrationTest):
         Test that expected files exist.
         """
 
-        cfg = self.get_config()
+        ctx = self.get_context()
 
         # Check if model_configure exists
-        model_configure_fp = cfg.fcst_dir / "model_configure"
+        model_configure_fp = ctx.fcst_dir / "model_configure"
         self.assertTrue(model_configure_fp.exists())
 
         # Loop through model_configure file to find the netcdf base names
@@ -98,8 +99,8 @@ class TestExptFiles(AbstractIntegrationTest):
 
         # Confirm that filenames exist
         for filename in filename_list:
-            filename_fp = cfg.fcst_dir / filename
-            logging.info(f"Checking existence of: {str(filename_fp)}")
+            filename_fp = ctx.fcst_dir / filename
+            LOGGER.info(f"Checking existence of: {str(filename_fp)}")
             err_msg = f"Missing file: {str(filename_fp)}"
             self.assertTrue(filename_fp.exists(), err_msg)
 
@@ -109,9 +110,9 @@ class TestUfsFire(AbstractIntegrationTest):
 
     @classmethod
     def setUpClass(cls) -> None:
-        namelist_path = cls.get_config().fcst_dir.parent / "namelist.fire"
+        namelist_path = cls.get_context().fcst_dir.parent / "namelist.fire"
         cls._namelist_fire = get_nml_config(namelist_path)
-        logging.info(f"{cls._namelist_fire=}")
+        LOGGER.info(f"{cls._namelist_fire=}")
 
     def get_namelist_fire(self) -> NMLConfig:
         if self._namelist_fire is None:
@@ -119,13 +120,13 @@ class TestUfsFire(AbstractIntegrationTest):
         return self._namelist_fire
 
     def test_output_files_created(self) -> None:
-        cfg = self.get_config()
-        fire_files = tuple(cfg.fcst_dir.glob("*fire_output_*nc"))
+        ctx = self.get_context()
+        fire_files = tuple(ctx.fcst_dir.glob("*fire_output_*nc"))
         n_actual_files = len(fire_files)
-        logging.info(f"{n_actual_files=}")
+        LOGGER.info(f"{n_actual_files=}")
         interval_output = self._namelist_fire["time"]["interval_output"]
-        n_expected_files = int(((cfg.fcst_len * 60 * 60) / interval_output) + 1)
-        logging.info(f"{n_expected_files=}")
+        n_expected_files = int(((ctx.fcst_len * 60 * 60) / interval_output) + 1)
+        LOGGER.info(f"{n_expected_files=}")
         self.assertEqual(n_actual_files, n_expected_files)
 
     def test_namelist_created(self) -> None:
@@ -147,20 +148,7 @@ class TestUfsFire(AbstractIntegrationTest):
             # There can be multiple entries for keys suffixed with "1". We are not testing multiple
             # parameter entries here.
             self.assertTrue(expected_group_keys.issubset(actual_group_keys))
-            logging.info(f"{actual_group_keys.difference(expected_group_keys)=}")
-
-
-def setup_logging(debug=False):
-    """Calls initialization functions for logging package, and sets the
-    user-defined level for logging in the script."""
-
-    level = logging.INFO
-    if debug:
-        level = logging.DEBUG
-
-    logging.basicConfig(format="%(levelname)s: %(message)s ", level=level)
-    if debug:
-        logging.info("Logging level set to DEBUG")
+            LOGGER.info(f"{actual_group_keys.difference(expected_group_keys)=}")
 
 
 # -------------Start of script -------------------------#
@@ -203,20 +191,22 @@ if __name__ == "__main__":
     args = parser.parse_args()
     sys.argv[1:] = args.unittest_args
 
-    # Start logger
-    setup_logging()
+    if args.debug:
+        LOGGER.setLevel(logging.DEBUG)
+        LOGGER.info("logging level set to DEBUG")
+    LOGGER.info(f"{args=}")
 
-    config = ConfigForTest(fcst_dir=args.fcst_dir, fcst_len=args.fcst_len, fcst_inc=args.fcst_inc)
-    logging.info(f"{config=}")
+    config = ContextForTest(fcst_dir=args.fcst_dir, fcst_len=args.fcst_len, fcst_inc=args.fcst_inc)
+    LOGGER.info(f"{config=}")
 
     # Call unittest class
-    TestExptFiles.set_config(config)
+    TestExptFiles.set_context(config)
     suite = unittest.TestSuite()
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestExptFiles))
 
     if args.test_ufs_fire is True:
-        logging.info("adding UFS-Fire tests to the runner")
-        TestUfsFire.set_config(config)
+        LOGGER.info("adding UFS-Fire tests to the runner")
+        TestUfsFire.set_context(config)
         suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestUfsFire))
 
     result = unittest.TextTestRunner(verbosity=2).run(suite)
