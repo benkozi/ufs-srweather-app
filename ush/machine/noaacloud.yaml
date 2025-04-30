@@ -45,5 +45,9 @@ data:
       grib2: /contrib/EPIC/UFS_SRW_data/develop/input_model_data/FV3GFS/grib2/${yyyymmdd}${hh}
 
 smoke_dust_parm:
-         COMINsmoke_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_smoke_dust
-         COMINrave_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_fire
+  COMINsmoke_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_smoke_dust
+  COMINrave_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_fire
+
+fire:
+  envvars:
+    FIRE_INPUT_DIR: /contrib/EPIC/UFS_SRW_data/develop/UFS_FIRE/2020081318
