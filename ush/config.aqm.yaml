@@ -22,7 +22,8 @@ workflow:
   FIELD_TABLE_TMPL_FN: field_table_aqm.FV3_GFS_v16
   DO_REAL_TIME: false
   COLDSTART: false      # set to true for cold start
-  WARMSTART_CYCLE_DIR: '/scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for hera
+  WARMSTART_CYCLE_DIR: /gpfs/f6/bil-fire3/scratch/Wei.K.Li/aqm_data/restart/2023111000 # for gaeac6
+#  WARMSTART_CYCLE_DIR: '/scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for hera
 #  WARMSTART_CYCLE_DIR: '/work/noaa/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for orion/hercules
 #  WARMSTART_CYCLE_DIR: '/glade/work/chanhooj/SRW-AQM_DATA/aqm_data/restart/2023111000' # for derecho
   taskgroups:
@@ -34,9 +35,6 @@ nco:
   envir_default: test_aqm_warmstart
   NET_default: aqm
   RUN_default: aqm
-#rocoto: # uncomment this section in case of COLDSTART: true
-#  tasks:
-#    task_aqm_ics_ext: !remove
 task_get_extrn_ics:
   envvars:
     EXTRN_MDL_NAME_ICS: FV3GFS
@@ -59,9 +57,9 @@ task_run_fcst:
     PRINT_ESMF: false
     RESTART_INTERVAL: 12 24
     DO_FCST_RESTART: false
-  LAYOUT_X: 50
-  LAYOUT_Y: 34
-  BLOCKSIZE: 16
+#  LAYOUT_X: 50 #tdk:rm
+#  LAYOUT_Y: 34 #tdk:rm
+#  BLOCKSIZE: 16 #tdk:rm
   QUILTING: true
 task_run_post:
   envvars:
