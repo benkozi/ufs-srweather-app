@@ -60,9 +60,9 @@ data:
     GSMGFS: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/GSMGFS/${yyyymmdd}${hh}
 
 cpl_aqm_parm:
-  COMINfire_default: /gpfs/f6/bil-fire3/scratch/Wei.K.Li/aqm_data/RAVE_fire
-  COMINgefs_default: /gpfs/f6/bil-fire3/scratch/Wei.K.Li/aqm_data/GEFS_DATA
-  NEXUS_GFS_SFC_DIR: /gpfs/f6/bil-fire3/scratch/Wei.K.Li/aqm_data/GFS_SFC_DATA
+  COMINfire_default: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/aqm_data/RAVE_fire
+  COMINgefs_default: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/aqm_data/GEFS_DATA
+  NEXUS_GFS_SFC_DIR: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/aqm_data/GFS_SFC_DATA
 
 smoke_dust_parm:
   COMINsmoke_default: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/data_smoke_dust/RAVE_smoke_dust
