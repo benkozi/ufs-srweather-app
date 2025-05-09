@@ -62,9 +62,6 @@ task_run_fcst:
     PRINT_ESMF: false
     RESTART_INTERVAL: 12 24
     DO_FCST_RESTART: false
-#  LAYOUT_X: 50 #tdk:rm
-#  LAYOUT_Y: 34 #tdk:rm
-#  BLOCKSIZE: 16 #tdk:rm
   QUILTING: true
 task_run_post:
   envvars:
