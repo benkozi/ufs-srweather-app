@@ -41,18 +41,20 @@ nco:
 task_get_extrn_ics:
   envvars:
     USE_USER_STAGED_EXTRN_FILES: true
-    EXTRN_MDL_SOURCE_BASEDIR_ICS: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/FV3GFS/gfs.${yyyymmdd}/${hh}/atmos
+    EXTRN_MDL_SOURCE_BASEDIR_ICS: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/FV3GFS
     EXTRN_MDL_NAME_ICS: FV3GFS
     FV3GFS_FILE_FMT_ICS: netcdf
     EXTRN_MDL_ICS_OFFSET_HRS: 0
+    EXTRN_MDL_FILES_ICS: gfs.${yyyymmdd}/${hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc
 task_get_extrn_lbcs:
   envvars:
     USE_USER_STAGED_EXTRN_FILES: true
-    EXTRN_MDL_SOURCE_BASEDIR_LBCS: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/FV3GFS/gfs.${yyyymmdd}/${hh}/atmos
+    EXTRN_MDL_SOURCE_BASEDIR_LBCS: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/FV3GFS
     EXTRN_MDL_NAME_LBCS: FV3GFS
 #    LBC_SPEC_INTVL_HRS: 6
     FV3GFS_FILE_FMT_LBCS: netcdf
     EXTRN_MDL_LBCS_OFFSET_HRS: 0
+    EXTRN_MDL_FILES_LBCS: gfs.${yyyymmdd}/${hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc
 task_nexus_emission:
   envvars:
     PPN_NEXUS_EMISSION: 20
