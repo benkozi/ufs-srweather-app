@@ -320,7 +320,7 @@ esac
 #
 # Not sure if tracers(:) should include "cld_amt" since that is also in
 # the field_table for CDATE=2017100700 but is a non-prognostic variable.
-
+echo "tdk:323: ${EXTRN_MDL_FNS}"
 external_model=""
 fn_atm=""
 fn_grib2=""
