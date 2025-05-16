@@ -152,7 +152,9 @@ export OMP_STACKSIZE=${OMP_STACKSIZE_MAKE_LBCS}
 #
 #-----------------------------------------------------------------------
 #
+echo "tdk:155: ${EXTRN_MDL_FNS}"
 eval ${PRE_TASK_CMDS}
+echo "tdk:156: ${EXTRN_MDL_FNS}"
 
 if [ -z "${RUN_CMD_UTILS:-}" ] ; then
   print_err_msg_exit "\
@@ -178,6 +180,7 @@ else
     extrn_mdl_var_defns_fp="${extrn_mdl_staging_dir}/${EXTRN_MDL_VAR_DEFNS_FN}.sh"
 fi
 . ${extrn_mdl_var_defns_fp}
+echo "tdk:181: ${EXTRN_MDL_FNS}"
 #
 #-----------------------------------------------------------------------
 #
@@ -233,6 +236,7 @@ for this physics suite (CCPP_PHYS_SUITE):
   ;;
 #
 esac
+echo "tdk:236: ${EXTRN_MDL_FNS}"
 #
 #-----------------------------------------------------------------------
 #
