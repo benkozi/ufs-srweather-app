@@ -12,8 +12,8 @@ workflow:
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v16
 #  DATE_FIRST_CYCL: '2023111000'
-  DATE_FIRST_CYCL: '2023022000'
-  DATE_LAST_CYCL:  '2023022100'
+  DATE_FIRST_CYCL: '2023040112'
+  DATE_LAST_CYCL:  '2023040212'
 #  DATE_LAST_CYCL: '2023111100'
   INCR_CYCL_FREQ: 24
   FCST_LEN_HRS: 24
@@ -50,7 +50,7 @@ task_get_extrn_lbcs:
     USE_USER_STAGED_EXTRN_FILES: true
     EXTRN_MDL_SOURCE_BASEDIR_LBCS: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/FV3GFS
     EXTRN_MDL_NAME_LBCS: FV3GFS
-    LBC_SPEC_INTVL_HRS: 6
+#    LBC_SPEC_INTVL_HRS: 6
     FV3GFS_FILE_FMT_LBCS: netcdf
     EXTRN_MDL_LBCS_OFFSET_HRS: 0
 task_nexus_emission:
@@ -103,3 +103,8 @@ cpl_aqm_parm:
   COMINfire_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RAVE_fire
   COMINgefs_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/GEFS_Aerosol
   NEXUS_GFS_SFC_DIR: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/GFS_SFC_DATA
+#  NEXUS_GFS_SFC_OFFSET_HRS: 12
+data:
+  ics_lbcs:
+    FV3GFS:
+      netcdf: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/FV3GFS/gfs.${yyyymmdd}/${hh}/atmos
