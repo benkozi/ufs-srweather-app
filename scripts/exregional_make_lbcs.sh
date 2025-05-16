@@ -180,6 +180,7 @@ else
     extrn_mdl_var_defns_fp="${extrn_mdl_staging_dir}/${EXTRN_MDL_VAR_DEFNS_FN}.sh"
 fi
 echo "tdk:182: ${EXTRN_MDL_FNS}"
+echo "tdk: extrn_mdl_var_defns_fp=${extrn_mdl_var_defns_fp}"
 . ${extrn_mdl_var_defns_fp}
 echo "tdk:184: ${EXTRN_MDL_FNS}"
 #
