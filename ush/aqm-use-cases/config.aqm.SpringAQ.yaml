@@ -57,6 +57,14 @@ task_get_extrn_lbcs:
     EXTRN_MDL_LBCS_OFFSET_HRS: 0
     EXTRN_MDL_FILES_LBCS:
       - "gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
+task_make_ics:
+  envvars:
+    EXTRN_MDL_FNS:
+      - "gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
+task_make_lbcs:
+  envvars:
+    EXTRN_MDL_FNS:
+      - "gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
 task_nexus_emission:
   envvars:
     PPN_NEXUS_EMISSION: 20
