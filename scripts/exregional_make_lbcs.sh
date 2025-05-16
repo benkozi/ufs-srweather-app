@@ -492,6 +492,7 @@ for (( ii=0; ii<${num_fhrs}; ii=ii+bcgrpnum10 )); do
     elif [ "${FV3GFS_FILE_FMT_LBCS}" = "grib2" ]; then
       fn_grib2="${EXTRN_MDL_FNS[$i]}"
     elif [ "${FV3GFS_FILE_FMT_LBCS}" = "netcdf" ]; then
+      echo "tdk:${EXTRN_MDL_FNS}"
       fn_atm="${EXTRN_MDL_FNS[$i]}"
     fi
     ;;
