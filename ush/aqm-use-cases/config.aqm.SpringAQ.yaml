@@ -46,7 +46,6 @@ task_get_extrn_ics:
     FV3GFS_FILE_FMT_ICS: netcdf
     EXTRN_MDL_ICS_OFFSET_HRS: 0
     EXTRN_MDL_FILES_ICS:
-      - "gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
       - "gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
 task_get_extrn_lbcs:
   envvars:
@@ -57,16 +56,15 @@ task_get_extrn_lbcs:
     FV3GFS_FILE_FMT_LBCS: netcdf
     EXTRN_MDL_LBCS_OFFSET_HRS: 0
     EXTRN_MDL_FILES_LBCS:
-      - "gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
       - "gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
-#task_make_ics:
-#  envvars:
-#    EXTRN_MDL_FNS:
-#      - "gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
-#task_make_lbcs:
-#  envvars:
-#    EXTRN_MDL_FNS:
-#      - "gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
+task_make_ics:
+  envvars:
+    EXTRN_MDL_FNS:
+      - "gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
+task_make_lbcs:
+  envvars:
+    EXTRN_MDL_FNS:
+      - "gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
 task_nexus_emission:
   envvars:
     PPN_NEXUS_EMISSION: 20
