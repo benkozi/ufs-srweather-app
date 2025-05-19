@@ -183,7 +183,7 @@ echo "tdk:182: ${EXTRN_MDL_FNS}"
 
 # Allow EXTRN_MDL_FNS to be overridden via configuration.
 if [[ -v "EXTRN_MDL_FNS" ]]; then
-  EXTRN_MDL_FNS_OVERRIDE="${EXTRN_MDL_FNS[*]}"
+  EXTRN_MDL_FNS_OVERRIDE=( "${EXTRN_MDL_FNS[@]}" )
 fi
 
 echo "tdk: extrn_mdl_var_defns_fp=${extrn_mdl_var_defns_fp}"
@@ -192,7 +192,7 @@ echo "tdk:184: ${EXTRN_MDL_FNS}"
 
 # Allow EXTRN_MDL_FNS to be overridden via configuration.
 if [[ -v "EXTRN_MDL_FNS_OVERRIDE" ]]; then
-  EXTRN_MDL_FNS="${EXTRN_MDL_FNS_OVERRIDE[*]}"
+  EXTRN_MDL_FNS=( "${EXTRN_MDL_FNS_OVERRIDE[@]}" )
 fi
 echo "tdk:197: ${EXTRN_MDL_FNS}"
 #
