@@ -487,7 +487,6 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
     # -----------------------------------------------------------------------
     #
     if expt_config["cpl_aqm_parm"]["CPL_AQM"]:
-        import pdb;pdb.set_trace() #tdk:rm
         date_second_cycle = date_first_cycl_dt + cycl_intvl_dt
 
         rocoto_config["cycledef"].append({
