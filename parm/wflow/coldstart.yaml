@@ -235,9 +235,9 @@ metatask_run_ensemble:
               value:
                 cyclestr:
                   value: '{{ workflow.EXPTDIR }}/task_skip_coldstart_@Y@m@d@H.txt'
-          taskdep:
-            attrs:
-              task: aqm_ics_ext
+            taskdep:
+              attrs:
+                task: aqm_ics_ext
 #        or_coldstart:
 #          not:
 #            datadep:
