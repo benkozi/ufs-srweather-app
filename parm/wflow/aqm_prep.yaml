@@ -151,9 +151,16 @@ task_aqm_ics_ext:
   memory: 64G
   dependency:
     and:
-      taskdep:
+      taskdep_make_ics:
         attrs:
-          task: make_ics_mem000
+          task: make_ics_#mem#
+      not:
+        datadep_coldstart:
+          attrs:
+            age: 00:00:00:05
+          value:
+            cyclestr:
+              value: '{{ workflow.EXPTDIR }}/task_skip_coldstart_@Y@m@d@H.txt'
       or:
         datadep_date_tag_tracer:
           attrs:
