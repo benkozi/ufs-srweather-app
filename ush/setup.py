@@ -1674,6 +1674,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
 
     # Generate a flag file for cold start
     if expt_config["workflow"].get("COLDSTART"):
+        import pdb;pdb.set_trace() #tdk:rm
         coldstart_date = var_defns_cfg["workflow"]["DATE_FIRST_CYCL"]
         fn_pass=f"task_skip_coldstart_{coldstart_date}.txt"
         open(os.path.join(exptdir,fn_pass), 'a').close()
