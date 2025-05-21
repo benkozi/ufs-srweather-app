@@ -75,7 +75,6 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
         f"Read in the following values from YAML config file {user_config}:\n"
     )
     logging.debug(user_config)
-    import pdb;pdb.set_trace() #tdk:rm
 
     # Check user config against experiment schema
     schema = ushdir / "user.jsonschema"
@@ -155,6 +154,8 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
             **default_config,
             }
         )
+
+    import pdb;pdb.set_trace() #tdk:rm
 
     # Validate experiment config against schema
     schema = ushdir / "experiment.jsonschema"
