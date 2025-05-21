@@ -150,6 +150,7 @@ task_aqm_ics_ext:
   walltime: '{{ task_aqm_ics_ext.execution.batchargs.walltime }}'
   memory: 64G
   dependency:
+    and:
       taskdep:
         attrs:
           task: make_ics_mem#mem#
