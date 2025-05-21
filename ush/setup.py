@@ -18,6 +18,7 @@ from io import StringIO
 from pathlib import Path
 from textwrap import dedent
 
+from uwtools.config.support import UWYAMLRemove
 
 from link_fix import link_fix
 from python_utils import (
@@ -124,8 +125,10 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
     ):
         default_config.update_from(cfg)
 
-    import pdb;
-    pdb.set_trace()  # tdk:rm
+    # If running coupled AQM with cold start, we do not need to get external AQM ICs
+    if default_config.get("workflow", {}).get("COLDSTART", False) and default_config.get("cpl_aqm_parm", {}).get("CPL_AQM", False):
+        logging.debug("Removing task_aqm_ics_ext due to UFS-AQM cold start")
+        default_config["rocoto"]["tasks"]["task_aqm_ics_ext"] = UWYAMLRemove
 
     # Set the path to the top-level ufs-srweather-app directory
     homedir = Path(__file__).parent.parent.resolve()
