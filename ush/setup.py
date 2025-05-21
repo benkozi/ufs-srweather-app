@@ -75,6 +75,7 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
         f"Read in the following values from YAML config file {user_config}:\n"
     )
     logging.debug(user_config)
+    import pdb;pdb.set_trace() #tdk:rm
 
     # Check user config against experiment schema
     schema = ushdir / "user.jsonschema"
@@ -1673,14 +1674,6 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         raise ValueError(msg)
 
     if expt_config["workflow"].get("COLDSTART"):
-        import pdb;pdb.set_trace() #tdk:rm
-        # If running coupled AQM with cold start, we do not need to get external AQM ICs
-        if expt_config.get("cpl_aqm_parm", {}).get("CPL_AQM", False):
-            logging.debug("Removing task_aqm_ics_ext due to UFS-AQM cold start")
-            if expt_config["rocoto"]["tasks"].pop("task_aqm_ics_ext", None) is None:
-                logging.warning("task_aqm_ics_ext not found in rocoto tasks")
-            expt_config.pop("task_aqm_ics_ext", None)
-
         # Generate a flag file for cold start
         coldstart_date = var_defns_cfg["workflow"]["DATE_FIRST_CYCL"]
         fn_pass=f"task_skip_coldstart_{coldstart_date}.txt"
