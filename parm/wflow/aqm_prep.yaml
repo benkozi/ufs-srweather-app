@@ -167,6 +167,13 @@ task_aqm_ics_ext:
           value:
             cyclestr:
               value:  '&WARMSTART_CYCLE_DIR;/RESTART/fv_tracer.res.tile1.nc'
+        not:
+          datadep_coldstart:
+            attrs:
+              age: 00:00:00:05
+            value:
+              cyclestr:
+                value: '{{ workflow.EXPTDIR }}/task_skip_coldstart_@Y@m@d@H.txt'
 
 task_aqm_ics:
   <<: *default_aqm
