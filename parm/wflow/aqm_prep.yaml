@@ -150,14 +150,6 @@ task_aqm_ics_ext:
   walltime: '{{ task_aqm_ics_ext.execution.batchargs.walltime }}'
   memory: 64G
   dependency:
-    and:
-      not:
-        datadep_coldstart:
-          attrs:
-            age: 00:00:00:05
-          value:
-            cyclestr:
-              value: '{{ workflow.EXPTDIR }}/task_skip_coldstart_@Y@m@d@H.txt'
       taskdep:
         attrs:
           task: make_ics_mem#mem#

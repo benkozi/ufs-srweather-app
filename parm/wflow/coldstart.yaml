@@ -223,6 +223,12 @@ metatask_run_ensemble:
           taskdep:
             attrs:
               task: aqm_ics
+        or_datadep_coldstart:
+          attrs:
+            age: 00:00:00:05
+          value:
+            cyclestr:
+              value: '{{ workflow.EXPTDIR }}/task_skip_coldstart_@Y@m@d@H.txt'
         or_aqm_ics_ext: #tdk:fix
           not:
             taskvalid:
