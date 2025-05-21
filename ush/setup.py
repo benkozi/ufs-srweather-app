@@ -1672,9 +1672,13 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         """
         raise ValueError(msg)
 
-    # Generate a flag file for cold start
     if expt_config["workflow"].get("COLDSTART"):
-        import pdb;pdb.set_trace() #tdk:rm
+        # If running coupled AQM with cold start, we do not need to get external AQM ICs
+        if expt_config["workflow"].get("cpl_aqm_parm", {}).get("CPL_AQM", False):
+            logging.info("Removing task_aqm_ics_ext due to UFS-AQM cold start")
+            expt_config["rocoto"]["tasks"].pop("task_aqm_ics_ext", None)
+
+        # Generate a flag file for cold start
         coldstart_date = var_defns_cfg["workflow"]["DATE_FIRST_CYCL"]
         fn_pass=f"task_skip_coldstart_{coldstart_date}.txt"
         open(os.path.join(exptdir,fn_pass), 'a').close()
