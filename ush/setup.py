@@ -1674,6 +1674,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
 
     if expt_config["workflow"].get("COLDSTART"):
         # If running coupled AQM with cold start, we do not need to get external AQM ICs
+        import pdb;pdb.set_trace() #tdk:rm
         if expt_config["workflow"].get("cpl_aqm_parm", {}).get("CPL_AQM", False):
             logging.info("Removing task_aqm_ics_ext due to UFS-AQM cold start")
             expt_config["rocoto"]["tasks"].pop("task_aqm_ics_ext", None)
