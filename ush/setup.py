@@ -124,6 +124,9 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
     ):
         default_config.update_from(cfg)
 
+    import pdb;
+    pdb.set_trace()  # tdk:rm
+
     # Set the path to the top-level ufs-srweather-app directory
     homedir = Path(__file__).parent.parent.resolve()
     default_config["user"]["HOMEdir"] = str(homedir)
@@ -154,8 +157,6 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
             **default_config,
             }
         )
-
-    import pdb;pdb.set_trace() #tdk:rm
 
     # Validate experiment config against schema
     schema = ushdir / "experiment.jsonschema"
