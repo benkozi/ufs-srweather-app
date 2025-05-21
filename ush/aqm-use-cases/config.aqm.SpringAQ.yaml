@@ -38,6 +38,9 @@ nco:
   envir_default: aqm_AQMNA13km_SpringAQ
   NET_default: aqm
   RUN_default: aqm
+rocoto:
+  tasks:
+    task_aqm_ics_ext: !remove #tdk:rm
 task_get_extrn_ics:
   envvars:
     USE_USER_STAGED_EXTRN_FILES: true
