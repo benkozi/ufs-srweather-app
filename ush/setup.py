@@ -147,13 +147,6 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
     for cfg in (machine_config, user_config):
         default_config.update_from(cfg)
 
-    # If running coupled AQM with warm start, we need to get external AQM ICs
-    if not default_config["workflow"]["COLDSTART"] and default_config.get("cpl_aqm_parm", {}).get("CPL_AQM", False):
-        aqm_ics_ext_value = default_config["rocoto"]["tasks"].get("task_aqm_ics_ext")
-        if isinstance(aqm_ics_ext_value, UWYAMLRemove):
-            logging.debug("Enabling task_aqm_ics_ext due to UFS-AQM warm start")
-            default_config["rocoto"]["tasks"].pop("task_aqm_ics_ext")
-
     # Dereference all Jinja expressions
     default_config.dereference(
         context={
