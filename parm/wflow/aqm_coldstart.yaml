@@ -1,0 +1,3 @@
+rocoto:
+  tasks:
+    task_aqm_ics_ext: !remove

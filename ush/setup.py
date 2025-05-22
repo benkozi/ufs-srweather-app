@@ -147,6 +147,11 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
     for cfg in (machine_config, user_config):
         default_config.update_from(cfg)
 
+    if default_config["workflow"].get("COLDSTART", False) and default_config.get("cpl_aqm_parm", {}).get("CPL_AQM", False):
+        aqm_coldstart = get_yaml_config(homedir / "parm" / "wflow"/ "aqm_coldstart.yaml")
+        default_config.update_from(aqm_coldstart)
+        import pdb;pdb.set_trace()
+
     # Dereference all Jinja expressions
     default_config.dereference(
         context={
