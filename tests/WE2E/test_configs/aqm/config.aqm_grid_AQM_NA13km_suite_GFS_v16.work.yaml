@@ -2,6 +2,8 @@ metadata:
   description: config for SRW-AQM, AQM_NA_13km, community mode, FV3_GFS_v16 physics suite
 user:
   RUN_ENVIR: community
+  MACHINE: GAEAC6
+  ACCOUNT: bil-fire8
 workflow:
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v16
