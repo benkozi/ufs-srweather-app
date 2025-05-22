@@ -13,12 +13,9 @@ import logging
 import os
 import re
 import sys
-from contextlib import redirect_stderr
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
-
-from uwtools.config.support import UWYAMLRemove
 
 from link_fix import link_fix
 from python_utils import (
@@ -147,8 +144,13 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
     for cfg in (machine_config, user_config):
         default_config.update_from(cfg)
 
-    if default_config["workflow"].get("COLDSTART", False) and default_config.get("cpl_aqm_parm", {}).get("CPL_AQM", False):
-        aqm_coldstart = get_yaml_config(homedir / "parm" / "wflow"/ "aqm_coldstart.yaml")
+    # If we are doing coldstart and AQM, disable the external AQM ICs task.
+    if default_config["workflow"].get("COLDSTART", False) and default_config.get(
+        "cpl_aqm_parm", {}
+    ).get("CPL_AQM", False):
+        aqm_coldstart = get_yaml_config(
+            homedir / "parm" / "wflow" / "aqm_coldstart.yaml"
+        )
         default_config.update_from(aqm_coldstart)
 
     # Dereference all Jinja expressions

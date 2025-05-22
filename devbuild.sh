@@ -228,7 +228,7 @@ if [ "${BUILD_CONDA}" = "on" ] ; then
   fi
 
   source ${CONDA_BUILD_DIR}/etc/profile.d/conda.sh
-  # Avoid potential conda path issues on gaeac6
+  # Avoid potential conda path issues on gaeac6 #tdk:rm
   if [ "${PLATFORM}" = "gaeac6" ]; then
     PATH="${CONDA_BUILD_DIR}/bin:${PATH}"
   fi

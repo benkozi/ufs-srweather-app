@@ -97,7 +97,6 @@ sections=(
 for sect in ${sections[*]} ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
-#echo "tdk:100: ${EXTRN_MDL_FNS}"
 #
 #-----------------------------------------------------------------------
 #
@@ -152,9 +151,7 @@ export OMP_STACKSIZE=${OMP_STACKSIZE_MAKE_LBCS}
 #
 #-----------------------------------------------------------------------
 #
-#echo "tdk:155: ${EXTRN_MDL_FNS}"
 eval ${PRE_TASK_CMDS}
-#echo "tdk:156: ${EXTRN_MDL_FNS}"
 
 if [ -z "${RUN_CMD_UTILS:-}" ] ; then
   print_err_msg_exit "\
@@ -179,22 +176,7 @@ else
     extrn_mdl_staging_dir="${COMIN}/${EXTRN_MDL_NAME_LBCS}/for_LBCS${SLASH_ENSMEM_SUBDIR}"
     extrn_mdl_var_defns_fp="${extrn_mdl_staging_dir}/${EXTRN_MDL_VAR_DEFNS_FN}.sh"
 fi
-#echo "tdk:182: ${EXTRN_MDL_FNS}"
-
-## Allow EXTRN_MDL_FNS to be overridden via configuration.
-#if [[ -v "EXTRN_MDL_FNS" ]]; then
-#  EXTRN_MDL_FNS_OVERRIDE=( "${EXTRN_MDL_FNS[@]}" )
-#fi
-#
-#echo "tdk: extrn_mdl_var_defns_fp=${extrn_mdl_var_defns_fp}"
 . ${extrn_mdl_var_defns_fp}
-#echo "tdk:184: ${EXTRN_MDL_FNS}"
-#
-## Allow EXTRN_MDL_FNS to be overridden via configuration.
-#if [[ -v "EXTRN_MDL_FNS_OVERRIDE" ]]; then
-#  EXTRN_MDL_FNS=( "${EXTRN_MDL_FNS_OVERRIDE[@]}" )
-#fi
-#echo "tdk:197: ${EXTRN_MDL_FNS}"
 #
 #-----------------------------------------------------------------------
 #
@@ -250,7 +232,6 @@ for this physics suite (CCPP_PHYS_SUITE):
   ;;
 #
 esac
-#echo "tdk:236: ${EXTRN_MDL_FNS}"
 #
 #-----------------------------------------------------------------------
 #
@@ -338,7 +319,7 @@ esac
 #
 # Not sure if tracers(:) should include "cld_amt" since that is also in
 # the field_table for CDATE=2017100700 but is a non-prognostic variable.
-#echo "tdk:323: ${EXTRN_MDL_FNS}"
+
 external_model=""
 fn_atm=""
 fn_grib2=""
@@ -511,7 +492,6 @@ for (( ii=0; ii<${num_fhrs}; ii=ii+bcgrpnum10 )); do
     elif [ "${FV3GFS_FILE_FMT_LBCS}" = "grib2" ]; then
       fn_grib2="${EXTRN_MDL_FNS[$i]}"
     elif [ "${FV3GFS_FILE_FMT_LBCS}" = "netcdf" ]; then
-#      echo "tdk:495: ${EXTRN_MDL_FNS}"
       fn_atm="${EXTRN_MDL_FNS[$i]}"
     fi
     ;;
