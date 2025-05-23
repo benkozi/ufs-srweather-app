@@ -16,9 +16,9 @@ csqy_data:   {{ fixaqm }}/epa/CSQY_DATA_cb6r5_ae7_aq
 optics_data: {{ fixaqm }}/epa/PHOT_OPTICS.dat
 omi_data:    {{ fixaqm }}/epa/omi_cmaq_2015_361X179.dat
 
-desid_chem_ctrl: {{ fixaqm }}/CMAQ_Control_DESID_cb6r5_ae7_aq.nml
-desid_ctrl: {{ fixaqm }}/CMAQ_Control_DESID.nml
-misc_ctrl:  {{ fixaqm }}/CMAQ_Control_Misc.nml
+desid_chem_ctrl: {{ fixaqm }}/epa/CMAQ_Control_DESID_cb6r5_ae7_aq.nml
+desid_ctrl: {{ fixaqm }}/epa/CMAQ_Control_DESID.nml
+misc_ctrl:  {{ fixaqm }}/epa/CMAQ_Control_Misc.nml
 
 init_concentrations: {{ init_concentrations | lower }}
 
