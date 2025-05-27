@@ -781,7 +781,7 @@ def setup_fv3_namelist(expt_config,debug):
                    'vsvoo1:0.0', 'vsvoo2:0.0', 'vsvoo3:0.0', 'vsvpo1:0.0',
                    'vsvpo2:0.0', 'vsvpo3:0.0', 'xopn:0.0', 'xylmn:0.0', '*:0.2']
         })
-        gfs_physics_nml_dict.pop("sfclay_compute_flux")
+        gfs_physics_nml_dict.pop("sfclay_compute_flux", None)
 
         settings.setdefault("nam_sfcperts", {})
 
