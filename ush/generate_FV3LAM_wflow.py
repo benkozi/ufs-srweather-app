@@ -732,25 +732,20 @@ def setup_fv3_namelist(expt_config,debug):
             "hord_tr": 10,
             "hord_vt": 6,
             "increment_file_on_native_grid": False,
-            "lndp_type": 0,
-            "lseaspray": False,
             "make_nh": True,
             "n_sponge": 30,
-            "n_var_lndp": 0,
-            "n_var_spp": 0,
             "na_init": 1,
             "nord": 3,
-            "qdiag3d": False,
             "tau": 5.0,
             "vtdm4": 0.075,
         })
         fv_core_nml_dict.pop("nudge_dz", None)
 
-        # gfdl_cloud_microphysics_nml_dict = settings.setdefault("gfdl_cloud_microphysics_nml", {})
-        # gfdl_cloud_microphysics_nml_dict.update({
-        #     "mp_time": 90.0,
-        # })
-        # gfdl_cloud_microphysics_nml_dict.pop("reiflag", None)
+        gfdl_cloud_microphysics_nml_dict = settings.setdefault("gfdl_cloud_microphysics_nml", {})
+        gfdl_cloud_microphysics_nml_dict.update({
+            "mp_time": 90.0,
+        })
+        gfdl_cloud_microphysics_nml_dict.pop("reiflag", None)
 
         gfs_physics_nml_dict.update({
             "cdmbgwd": [0.14, 1.8, 1.0, 1.0],
@@ -780,12 +775,13 @@ def setup_fv3_namelist(expt_config,debug):
                    'vivpo1:0.0', 'vlvoo1:0.0', 'vlvoo2:0.0', 'vlvpo1:0.0',
                    'vsvoo1:0.0', 'vsvoo2:0.0', 'vsvoo3:0.0', 'vsvpo1:0.0',
                    'vsvpo2:0.0', 'vsvpo3:0.0', 'xopn:0.0', 'xylmn:0.0', '*:0.2']
+            "lndp_type": 0,
+            "lseaspray": False,
+            "n_var_lndp": 0,
+            "n_var_spp": 0,
+            "qdiag3d": False,
         })
         gfs_physics_nml_dict.pop("sfclay_compute_flux", None)
-
-        # settings.setdefault("nam_sfcperts", {})
-        #
-        # settings.setdefault("nam_stochy", {})
 
     # If UFS_FIRE, activate appropriate flags
     if expt_config["fire"]["envvars"]["UFS_FIRE"]:
