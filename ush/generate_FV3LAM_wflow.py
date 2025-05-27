@@ -744,13 +744,13 @@ def setup_fv3_namelist(expt_config,debug):
             "tau": 5.0,
             "vtdm4": 0.075,
         })
-        fv_core_nml_dict.pop("nudge_dz")
+        fv_core_nml_dict.pop("nudge_dz", None)
 
         gfdl_cloud_microphysics_nml_dict = settings.setdefault("gfdl_cloud_microphysics_nml", {})
         gfdl_cloud_microphysics_nml_dict.update({
             "mp_time": 90.0,
         })
-        gfdl_cloud_microphysics_nml_dict.pop("reiflag")
+        gfdl_cloud_microphysics_nml_dict.pop("reiflag", None)
 
         gfs_physics_nml_dict.update({
             "cdmbgwd": [0.14, 1.8, 1.0, 1.0],
