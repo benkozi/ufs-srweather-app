@@ -774,7 +774,7 @@ def setup_fv3_namelist(expt_config,debug):
                    'soaalk:0.0', 'sulf:0.0', 'terp:0.0', 'tol:0.0', 'tolu:0.0',
                    'vivpo1:0.0', 'vlvoo1:0.0', 'vlvoo2:0.0', 'vlvpo1:0.0',
                    'vsvoo1:0.0', 'vsvoo2:0.0', 'vsvoo3:0.0', 'vsvpo1:0.0',
-                   'vsvpo2:0.0', 'vsvpo3:0.0', 'xopn:0.0', 'xylmn:0.0', '*:0.2']
+                   'vsvpo2:0.0', 'vsvpo3:0.0', 'xopn:0.0', 'xylmn:0.0', '*:0.2'],
             "lndp_type": 0,
             "lseaspray": False,
             "n_var_lndp": 0,
