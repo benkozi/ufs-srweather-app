@@ -711,9 +711,56 @@ def setup_fv3_namelist(expt_config,debug):
         )
 
     if cpl_aqm:
+        fms2_io_nml_dict = settings.setdefault("fms2_io_nml", {})
+        fms2_io_nml_dict.update({
+            "netcdf_default_format": "netcdf4",
+        })
+
+        fv_core_nml_dict.update({
+            "d2_bg_k1": 0.15,
+            "d2_bg_k2": 0.02,
+            "delt_max": 0.002,
+            "do_shum": False,
+            "do_skeb": False,
+            "do_spp": False,
+            "do_sppt": False,
+            "dz_min": 2,
+            "fv_sg_adj": 600,
+            "hord_dp": 6,
+            "hord_mt": 6,
+            "hord_tm": 6,
+            "hord_tr": 10,
+            "hord_vt": 6,
+            "increment_file_on_native_grid": False,
+            "lndp_type": 0,
+            "lseaspray": False,
+            "make_nh": True,
+            "n_sponge": 30,
+            "n_var_lndp": 0,
+            "n_var_spp": 0,
+            "na_init": 1,
+            "nord": 3,
+            "qdiag3d": False,
+            "tau": 5.0,
+            "vtdm4": 0.075,
+        })
+        fv_core_nml_dict.pop("nudge_dz")
+
+        gfdl_cloud_microphysics_nml_dict = settings.setdefault("gfdl_cloud_microphysics_nml", {})
+        gfdl_cloud_microphysics_nml_dict.update({
+            "mp_time": 90.0,
+        })
+        gfdl_cloud_microphysics_nml_dict.pop("reiflag")
+
         gfs_physics_nml_dict.update({
+            "cdmbgwd": [0.14, 1.8, 1.0, 1.0],
             "cplaqm": True,
+            "cplchm": False,
             "cplocn2atm": False,
+            "cplwav": False,
+            "cplwav2atm": False,
+            "fhcyc": 24,
+            "fhzero": 6,
             "fscav_aero": [
                 'aacd:0.0', 'acet:0.0', 'acrolein:0.0', 'acro_primary:0.0',
                    'ald2:0.0', 'ald2_primary:0.0', 'aldx:0.0', 'benzene:0.0',
@@ -734,6 +781,11 @@ def setup_fv3_namelist(expt_config,debug):
                    'vsvoo1:0.0', 'vsvoo2:0.0', 'vsvoo3:0.0', 'vsvpo1:0.0',
                    'vsvpo2:0.0', 'vsvpo3:0.0', 'xopn:0.0', 'xylmn:0.0', '*:0.2']
         })
+        gfs_physics_nml_dict.pop("sfclay_compute_flux")
+
+        settings.setdefault("nam_sfcperts", {})
+
+        settings.setdefault("nam_stochy", {})
 
     # If UFS_FIRE, activate appropriate flags
     if expt_config["fire"]["envvars"]["UFS_FIRE"]:
