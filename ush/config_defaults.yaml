@@ -2867,7 +2867,7 @@ cpl_aqm_parm:
   DO_AQM_SAVE_AIRNOW_HIST: false
   DO_AQM_SAVE_FIRE: false
 
-  COMINairnow_default: "/path/to/airnow/obaservation/data"
+  COMINairnow_default: "/path/to/airnow/observation/data"
   COMINfire_default: ""
   COMINgefs_default: ""
 
