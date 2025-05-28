@@ -52,8 +52,8 @@ data:
   ics_lbcs:
     FV3GFS:
       nemsio: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/FV3GFS/nemsio/${yyyymmdd}${hh}
-      grib2: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/FV3GFS/grib2/${yyyymmdd}${hh} 
-      netcdf: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/FV3GFS/netcdf/${yyyymmdd}${hh} 
+      grib2: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/FV3GFS/grib2/${yyyymmdd}${hh}
+      netcdf: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/FV3GFS/netcdf/${yyyymmdd}${hh}
     RAP: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/RAP/${yyyymmdd}${hh}
     HRRR: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/HRRR/${yyyymmdd}${hh}
     RAP: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/input_model_data/RAP/${yyyymmdd}${hh}
