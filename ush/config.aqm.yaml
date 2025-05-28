@@ -26,6 +26,8 @@ workflow:
 #  WARMSTART_CYCLE_DIR: '/scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for hera
 #  WARMSTART_CYCLE_DIR: '/work/noaa/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for orion/hercules
 #  WARMSTART_CYCLE_DIR: '/glade/work/chanhooj/SRW-AQM_DATA/aqm_data/restart/2023111000' # for derecho
+
+  # Note: comment the post.yaml task if HISTORY_NATIVE_GRID: true
   taskgroups:
     - parm/wflow/prep.yaml
     - parm/wflow/aqm_prep.yaml
@@ -35,6 +37,9 @@ nco:
   envir_default: test_aqm_warmstart
   NET_default: aqm
   RUN_default: aqm
+#rocoto: # uncomment this section in case of COLDSTART: true
+#  tasks:
+#    task_aqm_ics_ext: !remove
 task_get_extrn_ics:
   envvars:
     EXTRN_MDL_NAME_ICS: FV3GFS
@@ -62,6 +67,9 @@ task_run_fcst:
     PRINT_ESMF: false
     RESTART_INTERVAL: 12 24
     DO_FCST_RESTART: false
+    # Uncomment to write history files on native FV3 cubed sphere grid. Note that the taskgroup
+    # post.yaml does not work with the native FV3 grid.
+#    HISTORY_NATIVE_GRID: true
   QUILTING: true
 task_run_post:
   envvars:
@@ -82,7 +90,7 @@ cpl_aqm_parm:
   DO_AQM_SAVE_FIRE: false
   AQM_BIO_FILE: BEIS_RRFScmaq_C775.ncf
   AQM_DUST_FILE_PREFIX: FENGSHA_p8_10km_inputs
-  AQM_DUST_FILE_SUFFIX: .nc  
+  AQM_DUST_FILE_SUFFIX: .nc
   AQM_CANOPY_FILE_PREFIX: gfs.t12z.geo
   AQM_CANOPY_FILE_SUFFIX: .canopy_regrid.nc
   AQM_FIRE_FILE_PREFIX: Hourly_Emissions_regrid_NA_13km
