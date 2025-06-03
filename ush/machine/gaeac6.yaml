@@ -40,7 +40,7 @@ platform:
   FIXsfc: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/NaturalEarth
   FIXemis: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_emis
-  # Uncomment this path (and comment the corresponding below) when working with an AQMv7-enabled UFS-WM
+  # Comment this path (and uncomment the corresponding below) when working with an AQMv7-enabled UFS-WM
   FIXaqm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_aqm_v8/fix/fix_aqm
 #  FIXaqm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_aqm
 
