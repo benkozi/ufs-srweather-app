@@ -39,10 +39,11 @@ platform:
   FIXorg: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_orog
   FIXsfc: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/NaturalEarth
-#  FIXaqm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_aqm
   FIXemis: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_emis
-  # Uncomment this path (and comment the corresponding above) when working with an AQMv8-enabled UFS-WM
-  FIXaqm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/SRW-AQM-v8/fix/fix_aqm
+  # Comment this path (and uncomment the corresponding below) when working with an AQMv7-enabled UFS-WM
+  FIXaqm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_aqm_v8/fix/fix_aqm
+#  FIXaqm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_aqm
+
   FIXsmoke: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_smoke
   FIXupp: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_upp
   FIXcrtm: /gpfs/f6/bil-fire8/world-shared/UFS_SRW_data/develop/fix/fix_crtm
