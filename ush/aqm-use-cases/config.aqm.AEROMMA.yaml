@@ -36,7 +36,7 @@ workflow:
     - parm/wflow/coldstart.yaml
     - parm/wflow/post.yaml
 nco:
-  envir_default: aqm_AQMNA13km_SpringAQ
+  envir_default: aqm_AQMNA13km_AEROMMA
   NET_default: aqm
   RUN_default: aqm
 #rocoto:
