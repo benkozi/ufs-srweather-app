@@ -152,7 +152,7 @@ task_aqm_ics_ext:
     and:
       taskdep_make_ics:
         attrs:
-          task: make_ics_#mem#
+          task: make_ics_mem000
       or:
         datadep_date_tag_tracer:
           attrs:
