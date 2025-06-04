@@ -34,7 +34,9 @@ platform:
   FIXorg: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/fix/fix_orog
   FIXsfc: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/NaturalEarth
-  FIXaqm: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/fix/fix_aqm
+  # Comment this path (and uncomment the corresponding below) when working with an AQMv7-enabled UFS-WM
+  FIXaqm: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/fix/fix_aqm_v8/fix/fix_aqm
+  #  FIXaqm: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/fix/fix_aqm
   FIXemis: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/fix/fix_emis
   FIXsmoke: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/fix/fix_smoke
   FIXupp: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/fix/fix_upp
@@ -57,3 +59,6 @@ cpl_aqm_parm:
 smoke_dust_parm:
   COMINsmoke_default: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/data_smoke_dust/RAVE_smoke_dust
   COMINrave_default: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/data_smoke_dust/RAVE_fire
+fire:
+  envvars:
+    FIRE_INPUT_DIR: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/UFS_FIRE/2020081318

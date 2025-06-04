@@ -36,7 +36,9 @@ platform:
   FIXorg: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/develop/fix/fix_orog
   FIXsfc: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/develop/NaturalEarth
-  FIXaqm: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/develop/fix/fix_aqm
+  # Comment this path (and uncomment the corresponding below) when working with an AQMv7-enabled UFS-WM
+  FIXaqm: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/develop/fix/fix_aqm_v8/fix/fix_aqm
+  #  FIXaqm: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/develop/fix/fix_aqm
   FIXemis: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/develop/fix/fix_emis
   FIXsmoke: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/develop/fix/fix_smoke
   FIXupp: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/develop/fix/fix_upp
@@ -67,3 +69,7 @@ rocoto:
     metatask_run_ensemble:
       task_run_fcst_mem#mem#:
         native: '--cpus-per-task {{ task_run_fcst.fv3.execution.threads // 1 }} --exclusive {{ platform.SCHED_NATIVE_CMD }}'
+
+fire:
+  envvars:
+    FIRE_INPUT_DIR: /work/noaa/epic/role-epic/contrib/UFS_SRW_data/develop/UFS_FIRE/2020081318

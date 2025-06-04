@@ -1,6 +1,6 @@
 platform:
   WORKFLOW_MANAGER: rocoto
-  NCORES_PER_NODE: '{{ 44 if (user.ACCOUNT == "cz-epic") else 36 if (user.ACCOUNT == "ca-epic") else 28 }}'
+  NCORES_PER_NODE: !int '{{ 44 if (user.ACCOUNT == "cz-epic") else 36 if (user.ACCOUNT == "ca-epic") else 28 }}'
   SCHED: slurm
   WE2E_TEST_DATA: /contrib/EPIC/UFS_SRW_data/develop
   TEST_CCPA_OBS_DIR: '{{ platform.WE2E_TEST_DATA }}/obs_data/ccpa/proc'
@@ -11,7 +11,7 @@ platform:
   TEST_AIRNOW_OBS_DIR: '{{ platform.WE2E_TEST_DATA }}/obs_data/airnow'
   DOMAIN_PREGEN_BASEDIR: '{{ platform.WE2E_TEST_DATA }}/FV3LAM_pregen'
   REMOVE_MEMORY: True
-  RUN_CMD_FCST: mpiexec -np ${PE_MEMBER01}
+  RUN_CMD_FCST: mpiexec -np $nprocs
   RUN_CMD_POST: mpiexec -np $nprocs
   RUN_CMD_PRDGEN: mpiexec -np $nprocs
   RUN_CMD_SERIAL: time
@@ -29,12 +29,17 @@ platform:
   FIXorg: /contrib/EPIC/UFS_SRW_data/develop/fix/fix_orog
   FIXsfc: /contrib/EPIC/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /contrib/EPIC/UFS_SRW_data/develop/NaturalEarth
-  FIXaqm: /contrib/EPIC/UFS_SRW_data/develop/fix/fix_aqm
+  # Comment this path (and uncomment the corresponding below) when working with an AQMv7-enabled UFS-WM
+  FIXaqm: /contrib/EPIC/UFS_SRW_data/develop/fix/fix_aqm_v8/fix/fix_aqm
+  #  FIXaqm: /contrib/EPIC/UFS_SRW_data/develop/fix/fix_aqm
   FIXemis: /contrib/EPIC/UFS_SRW_data/develop/fix/fix_emis
   FIXsmoke: /contrib/EPIC/UFS_SRW_data/develop/fix/fix_smoke
   FIXupp: /contrib/EPIC/UFS_SRW_data/develop/fix/fix_upp
   FIXcrtm: /contrib/EPIC/UFS_SRW_data/develop/fix/fix_crtm
   EXTRN_MDL_DATA_STORES: aws nomads
+task_run_fcst:
+  envvars:
+    OMP_NUM_THREADS_RUN_FCST: 1
 data:
   ics_lbcs:
     FV3GFS:
@@ -42,5 +47,9 @@ data:
       grib2: /contrib/EPIC/UFS_SRW_data/develop/input_model_data/FV3GFS/grib2/${yyyymmdd}${hh}
 
 smoke_dust_parm:
-         COMINsmoke_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_smoke_dust
-         COMINrave_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_fire
+  COMINsmoke_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_smoke_dust
+  COMINrave_default: /contrib/EPIC/UFS_SRW_data/develop/data_smoke_dust/RAVE_fire
+
+fire:
+  envvars:
+    FIRE_INPUT_DIR: /contrib/EPIC/UFS_SRW_data/develop/UFS_FIRE/2020081318

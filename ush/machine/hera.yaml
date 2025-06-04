@@ -40,7 +40,9 @@ platform:
   FIXorg: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_orog
   FIXsfc: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/NaturalEarth
-  FIXaqm: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_aqm
+  # Uncomment this path (and comment the corresponding below) when working with an AQMv7-enabled UFS-WM
+  FIXaqm: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_aqm_v8/fix/fix_aqm
+  #  FIXaqm: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_aqm
   FIXemis: /scratch1/RDARCH/rda-arl-gpu/Barry.Baker/emissions/nexus
   FIXsmoke: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_smoke
   FIXupp: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_upp
@@ -61,3 +63,7 @@ rocoto:
     metatask_run_ensemble:
       task_run_fcst_mem#mem#:
         native: '--cpus-per-task {{ task_run_fcst.fv3.execution.threads // 1 }} --exclusive {{ platform.SCHED_NATIVE_CMD }}'
+
+fire:
+  envvars:
+    FIRE_INPUT_DIR: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/UFS_FIRE/2020081318
