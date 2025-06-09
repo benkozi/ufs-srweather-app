@@ -493,3 +493,29 @@ class FunctionalTesting(unittest.TestCase):
 
             # Testing that there is no failure
             retrieve_data.main(args)
+
+    def test_aqm_case_study_from_aws(self):
+
+        """Get AQM use case data from S3."""
+        #tdk:black
+        with tempfile.TemporaryDirectory(dir=self.path) as tmp_dir:
+            os.chdir(tmp_dir)
+
+            # fmt: off
+            args = [
+                '--file_set', 'anl',
+                '--config', self.config,
+                '--cycle_date', '2023060112',
+                '--data_stores', 'aws',
+                '--data_type', 'UFS-AQM-USE-CASE',
+                '--fcst_hrs', '0',
+                '--output_path', tmp_dir,
+                '--ics_or_lbcs', 'ICS', #tdk: test with LBCS
+                '--debug',
+                '--file_fmt', 'netcdf',
+                # '--check_file', #tdk: should support check file in case data is already downloaded!
+            ]
+            # fmt: on
+
+            # Testing that there is no failure
+            retrieve_data.main(args)

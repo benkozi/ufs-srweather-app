@@ -303,6 +303,15 @@ UFS-CASE-STUDY:
         fcst:
           - "{yyyymmddhh}_bc.atmf{fcst_hr:03d}.nemsio.tar.gz"
 
+UFS-AQM-USE-CASE:
+  aws:
+    protocol: wget
+    url: "https://ufs-case-studies.s3.amazonaws.com/"
+    file_names:
+      netcdf:
+        anl:
+          - "{yyyymmddhh}.gfs.nemsio.tar.gz"
+
 ##########################
 ##########################
 ###  Observation Data  ###
