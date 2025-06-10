@@ -501,6 +501,8 @@ class FunctionalTesting(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=self.path) as tmp_dir:
             os.chdir(tmp_dir)
 
+            #tdk: add parameter to download warm start files?
+
             # fmt: off
             args = [
                 '--file_set', 'anl',

@@ -996,6 +996,7 @@ def main(argv):
 
     if unavailable:
         logging.error("Could not find any of the requested files.")
+        print(f"Unavailable files: {unavailable}") #tdk:rm
         sys.exit(1)
 
 
