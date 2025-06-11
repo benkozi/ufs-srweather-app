@@ -88,6 +88,28 @@ fcst_len_hrs_offset=$(( FCST_LEN_HRS + TIME_OFFSET_HRS ))
 #tdk:aqm-data
 if [ "${USE_AQM_S3_DATA_STAGE}" = "True" ]; then
   echo "tdk: retrieving data from s3 cloud storage"
+  mkdir -p ${EXTRN_MDL_STAGING_DIR}
+  cmd="
+  python3 -u ${USHdir}/retrieve_data.py \
+    --debug \
+    --file_set ${file_set} \
+    --config ${PARMdir}/data_locations.yml \
+    --cycle_date ${EXTRN_MDL_CDATE} \
+    --data_stores aws \
+    --data_type UFS-AQM-FV3GFS \
+    --fcst_hrs ${TIME_OFFSET_HRS} \
+    --output_path ${EXTRN_MDL_STAGING_DIR} \
+    --summary_file "${EXTRN_MDL_VAR_DEFNS_FN}.sh" \
+    "
+  $cmd
+  export err=$?
+  if [ $err -ne 0 ]; then
+    message_txt="Call to retrieve_data.py failed with a non-zero exit status.
+  The command was:
+  ${cmd}
+  "
+      print_err_msg_exit "${message_txt}"
+  fi
   exit 1
 fi
 
