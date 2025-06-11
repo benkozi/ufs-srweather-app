@@ -84,6 +84,13 @@ fcst_len_hrs_offset=$(( FCST_LEN_HRS + TIME_OFFSET_HRS ))
 #
 #-----------------------------------------------------------------------
 #
+
+#tdk:aqm-data
+if [ "${USE_AQM_S3_DATA_STAGE}" = "True" ]; then
+  echo "tdk: retrieving data from s3 cloud storage"
+  exit 1
+fi
+
 GFS_SFC_TAR_DIR="${NEXUS_GFS_SFC_ARCHV_DIR}/rh${YYYY}/${YYYYMM}/${YYYYMMDD}"
 GFS_SFC_TAR_SUB_DIR="gfs.${YYYYMMDD}/${HH}/atmos"
 

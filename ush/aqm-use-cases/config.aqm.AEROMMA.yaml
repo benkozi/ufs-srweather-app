@@ -100,6 +100,7 @@ global:
   HALO_BLEND: 0
 cpl_aqm_parm:
   CPL_AQM: true
+  USE_AQM_S3_DATA_STAGE: true
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true
   DO_AQM_DUST: true
