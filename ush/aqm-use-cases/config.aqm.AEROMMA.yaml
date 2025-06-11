@@ -25,7 +25,7 @@ workflow:
   FIELD_TABLE_TMPL_FN: field_table_aqm.FV3_GFS_v16
   DO_REAL_TIME: false
   COLDSTART: false      # set to true for cold start
-  WARMSTART_CYCLE_DIR: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RESTART/AQMv8_p1/20230531
+#  WARMSTART_CYCLE_DIR: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RESTART/AQMv8_p1/20230531 # for AQM test bed
 #  WARMSTART_CYCLE_DIR: /gpfs/f6/bil-fire3/scratch/Wei.K.Li/aqm_data/restart/2023111000 # for gaeac6
 #  WARMSTART_CYCLE_DIR: '/scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for hera
 #  WARMSTART_CYCLE_DIR: '/work/noaa/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for orion/hercules
@@ -120,9 +120,9 @@ cpl_aqm_parm:
   AQM_GEFS_FILE_CYC: '00'
   NEXUS_GRID_FN: grid_spec_793.nc
   NUM_SPLIT_NEXUS: 3
-  COMINfire_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RAVE_fire
-  COMINgefs_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/GEFS_Aerosol
-  NEXUS_GFS_SFC_DIR: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/GFS_SFC_DATA
+#  COMINfire_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RAVE_fire
+#  COMINgefs_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/GEFS_Aerosol
+#  NEXUS_GFS_SFC_DIR: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/GFS_SFC_DATA
 #  NEXUS_GFS_SFC_OFFSET_HRS: 12
 #data:
 #  ics_lbcs:
