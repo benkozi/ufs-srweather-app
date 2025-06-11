@@ -306,7 +306,7 @@ UFS-CASE-STUDY:
 UFS-AQM-FV3GFS:
   aws:
     protocol: wget
-    url: "https://ufs-case-studies.s3.amazonaws.com/UFS-AQM/"
+    url: "https://foobar.ufs.aqm/UFS-AQM/"
     file_names:
       netcdf:
         anl:
@@ -316,7 +316,7 @@ UFS-AQM-FV3GFS:
 UFS-AQM-GEFS-AEROSOL: #tdk:test
   aws:
     protocol: wget
-    url: "https://ufs-case-studies.s3.amazonaws.com/UFS-AQM/"
+    url: "https://foobar.ufs.aqm/UFS-AQM/"
     file_names:
       nemsio:
         anl:
@@ -325,20 +325,33 @@ UFS-AQM-GEFS-AEROSOL: #tdk:test
 UFS-AQM-RAVE: #tdk:test
   aws:
     protocol: wget
-    url: "https://ufs-case-studies.s3.amazonaws.com/UFS-AQM/"
+    url: "https://foobar.ufs.aqm/UFS-AQM/"
     file_names:
       netcdf:
         obs:
-          - "RAVE_fire/{yyyymmdd}/rave/RAVE-HrlyEmiss-13km_v2r0_blend_s{yyyymmdd}.tar.gz" #tdk: need to unpack
+          - "RAVE_fire/{yyyymmdd}/rave/RAVE-HrlyEmiss-13km_v2r0_blend_s{yyyymmdd}.tar" #tdk: need to unpack
 
 UFS-AQM-RESTART: #tdk:test
   aws:
     protocol: wget
-    url: "https://ufs-case-studies.s3.amazonaws.com/UFS-AQM/"
+    url: "https://foobar.ufs.aqm/UFS-AQM/"
     file_names:
       netcdf:
         fcst:
-          - "RESTART/AQMv8_p1/{yyyymmdd}.tar.gz" #tdk: need to subtract 1 day; need to unpack
+          - "RESTART/AQMv8_p1/{yyyymmdd}.tar" #tdk: need to subtract 1 day; need to unpack
+
+UFS-AQM-FIX: #tdk:test
+  aws:
+    protocol: wget
+    url: "https://foobar.ufs.aqm/UFS-AQM/"
+    file_names:
+      netcdf:
+        fix:
+          - "AQMv8/fix_aqm.tar" #tdk: need to untar
+          - "AQMv8/fix_emis_00.tar"
+          - "AQMv8/fix_emis_01.tar"
+          - "AQMv8/fix_emis_02.tar"
+          - "AQMv8/fix_emis_03.tar"
 
 #tdk: task to download fix_emis/fix_aqm?
 

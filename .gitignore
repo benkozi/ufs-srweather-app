@@ -29,3 +29,4 @@ conda_loc
 __pycache__
 .idea
 ush/test_data/model_configure
+/tests/test_python/log.generate_FV3LAM_wflow
