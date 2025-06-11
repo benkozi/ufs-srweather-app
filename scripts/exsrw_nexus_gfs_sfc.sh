@@ -88,6 +88,9 @@ fcst_len_hrs_offset=$(( FCST_LEN_HRS + TIME_OFFSET_HRS ))
 #tdk:aqm-data
 if [ "${USE_AQM_S3_DATA_STAGE}" = "True" ]; then
   echo "tdk: retrieving data from s3 cloud storage"
+  yyyymmdd=${PDY}
+  hh=${cyc}
+  EXTRN_MDL_CDATE=$( $DATE_UTIL --utc --date "${yyyymmdd} ${hh} UTC - ${TIME_OFFSET_HRS} hours" "+%Y%m%d%H" )
   EXTRN_MDL_NAME="UFS-AQM-FV3GFS"
   EXTRN_MDL_STAGING_DIR="${COMIN}/${EXTRN_MDL_NAME}/"
   mkdir -p "${EXTRN_MDL_STAGING_DIR}"
