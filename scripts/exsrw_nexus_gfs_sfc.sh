@@ -106,6 +106,7 @@ if [ "${USE_AQM_S3_DATA_STAGE}" = "True" ]; then
     --output_path ${EXTRN_MDL_STAGING_DIR} \
     --summary_file "${EXTRN_MDL_VAR_DEFNS_FN}.sh" \
     --ics_or_lbcs ICS \
+    --file_fmt netcdf \
     --check_file \
     "
   $cmd
