@@ -303,14 +303,14 @@ UFS-CASE-STUDY:
         fcst:
           - "{yyyymmddhh}_bc.atmf{fcst_hr:03d}.nemsio.tar.gz"
 
-UFS-AQM-FV3GFS:
+UFS-AQM-FV3GFS-SFC:
   aws:
     protocol: wget
     url: "https://foobar.ufs.aqm/UFS-AQM/"
     file_names:
       netcdf:
         anl:
-          - "FV3GFS/gfs.{yyyymmdd}/12/atmos/gfs.t12z.atmf{fcst_hr:03d}.nc"
+          - "FV3GFS/gfs.{yyyymmdd}/12/atmos/gfs.t12z.sfcanl.nc"
           - "GFS_SFC_DATA/gfs.{yyyymmdd}/12/atmos/gfs.t12z.sfcf{fcst_hr:03d}.nc"
 
 UFS-AQM-GEFS-AEROSOL: #tdk:test

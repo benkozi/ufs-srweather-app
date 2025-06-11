@@ -52,6 +52,7 @@ task_get_extrn_ics:
     EXTRN_MDL_FILES_ICS:
       - "gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
       - "GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc"
+      - "GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.sfcanl.nc"
 task_get_extrn_lbcs:
   envvars:
     USE_USER_STAGED_EXTRN_FILES: true
