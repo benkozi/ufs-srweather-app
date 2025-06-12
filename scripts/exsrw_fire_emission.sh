@@ -82,39 +82,6 @@ hh_mh1=${CDATE_mh1:8:2}
 #
 
 #tdk:aqm-data
-if [ "${USE_AQM_S3_DATA_STAGE}" = "True" ]; then
-  echo "tdk: retrieving data from s3 cloud storage"
-  yyyymmdd=${PDY}
-  hh=${cyc}
-  EXTRN_MDL_CDATE=$( $DATE_UTIL --utc --date "${yyyymmdd} ${hh} UTC - ${TIME_OFFSET_HRS} hours" "+%Y%m%d%H" )
-  EXTRN_MDL_NAME="UFS-AQM-FV3GFS"
-  EXTRN_MDL_STAGING_DIR="${COMIN}/${EXTRN_MDL_NAME}/"
-  mkdir -p "${EXTRN_MDL_STAGING_DIR}"
-  cmd="
-  python3 -u ${USHdir}/retrieve_data.py \
-    --debug \
-    --file_set anl \
-    --config ${PARMdir}/data_locations.yml \
-    --cycle_date ${EXTRN_MDL_CDATE} \
-    --data_stores aws \
-    --data_type ${EXTRN_MDL_NAME} \
-    --fcst_hrs ${TIME_OFFSET_HRS} \
-    --output_path ${EXTRN_MDL_STAGING_DIR} \
-    --summary_file "${EXTRN_MDL_VAR_DEFNS_FN}.sh" \
-    --ics_or_lbcs ICS \
-    --file_fmt netcdf \
-    "
-  $cmd
-  export err=$?
-  if [ $err -ne 0 ]; then
-    message_txt="Call to retrieve_data.py failed with a non-zero exit status.
-  The command was:
-  ${cmd}
-  "
-      print_err_msg_exit "${message_txt}"
-  fi
-  exit 1
-fi
 
 aqm_fire_file_fn="${AQM_FIRE_FILE_PREFIX}_${YYYYMMDD}_t${HH}z${AQM_FIRE_FILE_SUFFIX}"
 
