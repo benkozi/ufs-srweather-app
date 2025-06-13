@@ -54,6 +54,7 @@ task_get_extrn_ics:
       - "FV3GFS/GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc"
       - "FV3GFS/GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.sfcanl.nc"
       - "RAVE_fire/rave-{yyyymmdd}.tar"
+      - "RESTART/RESTART-20230531.tar"
 task_get_extrn_lbcs:
   envvars:
     USE_USER_STAGED_EXTRN_FILES: true
