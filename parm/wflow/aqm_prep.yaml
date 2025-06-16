@@ -130,14 +130,14 @@ task_fire_emission:
     nprocs: '{{ task_fire_emission.execution.batchargs.nodes * task_fire_emission.execution.batchargs.tasks_per_node }}'
   nodes: '{{ task_fire_emission.execution.batchargs.nodes }}:ppn={{ task_fire_emission.execution.batchargs.tasks_per_node }}'
   walltime: '{{ task_fire_emission.execution.batchargs.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-          task: aqm_use_case_data_download
-      taskvalid:
-        attrs:
-          task: aqm_use_case_data_download
+#  dependency:
+#    and:
+#      taskdep:
+#        attrs:
+#          task: aqm_use_case_data_download
+#      taskvalid:
+#        attrs:
+#          task: aqm_use_case_data_download
 
 task_point_source:
   <<: *default_aqm
@@ -159,6 +159,14 @@ task_point_source:
       streq:
         left: staged_grid
         right: '{{ "staged_grid" if not rocoto.get("tasks", {}).get("task_make_grid") }}'
+#  dependency:
+#    and:
+#      taskdep:
+#        attrs:
+#          task: aqm_use_case_data_download
+#      taskvalid:
+#        attrs:
+#          task: aqm_use_case_data_download
 
 task_aqm_ics_ext:
   <<: *default_aqm
