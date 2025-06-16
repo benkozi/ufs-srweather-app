@@ -39,9 +39,9 @@ task_aqm_use_case_data_download:
   envars:
     <<: *default_vars
     nprocs: '{{ task_aqm_use_case_data_download.execution.batchargs.nodes * task_aqm_use_case_data_download.execution.batchargs.tasks_per_node }}'
-    nodes: '{{ task_aqm_use_case_data_download.execution.batchargs.nodes }}:ppn={{ task_aqm_use_case_data_download.execution.batchargs.tasks_per_node }}'
-    walltime: '{{ task_aqm_use_case_data_download.execution.batchargs.walltime }}'
-    memory: 2G
+  nodes: '{{ task_aqm_use_case_data_download.execution.batchargs.nodes }}:ppn={{ task_aqm_use_case_data_download.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ task_aqm_use_case_data_download.execution.batchargs.walltime }}'
+  memory: 2G
 
 task_nexus_gfs_sfc:
   <<: *default_aqm
