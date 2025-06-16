@@ -41,9 +41,9 @@ platform:
   FIXsfc: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/NaturalEarth
   # Uncomment this path (and comment the corresponding below) when working with an AQMv7-enabled UFS-WM
-  FIXaqm: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_aqm_v8/fix/fix_aqm
+  FIXaqm: /scratch3/NCEPDEV/nems/role.epic/hera/UFS_SRW_data/UFS_SRW_data/develop/fix/fix_aqm_v8/fix/fix_aqm
   #  FIXaqm: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_aqm
-  FIXemis: /scratch1/RDARCH/rda-arl-gpu/Barry.Baker/emissions/nexus
+  FIXemis: /scratch3/NCEPDEV/nems/role.epic/hera/UFS_SRW_data/develop/fix/fix_emis
   FIXsmoke: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_smoke
   FIXupp: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_upp
   FIXcrtm: /scratch1/NCEPDEV/nems/role.epic/UFS_SRW_data/develop/fix/fix_crtm
