@@ -100,7 +100,7 @@ This is the J-job script for the regional integration test task
 #-----------------------------------------------------------------------
 #
 
-if [ -d "${AQM_STAGE_DST_DIR}" ]; then
+if [ -d "${AQM_STAGE_DST_DIR}/FV3GFS" ]; then
   print_info_msg "AQM data stage directory already exists - assuming data is staged correctly. Remove this directory to re-stage."
 else
   print_info_msg "Staging AQM use case data"
