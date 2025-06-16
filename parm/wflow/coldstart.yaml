@@ -43,22 +43,29 @@ task_get_extrn_ics:
   queue: '&QUEUE_HPSS;'
   walltime: '{{ task_get_extrn_ics.execution.batchargs.walltime }}'
   dependency:
-    or:
-      and:
+    and:
+      taskdep:
+        attrs:
+          task: aqm_use_case_data_download
+      taskvalid:
+        attrs:
+          task: aqm_use_case_data_download
+      or:
+        and:
+          streq:
+            left: do_real_time
+            right: '{% if workflow.DO_REAL_TIME %}do_real_time{% endif %}'
+          datadep_gfs:
+            attrs:
+              age: "00:00:05"
+            value:
+              cyclestr:
+                attrs:
+                  offset: "-{{ workflow.INCR_CYCL_FREQ }}:00:00"
+                value: "&COMINgfs;/gfs.@Y@m@d/@H/atmos"
         streq:
-          left: do_real_time
-          right: '{% if workflow.DO_REAL_TIME %}do_real_time{% endif %}'
-        datadep_gfs:
-          attrs:
-            age: "00:00:05"
-          value:
-            cyclestr:
-              attrs:
-                offset: "-{{ workflow.INCR_CYCL_FREQ }}:00:00"
-              value: "&COMINgfs;/gfs.@Y@m@d/@H/atmos"
-      streq:
-        left: retro
-        right: '{% if not workflow.DO_REAL_TIME %}retro{% endif %}'
+          left: retro
+          right: '{% if not workflow.DO_REAL_TIME %}retro{% endif %}'
 
 task_get_extrn_lbcs:
   <<: *default_task
