@@ -53,8 +53,8 @@ task_get_extrn_ics:
     EXTRN_MDL_ICS_OFFSET_HRS: 0
     EXTRN_MDL_FILES_ICS:
       - "FV3GFS/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
-      - "FV3GFS/GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc"
-      - "FV3GFS/GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.sfcanl.nc"
+      - "GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc"
+      - "GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.sfcanl.nc"
 #      - "RAVE_fire/rave-{yyyymmdd}.tar"
 #      - "RESTART/RESTART-20230531.tar"
 task_get_extrn_lbcs:
@@ -68,7 +68,7 @@ task_get_extrn_lbcs:
     EXTRN_MDL_LBCS_OFFSET_HRS: 0
     EXTRN_MDL_FILES_LBCS:
       - "FV3GFS/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
-      - "FV3GFS/GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc"
+      - "GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc"
       - "GEFS_Aerosol/{yyyymmdd}/00/gfs.t00z.atmf{fcst_hr:03d}.nemsio"
 #task_make_ics:
 #  envvars:
