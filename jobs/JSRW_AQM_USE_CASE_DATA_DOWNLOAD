@@ -38,7 +38,7 @@ sections=(
   user
   nco
   workflow
-  task_aqm_use_case_data_download.envvars
+  task_aqm_use_case_data_download.envars
 )
 for sect in ${sections[*]} ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
