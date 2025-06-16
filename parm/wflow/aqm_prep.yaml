@@ -30,6 +30,19 @@ default_aqm_task: &default_aqm
   partition: '{{ "&PARTITION_DEFAULT;" if platform.get("PARTITION_DEFAULT") }}'
   queue: '&QUEUE_DEFAULT;'
 
+task_aqm_use_case_data_download:
+  <<: *default_aqm
+  command: '&LOAD_MODULES_RUN_TASK; "aqm_use_case_data_download" "&HOMEdir;/jobs/JSRW_AQM_USE_CASE_DATA_DOWNLOAD"'
+  join:
+    cyclestr:
+      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
+  envars:
+    <<: *default_vars
+    nprocs: '{{ task_aqm_use_case_data_download.execution.batchargs.nodes * task_aqm_use_case_data_download.execution.batchargs.tasks_per_node }}'
+    nodes: '{{ task_aqm_use_case_data_download.execution.batchargs.nodes }}:ppn={{ task_aqm_use_case_data_download.execution.batchargs.tasks_per_node }}'
+    walltime: '{{ task_aqm_use_case_data_download.execution.batchargs.walltime }}'
+    memory: 2G
+
 task_nexus_gfs_sfc:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "nexus_gfs_sfc" "&HOMEdir;/jobs/JSRW_NEXUS_GFS_SFC"'

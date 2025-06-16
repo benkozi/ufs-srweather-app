@@ -2902,6 +2902,12 @@ cpl_aqm_parm:
   FIXaqmcanopy: '{{ [platform.FIXaqm, "canopy"]|path_join }}'
 
 # AQM Task Resources
+task_aqm_use_case_data_download:
+  execution:
+    batchargs:
+      nodes: 1
+      tasks_per_node: 1
+      walltime: 00:30:00
 task_pre_post_stat:
   execution:
     batchargs:
