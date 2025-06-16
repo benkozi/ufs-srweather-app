@@ -2908,6 +2908,8 @@ task_aqm_use_case_data_download:
       nodes: 1
       tasks_per_node: 1
       walltime: 00:30:00
+  envars:
+    FOOBAR: true
 task_pre_post_stat:
   execution:
     batchargs:

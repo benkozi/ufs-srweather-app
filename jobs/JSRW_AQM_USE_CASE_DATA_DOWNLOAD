@@ -99,6 +99,7 @@ fi
 #
 #-----------------------------------------------------------------------
 #
+printf ${FOOBAR}
 #if [ "${TEST_UFS_FIRE}" = "True" ]; then
 #  TEST_UFS_FIRE_FLAG="--test_ufs_fire"
 #else
