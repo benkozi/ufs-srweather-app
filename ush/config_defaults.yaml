@@ -2909,7 +2909,7 @@ task_aqm_use_case_data_download:
       tasks_per_node: 1
       walltime: 00:30:00
   envars:
-    FOOBAR: true
+    AQM_STAGE_DST_DIR: ""
 task_pre_post_stat:
   execution:
     batchargs:

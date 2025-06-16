@@ -99,7 +99,25 @@ This is the J-job script for the regional integration test task
 #
 #-----------------------------------------------------------------------
 #
-print_info_msg ${FOOBAR}
+
+if [ -d "${AQM_STAGE_DST_DIR}" ]; then
+  print_info_msg "AQM data stage directory already exists - assuming data is staged correctly. Remove this directory to re-stage."
+else
+  print_info_msg "Staging AQM use case data"
+  mkdir -p "${AQM_STAGE_DST_DIR}"
+  cp -rvs /gpfs/f6/bil-fire8/proj-shared/Benjamin.Koziol/for-aqm-use-case-proto/UFS-AQM/* "${AQM_STAGE_DST_DIR}"
+  cd "${AQM_STAGE_DST_DIR}"
+
+  tar -xvf RESTART/RESTART-20230531.tar
+  rm RESTART/RESTART-20230531.tar
+
+  find RAVE_fire -iname "*.tar" -exec tar -xvf {} \;
+  rm RAVE_fire/*.tar
+fi
+
+#cp -rv /gpfs/f6/bil-fire8/proj-shared/Benjamin.Koziol/for-aqm-use-case-proto/UFS-AQM/* "${AQM_STAGE_DST_DIR}"
+
+
 #if [ "${TEST_UFS_FIRE}" = "True" ]; then
 #  TEST_UFS_FIRE_FLAG="--test_ufs_fire"
 #else
