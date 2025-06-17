@@ -824,13 +824,14 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                 if expt_config["task_aqm_use_case_data_download"][
                     "USE_AQM_S3_DATA_STAGE"] is True:
                     logging.info("USE_AQM_S3_DATA_STAGE is True. External model files stage directory will be created later.")
-                raise FileNotFoundError(
-                    f'''
-                    The user-staged-data directory does not exist.
-                    Please point to the correct path where your external
-                    model files are stored.
-                      {data_key} = \"{basedir}\"'''
-                )
+                else:
+                    raise FileNotFoundError(
+                        f'''
+                        The user-staged-data directory does not exist.
+                        Please point to the correct path where your external
+                        model files are stored.
+                          {data_key} = \"{basedir}\"'''
+                    )
 
     # Make sure the vertical coordinate file and LEVP for both make_lbcs and make_ics is the same.
     make_ics_config = expt_config["task_make_ics"]["envvars"]
