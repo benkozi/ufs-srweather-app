@@ -821,6 +821,9 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                 idx = len(basedir)
 
             if not os.path.exists(basedir[:idx]):
+                if expt_config["task_aqm_use_case_data_download"][
+                    "USE_AQM_S3_DATA_STAGE"] is True:
+                    logging.info("USE_AQM_S3_DATA_STAGE is True. External model files stage directory will be created later.")
                 raise FileNotFoundError(
                     f'''
                     The user-staged-data directory does not exist.
