@@ -65,9 +65,9 @@ class Testing(unittest.TestCase):
                 build_settings.write('Application:\n')
         src_config_yaml = Path(USHdir) / src_config_yaml_filename
         shutil.copy(src_config_yaml, f"{USHdir}/config.yaml")
-        run_command(
-            f"""{sed} -i 's/MACHINE: HERA/MACHINE: LINUX/g' {USHdir}/config.yaml"""
-        )
+        # run_command(
+        #     f"""{sed} -i 's/MACHINE: HERA/MACHINE: LINUX/g' {USHdir}/config.yaml"""
+        # ) #tdk:uncomment
         # If running CI, point config.yaml to correct location for fix files
         if fix_files := get_env_var("CI_FIX_FILES"):
             machine_file = f"{USHdir}/machine/linux.yaml"
