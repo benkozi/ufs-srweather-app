@@ -2858,7 +2858,6 @@ cpl_aqm_parm:
   #-----------------------------------------------------------------------
   #
   CPL_AQM: false
-  USE_AQM_S3_DATA_STAGE: false #tdk:doc
 
   DO_AQM_DUST: true
   DO_AQM_CANOPY: false
@@ -2908,6 +2907,7 @@ task_aqm_use_case_data_download:
       nodes: 1
       tasks_per_node: 1
       walltime: 00:30:00
+  USE_AQM_S3_DATA_STAGE: false #tdk:doc
   envars:
     AQM_STAGE_DST_DIR: ""
 task_pre_post_stat:
