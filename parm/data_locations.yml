@@ -310,7 +310,7 @@ UFS-AQM-S3:
     file_names:
       netcdf:
         obs:
-          - "FV3GFS/gfs.{yyyymmdd}/12/atmos/gfs.t12z.sfcanl.nc"
+          - "FV3GFS/gfs.{yyyymmdd}/12/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
           - "GFS_SFC_DATA/gfs.{yyyymmdd}/12/atmos/gfs.sfcanl.nc"
           - "GFS_SFC_DATA/gfs.{yyyymmdd}/12/atmos/gfs.t12z.sfcf{fcst_hr:03d}.nc"
           - "GEFS_Aerosol/{yyyymmdd}/00/gfs.t00z.atmf{fcst_hr:03d}.nemsio"
