@@ -107,7 +107,7 @@ else
 
   mkdir -p "${AQM_STAGE_DST_DIR}"
 
-  EXTRN_MDL_CDATE="2023-06-01 12:00:00"
+  EXTRN_MDL_CDATE="202306011200"
   data_stores="aws"
   EXTRN_MDL_NAME="UFS-AQM-S3"
   fcst_hrs=( "0" )
