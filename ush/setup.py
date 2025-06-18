@@ -171,8 +171,8 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
 
             cpl_aqm_parm["COMINfire_default"] = str(aqm_stage_dst_dir / "RAVE_fire")
             cpl_aqm_parm["COMINgefs_default"] = str(aqm_stage_dst_dir / "GEFS_Aerosol")
-            cpl_aqm_parm["AQM_GEFS_FILE_PREFIX"] = str(aqm_stage_dst_dir / "gfs")
-            cpl_aqm_parm["AQM_GEFS_FILE_CYC"] = str(aqm_stage_dst_dir / "00")
+            # cpl_aqm_parm["AQM_GEFS_FILE_PREFIX"] = str(aqm_stage_dst_dir / "gfs")
+            # cpl_aqm_parm["AQM_GEFS_FILE_CYC"] = str(aqm_stage_dst_dir / "00")
             cpl_aqm_parm["NEXUS_GFS_SFC_DIR"] = str(aqm_stage_dst_dir / "GFS_SFC_DATA")
 
             default_config["workflow"]["WARMSTART_CYCLE_DIR"] = str(aqm_stage_dst_dir / "RESTART/AQMv8_p1" / default_config["workflow"]["WARMSTART_CYCLE_DIR"])

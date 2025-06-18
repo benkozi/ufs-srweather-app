@@ -129,8 +129,8 @@ cpl_aqm_parm:
   AQM_FIRE_FILE_SUFFIX: _h72.nc
   AQM_RC_FIRE_FREQUENCY: hourly
   AQM_LBCS_FILES: am4_bndy.c793.2019<MM>.v1.nc
-#  AQM_GEFS_FILE_PREFIX: gfs
-#  AQM_GEFS_FILE_CYC: '00'
+  AQM_GEFS_FILE_PREFIX: gfs
+  AQM_GEFS_FILE_CYC: '00'
   NEXUS_GRID_FN: grid_spec_793.nc
   NUM_SPLIT_NEXUS: 3
 #  COMINfire_default: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/use-cases/expt_dirs/UFS-AQM-DATA/RAVE_fire
