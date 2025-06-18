@@ -3,8 +3,8 @@ metadata:
 user:
   RUN_ENVIR: community
 #  MACHINE: [HERA/ORION/HERCULES/DERECHO/GAEAC6]
-#  MACHINE: GAEAC6
-  MACHINE: HERA
+  MACHINE: GAEAC6
+#  MACHINE: HERA
   ACCOUNT: bil-fire8
 workflow:
   USE_CRON_TO_RELAUNCH: true
