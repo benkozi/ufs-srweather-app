@@ -127,6 +127,7 @@ else
     --fcst_hrs ${fcst_hrs[@]} \
     --output_path ${AQM_STAGE_DST_DIR} \
     --summary_file ${EXTRN_DEFNS} \
+    --file_fmt netcdf \
     $additional_flags"
 
   $cmd
