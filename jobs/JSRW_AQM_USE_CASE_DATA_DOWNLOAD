@@ -125,7 +125,6 @@ else
     --data_stores ${data_stores} \
     --data_type ${EXTRN_MDL_NAME} \
     --fcst_hrs ${fcst_hrs[@]} \
-    --ics_or_lbcs ${ICS_OR_LBCS} \
     --output_path ${AQM_STAGE_DST_DIR} \
     --summary_file ${EXTRN_DEFNS} \
     $additional_flags"
