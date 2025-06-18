@@ -155,19 +155,26 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
             )
             default_config.update_from(aqm_coldstart)
         if default_config["task_aqm_use_case_data_download"]["USE_AQM_S3_DATA_STAGE"] is True:
-            aqm_stage_dst_dir = Path(default_config["task_aqm_use_case_data_download"]["envars"]["AQM_STAGE_DST_DIR"]).resolve()
+            aqm_stage_dst_dir = Path(default_config["task_aqm_use_case_data_download"]["envars"][
+                                         "AQM_STAGE_DST_DIR"]).resolve()
 
             task_get_extrn_ics = default_config["task_get_extrn_ics"]["envvars"]
             task_get_extrn_ics["USE_USER_STAGED_EXTRN_FILES"] = True
             task_get_extrn_ics["EXTRN_MDL_SOURCE_BASEDIR_ICS"] = str(aqm_stage_dst_dir)
             task_get_extrn_ics["EXTRN_MDL_ICS_OFFSET_HRS"] = 0
-            task_get_extrn_ics["EXTRN_MDL_FILES_ICS"] = ['FV3GFS/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc', 'GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc', 'GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.sfcanl.nc']
+            task_get_extrn_ics["EXTRN_MDL_FILES_ICS"] = [
+                'FV3GFS/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc',
+                'GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc',
+                'GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.sfcanl.nc']
 
             task_get_extrn_lbcs = default_config["task_get_extrn_lbcs"]["envvars"]
             task_get_extrn_lbcs["USE_USER_STAGED_EXTRN_FILES"] = True
             task_get_extrn_lbcs["EXTRN_MDL_SOURCE_BASEDIR_LBCS"] = str(aqm_stage_dst_dir)
             task_get_extrn_lbcs["EXTRN_MDL_LBCS_OFFSET_HRS"] = 0
-            task_get_extrn_lbcs["EXTRN_MDL_FILES_LBCS"] = ['FV3GFS/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc', 'GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc', 'GEFS_Aerosol/{yyyymmdd}/00/gfs.t00z.atmf{fcst_hr:03d}.nemsio']
+            task_get_extrn_lbcs["EXTRN_MDL_FILES_LBCS"] = [
+                'FV3GFS/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc',
+                'GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc',
+                'GEFS_Aerosol/{yyyymmdd}/00/gfs.t00z.atmf{fcst_hr:03d}.nemsio']
 
             cpl_aqm_parm["COMINfire_default"] = str(aqm_stage_dst_dir / "RAVE_fire")
             cpl_aqm_parm["COMINgefs_default"] = str(aqm_stage_dst_dir / "GEFS_Aerosol")
@@ -175,7 +182,9 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
             # cpl_aqm_parm["AQM_GEFS_FILE_CYC"] = str(aqm_stage_dst_dir / "00")
             cpl_aqm_parm["NEXUS_GFS_SFC_DIR"] = str(aqm_stage_dst_dir / "GFS_SFC_DATA")
 
-            default_config["workflow"]["WARMSTART_CYCLE_DIR"] = str(aqm_stage_dst_dir / "RESTART/AQMv8_p1" / default_config["workflow"]["WARMSTART_CYCLE_DIR"])
+            default_config["workflow"]["WARMSTART_CYCLE_DIR"] = str(
+                aqm_stage_dst_dir / "RESTART/AQMv8_p1" / default_config["workflow"][
+                    "WARMSTART_CYCLE_DIR"])
 
     # Dereference all Jinja expressions
     default_config.dereference(

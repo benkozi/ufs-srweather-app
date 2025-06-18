@@ -311,6 +311,7 @@ UFS-AQM-S3:
       netcdf:
         obs:
           - "FV3GFS/gfs.{yyyymmdd}/12/atmos/gfs.t12z.sfcanl.nc"
+          - "GFS_SFC_DATA/gfs.{yyyymmdd}/12/atmos/gfs.sfcanl.nc"
           - "GFS_SFC_DATA/gfs.{yyyymmdd}/12/atmos/gfs.t12z.sfcf{fcst_hr:03d}.nc"
           - "GEFS_Aerosol/{yyyymmdd}/00/gfs.t00z.atmf{fcst_hr:03d}.nemsio"
           - "RAVE_fire/{yyyymmdd}/rave/RAVE-HrlyEmiss-13km_v2r0_blend_s{yyyymmdd}.tar" #tdk: need to unpack
