@@ -104,8 +104,47 @@ if [ -d "${AQM_STAGE_DST_DIR}/FV3GFS" ]; then
   print_info_msg "AQM data stage directory already exists - assuming data is staged correctly. Remove this directory to re-stage."
 else
   print_info_msg "Staging AQM use case data"
+
   mkdir -p "${AQM_STAGE_DST_DIR}"
-  cp -rvs /gpfs/f6/bil-fire8/proj-shared/Benjamin.Koziol/for-aqm-use-case-proto/UFS-AQM/* "${AQM_STAGE_DST_DIR}"
+
+  EXTRN_MDL_CDATE="20230601"
+  data_stores="aws"
+  EXTRN_MDL_NAME="UFS-AQM-S3"
+  fcst_hrs=( "0" )
+  file_set="obs"
+  additional_flags=""
+  EXTRN_DEFNS="${EXTRN_MDL_VAR_DEFNS_FN}.sh"
+
+  #tdk:aqm-data
+  cmd="
+  python3 -u ${USHdir}/retrieve_data.py \
+    --debug \
+    --file_set ${file_set} \
+    --config ${PARMdir}/data_locations.yml \
+    --cycle_date ${EXTRN_MDL_CDATE} \
+    --data_stores ${data_stores} \
+    --data_type ${EXTRN_MDL_NAME} \
+    --fcst_hrs ${fcst_hrs[@]} \
+    --ics_or_lbcs ${ICS_OR_LBCS} \
+    --output_path ${AQM_STAGE_DST_DIR} \
+    --summary_file ${EXTRN_DEFNS} \
+    $additional_flags"
+
+  $cmd
+  export err=$?
+  if [ $err -ne 0 ]; then
+    message_txt="Call to retrieve_data.py failed with a non-zero exit status.
+  The command was:
+  ${cmd}
+  "
+    if [ "${RUN_ENVIR}" = "nco" ] && [ "${MACHINE}" = "WCOSS2" ]; then
+      err_exit "${message_txt}"
+    else
+      print_err_msg_exit "${message_txt}"
+    fi
+  fi
+
+#  cp -rvs /gpfs/f6/bil-fire8/proj-shared/Benjamin.Koziol/for-aqm-use-case-proto/UFS-AQM/* "${AQM_STAGE_DST_DIR}"
   cd "${AQM_STAGE_DST_DIR}"
 
   tar -xvf RESTART/RESTART-20230531.tar
