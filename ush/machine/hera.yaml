@@ -39,9 +39,7 @@ platform:
   FIXorg: /scratch3/NCEPDEV/nems/role.epic/hera/UFS_SRW_data/develop/fix/fix_orog
   FIXsfc: /scratch3/NCEPDEV/nems/role.epic/hera/UFS_SRW_data/develop/fix/fix_sfc_climo
   FIXshp: /scratch3/NCEPDEV/nems/role.epic/hera/UFS_SRW_data/develop/NaturalEarth
-  # Uncomment this path (and comment the corresponding below) when working with an AQMv7-enabled UFS-WM
   FIXaqm: /scratch3/NCEPDEV/nems/role.epic/hera/UFS_SRW_data/develop/fix/fix_aqm_v8/fix/fix_aqm
-#  FIXaqm: /scratch3/NCEPDEV/nems/role.epic/hera/UFS_SRW_data/develop/fix/fix_aqm
   FIXemis: /scratch3/NCEPDEV/nems/role.epic/hera/UFS_SRW_data/develop/fix/fix_emis
   FIXsmoke: /scratch3/NCEPDEV/nems/role.epic/hera/UFS_SRW_data/develop/fix/fix_smoke
   FIXupp: /scratch3/NCEPDEV/nems/role.epic/hera/UFS_SRW_data/develop/fix/fix_upp
