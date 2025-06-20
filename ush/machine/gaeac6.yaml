@@ -14,8 +14,8 @@ platform:
   QUEUE_FCST: normal
   QUEUE_HPSS: normal
   REMOVE_MEMORY: True
-  PARTITION_DEFAULT: dtn_f5_f6
-#  PARTITION_DEFAULT: batch
+#  PARTITION_DEFAULT: rdtn
+  PARTITION_DEFAULT: batch
   PARTITION_FCST: batch
   PARTITION_HPSS: eslogin_c6
   RUN_CMD_FCST: srun --export=ALL
