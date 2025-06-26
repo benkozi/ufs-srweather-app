@@ -145,8 +145,7 @@ def wget_file(url):
     # -c continue previous attempt
     # -T timeout seconds
     # -t number of tries
-    # cmd = f"wget -q -c -T 15 -t 2 {url}"
-    cmd = f"wget -c -T 15 -t 2 {url}"
+    cmd = f"wget -q -c -T 15 -t 2 {url}"
     logging.debug(f"Running command: \n {cmd}")
     try:
         subprocess.run(
@@ -997,7 +996,6 @@ def main(argv):
 
     if unavailable:
         logging.error("Could not find any of the requested files.")
-        print(f"Unavailable files: {unavailable}") #tdk:rm
         sys.exit(1)
 
 

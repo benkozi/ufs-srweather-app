@@ -80,9 +80,6 @@ hh_mh1=${CDATE_mh1:8:2}
 #
 #-----------------------------------------------------------------------
 #
-
-#tdk:aqm-data
-
 aqm_fire_file_fn="${AQM_FIRE_FILE_PREFIX}_${YYYYMMDD}_t${HH}z${AQM_FIRE_FILE_SUFFIX}"
 
 # Check if the fire file exists in the designated directory

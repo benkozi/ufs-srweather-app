@@ -30,19 +30,6 @@ default_aqm_task: &default_aqm
   partition: '{{ "&PARTITION_DEFAULT;" if platform.get("PARTITION_DEFAULT") }}'
   queue: '&QUEUE_DEFAULT;'
 
-task_aqm_use_case_data_download:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "aqm_use_case_data_download" "&HOMEdir;/jobs/JSRW_AQM_USE_CASE_DATA_DOWNLOAD"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_aqm_use_case_data_download.execution.batchargs.nodes * task_aqm_use_case_data_download.execution.batchargs.tasks_per_node }}'
-  nodes: '{{ task_aqm_use_case_data_download.execution.batchargs.nodes }}:ppn={{ task_aqm_use_case_data_download.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ task_aqm_use_case_data_download.execution.batchargs.walltime }}'
-  memory: 2G
-
 task_nexus_gfs_sfc:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "nexus_gfs_sfc" "&HOMEdir;/jobs/JSRW_NEXUS_GFS_SFC"'
@@ -58,29 +45,22 @@ task_nexus_gfs_sfc:
   walltime: '{{ task_nexus_gfs_sfc.execution.batchargs.walltime }}'
   memory: 2G
   dependency:
-    and:
-      taskdep:
-        attrs:
-          task: aqm_use_case_data_download
-      taskvalid:
-        attrs:
-          task: aqm_use_case_data_download
-      or:
-        and:
-          streq:
-            left: do_real_time
-            right: '{% if workflow.DO_REAL_TIME %}do_real_time{% endif %}'
-          datadep_gfs:
-            attrs:
-              age: 00:00:00:05
-            value:
-              cyclestr:
-                attrs:
-                  offset: "-{{ workflow.INCR_CYCL_FREQ }}:00:00"
-                value: '&COMINgfs;/gfs.@Y@m@d/@H/atmos'
+    or:
+      and:
         streq:
-          left: retro
-          right: '{% if not workflow.DO_REAL_TIME %}retro{% endif %}'
+          left: do_real_time
+          right: '{% if workflow.DO_REAL_TIME %}do_real_time{% endif %}'
+        datadep_gfs:
+          attrs:
+            age: 00:00:00:05
+          value:
+            cyclestr:
+              attrs:
+                offset: "-{{ workflow.INCR_CYCL_FREQ }}:00:00"
+              value: '&COMINgfs;/gfs.@Y@m@d/@H/atmos'
+      streq:
+        left: retro
+        right: '{% if not workflow.DO_REAL_TIME %}retro{% endif %}'
 
 metatask_nexus_emission:
   var:
@@ -130,14 +110,6 @@ task_fire_emission:
     nprocs: '{{ task_fire_emission.execution.batchargs.nodes * task_fire_emission.execution.batchargs.tasks_per_node }}'
   nodes: '{{ task_fire_emission.execution.batchargs.nodes }}:ppn={{ task_fire_emission.execution.batchargs.tasks_per_node }}'
   walltime: '{{ task_fire_emission.execution.batchargs.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-          task: aqm_use_case_data_download
-      taskvalid:
-        attrs:
-          task: aqm_use_case_data_download
 
 task_point_source:
   <<: *default_aqm
@@ -151,21 +123,14 @@ task_point_source:
   nodes: '{{ task_point_source.execution.batchargs.nodes }}:ppn={{ task_point_source.execution.batchargs.tasks_per_node }}'
   walltime: '{{ task_point_source.execution.batchargs.walltime }}'
   dependency:
-    and:
-      or_make_grid:
-        datadep_grid:
-          attrs:
-            age: 00:00:00:05
-          value: '{{ task_make_grid.envvars.GRID_DIR }}/make_grid_task_complete.txt'
-        streq:
-          left: staged_grid
-          right: '{{ "staged_grid" if not rocoto.get("tasks", {}).get("task_make_grid") }}'
-      taskdep:
+    or_make_grid:
+      datadep_grid:
         attrs:
-          task: aqm_use_case_data_download
-      taskvalid:
-        attrs:
-          task: aqm_use_case_data_download
+          age: 00:00:00:05
+        value: '{{ task_make_grid.envvars.GRID_DIR }}/make_grid_task_complete.txt'
+      streq:
+        left: staged_grid
+        right: '{{ "staged_grid" if not rocoto.get("tasks", {}).get("task_make_grid") }}'
 
 task_aqm_ics_ext:
   <<: *default_aqm
@@ -185,7 +150,7 @@ task_aqm_ics_ext:
   memory: 64G
   dependency:
     and:
-      taskdep_make_ics:
+      taskdep:
         attrs:
           task: make_ics_mem000
       or:
@@ -263,3 +228,4 @@ task_aqm_lbcs:
     taskdep:
       attrs:
         task: make_lbcs_mem000
+

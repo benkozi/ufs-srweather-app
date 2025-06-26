@@ -84,9 +84,6 @@ fcst_len_hrs_offset=$(( FCST_LEN_HRS + TIME_OFFSET_HRS ))
 #
 #-----------------------------------------------------------------------
 #
-
-#tdk:aqm-data
-
 GFS_SFC_TAR_DIR="${NEXUS_GFS_SFC_ARCHV_DIR}/rh${YYYY}/${YYYYMM}/${YYYYMMDD}"
 GFS_SFC_TAR_SUB_DIR="gfs.${YYYYMMDD}/${HH}/atmos"
 

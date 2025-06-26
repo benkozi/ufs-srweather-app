@@ -244,7 +244,6 @@ if [ $RUN_ENVIR = "nco" ]; then
 else
     EXTRN_DEFNS="${EXTRN_MDL_VAR_DEFNS_FN}.sh"
 fi
-#tdk:aqm-data
 cmd="
 python3 -u ${USHdir}/retrieve_data.py \
   --debug \
