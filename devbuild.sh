@@ -10,7 +10,7 @@ OPTIONS
       show this help guide
   -p, --platform=PLATFORM
       name of machine you are building on
-      (e.g. cheyenne | hera | jet | orion | wcoss2)
+      (e.g. hera | orion | hercules | gaeac6)
   -c, --compiler=COMPILER
       compiler to use; default depends on platform
       (e.g. intel | gnu | cray | gccgfortran)
@@ -230,21 +230,21 @@ if [ "${BUILD_CONDA}" = "on" ] ; then
   source ${CONDA_BUILD_DIR}/etc/profile.d/conda.sh
   # Put some additional packages in the base environment on MacOS systems
   if [ "${os}" == "MacOSX" ] ; then
-    mamba install -y bash coreutils sed
+    conda install -y bash coreutils sed
   fi
   conda activate
   if ! conda env list | grep -q "^srw_app\s" ; then
-    mamba env create -n srw_app --file environment.yml
+    conda env create -n srw_app --file environment.yml
   fi
   if ! conda env list | grep -q "^srw_graphics\s" ; then
-    mamba env create -n srw_graphics --file graphics_environment.yml
+    conda env create -n srw_graphics --file graphics_environment.yml
   fi
   if ! conda env list | grep -q "^srw_sd\s" ; then
-    mamba env create -n srw_sd --file sd_environment.yml
+    conda env create -n srw_sd --file sd_environment.yml
   fi
   if [ "${APPLICATION}" = "ATMAQ" ]; then
     if ! conda env list | grep -q "^srw_aqm\s" ; then
-      mamba env create -n srw_aqm --file aqm_environment.yml
+      conda env create -n srw_aqm --file aqm_environment.yml
     fi
   fi
 
