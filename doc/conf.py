@@ -104,7 +104,7 @@ rst_prolog = """
 .. |cmaq_env| replace:: ``regional_workflow_cmaq``
 .. |activate| replace:: ``conda activate srw_app``
 .. |prompt| replace:: ``(srw_app)``
-.. |latestr| replace:: v2.2.0
+.. |latestr| replace:: v3.0.0
 .. |branch| replace:: ``develop``
 .. |data| replace:: develop
 """
@@ -119,6 +119,7 @@ linkcheck_ignore = [r'https://www\.intel\.com/content/www/us/en/docs/cpp\-compil
                     r'https://www\.intel\.com/content/www/us/en/developer/tools/oneapi/hpc\-toolkit\-download\.html',
                     r'https://glossary.ametsoc.org/.*',
                     r'https://www.axios.com/local/new-orleans/2025/01/21/in-photos-historic-snowstorm-new-orleans-louisiana',
+                    r'https://repository.library.noaa.gov/view/noaa/30725',
                    ]
 
 # Ignore anchor tags for SRW App data bucket. Shows Not Found even when they exist.
@@ -127,7 +128,7 @@ linkcheck_anchors_ignore = [r"current_srw_release_data/",
                             r"fix.*",
                             r"experiment-user-cases/.*",
                             r"rrfs_a/*",
-                            r"develop-20240618/*",
+                            r"develop-20250321/.*",
                             ]
 
 linkcheck_allowed_redirects = {r"https://github\.com/ufs-community/ufs-srweather-app/wiki/.*": 
@@ -320,22 +321,22 @@ napoleon_custom_sections = [('Returns', 'params_style')] # Allows return of mult
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
    'python': ('https://docs.python.org/3', None),
-   'hpc-stack': ('https://hpc-stack-epic.readthedocs.io/en/develop/', None),
    'spack-stack': ('https://spack-stack.readthedocs.io/en/develop/', None),
    'met': ('https://met.readthedocs.io/en/develop/', None),
    'metplus': ('https://metplus.readthedocs.io/en/develop/', None),
    'ufs-wm': ('https://ufs-weather-model.readthedocs.io/en/develop/', None),
    'upp': ('https://upp.readthedocs.io/en/develop/', None),
-   'ufs-utils': ('https://noaa-emcufs-utils.readthedocs.io/en/latest/', None),
-   'ccpp-techdoc': ('https://ccpp-techdoc.readthedocs.io/en/ufs_srw_app_v2.2.0/', None),
+   'ufs-utils': ('https://ufs-utils-epic.readthedocs.io/en/release-srw-v3.0.0/', None),
+   'ccpp-techdoc': ('https://ccpp-techdoc.readthedocs.io/en/latest/', None),
    'stochphys': ('https://stochastic-physics.readthedocs.io/en/latest/', None),
-   'srw_v2.2.0': ('https://ufs-srweather-app.readthedocs.io/en/release-public-v2.2.0/', None),
+   'srw_v3.0.0': ('https://ufs-srweather-app.readthedocs.io/en/release-public-v3.0.0/', None),
 }
 
 # -- Options for extlinks extension ---------------------------------------
 
 extlinks_detect_hardcoded_links = True
-extlinks = {'github-docs': ('https://docs.github.com/en/%s', '%s'),
+extlinks = {'ccpp-scm': ('https://ccpp-scm.readthedocs.io/en/latest/%s','%s'),
+            'github-docs': ('https://docs.github.com/en/%s', '%s'),
             'nco': ('https://www.nco.ncep.noaa.gov/idsb/implementation_standards/%s', '%s'),
             "rst": ("https://www.sphinx-doc.org/en/master/usage/restructuredtext/%s", "%s"),
             "rtd": ("https://app.readthedocs.org/projects/ufs-srweather-app/%s", "%s"),
