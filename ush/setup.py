@@ -158,7 +158,6 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
         if default_config["cpl_aqm_parm"]["USE_AQM_S3_DATA_STAGE"] is True:
             aqm_stage_dst_dir = Path(default_config["cpl_aqm_parm"][
                                          "AQM_STAGE_DST_DIR"]).resolve(strict=True)
-            tdk
 
             task_get_extrn_ics = default_config["task_get_extrn_ics"]["envvars"]
             task_get_extrn_ics["USE_USER_STAGED_EXTRN_FILES"] = True
