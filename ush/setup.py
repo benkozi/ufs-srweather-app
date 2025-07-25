@@ -154,9 +154,11 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
                 homedir / "parm" / "wflow" / "aqm_coldstart.yaml"
             )
             default_config.update_from(aqm_coldstart)
-        if default_config["task_aqm_use_case_data_download"]["USE_AQM_S3_DATA_STAGE"] is True:
-            aqm_stage_dst_dir = Path(default_config["task_aqm_use_case_data_download"]["envars"][
-                                         "AQM_STAGE_DST_DIR"]).resolve()
+        #tdk: remove aqm use case data download task
+        if default_config["cpl_aqm_parm"]["USE_AQM_S3_DATA_STAGE"] is True:
+            tdk
+            aqm_stage_dst_dir = Path(default_config["cpl_aqm_parm"][
+                                         "AQM_STAGE_DST_DIR"]).resolve(strict=True)
 
             task_get_extrn_ics = default_config["task_get_extrn_ics"]["envvars"]
             task_get_extrn_ics["USE_USER_STAGED_EXTRN_FILES"] = True
@@ -830,20 +832,21 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                 idx = len(basedir)
 
             if not os.path.exists(basedir[:idx]):
-                if expt_config["task_aqm_use_case_data_download"][
-                    "USE_AQM_S3_DATA_STAGE"] is True:
-                    logging.info(
-                        "USE_AQM_S3_DATA_STAGE is True. External model files stage directory will "
-                        "be created later."
-                    )
-                else:
-                    raise FileNotFoundError(
-                        f'''
-                        The user-staged-data directory does not exist.
-                        Please point to the correct path where your external
-                        model files are stored.
-                          {data_key} = \"{basedir}\"'''
-                    )
+                #tdk:rm/revert
+                # if expt_config["cpl_aqm_parm"][
+                #     "USE_AQM_S3_DATA_STAGE"] is True:
+                #     logging.info(
+                #         "USE_AQM_S3_DATA_STAGE is True. External model files stage directory will "
+                #         "be created later."
+                #     )
+                # else:
+                raise FileNotFoundError(
+                    f'''
+                    The user-staged-data directory does not exist.
+                    Please point to the correct path where your external
+                    model files are stored.
+                      {data_key} = \"{basedir}\"'''
+                )
 
     # Make sure the vertical coordinate file and LEVP for both make_lbcs and make_ics is the same.
     make_ics_config = expt_config["task_make_ics"]["envvars"]

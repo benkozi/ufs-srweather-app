@@ -82,10 +82,10 @@ nco:
 #    EXTRN_MDL_FNS:
 #      - "gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
 #      - "gfs.t{hh}z.sfcf{fcst_hr:03d}.nc"
-task_aqm_use_case_data_download:
-  USE_AQM_S3_DATA_STAGE: true
-  envars:
-    AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/tmp/aqm-use-case-download"
+#task_aqm_use_case_data_download:
+#  USE_AQM_S3_DATA_STAGE: true
+#  envars:
+#    AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/tmp/aqm-use-case-download"
 task_nexus_emission:
   envvars:
     PPN_NEXUS_EMISSION: 20
