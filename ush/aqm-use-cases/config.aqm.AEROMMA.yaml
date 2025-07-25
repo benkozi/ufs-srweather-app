@@ -113,6 +113,11 @@ global:
   HALO_BLEND: 0
 cpl_aqm_parm:
   CPL_AQM: true
+
+  #tdk: documentation and defaults
+  USE_AQM_S3_DATA_STAGE: true
+  AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/tmp/aqm-use-case-download"
+
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true
   DO_AQM_DUST: true
