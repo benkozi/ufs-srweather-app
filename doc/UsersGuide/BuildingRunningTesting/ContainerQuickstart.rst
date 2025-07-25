@@ -76,10 +76,12 @@ On most Level 1 systems, a container named ``ubuntu22.04-intel-ue-1.6.0-srw-dev.
      - File Location
    * - Derecho [#fn]_
      - /glade/work/epicufsrt/contrib/containers
-   * - Gaea-C6 [#fn]_
-     - /gpfs/f6/bil-fire8/world-shared/containers
+   * - Gaea-C5 [#fn]_
+     - /gpfs/f5/epic/world-shared/containers
    * - Hera
      - /scratch1/NCEPDEV/nems/role.epic/containers
+   * - Jet
+     - /mnt/lfs5/HFIP/hfv3gfs/role.epic/containers
    * - NOAA Cloud [#fn]_
      - /contrib/EPIC/containers
    * - Orion/Hercules
@@ -129,7 +131,7 @@ Some users may prefer to issue the command without the ``sudo`` prefix. Whether 
 
    .. code-block:: console
 
-   sudo singularity build --sandbox ubuntu22.04-intel-srw-release-public-v3.0.0 docker://noaaepic/ubuntu22.04-intel21.10-srw:ue160-fms202401-release3
+      sudo singularity build --sandbox ubuntu20.04-intel-srwapp-release-public-v2.2.0 docker://noaaepic/ubuntu20.04-intel-srwapp:release-public-v2.2.0
 
 For easier reference, users can set an environment variable to point to the container: 
 
@@ -185,8 +187,8 @@ The SRW App requires input files to run. These include static datasets, initial 
 
 .. code-block:: console
 
-   wget https://noaa-ufs-srw-pds.s3.amazonaws.com/experiment-user-cases/release-public-v3.0.0/out-of-the-box/fix_data.tgz
-   wget https://noaa-ufs-srw-pds.s3.amazonaws.com/experiment-user-cases/release-public-v3.0.0/out-of-the-box/gst_data.tgz
+   wget https://noaa-ufs-srw-pds.s3.amazonaws.com/experiment-user-cases/release-public-v2.2.0/out-of-the-box/fix_data.tgz
+   wget https://noaa-ufs-srw-pds.s3.amazonaws.com/experiment-user-cases/release-public-v2.2.0/out-of-the-box/gst_data.tgz
    tar -xzf fix_data.tgz
    tar -xzf gst_data.tgz
 
@@ -219,7 +221,7 @@ where:
 
    * ``-c`` indicates the compiler on the user's local machine (e.g., ``intel/2022.1.2``, ``intel-oneapi-compilers/2022.2.1``, ``intel/2023.2.0``)
    * ``-m`` indicates the :term:`MPI` on the user's local machine (e.g., ``impi/2022.1.2``, ``intel-oneapi-mpi/2021.7.1``, ``cray-mpich/8.1.28``)
-   * ``<platform>`` refers to the local machine (e.g., ``hera``, ``derecho``, ``noaacloud``). See ``MACHINE`` in :numref:`Section %s <user>` for a full list of options.
+   * ``<platform>`` refers to the local machine (e.g., ``hera``, ``jet``, ``noaacloud``, ``macos``, ``linux``). See ``MACHINE`` in :numref:`Section %s <user>` for a full list of options.
    * ``-i`` indicates the full path to the container image that was built in :numref:`Step %s <BuildC>` (``ubuntu22.04-intel-ue-1.6.0-srw-dev`` or ``ubuntu22.04-intel-ue-1.6.0-srw-dev.img`` by default).
 
 For example, on Hera, the command would be:

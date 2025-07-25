@@ -21,13 +21,39 @@ The SRW App includes five predefined limited area model (:term:`LAM`) grids. To 
 * ``SUBCONUS_Ind_3km``
 * ``RRFS_NA_13km``
 
-These five options are provided for flexibility related to compute resources and supported physics options. Other predefined grids are listed :ref:`here <PredefGrid>`. The high-resolution 3-km :term:`CONUS` grid generally requires more compute power and works well with three of the five supported physics suites. Low-resolution grids (i.e., 13-km and 25-km domains) require less compute power and should generally be used with the other supported physics suites: ``FV3_GFS_v16`` and ``FV3_RAP``.
+These five options are provided for flexibility related to compute resources and supported physics options. Other predefined grids are listed :ref:`here <PredefGrid>`. The high-resolution 3-km :term:`CONUS` grid generally requires more compute power and works well with three of the five supported physics suites (see :numref:`Table %s <GridPhysicsCombos>`). Low-resolution grids (i.e., 13-km and 25-km domains) require less compute power and should generally be used with the other supported physics suites: ``FV3_GFS_v16`` and ``FV3_RAP``.
 
 .. _GridPhysicsCombos:
 
-The GFS_v16 suite has been thoroughly tested at a global 13-km resolution but is not recommended for high-resolution applications (3 km or less). The WoFS suite is specifically designed for the 1-km Warn-on-Forecast System. The HRRR, HRRR_gf, and RAP suites are based on configurations used in the operational HRRR (3 km) and RAP (13 km) models, respectively.
+.. table:: *Preferred grid and physics combinations for supported domains & physics suites*
 
-The HRRR and WoFS suites do not include convective parameterization and are therefore not recommended for resolutions greater than 3 km.
+   +-------------------+------------------+
+   | Grid              | Physics Suite(s) |
+   +===================+==================+
+   | RRFS_CONUS_3km    | FV3_RRFS_v1beta  |
+   |                   |                  |
+   |                   | FV3_HRRR         |
+   |                   |                  |
+   |                   | FV3_WoFS         |
+   +-------------------+------------------+
+   | SUBCONUS_Ind_3km  | FV3_RRFS_v1beta  |
+   |                   |                  |
+   |                   | FV3_HRRR         |
+   |                   |                  |
+   |                   | FV3_WoFS         |
+   +-------------------+------------------+
+   | RRFS_CONUS_13km   | FV3_GFS_v16      |
+   |                   |                  |
+   |                   | FV3_RAP          |
+   +-------------------+------------------+
+   | RRFS_NA_13km      | FV3_RAP          |
+   |                   |                  |
+   |                   | FV3_GFS_v16      |
+   +-------------------+------------------+
+   | RRFS_CONUS_25km   | FV3_GFS_v16      |
+   |                   |                  |
+   |                   | FV3_RAP          |
+   +-------------------+------------------+
 
 In theory, it is possible to run any of the supported physics suites with any of the predefined grids, but the results will be more accurate and meaningful with appropriate grid/physics pairings. 
 

@@ -129,6 +129,9 @@ Glossary
    HPC
       High-Performance Computing.
 
+   HPC-Stack
+      The `HPC-Stack <https://github.com/NOAA-EMC/hpc-stack>`__ is a repository that provides a unified, shell script-based build system for building the software stack required for numerical weather prediction (NWP) tools such as the `Unified Forecast System (UFS) <https://ufs.epic.noaa.gov/>`_ and the `Joint Effort for Data assimilation Integration (JEDI) <https://jointcenterforsatellitedataassimilation-jedi-docs.readthedocs-hosted.com/en/latest/>`_ framework. View the HPC-Stack documentation :doc:`here <hpc-stack:index>`.
+
    HPSS
       High Performance Storage System (HPSS).
 
@@ -186,11 +189,11 @@ Glossary
 
    NCEPLIBS
       The software libraries created and maintained by :term:`NCEP` that are required for running 
-      :term:`chgres_cube`, the UFS Weather Model, and the :term:`UPP`. They are included in the `spack-stack <https://github.com/JCSDA/spack-stack>`_. 
+      :term:`chgres_cube`, the UFS Weather Model, and the :term:`UPP`. They are included in the `HPC-Stack <https://github.com/NOAA-EMC/hpc-stack>`__. 
 
    NCEPLIBS-external
       A collection of third-party libraries required to build :term:`NCEPLIBS`, :term:`chgres_cube`, 
-      the UFS Weather Model, and :term:`UPP`. They are included in the :term:`spack-stack`.  
+      the UFS Weather Model, and :term:`UPP`. They are included in the :term:`HPC-Stack`.  
 
    NCL
       An interpreted programming language designed specifically for scientific data analysis and 
