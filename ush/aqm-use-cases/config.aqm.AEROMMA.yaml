@@ -85,7 +85,7 @@ nco:
 task_aqm_use_case_data_download:
   USE_AQM_S3_DATA_STAGE: true
   envars:
-    AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/use-cases/expt_dirs/UFS-AQM-DATA"
+    AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/tmp/aqm-use-case-download"
 task_nexus_emission:
   envvars:
     PPN_NEXUS_EMISSION: 20
