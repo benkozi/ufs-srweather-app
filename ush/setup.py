@@ -787,7 +787,6 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                 },
             }
 
-
     #
     # -----------------------------------------------------------------------
     #
@@ -842,14 +841,6 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                 idx = len(basedir)
 
             if not os.path.exists(basedir[:idx]):
-                #tdk:rm/revert
-                # if expt_config["cpl_aqm_parm"][
-                #     "USE_AQM_S3_DATA_STAGE"] is True:
-                #     logging.info(
-                #         "USE_AQM_S3_DATA_STAGE is True. External model files stage directory will "
-                #         "be created later."
-                #     )
-                # else:
                 raise FileNotFoundError(
                     f'''
                     The user-staged-data directory does not exist.
@@ -1757,8 +1748,8 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         """
         raise ValueError(msg)
 
+    # Generate a flag file for cold start
     if expt_config["workflow"].get("COLDSTART"):
-        # Generate a flag file for cold start
         coldstart_date = var_defns_cfg["workflow"]["DATE_FIRST_CYCL"]
         fn_pass=f"task_skip_coldstart_{coldstart_date}.txt"
         Path(exptdir,fn_pass).touch()
