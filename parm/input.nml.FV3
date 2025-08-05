@@ -216,3 +216,7 @@
     peak_fac = 1.0
     zero_ocean = .false.
 /
+
+ &fv_moving_nest_nml
+    is_moving_nest = .false.
+ /
