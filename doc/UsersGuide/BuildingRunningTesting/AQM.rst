@@ -355,7 +355,7 @@ If you are not on a Tier 1 platform and have not acquired the SRW fixed file dat
 
 Now, setting ```cpl_aqm_parm.USE_FIX_AQM_S3_DATA_STAGE= true``` will adjust fixed files paths to point to the ```AQM_STAGE_DST_DIR```.
 
-.. note::
+.. tip::
 
    The sync utility is resumable. Re-use the destination directory if a sync operation is canceled, interrupted, or additional temporal data is needed. Synchronization is a one-way sync from the S3 source.
 
