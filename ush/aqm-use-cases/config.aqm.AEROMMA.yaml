@@ -116,6 +116,7 @@ cpl_aqm_parm:
 
   #tdk: documentation and defaults
   USE_AQM_S3_DATA_STAGE: true
+  USE_FIX_AQM_S3_DATA_STAGE: true
   AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/tmp/aqm-use-case-download"
 
   DO_AQM_CHEM_LBCS: true
