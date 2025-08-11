@@ -228,7 +228,6 @@ def _update_config_for_coupled_aqm_(default_config: YAMLConfig, homedir: Path) -
                     / "RESTART/AQMv8_p1"
                     / default_config["workflow"]["WARMSTART_CYCLE_DIR"]
                 )
-            import pdb;pdb.set_trace()
             if default_config["cpl_aqm_parm"]["USE_FIX_AQM_S3_DATA_STAGE"] is True:
                 logging.info("Using S3 AQM data stage - updating fixed file paths")
                 fix_mapping = (
