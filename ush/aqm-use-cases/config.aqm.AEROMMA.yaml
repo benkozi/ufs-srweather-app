@@ -1,10 +1,8 @@
 metadata:
-  description: config for SRW-AQM, AQM_NA_13km, Spring AQ
+  description: config for SRW-AQM, AQM_NA_13km, AEROMMA field campaign
 user:
   RUN_ENVIR: community
 #  MACHINE: [HERA/ORION/HERCULES/DERECHO/GAEAC6]
-#  MACHINE: GAEAC6
-  MACHINE: HERA
   ACCOUNT: bil-fire8
 workflow:
   USE_CRON_TO_RELAUNCH: true
@@ -12,10 +10,9 @@ workflow:
   EXPT_SUBDIR: aqm_AQMNA13km_AEROMMA
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v16
-#  DATE_FIRST_CYCL: '2023111000'
   DATE_FIRST_CYCL: '2023060112'
   DATE_LAST_CYCL:  '2023060212'
-#  DATE_LAST_CYCL: '2023111100'
+#  DATE_LAST_CYCL:  '2023083112'  # Last cycle date for AEROMMA with all data staged
   INCR_CYCL_FREQ: 24
   FCST_LEN_HRS: 24
   PREEXISTING_DIR_METHOD: rename
@@ -27,12 +24,6 @@ workflow:
   DO_REAL_TIME: false
   COLDSTART: false      # set to true for cold start
   WARMSTART_CYCLE_DIR: "20230531"
-#  WARMSTART_CYCLE_DIR: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/use-cases/expt_dirs/UFS-AQM-DATA/RESTART/AQMv8_p1/20230531
-#  WARMSTART_CYCLE_DIR: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RESTART/AQMv8_p1/20230531 # for AQM test bed
-#  WARMSTART_CYCLE_DIR: /gpfs/f6/bil-fire3/scratch/Wei.K.Li/aqm_data/restart/2023111000 # for gaeac6
-#  WARMSTART_CYCLE_DIR: '/scratch2/NAGAPE/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for hera
-#  WARMSTART_CYCLE_DIR: '/work/noaa/epic/SRW-AQM_DATA/aqm_data/restart/2023111000' # for orion/hercules
-#  WARMSTART_CYCLE_DIR: '/glade/work/chanhooj/SRW-AQM_DATA/aqm_data/restart/2023111000' # for derecho
   taskgroups:
     - parm/wflow/prep.yaml
     - parm/wflow/aqm_prep.yaml
@@ -42,50 +33,6 @@ nco:
   envir_default: aqm_AQMNA13km_AEROMMA
   NET_default: aqm
   RUN_default: aqm
-#rocoto:
-#  tasks:
-#    task_aqm_ics_ext: !remove #tdk:rm
-#task_get_extrn_ics:
-#  envvars:
-#    USE_USER_STAGED_EXTRN_FILES: true
-#    EXTRN_MDL_SOURCE_BASEDIR_ICS: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/use-cases/expt_dirs/UFS-AQM-DATA
-##    EXTRN_MDL_SOURCE_BASEDIR_ICS: /ncrc/home2/Benjamin.Koziol/l/scratch/data/aqm-use-cases/AQM_Testbed_Links
-#    EXTRN_MDL_NAME_ICS: FV3GFS
-#    FV3GFS_FILE_FMT_ICS: netcdf
-#    EXTRN_MDL_ICS_OFFSET_HRS: 0
-#    EXTRN_MDL_FILES_ICS:
-#      - "FV3GFS/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
-#      - "GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc"
-#      - "GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.sfcanl.nc"
-##      - "RAVE_fire/rave-{yyyymmdd}.tar"
-##      - "RESTART/RESTART-20230531.tar"
-#task_get_extrn_lbcs:
-#  envvars:
-#    USE_USER_STAGED_EXTRN_FILES: true
-#    EXTRN_MDL_SOURCE_BASEDIR_LBCS: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/use-cases/expt_dirs/UFS-AQM-DATA
-##    EXTRN_MDL_SOURCE_BASEDIR_LBCS: /ncrc/home2/Benjamin.Koziol/l/scratch/data/aqm-use-cases/AQM_Testbed_Links
-#    EXTRN_MDL_NAME_LBCS: FV3GFS
-##    LBC_SPEC_INTVL_HRS: 6
-#    FV3GFS_FILE_FMT_LBCS: netcdf
-#    EXTRN_MDL_LBCS_OFFSET_HRS: 0
-#    EXTRN_MDL_FILES_LBCS:
-#      - "FV3GFS/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
-#      - "GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc"
-#      - "GEFS_Aerosol/{yyyymmdd}/00/gfs.t00z.atmf{fcst_hr:03d}.nemsio"
-#task_make_ics:
-#  envvars:
-#    EXTRN_MDL_FNS:
-#      - "gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
-#      - "gfs.t{hh}z.sfcf{fcst_hr:03d}.nc"
-#task_make_lbcs:
-#  envvars:
-#    EXTRN_MDL_FNS:
-#      - "gfs.t{hh}z.atmf{fcst_hr:03d}.nc"
-#      - "gfs.t{hh}z.sfcf{fcst_hr:03d}.nc"
-#task_aqm_use_case_data_download:
-#  USE_AQM_S3_DATA_STAGE: true
-#  envars:
-#    AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/tmp/aqm-use-case-download"
 task_nexus_emission:
   envvars:
     PPN_NEXUS_EMISSION: 20
@@ -116,8 +63,8 @@ cpl_aqm_parm:
 
   #tdk: documentation and defaults
   USE_AQM_S3_DATA_STAGE: true
-  USE_FIX_AQM_S3_DATA_STAGE: true
-  AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/tmp/aqm-use-case-download"
+  USE_FIX_AQM_S3_DATA_STAGE: false
+  AQM_STAGE_DST_DIR: "<path to data stage directory>"
 
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true
@@ -139,15 +86,3 @@ cpl_aqm_parm:
   AQM_GEFS_FILE_CYC: '00'
   NEXUS_GRID_FN: grid_spec_793.nc
   NUM_SPLIT_NEXUS: 3
-#  COMINfire_default: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/use-cases/expt_dirs/UFS-AQM-DATA/RAVE_fire
-#  COMINgefs_default: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/use-cases/expt_dirs/UFS-AQM-DATA/GEFS_Aerosol
-#  NEXUS_GFS_SFC_DIR: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/use-cases/expt_dirs/UFS-AQM-DATA/GFS_SFC_DATA
-
-#  COMINfire_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/RAVE_fire
-#  COMINgefs_default: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/GEFS_Aerosol
-#  NEXUS_GFS_SFC_DIR: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/GFS_SFC_DATA
-#  NEXUS_GFS_SFC_OFFSET_HRS: 12
-#data:
-#  ics_lbcs:
-#    FV3GFS:
-#      netcdf: /gpfs/f6/bil-fire3/world-shared/AQM_Testbed/FV3GFS/gfs.${yyyymmdd}/${hh}/atmos
