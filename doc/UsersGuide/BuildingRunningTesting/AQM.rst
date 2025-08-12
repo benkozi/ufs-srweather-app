@@ -315,3 +315,67 @@ Run the WE2E test:
 .. code-block:: console
 
    $ ./run_we2e_tests.py -t my_tests.txt -m hera -a gsd-fv3 -q
+
+AQM Use Cases
+=============
+
+An AQM "use case" is a scientifically interesting air quality event with preconfigured SRW workflow templates. ICs, LBCs, and fixed files are also staged in the `SRW App Data Bucket <https://registry.opendata.aws/noaa-ufs-shortrangeweather/>`__, and can be downloaded using the AQM Data Sync utility (tdk:link). If data is downloaded using this utility, setting ``cpl_aqm_parm.USE_AQM_S3_DATA_STAGE = true`` and  ``AQM_STAGE_DST_DIR = <stage_directory>`` will populate the root paths for data dependencies.
+
+.. list-table:: Supported Use Cases
+   :widths: 20 10 20
+   :header-rows: 1
+
+   * - Name
+     - Key
+     - Configuration Template
+   * - `Atmospheric Emissions and Reactions Observed from Megacities to Marine Areas <https://csl.noaa.gov/projects/aeromma/>`__
+     - AEROMMA
+     - ``./ush/aqm-use-cases/config.aqm.AEROMMA.yaml``
+
+Acquiring Use Case Data
+---------------------------
+
+AQM data requirements are relatively large. Using the AEROMMA campaign as an example, expect a minimum of ~28 terabytes of storage for the full use case, with ~3 terabytes allocated to fixed files. Hence, use case configurations assume a user will want to evaluate a single 24-hour forecast before extending to the recommended use case forecast window. In this situation, download the time-varying data using the data sync utility's ``--snippet`` flag.
+
+.. code-block:: console
+
+   $ DST_DIR=<path to root directory for sync>
+   $ conda run -n aqm-data-sync --no-capture-output aqm-data-sync time-varying --dst-dir ${DST_DIR} --use-case AEROMMA --snippet
+
+After testing a 24-hour forecast, remove the ``--snippet`` flag to download the full time-varying dataset.
+
+If you are not on a Tier 1 platform and have not acquired the SRW fixed file data, also download the fixed data using:
+
+.. code-block:: console
+
+   $ # Use the same destination directory as the time-varying data download.
+   $ DST_DIR=<path to root directory for sync>
+   $ conda run -n aqm-data-sync --no-capture-output aqm-data-sync srw-fixed --dst-dir ${DST_DIR}
+
+Now, setting ``cpl_aqm_parm.USE_FIX_AQM_S3_DATA_STAGE= true`` will adjust fixed files paths to point to the ``AQM_STAGE_DST_DIR``.
+
+.. tip::
+
+   The sync utility is resumable. Re-use the destination directory if a sync operation is canceled, interrupted, or additional temporal data is needed. Synchronization is a one-way sync from the S3 source.
+
+Running a Use Case
+----------------------
+
+Once data is appropriately staged, the use case workflow configuration file may be used like any other SRW workflow configuration file. The preconfigured template assumes users have downloaded data using the data synchronization utility. If not, the user should move any use case-specific settings to the default AQM configuration file (e.g., cycle dates). Assuming the data stage is done correctly for the use case, users should generally focus on updating these configuration variables:
+
+.. list-table:: Important Use Case Configuration Variables
+   :widths: 20 50
+   :header-rows: 1
+
+   * - Configuration Variable
+     - Description
+   * - ``user.MACHINE``
+     - Platform running the workflow.
+   * - ``user.ACCOUNT``
+     - Account holding the core hours.
+   * - ``cpl_aqm_parm.AQM_STAGE_DST_DIR``
+     - Required path to the destination (root) directory of the data synchronization operation.
+   * - ``workflow.DATE_LAST_CYCL``
+     - Defaults to a single 24-hour forecast cycle.
+   * - ``cpl_aqm_parm.USE_FIX_AQM_S3_DATA_STAGE``
+     - Defaults to false. Set to true if fixed data was downloaded to the stage directory.

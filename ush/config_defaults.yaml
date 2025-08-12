@@ -2855,6 +2855,16 @@ cpl_aqm_parm:
   # FIXaqmcanopy:
   # Path to the directory containing AQM canopy files
   #
+  # USE_AQM_S3_DATA_STAGE:
+  # If true, update time-varying data paths to use the UFS-AQM S3 data stage configuration as
+  # downloaded by the AQM Data Sync utility.
+  #
+  # USE_FIX_AQM_S3_DATA_STAGE:
+  # If true, update fixed file data paths to use the UFS-AQM S3 data stage configuration as
+  # downloaded by the AQM Data Sync utility.
+  #
+  # AQM_STAGE_DST_DIR: The root/destination directory containing the UFS-AQM S3 data stage. This
+  # directory is the destination directory for a download operation using the AQM Data Sync utility.
   #-----------------------------------------------------------------------
   #
   CPL_AQM: false
