@@ -61,7 +61,6 @@ global:
 cpl_aqm_parm:
   CPL_AQM: true
 
-  #tdk: documentation and defaults
   USE_AQM_S3_DATA_STAGE: true
   USE_FIX_AQM_S3_DATA_STAGE: false
   AQM_STAGE_DST_DIR: "<path to data stage directory>"
