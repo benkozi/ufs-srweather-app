@@ -40,6 +40,7 @@ task_mm_pre_chem_eval:
         attrs:
           metatask: run_fcst
       streq:
-        cyclestr:
-          left: "@Y@m@d@H"
+        left:
+          cyclestr:
+            value: "@Y@m@d@H"
         right: '{{ workflow.DATE_LAST_CYCL }}'
