@@ -27,7 +27,8 @@ task_mm_pre_chem_eval:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_pre_chem_eval" "&HOMEdir;/jobs/JSRW_AQM_MM_PRE_CHEM_EVAL"'
   join:
-    value: '&LOGDIR;/{{ jobname }}_&LOGEXT;'
+    cyclestr:
+      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
     nprocs: '{{ task_mm_pre_chem_eval.execution.batchargs.nodes * task_mm_pre_chem_eval.execution.batchargs.tasks_per_node }}'
