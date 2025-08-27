@@ -2,6 +2,8 @@ default_aqm_task: &default_aqm
   account: '&ACCOUNT;'
   attrs:
 #    cycledefs: forecast
+    cycledef:
+      value: '{{ workflow.DATE_LAST_CYCLE }} {{ workflow.DATE_LAST_CYCLE }} 00:00:00'
     maxtries: '1'
   envars: &default_vars
     GLOBAL_VAR_DEFNS_FP: '&GLOBAL_VAR_DEFNS_FP;'
@@ -39,8 +41,8 @@ task_mm_pre_chem_eval:
       taskdep:
         attrs:
           task: run_fcst_mem#mem#
-      streq:
-        left:
-          cyclestr:
-            value: "@Y@m@d@H"
-        right: '{{ workflow.DATE_LAST_CYCL }}'
+#      streq:
+#        left:
+#          cyclestr:
+#            value: "@Y@m@d@H"
+#        right: '{{ workflow.DATE_LAST_CYCL }}'
