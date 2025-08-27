@@ -1,8 +1,8 @@
 default_aqm_task: &default_aqm
   account: '&ACCOUNT;'
   attrs:
-#    cycledefs: forecast
-    cycledef: '{{ workflow.DATE_LAST_CYCL }}00 {{ workflow.DATE_LAST_CYCL }}00 00:00:00'
+    cycledefs: at_end
+#    cycledef: '{{ workflow.DATE_LAST_CYCL }}00 {{ workflow.DATE_LAST_CYCL }}00 00:00:00'
     maxtries: '1'
   envars: &default_vars
     GLOBAL_VAR_DEFNS_FP: '&GLOBAL_VAR_DEFNS_FP;'
