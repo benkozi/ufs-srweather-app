@@ -36,9 +36,9 @@ task_mm_pre_chem_eval:
   walltime: '{{ task_mm_pre_chem_eval.execution.batchargs.walltime }}'
   dependency:
     and:
-      metataskdep:
+      taskdep:
         attrs:
-          metatask: run_fcst
+          task: run_fcst_mem#mem#
       streq:
         left:
           cyclestr:
