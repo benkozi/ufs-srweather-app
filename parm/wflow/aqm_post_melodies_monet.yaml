@@ -18,7 +18,7 @@ default_aqm_task: &default_aqm
     LOGDIR:
       cyclestr:
         value:  "&LOGDIR;"
-    SLASH_ENSMEM_SUBDIR: '&SLASH_ENSMEM_SUBDIR;'
+#    SLASH_ENSMEM_SUBDIR: '&SLASH_ENSMEM_SUBDIR;'
   native: '{{ platform.SCHED_NATIVE_CMD }}'
   partition: '{{ "&PARTITION_DEFAULT;" if platform.get("PARTITION_DEFAULT") }}'
   queue: '&QUEUE_DEFAULT;'
@@ -35,6 +35,11 @@ task_mm_pre_chem_eval:
   nodes: '{{ task_mm_pre_chem_eval.execution.batchargs.nodes }}:ppn={{ task_mm_pre_chem_eval.execution.batchargs.tasks_per_node }}'
   walltime: '{{ task_mm_pre_chem_eval.execution.batchargs.walltime }}'
   dependency:
-    metataskdep:
-      attrs:
-        metatask: run_fcst
+    and:
+      metataskdep:
+        attrs:
+          metatask: run_fcst
+      streq:
+        cyclestr:
+          left: "@Y@m@d@H"
+        right: '{{ workflow.DATE_LAST_CYCL }}'
