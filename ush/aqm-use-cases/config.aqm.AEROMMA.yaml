@@ -2,8 +2,10 @@ metadata:
   description: config for SRW-AQM, AQM_NA_13km, AEROMMA field campaign
 user:
   RUN_ENVIR: community
-  MACHINE: [HERA/ORION/HERCULES/DERECHO/GAEAC6]
-  ACCOUNT: [<account>]
+#  MACHINE: [HERA/ORION/HERCULES/DERECHO/GAEAC6]
+  MACHINE: GAEAC6 #tdk: rm
+#  ACCOUNT: [<account>]
+  ACCOUNT: bil-fire8 #tdk: rm
 workflow:
   USE_CRON_TO_RELAUNCH: true
   CRON_RELAUNCH_INTVL_MNTS: 3
@@ -64,7 +66,8 @@ cpl_aqm_parm:
 
   USE_AQM_S3_DATA_STAGE: true
   USE_FIX_AQM_S3_DATA_STAGE: false
-  AQM_STAGE_DST_DIR: "<path to data stage directory>"
+#  AQM_STAGE_DST_DIR: "<path to data stage directory>"
+  AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download" #tdk: rm
 
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true
