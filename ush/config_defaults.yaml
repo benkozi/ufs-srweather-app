@@ -2971,6 +2971,12 @@ task_aqm_lbcs:
       nodes: 1
       tasks_per_node: 24
       walltime: 00:30:00
+task_mm_pre_chem_eval:
+  execution:
+    batchargs:
+      nodes: 1
+      tasks_per_node: 1
+      walltime: 00:01:00
 
 #------------------------------
 # Smoke/Dust config parameters
