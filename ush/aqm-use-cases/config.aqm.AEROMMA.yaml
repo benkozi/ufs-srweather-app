@@ -1,52 +1,54 @@
 metadata:
-  description: config for SRW-AQM, AQM_NA_13km, community mode, FV3_GFS_v16 physics suite
+  description: config for SRW-AQM, AQM_NA_13km, AEROMMA field campaign
 user:
   RUN_ENVIR: community
+  MACHINE: [HERA/ORION/HERCULES/DERECHO/GAEAC6]
+  ACCOUNT: [<account>]
 workflow:
+  USE_CRON_TO_RELAUNCH: true
+  CRON_RELAUNCH_INTVL_MNTS: 3
+  EXPT_SUBDIR: aqm_AQMNA13km_AEROMMA
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v16
-  DATE_FIRST_CYCL: '2023111000'
-  DATE_LAST_CYCL: '2023111100'
+  DATE_FIRST_CYCL: '2023060112'
+  DATE_LAST_CYCL:  '2023060212'
+#  DATE_LAST_CYCL:  '2023083112'  # Last cycle date for AEROMMA with all data staged
   INCR_CYCL_FREQ: 24
   FCST_LEN_HRS: 24
   PREEXISTING_DIR_METHOD: rename
+  VERBOSE: true
+  DEBUG: false
+  COMPILER: intel
   DIAG_TABLE_TMPL_FN: diag_table_aqm.FV3_GFS_v16
   FIELD_TABLE_TMPL_FN: field_table_aqm.FV3_GFS_v16
   DO_REAL_TIME: false
+  COLDSTART: false      # set to true for cold start
+  WARMSTART_CYCLE_DIR: "20230531"
   taskgroups:
     - parm/wflow/prep.yaml
     - parm/wflow/aqm_prep.yaml
     - parm/wflow/coldstart.yaml
     - parm/wflow/post.yaml
-    - parm/wflow/test.yaml
 nco:
+  envir_default: aqm_AQMNA13km_AEROMMA
   NET_default: aqm
-task_get_extrn_ics:
+  RUN_default: aqm
+task_nexus_emission:
   envvars:
-    EXTRN_MDL_NAME_ICS: FV3GFS
-    FV3GFS_FILE_FMT_ICS: netcdf
-    EXTRN_MDL_ICS_OFFSET_HRS: 0
-    USE_USER_STAGED_EXTRN_FILES: true
-task_get_extrn_lbcs:
-  envvars:
-    EXTRN_MDL_NAME_LBCS: FV3GFS
-    LBC_SPEC_INTVL_HRS: 6
-    FV3GFS_FILE_FMT_LBCS: netcdf
-    EXTRN_MDL_LBCS_OFFSET_HRS: 0
-    USE_USER_STAGED_EXTRN_FILES: true
+    PPN_NEXUS_EMISSION: 20
+    NNODES_NEXUS_EMISSION: 4
+    OMP_NUM_THREADS_NEXUS_EMISSION: 2
 task_run_fcst:
   fv3:
     execution:
       batchargs:
         walltime: 01:20:00
-      threads: 1
   envvars:
     DT_ATMOS: 180
-    RESTART_INTERVAL: 12 24
+    OMP_NUM_THREADS_RUN_FCST: 1
     PRINT_ESMF: false
-  LAYOUT_X: 50
-  LAYOUT_Y: 34
-  BLOCKSIZE: 16
+    RESTART_INTERVAL: 12 24
+    DO_FCST_RESTART: false
   QUILTING: true
 task_run_post:
   envvars:
@@ -58,6 +60,11 @@ global:
   HALO_BLEND: 0
 cpl_aqm_parm:
   CPL_AQM: true
+
+  USE_AQM_S3_DATA_STAGE: true
+  USE_FIX_AQM_S3_DATA_STAGE: false
+  AQM_STAGE_DST_DIR: "<path to data stage directory>"
+
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true
   DO_AQM_DUST: true
@@ -74,6 +81,7 @@ cpl_aqm_parm:
   AQM_FIRE_FILE_SUFFIX: _h72.nc
   AQM_RC_FIRE_FREQUENCY: hourly
   AQM_LBCS_FILES: am4_bndy.c793.2019<MM>.v1.nc
-  AQM_GEFS_FILE_PREFIX: geaer
+  AQM_GEFS_FILE_PREFIX: gfs
+  AQM_GEFS_FILE_CYC: '00'
   NEXUS_GRID_FN: grid_spec_793.nc
   NUM_SPLIT_NEXUS: 3
