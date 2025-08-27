@@ -188,9 +188,9 @@ def _update_config_for_coupled_aqm_(default_config: YAMLConfig, homedir: Path) -
             aqm_stage_dst_dir = Path(
                 default_config["cpl_aqm_parm"]["AQM_STAGE_DST_DIR"]
             ).resolve(strict=True)
-            logging.info(f"{aqm_stage_dst_dir=}")
+            logging.debug(f"{aqm_stage_dst_dir=}")
             if default_config["cpl_aqm_parm"]["USE_AQM_S3_DATA_STAGE"] is True:
-                logging.info("Using S3 AQM data stage - updating time-varying paths")
+                logging.debug("Using S3 AQM data stage - updating time-varying paths")
                 task_get_extrn_ics = default_config["task_get_extrn_ics"]["envvars"]
                 task_get_extrn_ics["USE_USER_STAGED_EXTRN_FILES"] = True
                 task_get_extrn_ics["EXTRN_MDL_SOURCE_BASEDIR_ICS"] = str(
@@ -229,7 +229,7 @@ def _update_config_for_coupled_aqm_(default_config: YAMLConfig, homedir: Path) -
                     / default_config["workflow"]["WARMSTART_CYCLE_DIR"]
                 )
             if default_config["cpl_aqm_parm"]["USE_FIX_AQM_S3_DATA_STAGE"] is True:
-                logging.info("Using S3 AQM data stage - updating fixed file paths")
+                logging.debug("Using S3 AQM data stage - updating fixed file paths")
                 fix_mapping = (
                     ("FIXaer", "fix/fix_aer"),
                     ("FIXgsi", "fix/fix_gsi"),
