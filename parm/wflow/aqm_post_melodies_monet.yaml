@@ -39,7 +39,7 @@ task_mm_pre_chem_eval:
 #    and:
     taskdep:
       attrs:
-        task: run_fcst_mem#mem#
+        task: run_fcst_mem000
 #      streq:
 #        left:
 #          cyclestr:
