@@ -39,7 +39,7 @@ sections=(
   user
   nco
   workflow
-  task_mm_pre_chem_eval.envvars
+#  task_mm_pre_chem_eval.envvars
 )
 for sect in ${sections[*]} ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
