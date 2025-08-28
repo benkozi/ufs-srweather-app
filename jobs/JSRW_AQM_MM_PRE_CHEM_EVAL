@@ -88,11 +88,11 @@ This is the J-job script for the regional integration test task #tdk: update
 #
 #-----------------------------------------------------------------------
 #
-if [ "${RUN_ENVIR}" != "nco" ]; then
-  export fcst_dir="${FCST_DIR}${SLASH_ENSMEM_SUBDIR}"
-else
-  export fcst_dir="${FCST_DIR}"
-fi
+#if [ "${RUN_ENVIR}" != "nco" ]; then
+#  export fcst_dir="${FCST_DIR}${SLASH_ENSMEM_SUBDIR}"
+#else
+#  export fcst_dir="${FCST_DIR}"
+#fi
 #
 #-----------------------------------------------------------------------
 #
