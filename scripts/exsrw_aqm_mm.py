@@ -18,7 +18,7 @@ def main(
 ) -> None:
     print("in exsrw_aqm_mm.py")
     print(f"{expt_dir=}")
-    srw_interface = SRWInterface(expt_dir)
+    srw_interface = SRWInterface(expt_dir=expt_dir)
     print(f"{srw_interface=}")
     raise ValueError("done")
 
