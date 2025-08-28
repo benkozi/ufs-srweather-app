@@ -4,7 +4,7 @@ default_aqm_task: &default_aqm
     cycledefs: at_end
 #    cycledef: '{{ workflow.DATE_LAST_CYCL }}00 {{ workflow.DATE_LAST_CYCL }}00 00:00:00'
     maxtries: '1'
-  envars: &default_vars
+  envvars: &default_vars
     GLOBAL_VAR_DEFNS_FP: '&GLOBAL_VAR_DEFNS_FP;'
     HOMEdir: '&HOMEdir;'
 #    PDY:
@@ -19,7 +19,7 @@ default_aqm_task: &default_aqm
     LOGDIR:
       cyclestr:
         value:  "&LOGDIR;"
-#    SLASH_ENSMEM_SUBDIR: '&SLASH_ENSMEM_SUBDIR;'
+    SLASH_ENSMEM_SUBDIR: '&SLASH_ENSMEM_SUBDIR;'
   native: '{{ platform.SCHED_NATIVE_CMD }}'
   partition: '{{ "&PARTITION_DEFAULT;" if platform.get("PARTITION_DEFAULT") }}'
   queue: '&QUEUE_DEFAULT;'
@@ -30,7 +30,7 @@ task_mm_pre_chem_eval:
   join:
     cyclestr:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
+  envvars:
     <<: *default_vars
     nprocs: '{{ task_mm_pre_chem_eval.execution.batchargs.nodes * task_mm_pre_chem_eval.execution.batchargs.tasks_per_node }}'
   nodes: '{{ task_mm_pre_chem_eval.execution.batchargs.nodes }}:ppn={{ task_mm_pre_chem_eval.execution.batchargs.tasks_per_node }}'
