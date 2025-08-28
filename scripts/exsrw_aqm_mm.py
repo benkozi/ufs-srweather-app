@@ -1,7 +1,8 @@
-import os
 from pathlib import Path
 
 import typer
+
+from aqm_eval.aqm_mm_eval.driver.interface import SRWInterface
 
 
 def main(
@@ -14,9 +15,12 @@ def main(
         file_okay=False,
         dir_okay=True
     )
-):
-
-    raise ValueError('in exsrw_aqm_mm.py')
+) -> None:
+    print("in exsrw_aqm_mm.py")
+    print(f"{expt_dir=}")
+    srw_interface = SRWInterface(expt_dir)
+    print(f"{srw_interface=}")
+    raise ValueError("done")
 
 
 if __name__ == '__main__':
