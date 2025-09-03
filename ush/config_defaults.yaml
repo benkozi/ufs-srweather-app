@@ -2977,6 +2977,9 @@ task_mm_pre_chem_eval:
       nodes: 1
       tasks_per_node: 1
       walltime: 00:01:00
+  MM_OUTPUT_DIR: null #tdk: doc; if null then use mm-output in the experiment directory
+  MM_EVAL_TYPES: ["chem"]
+  MM_EVAL_PREFIX: "eval"
 
 #------------------------------
 # Smoke/Dust config parameters

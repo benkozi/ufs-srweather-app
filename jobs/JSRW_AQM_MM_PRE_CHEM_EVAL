@@ -100,7 +100,8 @@ This is the J-job script for the regional integration test task #tdk: update
 #
 #-----------------------------------------------------------------------
 #
-python ${SCRIPTSdir}/exsrw_aqm_mm.py --expt-dir ${COMOUT}
+#tdk: need to use AQM-Utils/AQM-Eval paths/cli call here relative to what srw checks out
+python /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/NOAA-EPIC/AQM-Eval/src/aqm_eval/aqm_mm_eval/aqm_mm_eval_cli.py srw-init --expt-dir ${COMOUT}
 print_err_msg_exit "\
 Call to ex-script corresponding to J-job \"${scrfunc_fn}\" failed."
 #
