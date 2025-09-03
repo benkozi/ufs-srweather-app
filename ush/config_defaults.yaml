@@ -2971,15 +2971,21 @@ task_aqm_lbcs:
       nodes: 1
       tasks_per_node: 24
       walltime: 00:30:00
-task_mm_pre_chem_eval:
+task_melodies_monet_prep: #tdk:last: make sure all aeromma config values are copied over
   execution:
     batchargs:
       nodes: 1
       tasks_per_node: 1
-      walltime: 00:01:00
+      walltime: 00:01:00 #tdk:last: increate walltime to 5 minutes
   MM_OUTPUT_DIR: null #tdk: doc; if null then use mm-output in the experiment directory
   MM_EVAL_TYPES: ["chem"]
   MM_EVAL_PREFIX: "eval"
+task_melodies_monet_run: #tdk:last: make sure all aeromma config values are copied over
+  execution:
+    batchargs:
+      nodes: 1
+      tasks_per_node: 100 #tdk: figure out how to adjust this per platform?
+      walltime: 00:06:00 #tdk: figure out how to adjust this per platform, date range, etc.
 
 #------------------------------
 # Smoke/Dust config parameters

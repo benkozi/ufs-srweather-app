@@ -24,24 +24,40 @@ default_aqm_task: &default_aqm
   partition: '{{ "&PARTITION_DEFAULT;" if platform.get("PARTITION_DEFAULT") }}'
   queue: '&QUEUE_DEFAULT;'
 
-task_mm_pre_chem_eval: #tdk: rename to task_melodies_monet_prep (also rename in command, J-Job, etc.)
+task_melodies_monet_prep: #tdk: rename to task_melodies_monet_prep (also rename in command, J-Job, etc.)
   <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_pre_chem_eval" "&HOMEdir;/jobs/JSRW_AQM_MM_PRE_CHEM_EVAL"'
+  command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_prep" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_PREP"'
   join:
     cyclestr:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envvars:
     <<: *default_vars
-    nprocs: '{{ task_mm_pre_chem_eval.execution.batchargs.nodes * task_mm_pre_chem_eval.execution.batchargs.tasks_per_node }}'
-  nodes: '{{ task_mm_pre_chem_eval.execution.batchargs.nodes }}:ppn={{ task_mm_pre_chem_eval.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ task_mm_pre_chem_eval.execution.batchargs.walltime }}'
-  dependency: #tdk: add dependency to ensure task is valid
-#    and:
+    nprocs: '{{ task_melodies_monet_prep.execution.batchargs.nodes * task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
+  nodes: '{{ task_melodies_monet_prep.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ task_melodies_monet_prep.execution.batchargs.walltime }}'
+  dependency:
+      taskdep:
+        attrs:
+          task: run_fcst_mem000
+#      taskvalid:
+#        attrs:
+#          task: run_fcst_mem000
+
+task_melodies_monet_run:
+  <<: *default_aqm
+  command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
+  join:
+    cyclestr:
+      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
+  envvars:
+    <<: *default_vars
+    nprocs: '{{ task_melodies_monet_run.execution.batchargs.nodes * task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
+  nodes: '{{ task_melodies_monet_run.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ task_melodies_monet_run.execution.batchargs.walltime }}'
+  dependency:
     taskdep:
       attrs:
-        task: run_fcst_mem000
-#      streq:
-#        left:
-#          cyclestr:
-#            value: "@Y@m@d@H"
-#        right: '{{ workflow.DATE_LAST_CYCL }}'
+        task: melodies_monet_prep
+#      taskvalid:
+#        attrs:
+#          task: run_fcst_mem000
