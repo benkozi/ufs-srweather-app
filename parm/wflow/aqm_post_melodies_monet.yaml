@@ -30,9 +30,9 @@ task_melodies_monet_prep:
   join:
     cyclestr:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-#  envvars:
-#    <<: *default_vars
-#    nprocs: '{{ task_melodies_monet_prep.execution.batchargs.nodes * task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
+  envvars:
+    <<: *default_vars
+    nprocs: '{{ task_melodies_monet_prep.execution.batchargs.nodes * task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
   nodes: '{{ task_melodies_monet_prep.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
   walltime: '{{ task_melodies_monet_prep.execution.batchargs.walltime }}'
   dependency:
