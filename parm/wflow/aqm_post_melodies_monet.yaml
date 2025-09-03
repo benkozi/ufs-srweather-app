@@ -24,15 +24,15 @@ default_aqm_task: &default_aqm
   partition: '{{ "&PARTITION_DEFAULT;" if platform.get("PARTITION_DEFAULT") }}'
   queue: '&QUEUE_DEFAULT;'
 
-task_melodies_monet_prep: #tdk: rename to task_melodies_monet_prep (also rename in command, J-Job, etc.)
+task_melodies_monet_prep:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_prep" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_PREP"'
   join:
     cyclestr:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envvars:
-    <<: *default_vars
-    nprocs: '{{ task_melodies_monet_prep.execution.batchargs.nodes * task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
+#  envvars:
+#    <<: *default_vars
+#    nprocs: '{{ task_melodies_monet_prep.execution.batchargs.nodes * task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
   nodes: '{{ task_melodies_monet_prep.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
   walltime: '{{ task_melodies_monet_prep.execution.batchargs.walltime }}'
   dependency:
