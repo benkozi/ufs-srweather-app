@@ -36,9 +36,9 @@ task_melodies_monet_prep: #tdk: rename to task_melodies_monet_prep (also rename 
   nodes: '{{ task_melodies_monet_prep.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
   walltime: '{{ task_melodies_monet_prep.execution.batchargs.walltime }}'
   dependency:
-      taskdep:
-        attrs:
-          task: run_fcst_mem000
+    taskdep:
+      attrs:
+        task: run_fcst_mem000
 #      taskvalid:
 #        attrs:
 #          task: run_fcst_mem000
