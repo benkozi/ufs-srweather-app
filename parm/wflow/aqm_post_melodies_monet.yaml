@@ -4,7 +4,7 @@ default_aqm_task: &default_aqm
     cycledefs: at_end
 #    cycledef: '{{ workflow.DATE_LAST_CYCL }}00 {{ workflow.DATE_LAST_CYCL }}00 00:00:00'
     maxtries: '1'
-  envvars: &default_vars
+  envars: &default_vars
     GLOBAL_VAR_DEFNS_FP: '&GLOBAL_VAR_DEFNS_FP;'
     HOMEdir: '&HOMEdir;'
 #    PDY:
@@ -30,7 +30,7 @@ task_melodies_monet_prep:
   join:
     cyclestr:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envvars:
+  envars:
     <<: *default_vars
     nprocs: '{{ task_melodies_monet_prep.execution.batchargs.nodes * task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
   nodes: '{{ task_melodies_monet_prep.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
