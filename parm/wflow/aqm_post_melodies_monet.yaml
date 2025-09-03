@@ -43,21 +43,21 @@ task_melodies_monet_prep: #tdk: rename to task_melodies_monet_prep (also rename 
 #        attrs:
 #          task: run_fcst_mem000
 
-task_melodies_monet_run:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envvars:
-    <<: *default_vars
-    nprocs: '{{ task_melodies_monet_run.execution.batchargs.nodes * task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
-  nodes: '{{ task_melodies_monet_run.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ task_melodies_monet_run.execution.batchargs.walltime }}'
-  dependency:
-    taskdep:
-      attrs:
-        task: melodies_monet_prep
-#      taskvalid:
-#        attrs:
-#          task: run_fcst_mem000
+#task_melodies_monet_run:
+#  <<: *default_aqm
+#  command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
+#  join:
+#    cyclestr:
+#      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
+#  envvars:
+#    <<: *default_vars
+#    nprocs: '{{ task_melodies_monet_run.execution.batchargs.nodes * task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
+#  nodes: '{{ task_melodies_monet_run.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
+#  walltime: '{{ task_melodies_monet_run.execution.batchargs.walltime }}'
+#  dependency:
+#    taskdep:
+#      attrs:
+#        task: melodies_monet_prep
+##      taskvalid:
+##        attrs:
+##          task: run_fcst_mem000
