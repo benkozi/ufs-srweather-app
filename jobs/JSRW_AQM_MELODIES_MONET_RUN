@@ -39,8 +39,8 @@ sections=(
   user
   nco
   workflow
-  task_melodies_monet_run.envars
-  task_melodies_monet_run_save_paired.envars
+#  task_melodies_monet_run.envars
+#  task_melodies_monet_run_save_paired.envars
 )
 for sect in ${sections[*]} ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
