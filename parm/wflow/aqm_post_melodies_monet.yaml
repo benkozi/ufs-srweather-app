@@ -59,7 +59,7 @@ task_melodies_monet_prep:
 
 metatask_melodies_monet_run:
   var:
-    task: [save_paired, timeseries, taylor]
+    task: "save_paired timeseries taylor"
   task_melodies_monet_run_#task#:
     <<: *default_aqm
     command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
