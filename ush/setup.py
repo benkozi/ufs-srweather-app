@@ -248,6 +248,7 @@ def _update_config_for_coupled_aqm_(default_config: YAMLConfig, homedir: Path) -
                     default_config["platform"][fix_map[0]] = str(
                         aqm_stage_dst_dir / fix_map[1]
                     )
+            import pdb;pdb.set_trace()
 
 
 def set_srw_paths(expt_config):
