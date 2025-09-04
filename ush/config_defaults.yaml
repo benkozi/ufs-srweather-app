@@ -2985,7 +2985,7 @@ task_melodies_monet_run: #tdk:last: make sure all aeromma config values are copi
     batchargs:
       nodes: 1
       tasks_per_node: 100 #tdk: figure out how to adjust this per platform?
-      walltime: 00:15:00 #tdk: figure out how to adjust this per platform, date range, etc.
+      walltime: 00:05:00 #tdk: figure out how to adjust this per platform, date range, etc.
 
 #------------------------------
 # Smoke/Dust config parameters
