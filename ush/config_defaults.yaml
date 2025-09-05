@@ -2979,13 +2979,13 @@ task_melodies_monet_prep: #tdk:last: make sure all aeromma config values are cop
       walltime: 00:05:00 #tdk:last: increate walltime to 5 minutes
   MM_OUTPUT_DIR: null #tdk: doc; if null then use mm-output in the experiment directory
   MM_EVAL_PACKAGES: ["chem"]
-  MM_EVAL_PREFIX: "eval"
 task_melodies_monet_run: #tdk:last: make sure all aeromma config values are copied over
   execution:
     batchargs:
       nodes: 1
       tasks_per_node: 100 #tdk: figure out how to adjust this per platform?
-      walltime: 00:20:00 #tdk: figure out how to adjust this per platform, date range, etc.
+#      walltime: 00:20:00
+      walltime: 00:40:00 #tdk: figure out how to adjust this per platform, date range, etc. should be 20 for single model evaluation
   # These are globally possible MM tasks. "save_paired" is implicit.
   MM_EVAL_TASKS: ["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats"]
 
