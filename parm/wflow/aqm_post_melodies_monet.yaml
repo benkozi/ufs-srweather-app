@@ -62,7 +62,7 @@ metatask_melodies_monet_run_package:
     package: '{{ task_melodies_monet_prep.MM_EVAL_PACKAGES | join(' ') }}'
   metatask_melodies_monet_run_#package#_task:
     var:
-      task: '{{ task_melodies_monet_run.MM_EVAL_TASKS | join(' ') }}'
+      task: '{{ task_melodies_monet_run.MM_EVAL_TASKS | join(" ") }}'
     task_melodies_monet_run_#package#_#task#:
       <<: *default_aqm
       command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
