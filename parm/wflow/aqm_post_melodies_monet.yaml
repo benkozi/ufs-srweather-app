@@ -59,7 +59,7 @@ task_melodies_monet_run_save_paired:
 
 metatask_melodies_monet_run_package:
   var:
-    package: '{{ task_melodies_monet_prep.MM_EVAL_PACKAGES | join(' ') }}'
+    package: '{{ task_melodies_monet_prep.MM_EVAL_PACKAGES | join(" ") }}'
   metatask_melodies_monet_run_#package#_task:
     var:
       task: '{{ task_melodies_monet_run.MM_EVAL_TASKS | join(" ") }}'
