@@ -57,22 +57,25 @@ task_melodies_monet_run_save_paired:
       attrs:
         task: melodies_monet_prep
 
-metatask_melodies_monet_run:
+metatask_melodies_monet_run_package:
   var:
-    task: '{{ task_melodies_monet_run.MM_TASKS }}'
-  task_melodies_monet_run_#task#:
-    <<: *default_aqm
-    command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-    join:
-      cyclestr:
-        value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-    envars:
-      <<: *default_vars
-      nprocs: '{{ task_melodies_monet_run.execution.batchargs.nodes * task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
-      MM_TASK: '#task#'
-    nodes: '{{ task_melodies_monet_run.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
-    walltime: '{{ task_melodies_monet_run.execution.batchargs.walltime }}'
-    dependency:
-      taskdep:
-        attrs:
-          task: melodies_monet_run_save_paired
+    package: '{{ task_melodies_monet_prep.MM_EVAL_PACKAGES | join(' ') }}'
+  metatask_melodies_monet_run_#package#_task:
+    var:
+      task: '{{ task_melodies_monet_run.MM_EVAL_TASKS | join(' ') }}'
+    task_melodies_monet_run_#package#_#task#:
+      <<: *default_aqm
+      command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
+      join:
+        cyclestr:
+          value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
+      envars:
+        <<: *default_vars
+        nprocs: '{{ task_melodies_monet_run.execution.batchargs.nodes * task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
+        MM_TASK: '#task#'
+      nodes: '{{ task_melodies_monet_run.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
+      walltime: '{{ task_melodies_monet_run.execution.batchargs.walltime }}'
+      dependency:
+        taskdep:
+          attrs:
+            task: melodies_monet_run_save_paired
