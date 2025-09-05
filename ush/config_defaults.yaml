@@ -2987,7 +2987,7 @@ task_melodies_monet_run: #tdk:last: make sure all aeromma config values are copi
       tasks_per_node: 100 #tdk: figure out how to adjust this per platform?
       walltime: 00:20:00 #tdk: figure out how to adjust this per platform, date range, etc.
   # These are globally possible MM tasks. "save_paired" is implicit.
-  MM_EVAL_TASKS: ["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi" "stats"]
+  MM_EVAL_TASKS: ["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats"]
 
 #------------------------------
 # Smoke/Dust config parameters
