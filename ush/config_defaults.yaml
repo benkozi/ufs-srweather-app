@@ -2976,19 +2976,21 @@ task_melodies_monet_prep: #tdk:last: make sure all aeromma config values are cop
     batchargs:
       nodes: 1
       tasks_per_node: 1
-      walltime: 00:05:00 #tdk:last: increate walltime to 5 minutes
+      walltime: 00:05:00
   MM_OUTPUT_DIR: null #tdk: doc; if null then use mm-output in the experiment directory
   MM_EVAL_PACKAGES: ["chem"]
+  MM_BASE_MODEL_EXPT_DIR: null
 task_melodies_monet_run: #tdk:last: make sure all aeromma config values are copied over
   execution:
     batchargs:
       nodes: 1
-      tasks_per_node: 100 #tdk: figure out how to adjust this per platform?
-#      walltime: 00:20:00
-      walltime: 00:40:00 #tdk: figure out how to adjust this per platform, date range, etc. should be 20 for single model evaluation
-  # These are globally possible MM tasks. "save_paired" is implicit.
-#  MM_EVAL_TASKS: ["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats"]
-  MM_EVAL_TASKS: ["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats", "scorecard_rmse", "scorecard_ioa", "scorecard_nmb", "scorecard_nme"] #tdk: figure out how to adjust for multiple models v single model
+      #tdk: adjust these per platform?
+      tasks_per_node: 100
+      # More time is needed if there is an additional model is included.
+      walltime: '{% if task_melodies_monet_prep.MM_BASE_MODEL_EXPT_DIR is none %}00:20:00{% else %}00:40:00{% endif %}'
+  # These are globally possible MM tasks. "save_paired" is implicit. "scorecard" tasks only run
+  # base model experiment directory is available.
+  MM_EVAL_TASKS: '{% if task_melodies_monet_prep.MM_BASE_MODEL_EXPT_DIR is none %}["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats"]{% else %}["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats", "scorecard_rmse", "scorecard_ioa", "scorecard_nmb", "scorecard_nme"]{% endif %}'
 
 #------------------------------
 # Smoke/Dust config parameters
