@@ -24,6 +24,8 @@ default_aqm_task: &default_aqm
   partition: '{{ "&PARTITION_DEFAULT;" if platform.get("PARTITION_DEFAULT") }}'
   queue: '&QUEUE_DEFAULT;'
 
+#tdk:last: replace melodies_monet with mm - remember to modify the task module environments
+
 task_melodies_monet_prep:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_prep" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_PREP"'
