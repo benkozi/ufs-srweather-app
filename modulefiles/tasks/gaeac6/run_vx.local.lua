@@ -24,3 +24,4 @@ if (mode() == "unload") then
 end
 load("conda")
 setenv("SRW_ENV", "srw_app")
+setenv("LD_PRELOAD", "/usr/lib64/libstdc++.so.6")

@@ -9,6 +9,7 @@ import logging
 import subprocess
 import sqlite3
 import glob
+import time
 from textwrap import dedent
 from datetime import datetime
 from contextlib import closing
@@ -267,6 +268,7 @@ def update_expt_status(expt: dict, name: str, refresh: bool = False, debug: bool
             logging.debug(p.stdout)
 
             #Run rocotorun again to get around rocotobqserver proliferation issue
+            time.sleep(60)
             p = subprocess.run(rocotorun_cmd, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT, text=True)
             logging.debug(p.stdout)
@@ -274,6 +276,7 @@ def update_expt_status(expt: dict, name: str, refresh: bool = False, debug: bool
             rocotorun_cmd = ["rocotorun", f"-w {rocoto_xml}", f"-d {rocoto_db}"]
             subprocess.run(rocotorun_cmd)
             #Run rocotorun again to get around rocotobqserver proliferation issue
+            time.sleep(60)
             subprocess.run(rocotorun_cmd)
 
     logging.debug(f"Reading database for experiment {name}, updating experiment dictionary")
