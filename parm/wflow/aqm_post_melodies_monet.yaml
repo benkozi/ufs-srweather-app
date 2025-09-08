@@ -80,7 +80,7 @@ metatask_melodies_monet_run_package:
   metatask_melodies_monet_run_#package#_task:
     var:
 #      task: '{{ task_melodies_monet_run.MM_EVAL_TASKS | join(" ") }}'
-      task: '{% if task_melodies_monet_prep.MM_BASE_MODEL_EXPT_DIR is none %}a{% else %}b{% endif %}'
+      task: '{% if task_melodies_monet_prep.MM_BASE_MODEL_EXPT_DIR is none %}["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats"] | join(" "){% else %}["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats", "scorecard_rmse", "scorecard_ioa", "scorecard_nmb", "scorecard_nme"] | join(" "){% endif %}'
     task_melodies_monet_run_#package#_#task#:
       <<: *default_aqm
       command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'

@@ -2990,7 +2990,7 @@ task_melodies_monet_run: #tdk:last: make sure all aeromma config values are copi
       walltime: '{% if task_melodies_monet_prep.MM_BASE_MODEL_EXPT_DIR is none %}00:20:00{% else %}00:40:00{% endif %}'
   # These are globally possible MM tasks. "save_paired" is implicit. "scorecard" tasks only run
   # base model experiment directory is available.
-  MM_EVAL_TASKS: '{% if task_melodies_monet_prep.MM_BASE_MODEL_EXPT_DIR is none %}a{% else %}b{% endif %}'
+  MM_EVAL_TASKS: null
 
 #------------------------------
 # Smoke/Dust config parameters
