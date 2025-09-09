@@ -13,11 +13,9 @@ default_aqm_task: &default_aqm
   partition: '{{ "&PARTITION_DEFAULT;" if platform.get("PARTITION_DEFAULT") }}'
   queue: '&QUEUE_DEFAULT;'
 
-#tdk:last: replace melodies_monet with mm - remember to modify the task module environments
-
 task_melodies_monet_prep:
   <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_prep" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_PREP"'
+  command: '&LOAD_MODULES_RUN_TASK; "mm_prep" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_PREP"'
   join:
     cyclestr:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
@@ -36,7 +34,7 @@ metatask_melodies_monet_run_package:
     package: '{{ task_melodies_monet_prep.MM_EVAL_PACKAGES | join(" ") }}'
   task_melodies_monet_run_#package#_save_paired:
     <<: *default_aqm
-    command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
+    command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
     join:
       cyclestr:
         value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
@@ -50,13 +48,13 @@ metatask_melodies_monet_run_package:
     dependency:
       taskdep:
         attrs:
-          task: melodies_monet_prep
+          task: mm_prep
   metatask_melodies_monet_run_#package#_task:
     var:
       task: '{% if task_melodies_monet_prep.MM_BASE_MODEL_EXPT_DIR is none %}{{ task_melodies_monet_run.MM_EVAL_TASKS_SINGLE_MODEL | join(" ") }}{% else %}{{ task_melodies_monet_run.MM_EVAL_TASKS_MULTI_MODEL | join(" ") }}{% endif %}'
     task_melodies_monet_run_#package#_#task#:
       <<: *default_aqm
-      command: '&LOAD_MODULES_RUN_TASK; "melodies_monet_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
+      command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
       join:
         cyclestr:
           value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
@@ -70,4 +68,4 @@ metatask_melodies_monet_run_package:
       dependency:
         taskdep:
           attrs:
-            task: melodies_monet_run_#package#_save_paired
+            task: mm_run_#package#_save_paired
