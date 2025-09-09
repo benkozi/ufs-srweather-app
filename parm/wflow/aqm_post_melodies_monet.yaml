@@ -13,7 +13,7 @@ default_aqm_task: &default_aqm
   partition: '{{ "&PARTITION_DEFAULT;" if platform.get("PARTITION_DEFAULT") }}'
   queue: '&QUEUE_DEFAULT;'
 
-task_melodies_monet_prep:
+task_mm_prep:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_prep" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_PREP"'
   join:
@@ -21,18 +21,18 @@ task_melodies_monet_prep:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_melodies_monet_prep.execution.batchargs.nodes * task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
-  nodes: '{{ task_melodies_monet_prep.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_prep.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ task_melodies_monet_prep.execution.batchargs.walltime }}'
+    nprocs: '{{ task_mm_prep.execution.batchargs.nodes * task_mm_prep.execution.batchargs.tasks_per_node }}'
+  nodes: '{{ task_mm_prep.execution.batchargs.nodes }}:ppn={{ task_mm_prep.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ task_mm_prep.execution.batchargs.walltime }}'
   dependency:
     taskdep:
       attrs:
         task: run_fcst_mem000
 
-metatask_melodies_monet_run_package:
+metatask_mm_run_package:
   var:
-    package: '{{ task_melodies_monet_prep.MM_EVAL_PACKAGES | join(" ") }}'
-  task_melodies_monet_run_#package#_save_paired:
+    package: '{{ task_mm_prep.MM_EVAL_PACKAGES | join(" ") }}'
+  task_mm_run_#package#_save_paired:
     <<: *default_aqm
     command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
     join:
@@ -40,19 +40,19 @@ metatask_melodies_monet_run_package:
         value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
     envars:
       <<: *default_vars
-      nprocs: '{{ task_melodies_monet_run.execution.batchargs.nodes * task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
+      nprocs: '{{ task_mm_run.execution.batchargs.nodes * task_mm_run.execution.batchargs.tasks_per_node }}'
       MM_EVAL_PACKAGE: '#package#'
       MM_EVAL_TASK: 'save_paired'
-    nodes: '{{ task_melodies_monet_run.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
-    walltime: '{{ task_melodies_monet_run.execution.batchargs.walltime }}'
+    nodes: '{{ task_mm_run.execution.batchargs.nodes }}:ppn={{ task_mm_run.execution.batchargs.tasks_per_node }}'
+    walltime: '{{ task_mm_run.execution.batchargs.walltime }}'
     dependency:
       taskdep:
         attrs:
           task: mm_prep
-  metatask_melodies_monet_run_#package#_task:
+  metatask_mm_run_#package#_task:
     var:
-      task: '{% if task_melodies_monet_prep.MM_BASE_MODEL_EXPT_DIR is none %}{{ task_melodies_monet_run.MM_EVAL_TASKS_SINGLE_MODEL | join(" ") }}{% else %}{{ task_melodies_monet_run.MM_EVAL_TASKS_MULTI_MODEL | join(" ") }}{% endif %}'
-    task_melodies_monet_run_#package#_#task#:
+      task: '{% if task_mm_prep.MM_BASE_MODEL_EXPT_DIR is none %}{{ task_mm_run.MM_EVAL_TASKS_SINGLE_MODEL | join(" ") }}{% else %}{{ task_mm_run.MM_EVAL_TASKS_MULTI_MODEL | join(" ") }}{% endif %}'
+    task_mm_run_#package#_#task#:
       <<: *default_aqm
       command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
       join:
@@ -60,11 +60,11 @@ metatask_melodies_monet_run_package:
           value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
       envars:
         <<: *default_vars
-        nprocs: '{{ task_melodies_monet_run.execution.batchargs.nodes * task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
+        nprocs: '{{ task_mm_run.execution.batchargs.nodes * task_mm_run.execution.batchargs.tasks_per_node }}'
         MM_EVAL_PACKAGE: '#package#'
         MM_EVAL_TASK: '#task#'
-      nodes: '{{ task_melodies_monet_run.execution.batchargs.nodes }}:ppn={{ task_melodies_monet_run.execution.batchargs.tasks_per_node }}'
-      walltime: '{{ task_melodies_monet_run.execution.batchargs.walltime }}'
+      nodes: '{{ task_mm_run.execution.batchargs.nodes }}:ppn={{ task_mm_run.execution.batchargs.tasks_per_node }}'
+      walltime: '{{ task_mm_run.execution.batchargs.walltime }}'
       dependency:
         taskdep:
           attrs:
