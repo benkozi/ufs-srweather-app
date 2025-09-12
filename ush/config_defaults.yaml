@@ -2971,6 +2971,27 @@ task_aqm_lbcs:
       nodes: 1
       tasks_per_node: 24
       walltime: 00:30:00
+task_mm_prep: #tdk:last: make sure all aeromma config values are copied over
+  execution:
+    batchargs:
+      nodes: 1
+      tasks_per_node: 1
+      walltime: 00:05:00
+  MM_OUTPUT_DIR: null #tdk: doc; if null then use mm-output in the experiment directory
+  MM_EVAL_PACKAGES: ["chem"]
+  MM_BASE_MODEL_EXPT_DIR: null
+task_mm_run: #tdk:last: make sure all aeromma config values are copied over
+  execution:
+    batchargs:
+      nodes: 1
+      #tdk: adjust these per platform?
+      tasks_per_node: 100
+      # More time is needed if there is an additional model is included.
+      walltime: '{% if task_mm_prep.MM_BASE_MODEL_EXPT_DIR is none %}00:20:00{% else %}00:40:00{% endif %}'
+  # These are globally possible MM tasks. "save_paired" is implicit. "scorecard" tasks only run
+  # base model experiment directory is available.
+  MM_EVAL_TASKS_SINGLE_MODEL: ["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats"]
+  MM_EVAL_TASKS_MULTI_MODEL: ["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats", "scorecard_rmse", "scorecard_ioa", "scorecard_nmb", "scorecard_nme"]
 
 #------------------------------
 # Smoke/Dust config parameters

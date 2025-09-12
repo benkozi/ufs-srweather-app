@@ -172,7 +172,7 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
 def _update_config_for_coupled_aqm_(default_config: YAMLConfig, homedir: Path) -> None:
     cpl_aqm_parm = default_config["cpl_aqm_parm"]
     if cpl_aqm_parm["CPL_AQM"] is True:
-        logging.info("Updating configuration for coupled AQM")
+        logging.debug("Updating configuration for coupled AQM")
         if default_config["workflow"]["COLDSTART"] is True:
             # Disable the external AQM ICs task.
             aqm_coldstart = get_yaml_config(

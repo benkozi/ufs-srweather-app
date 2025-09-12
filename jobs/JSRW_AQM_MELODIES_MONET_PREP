@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+
+
+#
+#-----------------------------------------------------------------------
+#
+#tdk: update doc
+# This J-Job script runs a set of tests at the end of WE2E tests.
+#
+# Run-time environment variables:
+#
+#    GLOBAL_VAR_DEFNS_FP
+#    CDATE
+#    FCST_DIR
+#    SLASH_ENSMEM_SUBDIR
+#
+# Experiment variables
+#
+#  user:
+#    RUN_ENV
+#    SCRIPTSdir
+#    USHdir
+#
+#  workflow:
+#    FCST_LEN_HRS
+#
+#-----------------------------------------------------------------------
+#
+
+#
+#-----------------------------------------------------------------------
+#
+# Source the variable definitions file and the bash utility functions.
+#
+#-----------------------------------------------------------------------
+#
+. $USHdir/source_util_funcs.sh
+sections=(
+  user
+  nco
+  workflow
+#  task_melodies_monet_prep.envvars
+)
+for sect in ${sections[*]} ; do
+  source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
+done
+. $USHdir/job_preamble.sh
+
+#
+#-----------------------------------------------------------------------
+#
+# Save current shell options (in a global array).  Then set new options
+# for this script/function.
+#
+#-----------------------------------------------------------------------
+#
+{ save_shell_opts; . $USHdir/preamble.sh; } > /dev/null 2>&1
+#
+#-----------------------------------------------------------------------
+#
+# Get the full path to the file in which this script/function is located 
+# (scrfunc_fp), the name of that file (scrfunc_fn), and the directory in
+# which the file is located (scrfunc_dir).
+#
+#-----------------------------------------------------------------------
+#
+scrfunc_fp=$( $READLINK -f "${BASH_SOURCE[0]}" )
+scrfunc_fn=$( basename "${scrfunc_fp}" )
+scrfunc_dir=$( dirname "${scrfunc_fp}" )
+#
+#-----------------------------------------------------------------------
+#
+# Print message indicating entry into script.
+#
+#-----------------------------------------------------------------------
+#
+print_info_msg "
+========================================================================
+Entering script:  \"${scrfunc_fn}\"
+In directory:     \"${scrfunc_dir}\"
+
+This is the J-job script for the regional integration test task #tdk: update
+========================================================================"
+#
+#-----------------------------------------------------------------------
+#
+# Set grid name and COMOUT locations.
+#
+#-----------------------------------------------------------------------
+#
+#if [ "${RUN_ENVIR}" != "nco" ]; then
+#  export fcst_dir="${FCST_DIR}${SLASH_ENSMEM_SUBDIR}"
+#else
+#  export fcst_dir="${FCST_DIR}"
+#fi
+#
+#-----------------------------------------------------------------------
+#
+# Call the ex-script for this J-job and pass to it the necessary variables.
+#
+#-----------------------------------------------------------------------
+#
+#tdk: need to use AQM-Utils/AQM-Eval paths/cli call here relative to what srw checks out
+python /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/NOAA-EPIC/AQM-Eval/src/aqm_eval/aqm_mm_eval/aqm_mm_eval_cli.py srw-init --expt-dir ${COMOUT}
+#
+#-----------------------------------------------------------------------
+#
+# Run job postamble.
+#
+#-----------------------------------------------------------------------
+#
+job_postamble
+#
+#-----------------------------------------------------------------------
+#
+# Restore the shell options saved at the beginning of this script/function.
+#
+#-----------------------------------------------------------------------
+#
+{ restore_shell_opts; } > /dev/null 2>&1
+
