@@ -61,7 +61,7 @@ This is the J-job script for MELODIES MONET evaluation/verification
 #
 #-----------------------------------------------------------------------
 #
-aqm-mm-eval srw-run --expt-dir ${COMOUT} --package-selector ${MM_EVAL_PACKAGE} --task-selector ${MM_EVAL_TASK}
+conda run -n srw_aqm_eval --no-capture-output aqm-mm-eval srw-run --expt-dir ${COMOUT} --package-selector ${MM_EVAL_PACKAGE} --task-selector ${MM_EVAL_TASK}
 #
 #-----------------------------------------------------------------------
 #
