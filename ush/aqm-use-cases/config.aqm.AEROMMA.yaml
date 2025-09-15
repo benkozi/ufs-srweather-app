@@ -65,7 +65,8 @@ global:
 task_mm_prep:
   MM_OUTPUT_DIR: null
   MM_EVAL_PACKAGES: [chem]
-  MM_OBS_AIRNOW_FN_TEMPLATE: /gpfs/f6/bil-fire3/world-shared/Observations/AirNow/AirNow_20230601_20230701.nc
+  MM_OBS_AIRNOW_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
+#  MM_OBS_AIRNOW_FN_TEMPLATE: /gpfs/f6/bil-fire3/world-shared/Observations/AirNow/AirNow_20230601_20230701.nc
 #  MM_OBS_AIRNOW_FN_TEMPLATE: AirNow_20230601_20230701.nc #tdk:doc: download observations and configure filename template
   MM_BASE_MODEL_EXPT_DIR: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/aqm-reldeb/expt_dirs/aqm_AQMNA13km_AEROMMA #tdk: default should be none
   #tdk:doc: how to adjust fix_shp for the cartopy data directory
