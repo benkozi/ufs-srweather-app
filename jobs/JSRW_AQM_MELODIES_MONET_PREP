@@ -61,7 +61,7 @@ This is the J-job script for AQM MELODIES MONET PREP
 #
 #-----------------------------------------------------------------------
 #
-conda run -n srw_aqm_eval --no-capture-output aqm-mm-eval srw-init --expt-dir ${COMOUT}
+aqm-mm-eval srw-init --expt-dir ${COMOUT}
 #
 #-----------------------------------------------------------------------
 #
