@@ -14,7 +14,7 @@ workflow:
   CCPP_PHYS_SUITE: FV3_GFS_v16
   DATE_FIRST_CYCL: '2023060112'
 #  DATE_LAST_CYCL:  '2023060112'
-  DATE_LAST_CYCL:  '2023060212' #tdk: revert to 48 hours
+  DATE_LAST_CYCL:  '2023060212'
 #  DATE_LAST_CYCL:  '2023083112'  # Last cycle date for AEROMMA with all data staged
   INCR_CYCL_FREQ: 24
   FCST_LEN_HRS: 24
@@ -32,7 +32,7 @@ workflow:
     - parm/wflow/aqm_prep.yaml
     - parm/wflow/coldstart.yaml
     - parm/wflow/post.yaml
-    - parm/wflow/aqm_post_melodies_monet.yaml #tdk: doc
+    - parm/wflow/aqm_post_melodies_monet.yaml # Uncomment to enable MELODIES MONET evaluation tasks. #tdk:last: leave commented
 nco:
   envir_default: aqm_AQMNA13km_AEROMMA
   NET_default: aqm
@@ -65,9 +65,11 @@ global:
 task_mm_prep:
   MM_OUTPUT_DIR: null
   MM_EVAL_PACKAGES: [chem]
-  MM_OBS_AIRNOW_FN_TEMPLATE: /gpfs/f6/bil-fire3/world-shared/Observations/AirNow/AirNow_20230601_20230701.nc
-#  MM_OBS_AIRNOW_FN_TEMPLATE: AirNow_20230601_20230701.nc #tdk: need to use stage dst directory sometimes
+  MM_OBS_AIRNOW_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
+#  MM_OBS_AIRNOW_FN_TEMPLATE: /gpfs/f6/bil-fire3/world-shared/Observations/AirNow/AirNow_20230601_20230701.nc
+#  MM_OBS_AIRNOW_FN_TEMPLATE: AirNow_20230601_20230701.nc #tdk:doc: download observations and configure filename template
   MM_BASE_MODEL_EXPT_DIR: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/aqm-reldeb/expt_dirs/aqm_AQMNA13km_AEROMMA #tdk: default should be none
+  #tdk:doc: how to adjust fix_shp for the cartopy data directory
 cpl_aqm_parm:
   CPL_AQM: true
 
