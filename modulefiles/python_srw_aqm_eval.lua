@@ -7,4 +7,4 @@ unload("py-pip/23.1.2")
 unload("py-pyyaml/6.0.2")
 
 load("conda")
-setenv("SRW_ENV", "srw_aqm_eval")
+setenv("SRW_ENV", "aqm-eval")
