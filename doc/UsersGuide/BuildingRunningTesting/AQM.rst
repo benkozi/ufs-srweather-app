@@ -319,7 +319,7 @@ Run the WE2E test:
 AQM Use Cases
 =============
 
-An AQM "use case" is a scientifically interesting air quality event with preconfigured SRW workflow templates. ICs, LBCs, and fixed files are also staged in the `SRW App Data Bucket <https://registry.opendata.aws/noaa-ufs-shortrangeweather/>`__, and can be downloaded using the AQM Data Sync utility (tdk:link). If data is downloaded using this utility, setting ``cpl_aqm_parm.USE_AQM_S3_DATA_STAGE = true`` and  ``AQM_STAGE_DST_DIR = <stage_directory>`` will populate the root paths for data dependencies.
+An AQM "use case" is a scientifically interesting air quality event with preconfigured SRW workflow templates. ICs, LBCs, and fixed files are also staged in the `SRW App Data Bucket <https://registry.opendata.aws/noaa-ufs-shortrangeweather/>`__, and can be downloaded using the `AQM-Eval Data Sync utility <https://github.com/NOAA-EPIC/AQM-Eval?tab=readme-ov-file#installation>`__. If data is downloaded using this utility, setting ``cpl_aqm_parm.USE_AQM_S3_DATA_STAGE = true`` and  ``AQM_STAGE_DST_DIR = <stage_directory>`` will populate the root paths for data dependencies.
 
 .. list-table:: Supported Use Cases
    :widths: 20 10 20
@@ -340,17 +340,17 @@ AQM data requirements are relatively large. Using the AEROMMA campaign as an exa
 .. code-block:: console
 
    $ DST_DIR=<path to root directory for sync>
-   $ conda run -n aqm-data-sync --no-capture-output aqm-data-sync time-varying --dst-dir ${DST_DIR} --use-case AEROMMA --snippet
+   $ conda run -n aqm-eval --no-capture-output aqm-data-sync time-varying --dst-dir ${DST_DIR} --use-case AEROMMA --snippet
 
-After testing a 24-hour forecast, remove the ``--snippet`` flag to download the full time-varying dataset.
+After testing a 24-hour forecast, remove the ``--snippet`` flag to download the full time-varying dataset, or provide a custom end date via the ``--last-cycle-date`` flag.
 
-If you are not on a Tier 1 platform and have not acquired the SRW fixed file data, also download the fixed data using:
+If you are not on a Tier 1 platform and have not acquired the SRW fixed file data, also download the SRW fixed data using:
 
 .. code-block:: console
 
    $ # Use the same destination directory as the time-varying data download.
    $ DST_DIR=<path to root directory for sync>
-   $ conda run -n aqm-data-sync --no-capture-output aqm-data-sync srw-fixed --dst-dir ${DST_DIR}
+   $ conda run -n aqm-eval --no-capture-output aqm-data-sync srw-fixed --dst-dir ${DST_DIR}
 
 Now, setting ``cpl_aqm_parm.USE_FIX_AQM_S3_DATA_STAGE= true`` will adjust fixed files paths to point to the ``AQM_STAGE_DST_DIR``.
 
