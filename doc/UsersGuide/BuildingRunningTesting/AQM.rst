@@ -337,14 +337,14 @@ An AQM "use case" is a scientifically interesting air quality event with preconf
 Acquiring Use Case Data
 ---------------------------
 
-AQM data requirements are relatively large. Using the AEROMMA campaign as an example, expect a minimum of ~28 terabytes of storage for the full use case, with ~3 terabytes allocated to fixed files. Hence, use case configurations assume a user will want to evaluate a single 24-hour forecast before extending to the recommended use case forecast window. In this situation, download the time-varying data using the data sync utility's ``--snippet`` flag.
+AQM data requirements are relatively large. Using the AEROMMA campaign as an example, expect a minimum of ~28 terabytes of storage for the full use case, with ~3 terabytes allocated to fixed files. Hence, use case configurations assume a user will want to evaluate a 48-hour forecast before extending to the recommended use case forecast window. In this situation, download the time-varying data using the data sync utility's ``--snippet`` flag.
 
 .. code-block:: console
 
    $ DST_DIR=<path to root directory for sync>
    $ conda run -n aqm-eval --no-capture-output aqm-data-sync time-varying --dst-dir ${DST_DIR} --use-case AEROMMA --snippet
 
-After testing a 24-hour forecast, remove the ``--snippet`` flag to download the full time-varying dataset, or provide a custom end date via the ``--last-cycle-date`` flag.
+After testing a 48-hour forecast, remove the ``--snippet`` flag to download the full time-varying dataset, or provide a custom end date via the ``--last-cycle-date`` flag.
 
 If you are not on a Tier 1 platform and have not acquired the SRW fixed file data, also download the SRW fixed data using:
 
@@ -385,7 +385,7 @@ Once data is appropriately staged, the use case workflow configuration file may 
 MELODIES MONET (MM) Evaluation
 ================================
 
-SRW-AQM provides an optional task group leveraging `MELODIES MONET <https://melodies-monet.readthedocs.io/en/stable/>`__ for post-processing evaluation.
+SRW-AQM provides an optional task group leveraging `MELODIES MONET <https://melodies-monet.readthedocs.io/en/stable/>`__ for model evaluation.
 
 .. epigraph::
 
@@ -396,7 +396,7 @@ SRW-AQM provides an optional task group leveraging `MELODIES MONET <https://melo
 How to Run the MM Evaluation
 ------------------------------
 
-To run the evaluation suite, a user will need to follow these steps.
+To run the evaluation suite, a user will need to follow these steps. Depending on the packages, tasks, and forecast window duration the tasks can be computationally demanding. Per the usual HPC recommendations, start small and scale as needed.
 
 Install the ``aqm-eval`` Anaconda environment
 +++++++++++++++++++++++++++++++++++++++++++++++

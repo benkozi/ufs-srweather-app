@@ -2,10 +2,8 @@ metadata:
   description: config for SRW-AQM, AQM_NA_13km, AEROMMA field campaign
 user:
   RUN_ENVIR: community
-#  MACHINE: [HERA/ORION/HERCULES/DERECHO/GAEAC6]
-  MACHINE: GAEAC6 #tdk: rm
-#  ACCOUNT: [<account>]
-  ACCOUNT: bil-fire8 #tdk: rm
+  MACHINE: [HERA/ORION/HERCULES/DERECHO/GAEAC6]
+  ACCOUNT: [<account>]
 workflow:
   USE_CRON_TO_RELAUNCH: true
   CRON_RELAUNCH_INTVL_MNTS: 3
@@ -13,7 +11,6 @@ workflow:
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v16
   DATE_FIRST_CYCL: '2023060112'
-#  DATE_LAST_CYCL:  '2023060112'
   DATE_LAST_CYCL:  '2023060212'
 #  DATE_LAST_CYCL:  '2023083112'  # Last cycle date for AEROMMA with all data staged
   INCR_CYCL_FREQ: 24
@@ -32,7 +29,7 @@ workflow:
     - parm/wflow/aqm_prep.yaml
     - parm/wflow/coldstart.yaml
     - parm/wflow/post.yaml
-    - parm/wflow/aqm_post_melodies_monet.yaml # Uncomment to enable MELODIES MONET evaluation tasks. #tdk:last: leave commented
+#    - parm/wflow/aqm_post_melodies_monet.yaml # Uncomment to enable MELODIES MONET evaluation tasks.
 nco:
   envir_default: aqm_AQMNA13km_AEROMMA
   NET_default: aqm
@@ -65,18 +62,14 @@ global:
 task_mm_prep:
   MM_OUTPUT_DIR: null
   MM_EVAL_PACKAGES: [chem]
-  MM_OBS_AIRNOW_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
-#  MM_OBS_AIRNOW_FN_TEMPLATE: /gpfs/f6/bil-fire3/world-shared/Observations/AirNow/AirNow_20230601_20230701.nc
-#  MM_OBS_AIRNOW_FN_TEMPLATE: AirNow_20230601_20230701.nc #tdk:doc: download observations and configure filename template
-  MM_BASE_MODEL_EXPT_DIR: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/aqm-reldeb/expt_dirs/aqm_AQMNA13km_AEROMMA #tdk: default should be none
-  #tdk:doc: how to adjust fix_shp for the cartopy data directory
+#  MM_OBS_AIRNOW_FN_TEMPLATE: <path/to>/Observations/AirNow/AirNow_20230601_20230701.nc
+  MM_BASE_MODEL_EXPT_DIR: null
 cpl_aqm_parm:
   CPL_AQM: true
 
-  USE_AQM_S3_DATA_STAGE: true
+  USE_AQM_S3_DATA_STAGE: false
   USE_FIX_AQM_S3_DATA_STAGE: false
 #  AQM_STAGE_DST_DIR: "<path to data stage directory>"
-  AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download" #tdk: rm
 
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true
