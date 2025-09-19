@@ -2981,9 +2981,16 @@ task_mm_prep:
       nodes: 1
       tasks_per_node: 1
       walltime: 00:05:00
+  # Output directory for MELODIES MONET-generated model evaluation plots and statistics.
   MM_OUTPUT_DIR: null
-  MM_EVAL_PACKAGES: ["chem"]
+  # Evaluation packages to initialize and run.
+  MM_EVAL_PACKAGES: [chem]
+  # If set to another SRW experiment path, MELODIES MONET will generate "scorecards" for model inter-
+  # comparison.
   MM_BASE_MODEL_EXPT_DIR: null
+  # Path, optionally with wildcards, selecting the AirNow observation files used by MELODIES MONET.
+  # For example: /staged/obs/Observations/AirNow/AirNow_2023*.nc
+  MM_OBS_AIRNOW_FN_TEMPLATE: null
 task_mm_run:
   execution:
     batchargs:

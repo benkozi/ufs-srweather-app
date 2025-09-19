@@ -412,7 +412,7 @@ For SRW-AQM use cases, the `AQM-Eval Data Sync utility <https://github.com/NOAA-
 
 .. code-block:: console
 
-    $ conda run -n aqm-eval aqm-data-sync observations ++dst-dir <path to download location>
+    $ conda run -n aqm-eval aqm-data-sync observations --dst-dir <path to download location>
 
 MELODIES MONET also offers utility to download and prepare observational datasets. See `Downloading Observations <https://melodies-monet.readthedocs.io/en/stable/getting_started/downloading_obs.html>`__ for more information.
 
@@ -444,7 +444,7 @@ Unless overridden by ``task_mm_prep.MM_OUTPUT_DIR``, the MM evaluation output is
 Select MM Evaluation Packages (Optional)
 +++++++++++++++++++++++++++++++++++++++++
 
-COMING SOON! Currently, on the "chemistry" evaluation package is supported.
+COMING SOON! Currently, only the "chemistry" evaluation package is supported.
 
 Select MM Evaluation Tasks (Optional)
 +++++++++++++++++++++++++++++++++++++++
