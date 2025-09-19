@@ -2971,16 +2971,27 @@ task_aqm_lbcs:
       nodes: 1
       tasks_per_node: 24
       walltime: 00:30:00
-task_mm_prep: #tdk:last: make sure all aeromma config values are copied over
+
+# ------------------------------------
+# SRW-AQM MELODIES-MONET Configuration
+# ------------------------------------
+task_mm_prep:
   execution:
     batchargs:
       nodes: 1
       tasks_per_node: 1
       walltime: 00:05:00
-  MM_OUTPUT_DIR: null #tdk: doc; if null then use mm-output in the experiment directory
-  MM_EVAL_PACKAGES: ["chem"]
+  # Output directory for MELODIES MONET-generated model evaluation plots and statistics.
+  MM_OUTPUT_DIR: null
+  # Evaluation packages to initialize and run.
+  MM_EVAL_PACKAGES: [chem]
+  # If set to another SRW experiment path, MELODIES MONET will generate "scorecards" for model inter-
+  # comparison.
   MM_BASE_MODEL_EXPT_DIR: null
-task_mm_run: #tdk:last: make sure all aeromma config values are copied over
+  # Path, optionally with wildcards, selecting the AirNow observation files used by MELODIES MONET.
+  # For example: /staged/obs/Observations/AirNow/AirNow_2023*.nc
+  MM_OBS_AIRNOW_FN_TEMPLATE: null
+task_mm_run:
   execution:
     batchargs:
       nodes: 1
