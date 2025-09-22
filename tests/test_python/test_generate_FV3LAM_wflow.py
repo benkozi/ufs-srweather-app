@@ -8,6 +8,7 @@ import sys
 import unittest
 from multiprocessing import Process
 from pathlib import Path
+from typing import Union
 
 from python_utils import (
     run_command,
@@ -29,7 +30,8 @@ class Testing(unittest.TestCase):
         src_config_yaml_filename = "config.community.yaml"
         self._run_generate_FV3LAM_wflow_test_(src_config_yaml_filename)
 
-    def test_generate_FV3LAM_wflow_aqm(self) -> None:
+    def test_generate_FV3LAM_wflow_aqm_use_case(self) -> None:
+        """Test generating a workflow for an AQM use case."""
         src_config_yaml_filename = Path("aqm-use-cases/config.aqm.AEROMMA.yaml")
         self._run_generate_FV3LAM_wflow_test_(src_config_yaml_filename)
 
@@ -39,7 +41,7 @@ class Testing(unittest.TestCase):
         set_env_var("VERBOSE", False)
 
     @staticmethod
-    def _run_generate_FV3LAM_wflow_test_(src_config_yaml_filename: str | Path) -> None:
+    def _run_generate_FV3LAM_wflow_test_(src_config_yaml_filename: Union[str, Path]) -> None:
         # run workflows in separate process to avoid conflict between community and nco settings
         def run_workflow(USHdir, logfile):
             p = Process(target=generate_FV3LAM_wflow, args=(USHdir, "config.yaml", logfile))
