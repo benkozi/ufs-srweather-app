@@ -8,21 +8,9 @@
 #-----------------------------------------------------------------------
 #
 . ${USHsrw}/source_util_funcs.sh
-sections=(
-  user
-  nco
-  platform
-  workflow
-  global
-  verification
-  cpl_aqm_parm
-  constants
-  fixed_files
-  grid_params
-  task_point_source.envvars
-  task_run_fcst.envvars
-)
-for sect in ${sections[*]} ; do
+for sect in user nco platform workflow nco global verification cpl_aqm_parm \
+  constants fixed_files grid_params \
+  task_point_source task_run_fcst ; do
   source_yaml ${GLOBAL_VAR_DEFNS_FP} ${sect}
 done
 #
@@ -84,6 +72,7 @@ YYYYMMDDHH="${PDY}${cyc}"
 #-----------------------------------------------------------------------
 #
 PT_SRC_PRECOMB="${FIXemis}/${PT_SRC_SUBDIR}"
+PT_REF_YEAR=2019
 #
 #-----------------------------------------------------------------------
 #
@@ -92,7 +81,7 @@ PT_SRC_PRECOMB="${FIXemis}/${PT_SRC_SUBDIR}"
 #-----------------------------------------------------------------------
 #
 if [ ! -s "${DATA}/pt-${YYYYMMDDHH}.nc" ]; then 
-  ${USHsrw}/aqm_utils_python/stack-pt-merge.py -s ${YYYYMMDDHH} -n ${nstep} -i ${PT_SRC_PRECOMB}
+  ${USHsrw}/aqm_utils_python/stack-pt-merge.py -s ${YYYYMMDDHH} -n ${nstep} -i ${PT_SRC_PRECOMB} -r $PT_REF_YEAR 
   export err=$?
   if [ $err -ne 0 ]; then
     message_txt="Call to python script \"stack-pt-merge.py\" failed."
