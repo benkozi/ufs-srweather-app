@@ -5,19 +5,19 @@ the NOAA RDHPC machine Hera using GNU 13.3.0
 
 whatis([===[Loads libraries needed for building the UFS SRW App on Hera using GNU 13.3.0 ]===])
 
+prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.9.2/envs/ue-gcc-13.3.0/install/modulefiles/Core")
 prepend_path("MODULEPATH", "/contrib/spack-stack/installs/gnu/modulefiles")
 prepend_path("MODULEPATH", "/contrib/spack-stack/installs/openmpi/modulefiles")
-prepend_path("MODULEPATH", "/contrib/spack-stack/spack-stack-1.6.0/envs/gnu-fms-2024.01/install/modulefiles/Core")
 
 load("stack-gcc/13.3.0")
 load("stack-openmpi/4.1.6")
-load("stack-python/3.10.13")
-load("cmake/3.23.1")
+load("stack-python/3.11.7")
+load("cmake/3.27.9")
 
 load("srw_common")
 
 load(pathJoin("nccmp", os.getenv("nccmp_ver") or "1.9.0.1"))
-load(pathJoin("nco", os.getenv("nco_ver") or "5.0.6"))
+load(pathJoin("nco", os.getenv("nco_ver") or "5.2.4"))
 load(pathJoin("prod_util", os.getenv("prod_util_ver") or "2.1.1"))
 load(pathJoin("openblas", os.getenv("openblas_ver") or "0.3.24"))
 
