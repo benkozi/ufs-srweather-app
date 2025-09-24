@@ -5,16 +5,14 @@ user:
 workflow:
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v16
-  DATE_FIRST_CYCL: '2023010100'
-  DATE_LAST_CYCL: '2023010212'
-  INCR_CYCL_FREQ: 12
-  FCST_LEN_HRS: 12
+  DATE_FIRST_CYCL: '2023111000'
+  DATE_LAST_CYCL: '2023111100'
+  INCR_CYCL_FREQ: 24
+  FCST_LEN_HRS: 24
   PREEXISTING_DIR_METHOD: rename
   DIAG_TABLE_TMPL_FN: diag_table_aqm.FV3_GFS_v16
   FIELD_TABLE_TMPL_FN: field_table_aqm.FV3_GFS_v16
   DO_REAL_TIME: false
-  COLDSTART: false
-  WARMSTART_CYCLE_DIR: '/work2/noaa/stmp/jhuang/data/SRW-AQM_DATA/aqm_data/restart/2022123112'
   taskgroups:
     - parm/wflow/prep.yaml
     - parm/wflow/aqm_prep.yaml
@@ -23,9 +21,9 @@ workflow:
     - parm/wflow/test.yaml
 nco:
   NET_default: aqm
-#rocoto:
-#  tasks:
-#    task_aqm_ics_ext: !remove
+rocoto:
+  tasks:
+    task_aqm_ics_ext: !remove
 task_get_extrn_ics:
   envvars:
     EXTRN_MDL_NAME_ICS: FV3GFS
