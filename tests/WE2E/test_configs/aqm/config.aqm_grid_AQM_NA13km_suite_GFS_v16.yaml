@@ -80,5 +80,3 @@ cpl_aqm_parm:
   AQM_GEFS_FILE_PREFIX: geaer
   NEXUS_GRID_FN: grid_spec_793.nc
   NUM_SPLIT_NEXUS: 3
-task_point_source:
-  PT_SRC_SUBDIR: "NEMO/NEI2019/v2023-03/PT"
