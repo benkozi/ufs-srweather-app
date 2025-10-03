@@ -2910,6 +2910,10 @@ cpl_aqm_parm:
 
   FIXaqmcanopy: '{{ [platform.FIXaqm, "canopy"]|path_join }}'
 
+  USE_AQM_S3_DATA_STAGE: false
+  USE_FIX_AQM_S3_DATA_STAGE: false
+  AQM_STAGE_DST_DIR: null
+
 # AQM Task Resources
 task_pre_post_stat:
   execution:
