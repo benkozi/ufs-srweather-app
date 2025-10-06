@@ -21,16 +21,15 @@ workflow:
   DO_REAL_TIME: false
   COLDSTART: true
 #  WARMSTART_CYCLE_DIR: '/path/to/warm/start/files'
+  taskgroups:
+    - parm/wflow/prep.yaml
+    - parm/wflow/smoke_dust.yaml
+    - parm/wflow/coldstart.yaml
+    - parm/wflow/post.yaml
 nco:
   envir_default: test_smoke_dust
   NET_default: smoke_dust
   RUN_default: smoke_dust
-rocoto:
-  tasks:
-    taskgroups: '{{ ["parm/wflow/prep.yaml", "parm/wflow/smoke_dust.yaml", "parm/wflow/coldstart.yaml", "parm/wflow/post.yaml"]|include }}'
-    metatask_run_ensemble:
-      task_run_fcst_mem#mem#:
-        walltime: 02:00:00
 task_get_extrn_ics:
   envvars:
     EXTRN_MDL_NAME_ICS: RAP
