@@ -378,7 +378,7 @@ Once data is appropriately staged, the use case workflow configuration file may 
    * - ``cpl_aqm_parm.AQM_STAGE_DST_DIR``
      - Required path to the destination (root) directory of the data synchronization operation.
    * - ``workflow.DATE_LAST_CYCL``
-     - Defaults to a single 24-hour forecast cycle.
+     - Defaults to two 24-hour forecast cycles.
    * - ``cpl_aqm_parm.USE_FIX_AQM_S3_DATA_STAGE``
      - Defaults to false. Set to true if fixed data was downloaded to the stage directory.
 
