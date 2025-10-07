@@ -2999,7 +2999,7 @@ task_mm_run:
   execution:
     batchargs:
       nodes: 1
-      tasks_per_node: 100
+      tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
       # More time is needed if there is an additional model is included.
       walltime: '{% if task_mm_prep.MM_BASE_MODEL_EXPT_DIR is none %}00:20:00{% else %}00:40:00{% endif %}'
   # These are globally possible MM tasks. "save_paired" is implicit. "scorecard" tasks only run
