@@ -2987,7 +2987,7 @@ task_mm_prep:
     batchargs:
       nodes: 1
       tasks_per_node: 1
-      walltime: 00:05:00
+      walltime: 01:00:00 #tdk: how to make initialize faster?
   # Output directory for MELODIES MONET-generated model evaluation plots and statistics.
   MM_OUTPUT_DIR: null
   # Evaluation packages to initialize and run.
