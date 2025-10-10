@@ -439,7 +439,7 @@ MM provides a set of `scorecard evaluations <https://melodies-monet.readthedocs.
 Transfer MM Output (Optional)
 +++++++++++++++++++++++++++++++
 
-Unless overridden by ``task_mm_prep.MM_OUTPUT_DIR``, the MM evaluation output is written toe ``${EXPT_DIR}/mm_output``. Users may wish to transfer the PNG and CSV output to their local machine for simplified review.
+Unless overridden by ``task_mm_prep.MM_OUTPUT_DIR``, the MM evaluation output is written to ``${EXPT_DIR}/mm_output``. Users may wish to transfer the PNG and CSV output to their local machine for simplified review.
 
 Select MM Evaluation Packages (Optional)
 +++++++++++++++++++++++++++++++++++++++++
