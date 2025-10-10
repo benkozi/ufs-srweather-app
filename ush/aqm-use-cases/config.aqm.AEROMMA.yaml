@@ -2,8 +2,8 @@ metadata:
   description: config for SRW-AQM, AQM_NA_13km, AEROMMA field campaign
 user:
   RUN_ENVIR: community
-  MACHINE: HERA
-  ACCOUNT: an_account
+  MACHINE: GAEAC6 #tdk: set to a_machine
+  ACCOUNT: bil-fire8 #tdk: set to an_account
 workflow:
   USE_CRON_TO_RELAUNCH: true
   CRON_RELAUNCH_INTVL_MNTS: 3
@@ -29,7 +29,7 @@ workflow:
     - parm/wflow/aqm_prep.yaml
     - parm/wflow/coldstart.yaml
     - parm/wflow/post.yaml
-#    - parm/wflow/aqm_post_melodies_monet.yaml # Uncomment to enable MELODIES MONET evaluation tasks.
+    - parm/wflow/aqm_post_melodies_monet.yaml # Uncomment to enable MELODIES MONET evaluation tasks.
 nco:
   envir_default: aqm_AQMNA13km_AEROMMA
   NET_default: aqm
@@ -61,15 +61,21 @@ global:
   HALO_BLEND: 0
 task_mm_prep:
   MM_OUTPUT_DIR: null
-  MM_EVAL_PACKAGES: [chem]
-#  MM_OBS_AIRNOW_FN_TEMPLATE: <path/to>/Observations/AirNow/AirNow_20230601_20230701.nc
-  MM_BASE_MODEL_EXPT_DIR: null
+  #tdk:last: documentation!
+  MM_EVAL_PACKAGES: [chem, met]
+#  MM_EVAL_PACKAGES: [chem, met, aqs_pm, aqs_voc]
+  #tdk:last: revert to <path to>/Observations/...
+  MM_OBS_AIRNOW_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
+  MM_OBS_ISH_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
+  MM_OBS_AQS_PM_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
+  MM_OBS_AQS_VOC_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/vocs/AQS_20230601_20230701.nc
+  MM_BASE_MODEL_EXPT_DIR: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs/expt_dirs/aqm_AQMNA13km_AEROMMA
 cpl_aqm_parm:
   CPL_AQM: true
 
-  USE_AQM_S3_DATA_STAGE: false
+  USE_AQM_S3_DATA_STAGE: true
   USE_FIX_AQM_S3_DATA_STAGE: false
-#  AQM_STAGE_DST_DIR: "<path to data stage directory>"
+  AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download"
 
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true

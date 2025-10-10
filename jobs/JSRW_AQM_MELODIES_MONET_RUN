@@ -61,7 +61,7 @@ This is the J-job script for MELODIES MONET evaluation/verification
 #
 #-----------------------------------------------------------------------
 #
-aqm-mm-eval srw-run --expt-dir ${COMOUT} --package-selector ${MM_EVAL_PACKAGE} --task-selector ${MM_EVAL_TASK}
+aqm-mm-eval srw-run --expt-dir ${COMOUT} --package ${MM_EVAL_PACKAGE} --task ${MM_EVAL_TASK}
 #
 #-----------------------------------------------------------------------
 #
