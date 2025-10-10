@@ -819,9 +819,9 @@ workflow:
   #
   CCPP_PHYS_SUITE: "FV3_GFS_v16"
   CCPP_PHYS_SUITE_FN: 'suite_{{ workflow.CCPP_PHYS_SUITE }}.xml'
-  CCPP_PHYS_SUITE_IN_CCPP_FP: '{{ user.UFS_WTHR_MDL_DIR }}/FV3/ccpp/suites/{{ workflow.CCPP_PHYS_SUITE_FN }}'
+  CCPP_PHYS_SUITE_IN_CCPP_FP: '{{ user.UFS_WTHR_MDL_DIR }}/UFSATM/ccpp/suites/{{ workflow.CCPP_PHYS_SUITE_FN }}'
   CCPP_PHYS_SUITE_FP: '{{ workflow.EXPTDIR }}/{{ workflow.CCPP_PHYS_SUITE_FN }}'
-  CCPP_PHYS_DIR: '{{ user.UFS_WTHR_MDL_DIR }}/FV3/ccpp/physics/physics/SFC_Models/Land/Noahmp'
+  CCPP_PHYS_DIR: '{{ user.UFS_WTHR_MDL_DIR }}/UFSATM/ccpp/physics/physics/SFC_Models/Land/Noahmp'
   #
   #-----------------------------------------------------------------------
   #
@@ -1875,6 +1875,7 @@ task_run_post:
         nodes: 1
         tasks_per_node: 24
         walltime: 00:15:00
+        exclusive: True
       threads: !int '{{ task_run_post.envvars.OMP_NUM_THREADS_RUN_POST }}'
   #-----------------------------------------------------------------------
   #-----------------------------------------------------------------------
@@ -2039,6 +2040,7 @@ task_plot_allvars:
     batchargs:
       nodes: 1
       tasks_per_node: 1
+      exclusive: True
       walltime: 01:00:00
   #-------------------------------------------------------------------------
   # Path to the reference experiment's COMOUT directory. This is where the GRIB2 files 
@@ -2368,11 +2370,11 @@ verification_resources:
       airnow:
         walltime: 00:45:00
       ccpa:
-        walltime: 00:45:00
+        walltime: 02:00:00
       nohrsc:
         walltime: 00:45:00
       mrms:
-        walltime: 00:45:00
+        walltime: 02:00:00
       ndas:
         walltime: 02:00:00
     pb2nc:
@@ -2934,6 +2936,7 @@ task_nexus_post_split:
       nodes: 1
       tasks_per_node: 1
       walltime: 00:30:00
+      exclusive: True
 task_fire_emission:
   execution:
     batchargs:
