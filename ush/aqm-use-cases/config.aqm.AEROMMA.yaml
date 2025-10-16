@@ -62,14 +62,14 @@ global:
 task_mm_prep:
   MM_OUTPUT_DIR: null
   #tdk:last: documentation!
-#  MM_EVAL_PACKAGES: [chem, met]
-  MM_EVAL_PACKAGES: [chem, met, aqs_pm, aqs_voc]
+#  MM_EVAL_PACKAGES: [chem, ish]
+  MM_EVAL_PACKAGES: [chem, ish, aqs_voc]
   #tdk:last: revert to <path to>/Observations/...
   MM_OBS_AIRNOW_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
   MM_OBS_ISH_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
   MM_OBS_AQS_PM_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
   MM_OBS_AQS_VOC_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/vocs/AQS_20230601_20230701.nc
-  MM_BASE_MODEL_EXPT_DIR: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs/expt_dirs/aqm_AQMNA13km_AEROMMA
+  MM_BASE_MODEL_EXPT_DIR: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA
 cpl_aqm_parm:
   CPL_AQM: true
 
