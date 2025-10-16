@@ -2991,7 +2991,7 @@ task_mm_prep:
   # Output directory for MELODIES MONET-generated model evaluation plots and statistics.
   MM_OUTPUT_DIR: null
   # Evaluation packages to initialize and run.
-  MM_EVAL_PACKAGES: [chem]
+  MM_EVAL_PACKAGES: [chem, ish, aqs_voc]
   # If set to another SRW experiment path, MELODIES MONET will generate "scorecards" for model inter-
   # comparison.
   MM_BASE_MODEL_EXPT_DIR: null
