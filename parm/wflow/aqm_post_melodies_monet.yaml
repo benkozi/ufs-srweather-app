@@ -40,10 +40,10 @@ metatask_mm_run_package:
         value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
     envars:
       <<: *default_vars
-      nprocs: '{{ task_mm_prep.execution.batchargs.nodes * task_mm_prep.execution.batchargs.tasks_per_node.#package# }}'
+      nprocs: '{{ task_mm_prep.execution.batchargs.nodes * task_mm_prep.execution.batchargs.tasks_per_node }}'
       MM_EVAL_PACKAGE: '#package#'
-    nodes: '{{ task_mm_prep.execution.batchargs.nodes }}:ppn={{ task_mm_prep.execution.batchargs.tasks_per_node.#package# }}'
-    walltime: '{{ task_mm_prep.execution.batchargs.walltime.#package# }}'
+    nodes: '{{ task_mm_prep.execution.batchargs.nodes }}:ppn={{ task_mm_prep.execution.batchargs.tasks_per_node }}'
+    walltime: '{{ task_mm_prep.execution.batchargs.walltime }}'
     dependency:
       taskdep:
         attrs:
