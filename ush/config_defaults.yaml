@@ -2986,16 +2986,8 @@ task_mm_prep:
   execution:
     batchargs:
       nodes: 1
-      tasks_per_node:
-        chem: 1
-        ish: !int '{{ platform.NCORES_PER_NODE }}'
-        aqs_pm: !int '{{ platform.NCORES_PER_NODE }}'
-        aqs_voc: 1
-      walltime:
-        chem: 00:05:00
-        ish: 00:30:00
-        aqs_pm: 01:30:00
-        aqs_voc: 00:05:00
+      tasks_per_node: [1, !int '{{ platform.NCORES_PER_NODE }}', !int '{{ platform.NCORES_PER_NODE }}', 1]
+      walltime: [00:05:00, 00:30:00, 01:30:00, 00:05:00]
   # Output directory for MELODIES MONET-generated model evaluation plots and statistics.
   MM_OUTPUT_DIR: null
   # Evaluation packages to initialize and run.
