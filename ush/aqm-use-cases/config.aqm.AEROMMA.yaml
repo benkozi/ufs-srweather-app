@@ -63,8 +63,8 @@ task_mm_prep:
   MM_OUTPUT_DIR: null
   #tdk:last: documentation!
 #  MM_EVAL_PACKAGES: [chem, ish]
-#  MM_EVAL_PACKAGES: [chem, ish, aqs_voc]
-  MM_EVAL_PACKAGES: [aqs_pm]
+  MM_EVAL_PACKAGES: [chem, ish, aqs_pm, aqs_voc]
+#  MM_EVAL_PACKAGES: [aqs_pm]
   #tdk:last: revert to <path to>/Observations/...
   MM_OBS_AIRNOW_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
   MM_OBS_ISH_FN_TEMPLATE: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
