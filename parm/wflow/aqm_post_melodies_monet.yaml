@@ -32,7 +32,6 @@ default_aqm_task: &default_aqm
 metatask_mm_run_package:
   var:
     package: '{{ task_mm_prep.MM_EVAL_PACKAGES | join(" ") }}'
-    mm_walltime: '{{ task_mm_prep.mm_walltime | join(" ") }}'
   task_mm_prep_#package#:
     <<: *default_aqm
     command: '&LOAD_MODULES_RUN_TASK; "mm_prep" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_PREP"'
@@ -44,8 +43,7 @@ metatask_mm_run_package:
       nprocs: '{{ task_mm_prep.execution.batchargs.nodes * task_mm_prep.execution.batchargs.tasks_per_node }}'
       MM_EVAL_PACKAGE: '#package#'
     nodes: '{{ task_mm_prep.execution.batchargs.nodes }}:ppn={{ task_mm_prep.execution.batchargs.tasks_per_node }}'
-#    walltime: '{{ task_mm_prep.execution.batchargs.walltime }}'
-    walltime: '#mm_walltime#'
+    walltime: '{{ task_mm_prep.execution.batchargs.walltime }}'
     dependency:
       taskdep:
         attrs:

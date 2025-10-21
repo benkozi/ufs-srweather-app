@@ -63,7 +63,6 @@ task_mm_prep:
   MM_OUTPUT_DIR: null
   #tdk:last: documentation!
 #  MM_EVAL_PACKAGES: [chem, ish]
-  mm_walltime: [00:05:00, 00:30:00, 01:30:00, 00:05:00]
   MM_EVAL_PACKAGES: [chem, ish, aqs_pm, aqs_voc]
 #  MM_EVAL_PACKAGES: [aqs_pm]
   #tdk:last: revert to <path to>/Observations/...
