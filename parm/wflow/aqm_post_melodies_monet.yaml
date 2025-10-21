@@ -45,7 +45,7 @@ metatask_mm_run_package:
       MM_EVAL_PACKAGE: '#package#'
     nodes: '{{ task_mm_prep.execution.batchargs.nodes }}:ppn={{ task_mm_prep.execution.batchargs.tasks_per_node }}'
 #    walltime: '{{ task_mm_prep.execution.batchargs.walltime }}'
-    walltime: '{{ mm_walltime }}'
+    walltime: '#mm_walltime#'
     dependency:
       taskdep:
         attrs:
