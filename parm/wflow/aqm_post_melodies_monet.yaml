@@ -22,10 +22,10 @@ task_mm_prep_chem:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_prep.chem.nodes * task_mm_prep.chem.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: chem
-  nodes: '{{ task_mm_prep.chem.nodes }}:ppn={{ task_mm_prep.chem.tasks_per_node }}'
-  walltime: '{{ task_mm_prep.chem.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -33,7 +33,7 @@ task_mm_prep_chem:
           task: run_fcst_mem000
       streq:
         left: run_package
-        right: '{% if "chem" in task_mm_prep.packages_to_run %}run_package{% endif %}'
+        right: '{% if "chem" in melodies_monet_parm.aqm.packages.packages_to_run %}run_package{% endif %}'
 
 
 task_mm_run_chem_save_paired:
@@ -44,11 +44,11 @@ task_mm_run_chem_save_paired:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.save_paired.nodes * task_mm_run.save_paired.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'save_paired'
-  nodes: '{{ task_mm_run.save_paired.nodes }}:ppn={{ task_mm_run.save_paired.tasks_per_node }}'
-  walltime: '{{ task_mm_run.save_paired.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -58,7 +58,7 @@ task_mm_run_chem_save_paired:
 
         streq_task:
           left: run_task
-          right: '{% if "save_paired" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "save_paired" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
 
 
@@ -70,11 +70,11 @@ task_mm_run_chem_timeseries:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.timeseries.nodes * task_mm_run.timeseries.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'timeseries'
-  nodes: '{{ task_mm_run.timeseries.nodes }}:ppn={{ task_mm_run.timeseries.tasks_per_node }}'
-  walltime: '{{ task_mm_run.timeseries.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -84,7 +84,7 @@ task_mm_run_chem_timeseries:
 
         streq_task:
           left: run_task
-          right: '{% if "timeseries" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "timeseries" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
 
 
@@ -96,11 +96,11 @@ task_mm_run_chem_taylor:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.taylor.nodes * task_mm_run.taylor.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'taylor'
-  nodes: '{{ task_mm_run.taylor.nodes }}:ppn={{ task_mm_run.taylor.tasks_per_node }}'
-  walltime: '{{ task_mm_run.taylor.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -110,7 +110,7 @@ task_mm_run_chem_taylor:
 
         streq_task:
           left: run_task
-          right: '{% if "taylor" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "taylor" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
 
 
@@ -122,11 +122,11 @@ task_mm_run_chem_spatial_bias:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.spatial_bias.nodes * task_mm_run.spatial_bias.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'spatial_bias'
-  nodes: '{{ task_mm_run.spatial_bias.nodes }}:ppn={{ task_mm_run.spatial_bias.tasks_per_node }}'
-  walltime: '{{ task_mm_run.spatial_bias.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -136,7 +136,7 @@ task_mm_run_chem_spatial_bias:
 
         streq_task:
           left: run_task
-          right: '{% if "spatial_bias" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "spatial_bias" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
 
 
@@ -148,11 +148,11 @@ task_mm_run_chem_spatial_overlay:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.spatial_overlay.nodes * task_mm_run.spatial_overlay.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'spatial_overlay'
-  nodes: '{{ task_mm_run.spatial_overlay.nodes }}:ppn={{ task_mm_run.spatial_overlay.tasks_per_node }}'
-  walltime: '{{ task_mm_run.spatial_overlay.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -162,7 +162,7 @@ task_mm_run_chem_spatial_overlay:
 
         streq_task:
           left: run_task
-          right: '{% if "spatial_overlay" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "spatial_overlay" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
 
 
@@ -174,11 +174,11 @@ task_mm_run_chem_boxplot:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.boxplot.nodes * task_mm_run.boxplot.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'boxplot'
-  nodes: '{{ task_mm_run.boxplot.nodes }}:ppn={{ task_mm_run.boxplot.tasks_per_node }}'
-  walltime: '{{ task_mm_run.boxplot.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -188,7 +188,7 @@ task_mm_run_chem_boxplot:
 
         streq_task:
           left: run_task
-          right: '{% if "boxplot" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "boxplot" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
 
 
@@ -200,11 +200,11 @@ task_mm_run_chem_multi_boxplot:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.multi_boxplot.nodes * task_mm_run.multi_boxplot.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'multi_boxplot'
-  nodes: '{{ task_mm_run.multi_boxplot.nodes }}:ppn={{ task_mm_run.multi_boxplot.tasks_per_node }}'
-  walltime: '{{ task_mm_run.multi_boxplot.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -214,7 +214,7 @@ task_mm_run_chem_multi_boxplot:
 
         streq_task:
           left: run_task
-          right: '{% if "multi_boxplot" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "multi_boxplot" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
 
 
@@ -226,11 +226,11 @@ task_mm_run_chem_scorecard_rmse:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.scorecard_rmse.nodes * task_mm_run.scorecard_rmse.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'scorecard_rmse'
-  nodes: '{{ task_mm_run.scorecard_rmse.nodes }}:ppn={{ task_mm_run.scorecard_rmse.tasks_per_node }}'
-  walltime: '{{ task_mm_run.scorecard_rmse.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -240,11 +240,11 @@ task_mm_run_chem_scorecard_rmse:
 
         streq_task:
           left: run_task
-          right: '{% if "scorecard_rmse" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "scorecard_rmse" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
         streq_scorecard_task:
           left: run_scorecard_task
-          right: '{% if task_mm_prep.MM_BASE_MODEL_EXPT_DIR is not none %}run_scorecard_task{% endif %}'
+          right: '{% if melodies_monet_parm.aqm.MM_BASE_MODEL_EXPT_DIR is not none%}run_scorecard_task{% endif %}'
 
 
 
@@ -257,11 +257,11 @@ task_mm_run_chem_scorecard_ioa:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.scorecard_ioa.nodes * task_mm_run.scorecard_ioa.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'scorecard_ioa'
-  nodes: '{{ task_mm_run.scorecard_ioa.nodes }}:ppn={{ task_mm_run.scorecard_ioa.tasks_per_node }}'
-  walltime: '{{ task_mm_run.scorecard_ioa.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -271,11 +271,11 @@ task_mm_run_chem_scorecard_ioa:
 
         streq_task:
           left: run_task
-          right: '{% if "scorecard_ioa" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "scorecard_ioa" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
         streq_scorecard_task:
           left: run_scorecard_task
-          right: '{% if task_mm_prep.MM_BASE_MODEL_EXPT_DIR is not none %}run_scorecard_task{% endif %}'
+          right: '{% if melodies_monet_parm.aqm.MM_BASE_MODEL_EXPT_DIR is not none%}run_scorecard_task{% endif %}'
 
 
 
@@ -288,11 +288,11 @@ task_mm_run_chem_scorecard_nmb:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.scorecard_nmb.nodes * task_mm_run.scorecard_nmb.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'scorecard_nmb'
-  nodes: '{{ task_mm_run.scorecard_nmb.nodes }}:ppn={{ task_mm_run.scorecard_nmb.tasks_per_node }}'
-  walltime: '{{ task_mm_run.scorecard_nmb.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -302,11 +302,11 @@ task_mm_run_chem_scorecard_nmb:
 
         streq_task:
           left: run_task
-          right: '{% if "scorecard_nmb" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "scorecard_nmb" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
         streq_scorecard_task:
           left: run_scorecard_task
-          right: '{% if task_mm_prep.MM_BASE_MODEL_EXPT_DIR is not none %}run_scorecard_task{% endif %}'
+          right: '{% if melodies_monet_parm.aqm.MM_BASE_MODEL_EXPT_DIR is not none%}run_scorecard_task{% endif %}'
 
 
 
@@ -319,11 +319,11 @@ task_mm_run_chem_scorecard_nme:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.scorecard_nme.nodes * task_mm_run.scorecard_nme.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'scorecard_nme'
-  nodes: '{{ task_mm_run.scorecard_nme.nodes }}:ppn={{ task_mm_run.scorecard_nme.tasks_per_node }}'
-  walltime: '{{ task_mm_run.scorecard_nme.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -333,11 +333,11 @@ task_mm_run_chem_scorecard_nme:
 
         streq_task:
           left: run_task
-          right: '{% if "scorecard_nme" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "scorecard_nme" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
         streq_scorecard_task:
           left: run_scorecard_task
-          right: '{% if task_mm_prep.MM_BASE_MODEL_EXPT_DIR is not none %}run_scorecard_task{% endif %}'
+          right: '{% if melodies_monet_parm.aqm.MM_BASE_MODEL_EXPT_DIR is not none%}run_scorecard_task{% endif %}'
 
 
 
@@ -350,11 +350,11 @@ task_mm_run_chem_csi:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.csi.nodes * task_mm_run.csi.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'csi'
-  nodes: '{{ task_mm_run.csi.nodes }}:ppn={{ task_mm_run.csi.tasks_per_node }}'
-  walltime: '{{ task_mm_run.csi.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -364,7 +364,7 @@ task_mm_run_chem_csi:
 
         streq_task:
           left: run_task
-          right: '{% if "csi" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "csi" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
 
 
@@ -376,11 +376,11 @@ task_mm_run_chem_stats:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ task_mm_run.stats.nodes * task_mm_run.stats.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'stats'
-  nodes: '{{ task_mm_run.stats.nodes }}:ppn={{ task_mm_run.stats.tasks_per_node }}'
-  walltime: '{{ task_mm_run.stats.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -390,850 +390,7 @@ task_mm_run_chem_stats:
 
         streq_task:
           left: run_task
-          right: '{% if "stats" not in task_mm_prep.chem.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-
-task_mm_prep_ish:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_prep" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_PREP"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_prep.ish.nodes * task_mm_prep.ish.tasks_per_node }}'
-    MM_EVAL_PACKAGE: ish
-  nodes: '{{ task_mm_prep.ish.nodes }}:ppn={{ task_mm_prep.ish.tasks_per_node }}'
-  walltime: '{{ task_mm_prep.ish.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-          task: run_fcst_mem000
-      streq:
-        left: run_package
-        right: '{% if "ish" in task_mm_prep.packages_to_run %}run_package{% endif %}'
-
-
-task_mm_run_ish_save_paired:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.save_paired.nodes * task_mm_run.save_paired.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'ish'
-    MM_EVAL_TASK: 'save_paired'
-  nodes: '{{ task_mm_run.save_paired.nodes }}:ppn={{ task_mm_run.save_paired.tasks_per_node }}'
-  walltime: '{{ task_mm_run.save_paired.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_prep_ish
-
-        streq_task:
-          left: run_task
-          right: '{% if "save_paired" not in task_mm_prep.ish.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_ish_timeseries:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.timeseries.nodes * task_mm_run.timeseries.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'ish'
-    MM_EVAL_TASK: 'timeseries'
-  nodes: '{{ task_mm_run.timeseries.nodes }}:ppn={{ task_mm_run.timeseries.tasks_per_node }}'
-  walltime: '{{ task_mm_run.timeseries.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_ish_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "timeseries" not in task_mm_prep.ish.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_ish_taylor:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.taylor.nodes * task_mm_run.taylor.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'ish'
-    MM_EVAL_TASK: 'taylor'
-  nodes: '{{ task_mm_run.taylor.nodes }}:ppn={{ task_mm_run.taylor.tasks_per_node }}'
-  walltime: '{{ task_mm_run.taylor.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_ish_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "taylor" not in task_mm_prep.ish.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_ish_spatial_bias:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.spatial_bias.nodes * task_mm_run.spatial_bias.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'ish'
-    MM_EVAL_TASK: 'spatial_bias'
-  nodes: '{{ task_mm_run.spatial_bias.nodes }}:ppn={{ task_mm_run.spatial_bias.tasks_per_node }}'
-  walltime: '{{ task_mm_run.spatial_bias.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_ish_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "spatial_bias" not in task_mm_prep.ish.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_ish_spatial_overlay:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.spatial_overlay.nodes * task_mm_run.spatial_overlay.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'ish'
-    MM_EVAL_TASK: 'spatial_overlay'
-  nodes: '{{ task_mm_run.spatial_overlay.nodes }}:ppn={{ task_mm_run.spatial_overlay.tasks_per_node }}'
-  walltime: '{{ task_mm_run.spatial_overlay.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_ish_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "spatial_overlay" not in task_mm_prep.ish.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_ish_boxplot:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.boxplot.nodes * task_mm_run.boxplot.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'ish'
-    MM_EVAL_TASK: 'boxplot'
-  nodes: '{{ task_mm_run.boxplot.nodes }}:ppn={{ task_mm_run.boxplot.tasks_per_node }}'
-  walltime: '{{ task_mm_run.boxplot.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_ish_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "boxplot" not in task_mm_prep.ish.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_ish_stats:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.stats.nodes * task_mm_run.stats.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'ish'
-    MM_EVAL_TASK: 'stats'
-  nodes: '{{ task_mm_run.stats.nodes }}:ppn={{ task_mm_run.stats.tasks_per_node }}'
-  walltime: '{{ task_mm_run.stats.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_ish_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "stats" not in task_mm_prep.ish.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-
-task_mm_prep_aqs_pm:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_prep" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_PREP"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_prep.aqs_pm.nodes * task_mm_prep.aqs_pm.tasks_per_node }}'
-    MM_EVAL_PACKAGE: aqs_pm
-  nodes: '{{ task_mm_prep.aqs_pm.nodes }}:ppn={{ task_mm_prep.aqs_pm.tasks_per_node }}'
-  walltime: '{{ task_mm_prep.aqs_pm.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-          task: run_fcst_mem000
-      streq:
-        left: run_package
-        right: '{% if "aqs_pm" in task_mm_prep.packages_to_run %}run_package{% endif %}'
-
-
-task_mm_run_aqs_pm_save_paired:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.save_paired.nodes * task_mm_run.save_paired.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'save_paired'
-  nodes: '{{ task_mm_run.save_paired.nodes }}:ppn={{ task_mm_run.save_paired.tasks_per_node }}'
-  walltime: '{{ task_mm_run.save_paired.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_prep_aqs_pm
-
-        streq_task:
-          left: run_task
-          right: '{% if "save_paired" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_pm_timeseries:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.timeseries.nodes * task_mm_run.timeseries.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'timeseries'
-  nodes: '{{ task_mm_run.timeseries.nodes }}:ppn={{ task_mm_run.timeseries.tasks_per_node }}'
-  walltime: '{{ task_mm_run.timeseries.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "timeseries" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_pm_taylor:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.taylor.nodes * task_mm_run.taylor.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'taylor'
-  nodes: '{{ task_mm_run.taylor.nodes }}:ppn={{ task_mm_run.taylor.tasks_per_node }}'
-  walltime: '{{ task_mm_run.taylor.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "taylor" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_pm_spatial_bias:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.spatial_bias.nodes * task_mm_run.spatial_bias.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'spatial_bias'
-  nodes: '{{ task_mm_run.spatial_bias.nodes }}:ppn={{ task_mm_run.spatial_bias.tasks_per_node }}'
-  walltime: '{{ task_mm_run.spatial_bias.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "spatial_bias" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_pm_spatial_overlay:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.spatial_overlay.nodes * task_mm_run.spatial_overlay.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'spatial_overlay'
-  nodes: '{{ task_mm_run.spatial_overlay.nodes }}:ppn={{ task_mm_run.spatial_overlay.tasks_per_node }}'
-  walltime: '{{ task_mm_run.spatial_overlay.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "spatial_overlay" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_pm_boxplot:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.boxplot.nodes * task_mm_run.boxplot.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'boxplot'
-  nodes: '{{ task_mm_run.boxplot.nodes }}:ppn={{ task_mm_run.boxplot.tasks_per_node }}'
-  walltime: '{{ task_mm_run.boxplot.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "boxplot" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_pm_multi_boxplot:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.multi_boxplot.nodes * task_mm_run.multi_boxplot.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'multi_boxplot'
-  nodes: '{{ task_mm_run.multi_boxplot.nodes }}:ppn={{ task_mm_run.multi_boxplot.tasks_per_node }}'
-  walltime: '{{ task_mm_run.multi_boxplot.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "multi_boxplot" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_pm_scorecard_rmse:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.scorecard_rmse.nodes * task_mm_run.scorecard_rmse.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'scorecard_rmse'
-  nodes: '{{ task_mm_run.scorecard_rmse.nodes }}:ppn={{ task_mm_run.scorecard_rmse.tasks_per_node }}'
-  walltime: '{{ task_mm_run.scorecard_rmse.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "scorecard_rmse" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-        streq_scorecard_task:
-          left: run_scorecard_task
-          right: '{% if task_mm_prep.MM_BASE_MODEL_EXPT_DIR is not none %}run_scorecard_task{% endif %}'
-
-
-
-
-task_mm_run_aqs_pm_scorecard_ioa:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.scorecard_ioa.nodes * task_mm_run.scorecard_ioa.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'scorecard_ioa'
-  nodes: '{{ task_mm_run.scorecard_ioa.nodes }}:ppn={{ task_mm_run.scorecard_ioa.tasks_per_node }}'
-  walltime: '{{ task_mm_run.scorecard_ioa.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "scorecard_ioa" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-        streq_scorecard_task:
-          left: run_scorecard_task
-          right: '{% if task_mm_prep.MM_BASE_MODEL_EXPT_DIR is not none %}run_scorecard_task{% endif %}'
-
-
-
-
-task_mm_run_aqs_pm_scorecard_nmb:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.scorecard_nmb.nodes * task_mm_run.scorecard_nmb.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'scorecard_nmb'
-  nodes: '{{ task_mm_run.scorecard_nmb.nodes }}:ppn={{ task_mm_run.scorecard_nmb.tasks_per_node }}'
-  walltime: '{{ task_mm_run.scorecard_nmb.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "scorecard_nmb" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-        streq_scorecard_task:
-          left: run_scorecard_task
-          right: '{% if task_mm_prep.MM_BASE_MODEL_EXPT_DIR is not none %}run_scorecard_task{% endif %}'
-
-
-
-
-task_mm_run_aqs_pm_scorecard_nme:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.scorecard_nme.nodes * task_mm_run.scorecard_nme.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'scorecard_nme'
-  nodes: '{{ task_mm_run.scorecard_nme.nodes }}:ppn={{ task_mm_run.scorecard_nme.tasks_per_node }}'
-  walltime: '{{ task_mm_run.scorecard_nme.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "scorecard_nme" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-        streq_scorecard_task:
-          left: run_scorecard_task
-          right: '{% if task_mm_prep.MM_BASE_MODEL_EXPT_DIR is not none %}run_scorecard_task{% endif %}'
-
-
-
-
-task_mm_run_aqs_pm_csi:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.csi.nodes * task_mm_run.csi.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'csi'
-  nodes: '{{ task_mm_run.csi.nodes }}:ppn={{ task_mm_run.csi.tasks_per_node }}'
-  walltime: '{{ task_mm_run.csi.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "csi" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_pm_stats:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.stats.nodes * task_mm_run.stats.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_pm'
-    MM_EVAL_TASK: 'stats'
-  nodes: '{{ task_mm_run.stats.nodes }}:ppn={{ task_mm_run.stats.tasks_per_node }}'
-  walltime: '{{ task_mm_run.stats.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_pm_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "stats" not in task_mm_prep.aqs_pm.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-
-task_mm_prep_aqs_voc:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_prep" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_PREP"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_prep.aqs_voc.nodes * task_mm_prep.aqs_voc.tasks_per_node }}'
-    MM_EVAL_PACKAGE: aqs_voc
-  nodes: '{{ task_mm_prep.aqs_voc.nodes }}:ppn={{ task_mm_prep.aqs_voc.tasks_per_node }}'
-  walltime: '{{ task_mm_prep.aqs_voc.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-          task: run_fcst_mem000
-      streq:
-        left: run_package
-        right: '{% if "aqs_voc" in task_mm_prep.packages_to_run %}run_package{% endif %}'
-
-
-task_mm_run_aqs_voc_save_paired:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.save_paired.nodes * task_mm_run.save_paired.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_voc'
-    MM_EVAL_TASK: 'save_paired'
-  nodes: '{{ task_mm_run.save_paired.nodes }}:ppn={{ task_mm_run.save_paired.tasks_per_node }}'
-  walltime: '{{ task_mm_run.save_paired.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_prep_aqs_voc
-
-        streq_task:
-          left: run_task
-          right: '{% if "save_paired" not in task_mm_prep.aqs_voc.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_voc_timeseries:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.timeseries.nodes * task_mm_run.timeseries.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_voc'
-    MM_EVAL_TASK: 'timeseries'
-  nodes: '{{ task_mm_run.timeseries.nodes }}:ppn={{ task_mm_run.timeseries.tasks_per_node }}'
-  walltime: '{{ task_mm_run.timeseries.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_voc_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "timeseries" not in task_mm_prep.aqs_voc.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_voc_taylor:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.taylor.nodes * task_mm_run.taylor.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_voc'
-    MM_EVAL_TASK: 'taylor'
-  nodes: '{{ task_mm_run.taylor.nodes }}:ppn={{ task_mm_run.taylor.tasks_per_node }}'
-  walltime: '{{ task_mm_run.taylor.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_voc_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "taylor" not in task_mm_prep.aqs_voc.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_voc_spatial_bias:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.spatial_bias.nodes * task_mm_run.spatial_bias.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_voc'
-    MM_EVAL_TASK: 'spatial_bias'
-  nodes: '{{ task_mm_run.spatial_bias.nodes }}:ppn={{ task_mm_run.spatial_bias.tasks_per_node }}'
-  walltime: '{{ task_mm_run.spatial_bias.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_voc_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "spatial_bias" not in task_mm_prep.aqs_voc.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_voc_spatial_overlay:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.spatial_overlay.nodes * task_mm_run.spatial_overlay.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_voc'
-    MM_EVAL_TASK: 'spatial_overlay'
-  nodes: '{{ task_mm_run.spatial_overlay.nodes }}:ppn={{ task_mm_run.spatial_overlay.tasks_per_node }}'
-  walltime: '{{ task_mm_run.spatial_overlay.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_voc_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "spatial_overlay" not in task_mm_prep.aqs_voc.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_voc_boxplot:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.boxplot.nodes * task_mm_run.boxplot.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_voc'
-    MM_EVAL_TASK: 'boxplot'
-  nodes: '{{ task_mm_run.boxplot.nodes }}:ppn={{ task_mm_run.boxplot.tasks_per_node }}'
-  walltime: '{{ task_mm_run.boxplot.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_voc_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "boxplot" not in task_mm_prep.aqs_voc.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_voc_multi_boxplot:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.multi_boxplot.nodes * task_mm_run.multi_boxplot.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_voc'
-    MM_EVAL_TASK: 'multi_boxplot'
-  nodes: '{{ task_mm_run.multi_boxplot.nodes }}:ppn={{ task_mm_run.multi_boxplot.tasks_per_node }}'
-  walltime: '{{ task_mm_run.multi_boxplot.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_voc_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "multi_boxplot" not in task_mm_prep.aqs_voc.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_voc_csi:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.csi.nodes * task_mm_run.csi.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_voc'
-    MM_EVAL_TASK: 'csi'
-  nodes: '{{ task_mm_run.csi.nodes }}:ppn={{ task_mm_run.csi.tasks_per_node }}'
-  walltime: '{{ task_mm_run.csi.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_voc_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "csi" not in task_mm_prep.aqs_voc.tasks_to_exclude %}run_task{% endif %}'
-
-
-
-task_mm_run_aqs_voc_stats:
-  <<: *default_aqm
-  command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
-  join:
-    cyclestr:
-      value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
-  envars:
-    <<: *default_vars
-    nprocs: '{{ task_mm_run.stats.nodes * task_mm_run.stats.tasks_per_node }}'
-    MM_EVAL_PACKAGE: 'aqs_voc'
-    MM_EVAL_TASK: 'stats'
-  nodes: '{{ task_mm_run.stats.nodes }}:ppn={{ task_mm_run.stats.tasks_per_node }}'
-  walltime: '{{ task_mm_run.stats.walltime }}'
-  dependency:
-    and:
-      taskdep:
-        attrs:
-
-          task: mm_run_aqs_voc_save_paired
-
-        streq_task:
-          left: run_task
-          right: '{% if "stats" not in task_mm_prep.aqs_voc.tasks_to_exclude %}run_task{% endif %}'
+          right: '{% if "stats" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude %}run_task{% endif %}'
 
 
 
