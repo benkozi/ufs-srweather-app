@@ -14,7 +14,7 @@ default_aqm_task: &default_aqm
   queue: '&QUEUE_DEFAULT;'
 
 
-task_mm_prep_chem:
+task_mm_chem_prep:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_prep" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_PREP"'
   join:
@@ -36,7 +36,7 @@ task_mm_prep_chem:
         right: '{% if "chem" in melodies_monet_parm.aqm.packages.packages_to_run %}run_package{% endif %}'
 
 
-task_mm_run_chem_save_paired:
+task_mm_chem_run_save_paired:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -54,14 +54,14 @@ task_mm_run_chem_save_paired:
       taskdep:
         attrs:
 
-          task: mm_prep_chem
+          task: mm_chem_prep
 
       streq:
         left: run_task
         right: '{% if "save_paired" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "save_paired" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_timeseries:
+task_mm_chem_run_timeseries:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -79,14 +79,14 @@ task_mm_run_chem_timeseries:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
         right: '{% if "timeseries" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "timeseries" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_taylor:
+task_mm_chem_run_taylor:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -104,14 +104,14 @@ task_mm_run_chem_taylor:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
         right: '{% if "taylor" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "taylor" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_spatial_bias:
+task_mm_chem_run_spatial_bias:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -129,14 +129,14 @@ task_mm_run_chem_spatial_bias:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
         right: '{% if "spatial_bias" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "spatial_bias" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_spatial_overlay:
+task_mm_chem_run_spatial_overlay:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -154,14 +154,14 @@ task_mm_run_chem_spatial_overlay:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
         right: '{% if "spatial_overlay" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "spatial_overlay" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_boxplot:
+task_mm_chem_run_boxplot:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -179,14 +179,14 @@ task_mm_run_chem_boxplot:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
         right: '{% if "boxplot" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_multi_boxplot:
+task_mm_chem_run_multi_boxplot:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -204,14 +204,14 @@ task_mm_run_chem_multi_boxplot:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
         right: '{% if "multi_boxplot" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "multi_boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_scorecard_rmse:
+task_mm_chem_run_scorecard_rmse:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -229,14 +229,14 @@ task_mm_run_chem_scorecard_rmse:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
         right: '{% if "scorecard_rmse" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "scorecard_rmse" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_scorecard_ioa:
+task_mm_chem_run_scorecard_ioa:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -254,14 +254,14 @@ task_mm_run_chem_scorecard_ioa:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
         right: '{% if "scorecard_ioa" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "scorecard_ioa" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_scorecard_nmb:
+task_mm_chem_run_scorecard_nmb:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -279,14 +279,14 @@ task_mm_run_chem_scorecard_nmb:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
         right: '{% if "scorecard_nmb" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "scorecard_nmb" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_scorecard_nme:
+task_mm_chem_run_scorecard_nme:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -304,14 +304,14 @@ task_mm_run_chem_scorecard_nme:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
         right: '{% if "scorecard_nme" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "scorecard_nme" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_csi:
+task_mm_chem_run_csi:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -329,14 +329,14 @@ task_mm_run_chem_csi:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
         right: '{% if "csi" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "csi" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
-task_mm_run_chem_stats:
+task_mm_chem_run_stats:
   <<: *default_aqm
   command: '&LOAD_MODULES_RUN_TASK; "mm_run" "&HOMEdir;/jobs/JSRW_AQM_MELODIES_MONET_RUN"'
   join:
@@ -354,7 +354,7 @@ task_mm_run_chem_stats:
       taskdep:
         attrs:
 
-          task: mm_run_chem_save_paired
+          task: mm_chem_run_save_paired
 
       streq:
         left: run_task
