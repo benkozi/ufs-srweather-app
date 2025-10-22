@@ -2987,7 +2987,7 @@ melodies_monet_parm:
     output_dir: null
     base_model_expt_dir: null
     packages:
-      packages_to_run: [chem]
+      packages_to_run: [chem, ish, aqs_pm, aqs_voc]
       chem:
         execution:
           batchargs:
@@ -2995,6 +2995,27 @@ melodies_monet_parm:
             tasks_per_node: 1
             walltime: 00:05:00
         tasks_to_exclude: []
+      ish:
+        execution:
+          batchargs:
+            nodes: 1
+            tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
+            walltime: 00:30:00
+        tasks_to_exclude: [ ]
+      aqs_pm:
+        execution:
+          batchargs:
+            nodes: 1
+            tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
+            walltime: 01:30:00
+        tasks_to_exclude: [ ]
+      aqs_voc:
+        execution:
+          batchargs:
+            nodes: 1
+            tasks_per_node: 1
+            walltime: 00:05:00
+        tasks_to_exclude: [ ]
     tasks:
       execution:
         batchargs:
