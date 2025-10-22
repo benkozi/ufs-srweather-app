@@ -3023,7 +3023,10 @@ melodies_monet_parm:
           tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
           walltime: 01:00:00
     observation_templates:
-      airnow: null
+      chem: null
+      ish: null
+      aqs_pm: null
+      aqs_voc: null
 #  execution:
 #    batchargs:
 #      nodes: 1
