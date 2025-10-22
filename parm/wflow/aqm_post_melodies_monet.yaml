@@ -58,7 +58,7 @@ task_mm_chem_run_save_paired:
 
       streq:
         left: run_task
-        right: '{% if "save_paired" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "save_paired" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "save_paired" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "save_paired" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_timeseries:
@@ -83,7 +83,7 @@ task_mm_chem_run_timeseries:
 
       streq:
         left: run_task
-        right: '{% if "timeseries" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "timeseries" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "timeseries" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "timeseries" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_taylor:
@@ -108,7 +108,7 @@ task_mm_chem_run_taylor:
 
       streq:
         left: run_task
-        right: '{% if "taylor" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "taylor" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "taylor" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "taylor" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_spatial_bias:
@@ -133,7 +133,7 @@ task_mm_chem_run_spatial_bias:
 
       streq:
         left: run_task
-        right: '{% if "spatial_bias" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "spatial_bias" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "spatial_bias" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "spatial_bias" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_spatial_overlay:
@@ -158,7 +158,7 @@ task_mm_chem_run_spatial_overlay:
 
       streq:
         left: run_task
-        right: '{% if "spatial_overlay" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "spatial_overlay" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "spatial_overlay" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "spatial_overlay" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_boxplot:
@@ -183,7 +183,7 @@ task_mm_chem_run_boxplot:
 
       streq:
         left: run_task
-        right: '{% if "boxplot" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "boxplot" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_multi_boxplot:
@@ -208,7 +208,7 @@ task_mm_chem_run_multi_boxplot:
 
       streq:
         left: run_task
-        right: '{% if "multi_boxplot" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "multi_boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "multi_boxplot" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "multi_boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_scorecard_rmse:
@@ -233,7 +233,7 @@ task_mm_chem_run_scorecard_rmse:
 
       streq:
         left: run_task
-        right: '{% if "scorecard_rmse" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "scorecard_rmse" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "scorecard_rmse" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "scorecard_rmse" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_scorecard_ioa:
@@ -258,7 +258,7 @@ task_mm_chem_run_scorecard_ioa:
 
       streq:
         left: run_task
-        right: '{% if "scorecard_ioa" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "scorecard_ioa" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "scorecard_ioa" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "scorecard_ioa" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_scorecard_nmb:
@@ -283,7 +283,7 @@ task_mm_chem_run_scorecard_nmb:
 
       streq:
         left: run_task
-        right: '{% if "scorecard_nmb" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "scorecard_nmb" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "scorecard_nmb" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "scorecard_nmb" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_scorecard_nme:
@@ -308,7 +308,7 @@ task_mm_chem_run_scorecard_nme:
 
       streq:
         left: run_task
-        right: '{% if "scorecard_nme" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "scorecard_nme" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "scorecard_nme" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "scorecard_nme" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_csi:
@@ -333,7 +333,7 @@ task_mm_chem_run_csi:
 
       streq:
         left: run_task
-        right: '{% if "csi" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "csi" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "csi" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "csi" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_chem_run_stats:
@@ -358,7 +358,7 @@ task_mm_chem_run_stats:
 
       streq:
         left: run_task
-        right: '{% if "stats" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" not in "stats" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "stats" not in melodies_monet_parm.aqm.packages.chem.tasks_to_exclude and ("scorecard" in "stats" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 
@@ -406,7 +406,7 @@ task_mm_ish_run_save_paired:
 
       streq:
         left: run_task
-        right: '{% if "save_paired" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" not in "save_paired" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "save_paired" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" in "save_paired" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_ish_run_timeseries:
@@ -431,7 +431,7 @@ task_mm_ish_run_timeseries:
 
       streq:
         left: run_task
-        right: '{% if "timeseries" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" not in "timeseries" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "timeseries" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" in "timeseries" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_ish_run_taylor:
@@ -456,7 +456,7 @@ task_mm_ish_run_taylor:
 
       streq:
         left: run_task
-        right: '{% if "taylor" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" not in "taylor" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "taylor" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" in "taylor" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_ish_run_spatial_bias:
@@ -481,7 +481,7 @@ task_mm_ish_run_spatial_bias:
 
       streq:
         left: run_task
-        right: '{% if "spatial_bias" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" not in "spatial_bias" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "spatial_bias" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" in "spatial_bias" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_ish_run_spatial_overlay:
@@ -506,7 +506,7 @@ task_mm_ish_run_spatial_overlay:
 
       streq:
         left: run_task
-        right: '{% if "spatial_overlay" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" not in "spatial_overlay" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "spatial_overlay" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" in "spatial_overlay" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_ish_run_boxplot:
@@ -531,7 +531,7 @@ task_mm_ish_run_boxplot:
 
       streq:
         left: run_task
-        right: '{% if "boxplot" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" not in "boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "boxplot" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" in "boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_ish_run_stats:
@@ -556,7 +556,7 @@ task_mm_ish_run_stats:
 
       streq:
         left: run_task
-        right: '{% if "stats" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" not in "stats" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "stats" not in melodies_monet_parm.aqm.packages.ish.tasks_to_exclude and ("scorecard" in "stats" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 
@@ -604,7 +604,7 @@ task_mm_aqs_pm_run_save_paired:
 
       streq:
         left: run_task
-        right: '{% if "save_paired" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "save_paired" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "save_paired" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "save_paired" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_timeseries:
@@ -629,7 +629,7 @@ task_mm_aqs_pm_run_timeseries:
 
       streq:
         left: run_task
-        right: '{% if "timeseries" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "timeseries" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "timeseries" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "timeseries" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_taylor:
@@ -654,7 +654,7 @@ task_mm_aqs_pm_run_taylor:
 
       streq:
         left: run_task
-        right: '{% if "taylor" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "taylor" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "taylor" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "taylor" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_spatial_bias:
@@ -679,7 +679,7 @@ task_mm_aqs_pm_run_spatial_bias:
 
       streq:
         left: run_task
-        right: '{% if "spatial_bias" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "spatial_bias" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "spatial_bias" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "spatial_bias" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_spatial_overlay:
@@ -704,7 +704,7 @@ task_mm_aqs_pm_run_spatial_overlay:
 
       streq:
         left: run_task
-        right: '{% if "spatial_overlay" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "spatial_overlay" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "spatial_overlay" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "spatial_overlay" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_boxplot:
@@ -729,7 +729,7 @@ task_mm_aqs_pm_run_boxplot:
 
       streq:
         left: run_task
-        right: '{% if "boxplot" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "boxplot" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_multi_boxplot:
@@ -754,7 +754,7 @@ task_mm_aqs_pm_run_multi_boxplot:
 
       streq:
         left: run_task
-        right: '{% if "multi_boxplot" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "multi_boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "multi_boxplot" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "multi_boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_scorecard_rmse:
@@ -779,7 +779,7 @@ task_mm_aqs_pm_run_scorecard_rmse:
 
       streq:
         left: run_task
-        right: '{% if "scorecard_rmse" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "scorecard_rmse" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "scorecard_rmse" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "scorecard_rmse" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_scorecard_ioa:
@@ -804,7 +804,7 @@ task_mm_aqs_pm_run_scorecard_ioa:
 
       streq:
         left: run_task
-        right: '{% if "scorecard_ioa" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "scorecard_ioa" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "scorecard_ioa" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "scorecard_ioa" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_scorecard_nmb:
@@ -829,7 +829,7 @@ task_mm_aqs_pm_run_scorecard_nmb:
 
       streq:
         left: run_task
-        right: '{% if "scorecard_nmb" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "scorecard_nmb" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "scorecard_nmb" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "scorecard_nmb" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_scorecard_nme:
@@ -854,7 +854,7 @@ task_mm_aqs_pm_run_scorecard_nme:
 
       streq:
         left: run_task
-        right: '{% if "scorecard_nme" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "scorecard_nme" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "scorecard_nme" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "scorecard_nme" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_csi:
@@ -879,7 +879,7 @@ task_mm_aqs_pm_run_csi:
 
       streq:
         left: run_task
-        right: '{% if "csi" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "csi" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "csi" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "csi" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_pm_run_stats:
@@ -904,7 +904,7 @@ task_mm_aqs_pm_run_stats:
 
       streq:
         left: run_task
-        right: '{% if "stats" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" not in "stats" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "stats" not in melodies_monet_parm.aqm.packages.aqs_pm.tasks_to_exclude and ("scorecard" in "stats" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 
@@ -952,7 +952,7 @@ task_mm_aqs_voc_run_save_paired:
 
       streq:
         left: run_task
-        right: '{% if "save_paired" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" not in "save_paired" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "save_paired" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" in "save_paired" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_voc_run_timeseries:
@@ -977,7 +977,7 @@ task_mm_aqs_voc_run_timeseries:
 
       streq:
         left: run_task
-        right: '{% if "timeseries" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" not in "timeseries" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "timeseries" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" in "timeseries" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_voc_run_taylor:
@@ -1002,7 +1002,7 @@ task_mm_aqs_voc_run_taylor:
 
       streq:
         left: run_task
-        right: '{% if "taylor" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" not in "taylor" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "taylor" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" in "taylor" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_voc_run_spatial_bias:
@@ -1027,7 +1027,7 @@ task_mm_aqs_voc_run_spatial_bias:
 
       streq:
         left: run_task
-        right: '{% if "spatial_bias" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" not in "spatial_bias" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "spatial_bias" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" in "spatial_bias" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_voc_run_spatial_overlay:
@@ -1052,7 +1052,7 @@ task_mm_aqs_voc_run_spatial_overlay:
 
       streq:
         left: run_task
-        right: '{% if "spatial_overlay" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" not in "spatial_overlay" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "spatial_overlay" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" in "spatial_overlay" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_voc_run_boxplot:
@@ -1077,7 +1077,7 @@ task_mm_aqs_voc_run_boxplot:
 
       streq:
         left: run_task
-        right: '{% if "boxplot" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" not in "boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "boxplot" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" in "boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_voc_run_multi_boxplot:
@@ -1102,7 +1102,7 @@ task_mm_aqs_voc_run_multi_boxplot:
 
       streq:
         left: run_task
-        right: '{% if "multi_boxplot" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" not in "multi_boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "multi_boxplot" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" in "multi_boxplot" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_voc_run_csi:
@@ -1127,7 +1127,7 @@ task_mm_aqs_voc_run_csi:
 
       streq:
         left: run_task
-        right: '{% if "csi" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" not in "csi" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "csi" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" in "csi" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
 task_mm_aqs_voc_run_stats:
@@ -1152,6 +1152,6 @@ task_mm_aqs_voc_run_stats:
 
       streq:
         left: run_task
-        right: '{% if "stats" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" not in "stats" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
+        right: '{% if "stats" not in melodies_monet_parm.aqm.packages.aqs_voc.tasks_to_exclude and ("scorecard" in "stats" and melodies_monet_parm.aqm.base_model_expt_dir is not none) %}run_task{% endif %}'
 
 
