@@ -42,7 +42,7 @@ task_run_fcst:
     execution:
       batchargs:
         walltime: 01:20:00
-        tasks_per_node: 10K
+        tasks_per_node: 10
       threads: 1
   envvars:
     DT_ATMOS: 180
