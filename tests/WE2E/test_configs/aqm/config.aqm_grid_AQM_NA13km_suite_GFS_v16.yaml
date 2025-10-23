@@ -43,6 +43,7 @@ task_run_fcst:
       batchargs:
         walltime: 01:20:00
       threads: 1
+      tasks_per_node: 20
   envvars:
     DT_ATMOS: 180
     RESTART_INTERVAL: 12 24
