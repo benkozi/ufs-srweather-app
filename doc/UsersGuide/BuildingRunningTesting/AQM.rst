@@ -319,7 +319,7 @@ Run the WE2E test:
 AQM Use Cases
 =============
 
-An AQM "use case" is a scientifically interesting air quality event with preconfigured SRW workflow templates. ICs, LBCs, and fixed files are also staged in the `SRW App Data Bucket <https://registry.opendata.aws/noaa-ufs-shortrangeweather/>`__, and can be downloaded using the `AQM-Eval Data Sync utility <https://github.com/NOAA-EPIC/AQM-Eval?tab=readme-ov-file#installation>`__. If data is downloaded using this utility, setting ``cpl_aqm_parm.USE_AQM_S3_DATA_STAGE = true`` and  ``AQM_STAGE_DST_DIR = <stage_directory>`` will populate the root paths for data dependencies.
+An AQM "use case" is a scientifically interesting air quality event with preconfigured SRW workflow templates. ICs, LBCs, and fixed files are also staged in the `SRW App Data Bucket <https://registry.opendata.aws/noaa-ufs-shortrangeweather/>`__, and can be downloaded using the `AQM-Eval Data Sync utility <https://github.com/NOAA-EPIC/AQM-Eval?tab=readme-ov-file#installation>`__. If data is downloaded using this utility, setting ``cpl_aqm_parm.USE_AQM_S3_DATA_STAGE = true`` and  ``AQM_STAGE_DST_DIR = <stage_directory>`` will populate the root paths for data dependencies. #tdk:update docs!
 
 .. list-table:: Supported Use Cases
    :widths: 20 10 20
