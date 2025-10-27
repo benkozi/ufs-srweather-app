@@ -2982,10 +2982,12 @@ task_aqm_lbcs:
 # ------------------------------------
 # SRW-AQM MELODIES-MONET Configuration
 # ------------------------------------
+
 melodies_monet_parm: #tdk: add documentation to this section in AQM.rst
   aqm:
     output_dir: null
-    base_model_expt_dir: null
+    models:
+      -
     packages:
       packages_to_run: [chem, ish, aqs_pm, aqs_voc]
       chem:
