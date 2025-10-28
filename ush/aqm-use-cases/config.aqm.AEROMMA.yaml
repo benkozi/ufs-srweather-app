@@ -62,12 +62,28 @@ global:
 
 melodies_monet_parm:
   aqm:
-    base_model_expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA #tdk: reset
-    observation_templates:
-      chem: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc #tdk:reset but keep this around as an example somwhere
-      ish: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
-      aqs_pm: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
-      aqs_voc: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/vocs/AQS_20230601_20230701.nc
+    models:
+      other1:
+        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA
+        plot_kwargs:
+          color: m
+      other2:
+        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA
+        plot_kwargs:
+          color: k
+      other3:
+        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA
+        plot_kwargs:
+          color: b
+    packages:
+      aqs_pm:
+        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
+      aqs_voc:
+        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/vocs/AQS_20230601_20230701.nc
+      chem:
+        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
+      ish:
+        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
 
 cpl_aqm_parm:
   CPL_AQM: true
