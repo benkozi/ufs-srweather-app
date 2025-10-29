@@ -3040,6 +3040,11 @@ melodies_monet_parm:
           nodes: 1
           tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
           walltime: 01:00:00
+      stats_execution:
+        batchargs:
+          nodes: 1
+          tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
+          walltime: 01:00:00
 
 #------------------------------
 # Smoke/Dust config parameters
