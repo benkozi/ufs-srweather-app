@@ -25,10 +25,10 @@ workflow:
   COLDSTART: false      # set to true for cold start
   WARMSTART_CYCLE_DIR: "20230531"
   taskgroups:
-    - parm/wflow/prep.yaml
-    - parm/wflow/aqm_prep.yaml
-    - parm/wflow/coldstart.yaml
-    - parm/wflow/post.yaml
+#    - parm/wflow/prep.yaml
+#    - parm/wflow/aqm_prep.yaml
+#    - parm/wflow/coldstart.yaml
+#    - parm/wflow/post.yaml
     - parm/wflow/aqm_post_melodies_monet.yaml # Uncomment to enable MELODIES MONET evaluation tasks. #tdk:comm
 nco:
   envir_default: aqm_AQMNA13km_AEROMMA
@@ -62,17 +62,18 @@ global:
 
 melodies_monet_parm:
   aqm:
+    no_forecast: true
     models:
       other1:
-        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA
+        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA_success_20251029-0917
         plot_kwargs:
           color: m
       other2:
-        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA
+        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA_success_20251029-0917
         plot_kwargs:
           color: k
       other3:
-        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA
+        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA_success_20251029-0917
         plot_kwargs:
           color: b
     packages:

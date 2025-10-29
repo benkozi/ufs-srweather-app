@@ -2985,6 +2985,7 @@ task_aqm_lbcs:
 
 melodies_monet_parm:
   aqm:
+    no_forecast: false
     output_dir: null
     models:
       eval:
