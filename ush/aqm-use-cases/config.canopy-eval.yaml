@@ -80,7 +80,6 @@ melodies_monet_parm:
         execution:
           batchargs:
             nodes: 1
-            tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
             walltime: 03:00:00
       aqs_voc:
         observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/AQS/vocs/AQS_20230801_20230901.nc
@@ -92,12 +91,10 @@ melodies_monet_parm:
       execution:
         batchargs:
           nodes: 1
-          tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
           walltime: 01:30:00
       stats_execution:
         batchargs:
           nodes: 1
-          tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
           walltime: 07:00:00
 
 cpl_aqm_parm:
