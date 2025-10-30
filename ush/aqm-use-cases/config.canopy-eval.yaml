@@ -3,7 +3,7 @@ metadata:
 user:
   RUN_ENVIR: community
   MACHINE: GAEAC6 #tdk: set to a_machine
-  ACCOUNT: bil-fire3 #tdk: set to an_account
+  ACCOUNT: bil-fire8 #tdk: set to an_account
 workflow:
   USE_CRON_TO_RELAUNCH: true
   CRON_RELAUNCH_INTVL_MNTS: 3
