@@ -32,22 +32,22 @@ task_mm_chem_prep:
   nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.batchargs.tasks_per_node }}'
   walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.batchargs.walltime }}'
   dependency:
-    and:
-      or:
-        not:
-          taskvalid:
-            attrs:
-              task: run_fcst_mem000
-        and:
-          taskvalid:
-            attrs:
-              task: run_fcst_mem000
-          taskdep:
-            attrs:
-              task: run_fcst_mem000
-      streq:
-        left: run_package
-        right: '{% if melodies_monet_parm.aqm.packages.chem.active %}run_package{% endif %}'
+
+
+
+
+
+
+
+
+
+
+
+
+
+    streq:
+      left: run_package
+      right: '{% if melodies_monet_parm.aqm.packages.chem.active %}run_package{% endif %}'
 
 
 task_mm_chem_run_save_paired:
@@ -470,22 +470,22 @@ task_mm_ish_prep:
   nodes: '{{ melodies_monet_parm.aqm.packages.ish.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.ish.execution.batchargs.tasks_per_node }}'
   walltime: '{{ melodies_monet_parm.aqm.packages.ish.execution.batchargs.walltime }}'
   dependency:
-    and:
-      or:
-        not:
-          taskvalid:
-            attrs:
-              task: run_fcst_mem000
-        and:
-          taskvalid:
-            attrs:
-              task: run_fcst_mem000
-          taskdep:
-            attrs:
-              task: run_fcst_mem000
-      streq:
-        left: run_package
-        right: '{% if melodies_monet_parm.aqm.packages.ish.active %}run_package{% endif %}'
+
+
+
+
+
+
+
+
+
+
+
+
+
+    streq:
+      left: run_package
+      right: '{% if melodies_monet_parm.aqm.packages.ish.active %}run_package{% endif %}'
 
 
 task_mm_ish_run_save_paired:
@@ -712,22 +712,22 @@ task_mm_aqs_pm_prep:
   nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.batchargs.tasks_per_node }}'
   walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.batchargs.walltime }}'
   dependency:
-    and:
-      or:
-        not:
-          taskvalid:
-            attrs:
-              task: run_fcst_mem000
-        and:
-          taskvalid:
-            attrs:
-              task: run_fcst_mem000
-          taskdep:
-            attrs:
-              task: run_fcst_mem000
-      streq:
-        left: run_package
-        right: '{% if melodies_monet_parm.aqm.packages.aqs_pm.active %}run_package{% endif %}'
+
+
+
+
+
+
+
+
+
+
+
+
+
+    streq:
+      left: run_package
+      right: '{% if melodies_monet_parm.aqm.packages.aqs_pm.active %}run_package{% endif %}'
 
 
 task_mm_aqs_pm_run_save_paired:
@@ -1150,22 +1150,22 @@ task_mm_aqs_voc_prep:
   nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.batchargs.tasks_per_node }}'
   walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.batchargs.walltime }}'
   dependency:
-    and:
-      or:
-        not:
-          taskvalid:
-            attrs:
-              task: run_fcst_mem000
-        and:
-          taskvalid:
-            attrs:
-              task: run_fcst_mem000
-          taskdep:
-            attrs:
-              task: run_fcst_mem000
-      streq:
-        left: run_package
-        right: '{% if melodies_monet_parm.aqm.packages.aqs_voc.active %}run_package{% endif %}'
+
+
+
+
+
+
+
+
+
+
+
+
+
+    streq:
+      left: run_package
+      right: '{% if melodies_monet_parm.aqm.packages.aqs_voc.active %}run_package{% endif %}'
 
 
 task_mm_aqs_voc_run_save_paired:
