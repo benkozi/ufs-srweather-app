@@ -6,7 +6,7 @@
 default_aqm_task: &default_aqm
   account: '&ACCOUNT;'
   attrs:
-    cycledefs: at_end
+    cycledefs: at_start
     maxtries: '1'
   envars: &default_vars
     GLOBAL_VAR_DEFNS_FP: '&GLOBAL_VAR_DEFNS_FP;'
