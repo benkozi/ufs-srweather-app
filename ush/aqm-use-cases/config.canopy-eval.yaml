@@ -3,7 +3,7 @@ metadata:
 user:
   RUN_ENVIR: community
   MACHINE: GAEAC6 #tdk: set to a_machine
-  ACCOUNT: bil-fire8 #tdk: set to an_account
+  ACCOUNT: bil-fire3 #tdk: set to an_account
 workflow:
   USE_CRON_TO_RELAUNCH: true
   CRON_RELAUNCH_INTVL_MNTS: 3
@@ -11,7 +11,7 @@ workflow:
   PREDEF_GRID_NAME: AQM_NA_13km
   CCPP_PHYS_SUITE: FV3_GFS_v16
   DATE_FIRST_CYCL: '2023080112'
-  DATE_LAST_CYCL:  '2023090112'
+  DATE_LAST_CYCL:  '2023080212'
 #  DATE_LAST_CYCL:  '2023083112'  # Last cycle date for AEROMMA with all data staged
   INCR_CYCL_FREQ: 24
   FCST_LEN_HRS: 24
