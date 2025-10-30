@@ -3003,44 +3003,47 @@ melodies_monet_parm:
         active: true
         tasks_to_exclude: [ ]
         execution:
-          batchargs:
-            nodes: 1
-            tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
-            walltime: 00:30:00
+          prep:
+            batchargs:
+              nodes: 1
+              tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
+              walltime: 00:30:00
+          tasks: {}
       aqs_voc:
         observation_template: null
         active: true
         tasks_to_exclude: [ ]
         execution:
-          batchargs:
-            nodes: 1
-            tasks_per_node: 1
-            walltime: 00:05:00
+          prep:
+            batchargs:
+              nodes: 1
+              tasks_per_node: 1
+              walltime: 00:05:00
+          tasks: {}
       chem:
         observation_template: null
         active: true
         tasks_to_exclude: [ ]
         execution:
-          batchargs:
-            nodes: 1
-            tasks_per_node: 1
-            walltime: 00:05:00
+          prep:
+            batchargs:
+              nodes: 1
+              tasks_per_node: 1
+              walltime: 00:05:00
+          tasks: {}
       ish:
         observation_template: null
         tasks_to_exclude: [ ]
         active: true
         execution:
-          batchargs:
-            nodes: 1
-            tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
-            walltime: 00:15:00
-    tasks:
+          prep:
+            batchargs:
+              nodes: 1
+              tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
+              walltime: 00:15:00
+          tasks: {}
+    task_defaults:
       execution:
-        batchargs:
-          nodes: 1
-          tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
-          walltime: 01:00:00
-      stats_execution:
         batchargs:
           nodes: 1
           tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'

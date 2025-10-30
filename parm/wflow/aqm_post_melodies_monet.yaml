@@ -27,10 +27,10 @@ task_mm_chem_prep:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.batchargs.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.prep.batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.prep.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: chem
-  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.batchargs.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.prep.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.prep.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.prep.batchargs.walltime }}'
   dependency:
     and:
       or:
@@ -58,15 +58,11 @@ task_mm_chem_run_save_paired:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'save_paired'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -88,15 +84,11 @@ task_mm_chem_run_timeseries:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'timeseries'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -118,15 +110,11 @@ task_mm_chem_run_taylor:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'taylor'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -148,15 +136,11 @@ task_mm_chem_run_spatial_bias:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'spatial_bias'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -178,15 +162,11 @@ task_mm_chem_run_spatial_overlay:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'spatial_overlay'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -208,15 +188,11 @@ task_mm_chem_run_boxplot:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'boxplot'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -238,15 +214,11 @@ task_mm_chem_run_multi_boxplot:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'multi_boxplot'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -268,15 +240,11 @@ task_mm_chem_run_scorecard_rmse:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_rmse', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_rmse', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'scorecard_rmse'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_rmse', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_rmse', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_rmse', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -302,15 +270,11 @@ task_mm_chem_run_scorecard_ioa:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_ioa', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_ioa', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'scorecard_ioa'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_ioa', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_ioa', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_ioa', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -336,15 +300,11 @@ task_mm_chem_run_scorecard_nmb:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_nmb', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_nmb', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'scorecard_nmb'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_nmb', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_nmb', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_nmb', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -370,15 +330,11 @@ task_mm_chem_run_scorecard_nme:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_nme', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_nme', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'scorecard_nme'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_nme', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_nme', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('scorecard_nme', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -404,15 +360,11 @@ task_mm_chem_run_csi:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'csi'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -434,15 +386,11 @@ task_mm_chem_run_stats:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.stats_execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.chem.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'chem'
     MM_EVAL_TASK: 'stats'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.chem.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -465,10 +413,10 @@ task_mm_ish_prep:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ melodies_monet_parm.aqm.packages.ish.execution.batchargs.nodes * melodies_monet_parm.aqm.packages.ish.execution.batchargs.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.packages.ish.execution.prep.batchargs.nodes * melodies_monet_parm.aqm.packages.ish.execution.prep.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: ish
-  nodes: '{{ melodies_monet_parm.aqm.packages.ish.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.ish.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.packages.ish.execution.batchargs.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.packages.ish.execution.prep.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.ish.execution.prep.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.ish.execution.prep.batchargs.walltime }}'
   dependency:
     and:
       or:
@@ -496,15 +444,11 @@ task_mm_ish_run_save_paired:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.ish.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'ish'
     MM_EVAL_TASK: 'save_paired'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -526,15 +470,11 @@ task_mm_ish_run_timeseries:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.ish.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'ish'
     MM_EVAL_TASK: 'timeseries'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -556,15 +496,11 @@ task_mm_ish_run_taylor:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.ish.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'ish'
     MM_EVAL_TASK: 'taylor'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -586,15 +522,11 @@ task_mm_ish_run_spatial_bias:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.ish.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'ish'
     MM_EVAL_TASK: 'spatial_bias'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -616,15 +548,11 @@ task_mm_ish_run_spatial_overlay:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.ish.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'ish'
     MM_EVAL_TASK: 'spatial_overlay'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -646,15 +574,11 @@ task_mm_ish_run_boxplot:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.ish.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'ish'
     MM_EVAL_TASK: 'boxplot'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -676,15 +600,11 @@ task_mm_ish_run_stats:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.stats_execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.ish.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'ish'
     MM_EVAL_TASK: 'stats'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.ish.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -707,10 +627,10 @@ task_mm_aqs_pm_prep:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.batchargs.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.prep.batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.prep.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: aqs_pm
-  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.batchargs.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.prep.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.prep.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.prep.batchargs.walltime }}'
   dependency:
     and:
       or:
@@ -738,15 +658,11 @@ task_mm_aqs_pm_run_save_paired:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'save_paired'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -768,15 +684,11 @@ task_mm_aqs_pm_run_timeseries:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'timeseries'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -798,15 +710,11 @@ task_mm_aqs_pm_run_taylor:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'taylor'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -828,15 +736,11 @@ task_mm_aqs_pm_run_spatial_bias:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'spatial_bias'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -858,15 +762,11 @@ task_mm_aqs_pm_run_spatial_overlay:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'spatial_overlay'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -888,15 +788,11 @@ task_mm_aqs_pm_run_boxplot:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'boxplot'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -918,15 +814,11 @@ task_mm_aqs_pm_run_multi_boxplot:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'multi_boxplot'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -948,15 +840,11 @@ task_mm_aqs_pm_run_scorecard_rmse:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_rmse', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_rmse', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'scorecard_rmse'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_rmse', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_rmse', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_rmse', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -982,15 +870,11 @@ task_mm_aqs_pm_run_scorecard_ioa:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_ioa', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_ioa', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'scorecard_ioa'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_ioa', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_ioa', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_ioa', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1016,15 +900,11 @@ task_mm_aqs_pm_run_scorecard_nmb:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_nmb', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_nmb', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'scorecard_nmb'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_nmb', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_nmb', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_nmb', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1050,15 +930,11 @@ task_mm_aqs_pm_run_scorecard_nme:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_nme', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_nme', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'scorecard_nme'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_nme', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_nme', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('scorecard_nme', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1084,15 +960,11 @@ task_mm_aqs_pm_run_csi:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'csi'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1114,15 +986,11 @@ task_mm_aqs_pm_run_stats:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.stats_execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_pm'
     MM_EVAL_TASK: 'stats'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_pm.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1145,10 +1013,10 @@ task_mm_aqs_voc_prep:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_voc.execution.batchargs.tasks_per_node }}'
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.prep.batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_voc.execution.prep.batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: aqs_voc
-  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.batchargs.walltime }}'
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.prep.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.prep.batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.prep.batchargs.walltime }}'
   dependency:
     and:
       or:
@@ -1176,15 +1044,11 @@ task_mm_aqs_voc_run_save_paired:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_voc'
     MM_EVAL_TASK: 'save_paired'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('save_paired', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1206,15 +1070,11 @@ task_mm_aqs_voc_run_timeseries:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_voc'
     MM_EVAL_TASK: 'timeseries'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('timeseries', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1236,15 +1096,11 @@ task_mm_aqs_voc_run_taylor:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_voc'
     MM_EVAL_TASK: 'taylor'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('taylor', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1266,15 +1122,11 @@ task_mm_aqs_voc_run_spatial_bias:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_voc'
     MM_EVAL_TASK: 'spatial_bias'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('spatial_bias', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1296,15 +1148,11 @@ task_mm_aqs_voc_run_spatial_overlay:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_voc'
     MM_EVAL_TASK: 'spatial_overlay'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('spatial_overlay', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1326,15 +1174,11 @@ task_mm_aqs_voc_run_boxplot:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_voc'
     MM_EVAL_TASK: 'boxplot'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1356,15 +1200,11 @@ task_mm_aqs_voc_run_multi_boxplot:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_voc'
     MM_EVAL_TASK: 'multi_boxplot'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('multi_boxplot', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1386,15 +1226,11 @@ task_mm_aqs_voc_run_csi:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_voc'
     MM_EVAL_TASK: 'csi'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('csi', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
@@ -1416,15 +1252,11 @@ task_mm_aqs_voc_run_stats:
       value: '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
   envars:
     <<: *default_vars
-
-    nprocs: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.nodes * melodies_monet_parm.aqm.tasks.stats_execution.batchargs.tasks_per_node }}'
-
+    nprocs: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes * melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
     MM_EVAL_PACKAGE: 'aqs_voc'
     MM_EVAL_TASK: 'stats'
-
-  nodes: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.tasks_per_node }}'
-  walltime: '{{ melodies_monet_parm.aqm.tasks.stats_execution.batchargs.walltime }}'
-
+  nodes: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.nodes }}:ppn={{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.tasks_per_node }}'
+  walltime: '{{ melodies_monet_parm.aqm.packages.aqs_voc.execution.tasks.get('stats', melodies_monet_parm.aqm.task_defaults.execution).batchargs.walltime }}'
   dependency:
     and:
       taskdep:
