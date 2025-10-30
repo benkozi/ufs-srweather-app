@@ -88,6 +88,9 @@ melodies_monet_parm:
         observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/AirNow/AirNow_20230801_20230901.nc
       ish:
         observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/ISH/ISH-Lite_US_20230801_20230901.nc
+        execution:
+          batchargs:
+            walltime: 01:30:00
     tasks:
       execution:
         batchargs:
