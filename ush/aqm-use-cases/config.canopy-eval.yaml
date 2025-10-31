@@ -90,6 +90,8 @@ melodies_monet_parm:
           tasks:
             spatial_overlay:
               batchargs:
+                nodes: 1
+                tasks_per_node: 192
                 walltime: 03:00:00
       ish:
         observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/ISH/ISH-Lite_US_20230801_20230901.nc
