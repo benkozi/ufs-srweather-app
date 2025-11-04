@@ -240,7 +240,7 @@ if [ "${BUILD_CONDA}" = "on" ] ; then
     mamba env create -n srw_graphics --file graphics_environment.yml
   fi
   if ! conda env list | grep -q "^srw_sd\s" ; then
-    mamba env create -n srw_sd --file sd_environment.yml
+    mamba env create -n srw_sd --file environment_sd.yml
   fi
 
 else
