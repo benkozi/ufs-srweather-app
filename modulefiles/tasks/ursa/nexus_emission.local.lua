@@ -1,4 +1,4 @@
-require(tasks_srw_common)
+require("tasks_srw_common")
 
 load_python_srw_aqm()
 
