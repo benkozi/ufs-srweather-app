@@ -171,7 +171,7 @@ modules_dir="$default_modules_dir/tasks/$machine"
 modulefile_name="${task_name}"
 #
 # Update the lua search path to find shared functions
-export LUA_PATH="${default_modules_dir}/tasks/?.lua;;"
+export LUA_PATH="${default_modules_dir}/tasks;;"
 #
 #-----------------------------------------------------------------------
 #
