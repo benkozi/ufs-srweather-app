@@ -11,7 +11,7 @@ The UFS includes `multiple applications <https://ufs.epic.noaa.gov/applications/
 Since the last release, developers have added a variety of features:
 
    * Smoke & Dust (SD) features, including:
-      * A sample SD configuration YAML file (``config.smoke_dust.yaml``), a separate Conda environment (``environment_sd.yml``), the supported ``FV3_HRRR_gf`` physics suite for SD experiments, and a new WE2E test for SD features (:srw-repo:`PR #1185 <pull/1185>`)
+      * A sample SD configuration YAML file (``config.smoke_dust.yaml``), a separate Conda environment (``sd_environment.yml``), the supported ``FV3_HRRR_gf`` physics suite for SD experiments, and a new WE2E test for SD features (:srw-repo:`PR #1185 <pull/1185>`)
       * Predefined grid support for SD experiments (:srw-repo:`PR #1190 <pull/1190>`)
       * SD Verification (:srw-repo:`PR #1174 <pull/1174>`)
       * SD-specific bug fixes (:srw-repo:`PR #1146 <pull/1146>`)
