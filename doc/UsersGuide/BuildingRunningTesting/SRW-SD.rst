@@ -196,7 +196,7 @@ The Python utilities listed in :numref:`Table %s <sd-scripts>` are used to perfo
 
 ----
 
-Unit tests can be found in ``tests/test_python/test_smoke_dust``. The SRW-SD Python utilities run under their own Anaconda environment similar to the ``srw_app`` environment: ``environment_sd.yml``.
+Unit tests can be found in ``tests/test_python/test_smoke_dust``. The SRW-SD Python utilities run under their own Anaconda environment similar to the ``srw_app`` environment: ``sd_environment.yml``.
 
 Generate and Run the Workflow
 -----------------------------

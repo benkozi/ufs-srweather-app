@@ -195,11 +195,10 @@ The ``ufs-srweather-app`` :term:`umbrella repository` is an NCO-compliant reposi
    ├── versions
    ├── CMakeLists.txt
    ├── Externals.cfg
-   ├── aqm_environment.yml
    ├── devbuild.sh
    ├── environment.yml
    ├── graphics_environment.yml
-   └── environment_sd.yml
+   └── sd_environment.yml
 
 
 SRW App Subdirectories
