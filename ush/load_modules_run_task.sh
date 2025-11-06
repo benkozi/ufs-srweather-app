@@ -169,7 +169,8 @@ fi
 #
 modules_dir="$default_modules_dir/tasks/$machine"
 modulefile_name="${task_name}"
-module load "$default_modules_dir/tasks/tasks_srw_common"
+module use "$default_modules_dir/tasks/common"
+module load tasks_srw_common
 #
 #-----------------------------------------------------------------------
 #
