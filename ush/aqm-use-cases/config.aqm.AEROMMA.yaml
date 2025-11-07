@@ -25,10 +25,10 @@ workflow:
   COLDSTART: false      # set to true for cold start
   WARMSTART_CYCLE_DIR: "20230531"
   taskgroups:
-    - parm/wflow/prep.yaml
-    - parm/wflow/aqm_prep.yaml
-    - parm/wflow/coldstart.yaml
-    - parm/wflow/post.yaml
+#    - parm/wflow/prep.yaml
+#    - parm/wflow/aqm_prep.yaml
+#    - parm/wflow/coldstart.yaml
+#    - parm/wflow/post.yaml
     - parm/wflow/aqm_post_melodies_monet.yaml # Uncomment to enable MELODIES MONET evaluation tasks. #tdk:comm
 nco:
   envir_default: aqm_AQMNA13km_AEROMMA
@@ -62,12 +62,29 @@ global:
 
 melodies_monet_parm:
   aqm:
-    base_model_expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA #tdk: reset
-    observation_templates:
-      chem: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc #tdk:reset but keep this around as an example somwhere
-      ish: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
-      aqs_pm: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
-      aqs_voc: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/vocs/AQS_20230601_20230701.nc
+    no_forecast: true
+    models:
+      other1:
+        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA_success_20251029-0917
+        plot_kwargs:
+          color: m
+      other2:
+        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA_success_20251029-0917
+        plot_kwargs:
+          color: k
+      other3:
+        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA_success_20251029-0917
+        plot_kwargs:
+          color: b
+    packages:
+      aqs_pm:
+        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
+      aqs_voc:
+        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/vocs/AQS_20230601_20230701.nc
+      chem:
+        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
+      ish:
+        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
 
 cpl_aqm_parm:
   CPL_AQM: true
