@@ -1,2 +1,1 @@
-load("conda")
-setenv("SRW_ENV", "srw_sd")
+load("python_srw_sd")
