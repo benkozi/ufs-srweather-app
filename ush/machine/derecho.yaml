@@ -40,6 +40,11 @@ platform:
   FIXupp: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/fix/fix_upp
   FIXcrtm: /glade/work/epicufsrt/contrib/UFS_SRW_data/develop/fix/fix_crtm
   EXTRN_MDL_DATA_STORES: aws
+rocoto:
+  tasks:
+    metatask_run_ensemble:
+      task_run_fcst_mem#mem#:
+        native: '-l place=excl {{ platform.SCHED_NATIVE_CMD }}'
 data:
   ics_lbcs:
     FV3GFS: 
