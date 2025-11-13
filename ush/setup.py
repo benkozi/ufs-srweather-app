@@ -11,6 +11,7 @@ import datetime
 import logging
 import os
 import re
+import subprocess
 import sys
 from io import StringIO
 from pathlib import Path
@@ -147,7 +148,6 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
         expt_basedir = homedir.parent / "expt_dirs" / expt_basedir
     default_config["workflow"]["EXPT_BASEDIR"] = str(Path(expt_basedir).resolve())
 
-    import pdb;pdb.set_trace()
     _update_config_for_coupled_aqm_(default_config, homedir)
 
     # Dereference all Jinja expressions
@@ -171,6 +171,22 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
 
 
 def _update_config_for_coupled_aqm_(default_config: YAMLConfig, homedir: Path) -> None:
+
+    import json, base64
+
+    def json_to_cli_arg(data: dict) -> str:
+        json_bytes = json.dumps(data).encode("utf-8")
+        return base64.urlsafe_b64encode(json_bytes).decode("ascii")
+
+    eval_data = {"workflow": {"EXPT_BASEDIR": default_config["workflow"]["EXPT_BASEDIR"],
+                              "EXPT_SUBDIR": default_config["workflow"]["EXPT_SUBDIR"],
+                              "DATE_LAST_CYCL_MM": default_config["workflow"]["DATE_LAST_CYCL_MM"],
+                              "DATE_FIRST_CYCL": default_config["workflow"]["DATE_FIRST_CYCL"],},
+                 "platform": {"FIXshp": default_config["platform"]["FIXshp"]}}
+    cli_arg = json_to_cli_arg(eval_data)
+    output = subprocess.check_output(["conda", "run", "-n", "aqm-mm-eval", "--srw-data", cli_arg])
+    import pdb;pdb.set_trace()
+
     cpl_aqm_parm = default_config["cpl_aqm_parm"]
     if cpl_aqm_parm["CPL_AQM"] is True:
         logging.debug("Updating configuration for coupled AQM")
