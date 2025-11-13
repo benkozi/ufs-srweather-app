@@ -147,6 +147,7 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
         expt_basedir = homedir.parent / "expt_dirs" / expt_basedir
     default_config["workflow"]["EXPT_BASEDIR"] = str(Path(expt_basedir).resolve())
 
+    import pdb;pdb.set_trace()
     _update_config_for_coupled_aqm_(default_config, homedir)
 
     # Dereference all Jinja expressions
