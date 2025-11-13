@@ -195,7 +195,7 @@ def _update_config_for_coupled_aqm_(default_config: YAMLConfig, homedir: Path) -
     output = subprocess.check_output(["conda", "run", "-n", "aqm-eval", "aqm-mm-eval", "srw-task-group", "--srw-data", cli_arg]).decode("utf-8")
     mm_tasks = cli_arg_to_json(output)
     # default_config["workflow"].setdefault("tasks", {})
-    default_config["rocoto"]["tasks"]["task_mm_chem_prep"] = mm_tasks["task_mm_chem_prep"]
+    default_config["rocoto"]["tasks"].update(mm_tasks)
     # import pdb;pdb.set_trace()
 
     cpl_aqm_parm = default_config["cpl_aqm_parm"]
