@@ -23,6 +23,9 @@ workflow:
   DEBUG: false
   taskgroups:
     - parm/wflow/prep.yaml
+    - parm/wflow/aqm_prep.yaml
+    - parm/wflow/coldstart.yaml
+    - parm/wflow/post.yaml
 #    - parm/wflow/aqm_post_melodies_monet.yaml
 
 melodies_monet_parm:
