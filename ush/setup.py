@@ -184,7 +184,7 @@ def _update_config_for_coupled_aqm_(default_config: YAMLConfig, homedir: Path) -
                               "DATE_FIRST_CYCL": default_config["workflow"]["DATE_FIRST_CYCL"],},
                  "platform": {"FIXshp": default_config["platform"]["FIXshp"]}}
     cli_arg = json_to_cli_arg(eval_data)
-    output = subprocess.check_output(["conda", "run", "-n", "aqm-eval", "aqm-mm-eval", "--srw-data", cli_arg])
+    output = subprocess.check_output(["conda", "run", "-n", "aqm-eval", "aqm-mm-eval", "srw-task-group", "--srw-data", cli_arg])
     import pdb;pdb.set_trace()
 
     cpl_aqm_parm = default_config["cpl_aqm_parm"]
