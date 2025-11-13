@@ -21,8 +21,8 @@ workflow:
   PREEXISTING_DIR_METHOD: rename
   VERBOSE: true
   DEBUG: false
-#  taskgroups:
-#    - parm/wflow/aqm_post_melodies_monet.yaml
+  taskgroups:
+    - parm/wflow/aqm_post_melodies_monet.yaml
 
 melodies_monet_parm:
   aqm:

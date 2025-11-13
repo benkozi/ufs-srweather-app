@@ -1,0 +1,2 @@
+default_mm_task:
+  account: '&ACCOUNT;'
