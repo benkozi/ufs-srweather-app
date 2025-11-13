@@ -178,6 +178,8 @@ def _update_config_for_coupled_aqm_(default_config: YAMLConfig, homedir: Path) -
         json_bytes = json.dumps(data).encode("utf-8")
         return base64.urlsafe_b64encode(json_bytes).decode("ascii")
 
+    import pdb;pdb.set_trace()
+
     eval_data = {"workflow": {"EXPT_BASEDIR": default_config["workflow"]["EXPT_BASEDIR"],
                               "EXPT_SUBDIR": default_config["workflow"]["EXPT_SUBDIR"],
                               "DATE_LAST_CYCL_MM": default_config["workflow"]["DATE_LAST_CYCL_MM"],
