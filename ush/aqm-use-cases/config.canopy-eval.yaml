@@ -29,6 +29,7 @@ workflow:
     - parm/wflow/aqm_post_melodies_monet.yaml
 
 melodies_monet_parm:
+  active: true
   aqm:
     no_forecast: true
     models:
