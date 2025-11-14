@@ -62,6 +62,7 @@ global:
   HALO_BLEND: 0
 
 melodies_monet_parm:
+  active: true
   aqm:
     no_forecast: false
 #    models:

@@ -1,2 +1,2 @@
-melodies_monet_parm:
-  active: true
+default_mm_task:
+  account: '&ACCOUNT;'
