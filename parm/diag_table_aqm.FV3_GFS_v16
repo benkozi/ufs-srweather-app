@@ -304,7 +304,7 @@
 ###
 # chemical tracers advected by FV3
 ###
-{% MACHINE != "DERECHO" %}
+{% machine != "DERECHO" %}
 "gfs_dyn",         "no2",           "no2",           "fv3_history",  "all",  .false.,  "none",  2
 "gfs_dyn",         "no",            "no",            "fv3_history",  "all",  .false.,  "none",  2
 "gfs_dyn",         "o3",            "o3",            "fv3_history",  "all",  .false.,  "none",  2
