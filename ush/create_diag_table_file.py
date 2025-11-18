@@ -59,7 +59,7 @@ def create_diag_table_file(run_dir):
         verbose=VERBOSE,
     )
 
-    settings = {"starttime": CDATE, "cres": CRES, "additional_entries": ""}
+    settings = {"starttime": CDATE, "cres": CRES, "additional_entries": "", "machine": MACHINE}
     if UFS_FIRE:
         settings["additional_entries"] = \
                 '"gfs_phys","fsmoke","fsmoke","fv3_history","all",.false.,"none",2'
@@ -96,7 +96,6 @@ def create_diag_table_file(run_dir):
         verbose=VERBOSE,
     )
 
-    import pdb;pdb.set_trace() #tdk:rm
     render(
         input_file = DIAG_TABLE_TMPL_FP,
         output_file = diag_table_fp,
