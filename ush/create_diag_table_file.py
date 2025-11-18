@@ -96,6 +96,7 @@ def create_diag_table_file(run_dir):
         verbose=VERBOSE,
     )
 
+    import pdb;pdb.set_trace() #tdk:rm
     render(
         input_file = DIAG_TABLE_TMPL_FP,
         output_file = diag_table_fp,
