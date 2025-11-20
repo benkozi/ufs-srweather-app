@@ -80,6 +80,10 @@ Load the python environment for the workflow:
 
 where ``<machine>`` is ``ursa``, ``hercules``, ``orion``, ``derecho``, or ``gaeac6``. The workflow should load on other platforms listed under the ``MACHINE`` variable in :numref:`Section %s <user>`, but users may need to adjust other elements of the process when running on those platforms.
 
+.. note::
+
+   A limited number of diagnostic fields are output on ``derecho`` due to runtime CMAQ issues.
+
 If the console outputs a message, the user should run the commands specified in the message. For example, if the output says: 
 
 .. code-block:: console
