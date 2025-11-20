@@ -3018,70 +3018,7 @@ task_aqm_lbcs:
 # ------------------------------------
 
 melodies_monet_parm:
-  aqm:
-    no_forecast: false
-    output_dir: null
-    models:
-      eval:
-        expt_dir: null
-        title: "Evaluation Target"
-        plot_kwargs:
-          color: g
-          marker: ^
-          linestyle: '-'
-          markersize: 4
-        is_host: True
-    packages:
-      aqs_pm:
-        observation_template: null
-        active: true
-        tasks_to_exclude: [ ]
-        execution:
-          prep:
-            batchargs:
-              nodes: 1
-              tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
-              walltime: 00:30:00
-          tasks: {}
-      aqs_voc:
-        observation_template: null
-        active: true
-        tasks_to_exclude: [ ]
-        execution:
-          prep:
-            batchargs:
-              nodes: 1
-              tasks_per_node: 1
-              walltime: 00:05:00
-          tasks: {}
-      chem:
-        observation_template: null
-        active: true
-        tasks_to_exclude: [ ]
-        execution:
-          prep:
-            batchargs:
-              nodes: 1
-              tasks_per_node: 1
-              walltime: 00:05:00
-          tasks: {}
-      ish:
-        observation_template: null
-        tasks_to_exclude: [ ]
-        active: true
-        execution:
-          prep:
-            batchargs:
-              nodes: 1
-              tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
-              walltime: 00:15:00
-          tasks: {}
-    task_defaults:
-      execution:
-        batchargs:
-          nodes: 1
-          tasks_per_node: !int '{{ platform.NCORES_PER_NODE }}'
-          walltime: 01:00:00
+  active: false
 
 #------------------------------
 # Smoke/Dust config parameters
