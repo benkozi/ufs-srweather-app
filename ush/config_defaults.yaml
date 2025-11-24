@@ -3018,7 +3018,8 @@ task_aqm_lbcs:
 # ------------------------------------
 
 melodies_monet_parm:
-  active: false
+  aqm:
+    active: false
 
 #------------------------------
 # Smoke/Dust config parameters

@@ -63,16 +63,17 @@ global:
 
 ## With forecast; single model; no scorecards ======================================================================================
 melodies_monet_parm:
-  no_forecast: false
-  enable_scorecards: false
-  active: true
-  models:
-    eval:
-      expt_dir: null
-      title: "Evaluation Target"
-      plot_kwargs:
-        color: g
-      is_host: true
+  aqm:
+    no_forecast: false
+    enable_scorecards: false
+    active: true
+    models:
+      eval:
+        expt_dir: null
+        title: "Evaluation Target"
+        plot_kwargs:
+          color: g
+        is_host: true
 #    models:
 #      other1:
 #        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA_success_20251029-0917
