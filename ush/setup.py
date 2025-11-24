@@ -173,8 +173,8 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
 
 
 def _update_config_for_melodies_monet_(default_config: YAMLConfig) -> None:
-    if default_config["melodies_monet_parm"]["active"] is False:
-        logging.debug("MELODIES MONET post-processing not enabled. Skipping...")
+    if default_config["melodies_monet_parm"]["aqm"]["active"] is False:
+        logging.debug("MELODIES MONET post-processing for AQM not enabled. Skipping...")
         return
 
     def json_to_cli_arg(data: dict) -> str:
