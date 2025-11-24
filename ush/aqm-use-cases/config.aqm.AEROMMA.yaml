@@ -127,7 +127,7 @@ melodies_monet_parm:
       other1:
         expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs4/expt_dirs/aqm_AQMNA13km_AEROMMA_forecast-singlemodel
         plot_kwargs:
-          color: g
+          color: b
         role: control
       other2:
         expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs4/expt_dirs/aqm_AQMNA13km_AEROMMA_forecast-withscorecards
