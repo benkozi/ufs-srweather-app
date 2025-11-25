@@ -32,13 +32,14 @@ melodies_monet_parm:
     active: true
     no_forecast: true
     enable_scorecards: true
+    run_mode: resume
     models:
       aqmv8_candev_off_xkz.1: # Base A
         expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_off_xkz.1
         plot_kwargs:
           color: forestgreen
         role: control
-      #tdk: need to make sure prefixes don't lead to multiple file selections
+      #tdk: need to make sure prefixes don't lead to multiple model selections
       aqmv8_candev_off_base: # Base B
         expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_off
         plot_kwargs:
@@ -58,7 +59,7 @@ melodies_monet_parm:
         execution:
           prep:
             batchargs:
-              walltime: 04:00:00
+              walltime: 06:00:00
       aqs_voc:
         observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/AQS/vocs/AQS_20230801_20230901.nc
       chem:
@@ -67,6 +68,7 @@ melodies_monet_parm:
           tasks:
             spatial_overlay:
               batchargs:
+                nodes: 2
                 walltime: 06:00:00
       ish:
         observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/ISH/ISH-Lite_US_20230801_20230901.nc
