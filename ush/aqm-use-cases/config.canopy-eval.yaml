@@ -72,7 +72,7 @@ melodies_monet_parm:
         execution:
           prep:
             batchargs:
-              walltime: 00:30:00
+              walltime: 02:00:00
     task_defaults:
       execution:
         batchargs:
