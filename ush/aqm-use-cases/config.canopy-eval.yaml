@@ -36,7 +36,7 @@ melodies_monet_parm:
       aqmv8_candev_off_xkz.1: # Base A
         expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_off_xkz.1
         plot_kwargs:
-          color: g
+          color: forestgreen
         role: control
       aqmv8_candev_off: # Base B
         expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_off
