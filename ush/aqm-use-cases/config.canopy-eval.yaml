@@ -38,7 +38,8 @@ melodies_monet_parm:
         plot_kwargs:
           color: forestgreen
         role: control
-      aqmv8_candev_off: # Base B
+      #tdk: need to make sure prefixes don't lead to multiple file selections
+      aqmv8_candev_off_base: # Base B
         expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_off
         plot_kwargs:
           color: m
