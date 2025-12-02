@@ -98,8 +98,8 @@ melodies_monet_parm:
         expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_off
         plot_kwargs:
           color: m
-      aqmv8_candev_vdflev3_xkz.1: # Canopy A
-        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_vdflev3_xkz.1
+      aqmv8_candev_vdflev3_xkz.1_Aug: # Canopy A
+        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_vdflev3_xkz.1_Aug
         plot_kwargs:
           color: k
       aqmv8_candev_vdflev3_xkzcan.1: # Canopy B
@@ -109,7 +109,7 @@ melodies_monet_parm:
     scorecards:
       BaseA-CanopyA:
         control: aqmv8_candev_off_xkz.1
-        sensitivity: aqmv8_candev_vdflev3_xkz.1
+        sensitivity: aqmv8_candev_vdflev3_xkz.1_Aug
       BaseB-CanopyB:
         control: aqmv8_candev_off_base
         sensitivity: aqmv8_candev_vdflev3_xkzcan.1
