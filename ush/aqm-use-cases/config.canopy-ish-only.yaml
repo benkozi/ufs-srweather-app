@@ -40,10 +40,7 @@ melodies_monet_parm:
         expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_vdfmet3_C2R_all_Aug1-16
         plot_kwargs:
           color: r
-    scorecards:
-      Base-Canopy:
-        control: aqmv8_candev_off_base
-        sensitivity: aqmv8_candev_vdfmet3_C2R_all_Aug1-16
+    scorecards: {}
     packages:
       aqs_pm:
         active: false
