@@ -1,0 +1,74 @@
+metadata:
+  description: config for SRW-AQM evaluation
+user:
+  RUN_ENVIR: community
+  MACHINE: GAEAC6
+  ACCOUNT: bil-fire3
+workflow:
+  USE_CRON_TO_RELAUNCH: true
+  CRON_RELAUNCH_INTVL_MNTS: 3
+  EXPT_SUBDIR: aqmv8_sens_vdfmet3_C2R_all_Aug1-16
+#  PREDEF_GRID_NAME: AQM_NA_13km
+#  CCPP_PHYS_SUITE: FV3_GFS_v16
+  DATE_FIRST_CYCL: '2023080112'
+#  DATE_LAST_CYCL:  '2023090112'
+  DATE_LAST_CYCL:  '2023080212'
+  DATE_LAST_CYCL_MM:  '2023081512'
+  INCR_CYCL_FREQ: 24
+  FCST_LEN_HRS: 24
+  PREEXISTING_DIR_METHOD: rename
+  VERBOSE: true
+  DEBUG: false
+  taskgroups:
+#    - parm/wflow/prep.yaml
+#    - parm/wflow/aqm_prep.yaml
+#    - parm/wflow/coldstart.yaml
+#    - parm/wflow/post.yaml
+    - parm/wflow/aqm_post_melodies_monet.yaml
+
+melodies_monet_parm:
+  aqm:
+    active: true
+    no_forecast: true
+    run_mode: strict
+    models:
+      aqmv8_candev_off_base: # Base
+        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_off
+        plot_kwargs:
+          color: g
+      aqmv8_candev_vdfmet3_C2R_all_Aug1-16: # Canopy
+        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_vdfmet3_C2R_all_Aug1-16
+        plot_kwargs:
+          color: r
+    scorecards: {}
+    packages:
+      aqs_pm:
+        active: false
+        observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/AQS/pm25_spec_daily/AQS_20230801_20230901.nc
+        execution:
+          prep:
+            batchargs:
+              walltime: 06:00:00
+      aqs_voc:
+        active: false
+        observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/AQS/vocs/AQS_20230801_20230901.nc
+      chem:
+        active: false
+        observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/AirNow/AirNow_20230801_20230901.nc
+        execution:
+          tasks:
+            spatial_overlay:
+              batchargs:
+                nodes: 2
+                walltime: 08:00:00
+      ish:
+        active: true
+        observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/ISH/ISH-Lite_US_20230801_20230901.nc
+        execution:
+          prep:
+            batchargs:
+              walltime: 02:00:00
+    task_defaults:
+      execution:
+        batchargs:
+          walltime: 03:00:00

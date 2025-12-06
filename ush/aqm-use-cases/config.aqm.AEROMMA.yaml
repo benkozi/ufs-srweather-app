@@ -61,23 +61,19 @@ global:
   NUM_ENS_MEMBERS: 2
   HALO_BLEND: 0
 
+## With forecast; single model; no scorecards =======================================================================================
 melodies_monet_parm:
   aqm:
-    active: true
     no_forecast: false
-#    models:
-#      other1:
-#        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA_success_20251029-0917
-#        plot_kwargs:
-#          color: m
-#      other2:
-#        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA_success_20251029-0917
-#        plot_kwargs:
-#          color: k
-#      other3:
-#        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs2/expt_dirs/aqm_AQMNA13km_AEROMMA_success_20251029-0917
-#        plot_kwargs:
-#          color: b
+    active: true
+    models:
+      eval:
+        expt_dir: null
+        title: "Evaluation Target"
+        plot_kwargs:
+          color: g
+        is_host: true
+    scorecards: {}
     packages:
       aqs_pm:
         observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
@@ -87,6 +83,62 @@ melodies_monet_parm:
         observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
       ish:
         observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
+
+## With forecast; two models; with scorecards ======================================================================================
+#melodies_monet_parm:
+#  aqm:
+#    no_forecast: false
+#    enable_scorecards: true
+#    active: true
+#    models:
+#      eval:
+#        expt_dir: null
+#        title: "Evaluation Target"
+#        plot_kwargs:
+#          color: g
+#        is_host: true
+#        role: sensitivity
+#      other1:
+#        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs4/expt_dirs/aqm_AQMNA13km_AEROMMA_forecast-singlemodel
+#        plot_kwargs:
+#          color: m
+#        role: control
+#    packages:
+#      aqs_pm:
+#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
+#      aqs_voc:
+#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/vocs/AQS_20230601_20230701.nc
+#      chem:
+#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
+#      ish:
+#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
+
+# No forecast; two models; with scorecards =========================================================================================
+#melodies_monet_parm:
+#  aqm:
+#    no_forecast: true
+#    enable_scorecards: true
+#    active: true
+#    models:
+#      other1:
+#        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs4/expt_dirs/aqm_AQMNA13km_AEROMMA_forecast-singlemodel
+#        plot_kwargs:
+#          color: b
+#        role: control
+#      other2:
+#        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs4/expt_dirs/aqm_AQMNA13km_AEROMMA_forecast-withscorecards
+#        plot_kwargs:
+#          color: m
+#        role: sensitivity
+#    packages:
+#      aqs_pm:
+#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
+#      aqs_voc:
+#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/vocs/AQS_20230601_20230701.nc
+#      chem:
+#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
+#      ish:
+#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
 
 cpl_aqm_parm:
   CPL_AQM: true

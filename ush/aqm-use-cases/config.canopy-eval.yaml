@@ -7,14 +7,13 @@ user:
 workflow:
 #  USE_CRON_TO_RELAUNCH: true
 #  CRON_RELAUNCH_INTVL_MNTS: 3
-  EXPT_SUBDIR: aqm_AQMNA13km_canopy_sens
+  EXPT_SUBDIR: aqmv8_sens_20251202
 #  PREDEF_GRID_NAME: AQM_NA_13km
 #  CCPP_PHYS_SUITE: FV3_GFS_v16
   DATE_FIRST_CYCL: '2023080112'
 #  DATE_LAST_CYCL:  '2023090112'
   DATE_LAST_CYCL:  '2023080212'
-  DATE_LAST_CYCL_MM:  '2023083112'
-#  DATE_LAST_CYCL_MM:  '2023090112'
+  DATE_LAST_CYCL_MM:  '2023090112'
 #  DATE_LAST_CYCL:  '2023083112'  # Last cycle date for AEROMMA with all data staged
   INCR_CYCL_FREQ: 24
   FCST_LEN_HRS: 24 #tdk: should use this for the date range object
@@ -28,26 +27,105 @@ workflow:
 #    - parm/wflow/post.yaml
     - parm/wflow/aqm_post_melodies_monet.yaml
 
+# first attempt with canopy eval
+#melodies_monet_parm:
+#  aqm:
+#    active: true
+#    no_forecast: true
+#    enable_scorecards: true
+#    run_mode: resume
+#    models:
+#      aqmv8_candev_off_xkz.1: # Base A
+#        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_off_xkz.1
+#        plot_kwargs:
+#          color: forestgreen
+#        role: control
+#      #tdk: need to make sure prefixes don't lead to multiple model selections
+#      aqmv8_candev_off_base: # Base B
+#        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_off
+#        plot_kwargs:
+#          color: m
+#      aqmv8_candev_vdflev3_xkz.1: # Canopy A
+#        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_vdflev3_xkz.1
+#        plot_kwargs:
+#          color: k
+#        role: sensitivity
+#      aqmv8_candev_vdflev3_xkzcan.1: # Canopy B
+#        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_vdflev3_xkzcan.1
+#        plot_kwargs:
+#          color: b
+#    packages:
+#      aqs_pm:
+#        observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/AQS/pm25_spec_daily/AQS_20230801_20230901.nc
+#        execution:
+#          prep:
+#            batchargs:
+#              walltime: 06:00:00
+#      aqs_voc:
+#        observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/AQS/vocs/AQS_20230801_20230901.nc
+#      chem:
+#        observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/AirNow/AirNow_20230801_20230901.nc
+#        execution:
+#          tasks:
+#            spatial_overlay:
+#              batchargs:
+#                nodes: 2
+#                walltime: 08:00:00
+#      ish:
+#        observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/ISH/ISH-Lite_US_20230801_20230901.nc
+#        execution:
+#          prep:
+#            batchargs:
+#              walltime: 02:00:00
+#    task_defaults:
+#      execution:
+#        batchargs:
+#          walltime: 03:00:00
+
+
 melodies_monet_parm:
-  active: true
   aqm:
+    active: true
     no_forecast: true
+    run_mode: strict
     models:
-      base_candev_off:
+      aqmv8_candev_off_xkz.1: # Base A
+        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_off_xkz.1
+        plot_kwargs:
+          color: forestgreen
+      #tdk: need to make sure prefixes don't lead to multiple model selections
+      aqmv8_candev_off_base: # Base B
         expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_off
         plot_kwargs:
-          color: g
-      sens_candev_vdflev3_xkz:
-        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_vdflev3_xkz.1
-        plot_kwargs:
           color: m
+      aqmv8_candev_vdflev3_xkz.1_Aug: # Canopy A
+        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_vdflev3_xkz.1_Aug
+        plot_kwargs:
+          color: k
+      aqmv8_candev_vdflev3_xkzcan.1: # Canopy B
+        expt_dir: /gpfs/f6/bil-fire3/scratch/Irena.Ivanova/expt_dirs/aqmv8_candev_vdflev3_xkzcan.1
+        plot_kwargs:
+          color: b
+    scorecards:
+      BaseA-CanopyA:
+        control: aqmv8_candev_off_xkz.1
+        sensitivity: aqmv8_candev_vdflev3_xkz.1_Aug
+      BaseB-CanopyB:
+        control: aqmv8_candev_off_base
+        sensitivity: aqmv8_candev_vdflev3_xkzcan.1
+      BaseA-CanopyB:
+        control: aqmv8_candev_off_xkz.1
+        sensitivity: aqmv8_candev_vdflev3_xkzcan.1
+      BaseA-BaseB:
+        control: aqmv8_candev_off_xkz.1
+        sensitivity: aqmv8_candev_off_base
     packages:
       aqs_pm:
         observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/AQS/pm25_spec_daily/AQS_20230801_20230901.nc
         execution:
           prep:
             batchargs:
-              walltime: 02:00:00
+              walltime: 06:00:00
       aqs_voc:
         observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/AQS/vocs/AQS_20230801_20230901.nc
       chem:
@@ -56,14 +134,15 @@ melodies_monet_parm:
           tasks:
             spatial_overlay:
               batchargs:
-                walltime: 03:00:00
+                nodes: 2
+                walltime: 08:00:00
       ish:
         observation_template: /gpfs/f6/bil-fire3/world-shared/Observations/ISH/ISH-Lite_US_20230801_20230901.nc
         execution:
           prep:
             batchargs:
-              walltime: 00:30:00
+              walltime: 02:00:00
     task_defaults:
       execution:
         batchargs:
-          walltime: 01:30:00
+          walltime: 03:00:00
