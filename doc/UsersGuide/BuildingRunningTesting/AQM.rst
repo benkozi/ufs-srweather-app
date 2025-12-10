@@ -412,7 +412,7 @@ Install the ``aqm-eval`` Anaconda environment
 Stage Observational Datasets
 ++++++++++++++++++++++++++++++
 
-For SRW-AQM use cases, the `AQM-Eval Data Sync utility <https://github.com/NOAA-EPIC/AQM-Eval?tab=readme-ov-file#installation>`__ utility is recommended to quickly stage all required observations.
+For SRW-AQM use cases, the `AQM-Eval Data Sync utility https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90data%E2%80%90sync>`__ utility is recommended to quickly stage all required observations.
 
 .. code-block:: console
 
