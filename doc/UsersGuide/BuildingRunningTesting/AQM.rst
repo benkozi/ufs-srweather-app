@@ -386,7 +386,7 @@ Once data is appropriately staged, the use case workflow configuration file may 
    * - ``cpl_aqm_parm.USE_FIX_AQM_S3_DATA_STAGE``
      - Defaults to false. Set to true if fixed data was downloaded to the stage directory.
 
-MM (MM) Evaluation
+MELODIES MONET (MM) Evaluation
 ================================
 
 SRW-AQM provides an optional task group leveraging `MELODIES MONET <https://melodies-monet.readthedocs.io/en/stable/>`__ for model evaluation.
@@ -400,7 +400,7 @@ SRW-AQM provides an optional task group leveraging `MELODIES MONET <https://melo
 How to Run the MM Evaluation
 ------------------------------
 
-To run the evaluation suite, a user will need to follow these steps. Depending on the MM packages, tasks, and forecast window duration, the jobs can be computationally demanding. Per the usual HPC recommendations, start small and scale as needed.
+To run the evaluation suite, a user will need to follow these steps. Depending on the MM packages, tasks, and forecast window duration, the jobs can be computationally demanding. Per the usual HPC recommendations, start small and scale as needed. The documentation here contains a high-level overview. Users are encouraged to visit https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval for a more thorough documentation on the MM evaluation wrapper.
 
 Install the ``aqm-eval`` Anaconda environment
 +++++++++++++++++++++++++++++++++++++++++++++++
@@ -428,17 +428,19 @@ For the evaulation to work properly, at least a 48-hour forecast is required. It
 Enable the MM Workflow Task Group
 +++++++++++++++++++++++++++++++++++
 
-Under ``workflow.tasksgroups`` in the experiment configuration, add or uncomment ``- parm/wflow/aqm_post_melodies_monet.yaml``.
+1. Under ``workflow.tasksgroups`` in the experiment configuration, add or uncomment ``- parm/wflow/aqm_post_melodies_monet.yaml``. Other task groups may be removed or commented depending on the "forecast mode" of the evaluation (see https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval#forecast-modes for additional information).
+2. Set ``melodies_monet_parm.active = true``.
 
 Configure Paths to Observational Datasets
 +++++++++++++++++++++++++++++++++++++++++++
 
-For AirNow, set ``task_mm_prep.MM_OBS_AIRNOW_FN_TEMPLATE`` to the appropriate path. Wildcards may be used it the experiment's forecast window extends beyond a month.
+Each package requires a different observational dataset with complete temporal coverage of the simulation window. See https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval#observational-datasets for information on how to configure observational datasets on a per-package level. `./ush/aqm-use-cases/config.aqm.AEROMMA.yaml`` also contains example paths.
 
-Configure "Scorecard" Base Model (Optional)
-+++++++++++++++++++++++++++++++++++++++++++++
+Configure Additional Model to Evaluate (Optional)
++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-MM provides a set of `scorecard evaluations <https://melodies-monet.readthedocs.io/en/stable/users_guide/supported_plots.html#id8>`__ used to compare a base and evaluation model run. Setting ``task_mm_prep.MM_BASE_MODEL_EXPT_DIR`` to a different SRW experiment root directory will enable scorecard plotting.
+* MM supports evaluating multiple model runs/experiments simultaneously: https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval#multi-model-configuration
+* `Scorecards <https://melodies-monet.readthedocs.io/en/stable/users_guide/supported_plots.html#id8>`__ can be created that assist with sensitivity analyses. Scorecards compare model performance between a control model and a sensitivity model: https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval#scorecards
 
 Transfer MM Output (Optional)
 +++++++++++++++++++++++++++++++
@@ -448,47 +450,13 @@ Unless overridden by ``task_mm_prep.MM_OUTPUT_DIR``, the MM evaluation output is
 Select MM Evaluation Packages (Optional)
 +++++++++++++++++++++++++++++++++++++++++
 
-*COMING SOON! Currently, only the "chemistry" evaluation package is supported.*
-
-Select MM Evaluation Tasks (Optional)
-+++++++++++++++++++++++++++++++++++++++
-
-Default MM evaluation tasks may be overridden using ``task_mm_run.MM_EVAL_TASKS_SINGLE_MODEL`` or ``task_mm_run.MM_EVAL_TASKS_MULTI_MODEL``. The latter is used in the case a base model is provided for intercomparison.
+An "evaluation packages" consists of a set of "evaluation tasks" comparing model output to a standard set of observations. These packages and tasks may be optionally disabled. See https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval#evaluation-packages for additional information.
 
 Users are encouraged to consult MM `Supported Plots <https://melodies-monet.readthedocs.io/en/stable/users_guide/supported_plots.html>`__ and `Supported Statistsics <https://melodies-monet.readthedocs.io/en/stable/users_guide/supported_stats.html>`__ documentation for information on the plots and statistics genenerated by the MM tasks.
 
 Overview of the MM Evaluation Task Group
 ------------------------------------------
 
-The MM evaluation task group consists of an ``mm_prep`` task followed by a number of MM task-specific jobs (metatasks) ``mm_run_<MM package>_<MM task>``. The ``mm_run_<MM package>_save_paired`` task must run before other metatasks.
+The MM evaluation task group consists of an ``mm_<MM package>_prep`` task followed by a number of MM task-specific jobs ``mm_run_<MM package>_<MM task>``. The ``mm_<MM package>_run_save_paired`` task must run before other metatasks. There is a statistics concatenation task that runs followin the completion of all all ``mm_<MM package>_run_stats`` tasks.
 
-As the forecast windows increases in time duration, users are encouraged to tune the ``task_mm_run.execution.walltime`` configuration parameter. Please reach out to SRW support with questions on walltime and node tasking. The default configurations are not expected to handle all use cases and customization may be required.
-
-MM Configuration Variables
-++++++++++++++++++++++++++++
-
-.. list-table:: MM Configuration Variables
-   :widths: 20 20 50
-   :header-rows: 1
-
-   * - Configuration Variable
-     - Default
-     - Description
-   * - ``task_mm_prep.MM_OUTPUT_DIR``
-     - ``null``
-     - Output directory for MM-generated model evaluation plots and statistics. If ``null``, defaults to ``${EXPTDIR}/mm_output``.
-   * - ``task_mm_prep.MM_EVAL_PACKAGES``
-     - ``[chem]``
-     - Evaluation packages to initialize and run.
-   * - ``task_mm_prep.MM_BASE_MODEL_EXPT_DIR``
-     - ``null``
-     - If set to another SRW experiment path, MM will generate "scorecards" for model inter-comparison.
-   * - ``task_mm_prep.MM_OBS_AIRNOW_FN_TEMPLATE``
-     - ``null``
-     - Path, optionally with wildcards, selecting the AirNow observation files used by MM. For example: ``/staged/obs/Observations/AirNow/AirNow_2023*.nc``
-   * - ``task_mm_prep.MM_EVAL_TASKS_SINGLE_MODEL``
-     - ``["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats"]``
-     - MM evaluation tasks to run for a single model.
-   * - ``task_mm_prep.MM_EVAL_TASKS_MULTI_MODEL``
-     - ``["timeseries", "taylor", "spatial_bias", "spatial_overlay", "boxplot", "multi_boxplot", "csi", "stats", "scorecard_rmse", "scorecard_ioa", "scorecard_nmb", "scorecard_nme"]``
-     - MM evaluation tasks to run for two models (i.e., model intercomparison).
+As the forecast windows increases in time duration, users are encouraged to tune the batch execution parameters (https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval#batch-execution-arguments). Please reach out to SRW support with questions on walltime and node tasking. The default configurations are not expected to handle all use cases and customization may be required.
