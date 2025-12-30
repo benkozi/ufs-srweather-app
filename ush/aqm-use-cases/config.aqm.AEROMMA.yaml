@@ -2,8 +2,8 @@ metadata:
   description: config for SRW-AQM, AQM_NA_13km, AEROMMA field campaign
 user:
   RUN_ENVIR: community
-  MACHINE: GAEAC6 #tdk: set to a_machine
-  ACCOUNT: bil-fire8 #tdk: set to an_account
+  MACHINE: <a machine>
+  ACCOUNT: <an account>
 workflow:
   USE_CRON_TO_RELAUNCH: true
   CRON_RELAUNCH_INTVL_MNTS: 3
@@ -12,7 +12,7 @@ workflow:
   CCPP_PHYS_SUITE: FV3_GFS_v16
   DATE_FIRST_CYCL: '2023060112'
   DATE_LAST_CYCL:  '2023060212'
-  DATE_LAST_CYCL_MM:  '2023060212'
+  DATE_LAST_CYCL_MM:  '2023060212'  # Only used when MM evaluation is active
 #  DATE_LAST_CYCL:  '2023083112'  # Last cycle date for AEROMMA with all data staged
   INCR_CYCL_FREQ: 24
   FCST_LEN_HRS: 24
@@ -30,7 +30,7 @@ workflow:
     - parm/wflow/aqm_prep.yaml
     - parm/wflow/coldstart.yaml
     - parm/wflow/post.yaml
-    - parm/wflow/aqm_post_melodies_monet.yaml # Uncomment to enable MELODIES MONET evaluation tasks. #tdk:comm
+#    - parm/wflow/aqm_post_melodies_monet.yaml # Uncomment to enable MELODIES MONET evaluation tasks.
 nco:
   envir_default: aqm_AQMNA13km_AEROMMA
   NET_default: aqm
@@ -61,91 +61,12 @@ global:
   NUM_ENS_MEMBERS: 2
   HALO_BLEND: 0
 
-## With forecast; single model; no scorecards =======================================================================================
-melodies_monet_parm:
-  aqm:
-    no_forecast: false
-    active: true
-    models:
-      eval:
-        expt_dir: null
-        title: "Evaluation Target"
-        plot_kwargs:
-          color: g
-        is_host: true
-    scorecards: {}
-    packages:
-      aqs_pm:
-        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
-      aqs_voc:
-        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/vocs/AQS_20230601_20230701.nc
-      chem:
-        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
-      ish:
-        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
-
-## With forecast; two models; with scorecards ======================================================================================
-#melodies_monet_parm:
-#  aqm:
-#    no_forecast: false
-#    enable_scorecards: true
-#    active: true
-#    models:
-#      eval:
-#        expt_dir: null
-#        title: "Evaluation Target"
-#        plot_kwargs:
-#          color: g
-#        is_host: true
-#        role: sensitivity
-#      other1:
-#        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs4/expt_dirs/aqm_AQMNA13km_AEROMMA_forecast-singlemodel
-#        plot_kwargs:
-#          color: m
-#        role: control
-#    packages:
-#      aqs_pm:
-#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
-#      aqs_voc:
-#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/vocs/AQS_20230601_20230701.nc
-#      chem:
-#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
-#      ish:
-#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
-
-# No forecast; two models; with scorecards =========================================================================================
-#melodies_monet_parm:
-#  aqm:
-#    no_forecast: true
-#    enable_scorecards: true
-#    active: true
-#    models:
-#      other1:
-#        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs4/expt_dirs/aqm_AQMNA13km_AEROMMA_forecast-singlemodel
-#        plot_kwargs:
-#          color: b
-#        role: control
-#      other2:
-#        expt_dir: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/sandbox/srw/benkozi/mm-pkgs4/expt_dirs/aqm_AQMNA13km_AEROMMA_forecast-withscorecards
-#        plot_kwargs:
-#          color: m
-#        role: sensitivity
-#    packages:
-#      aqs_pm:
-#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
-#      aqs_voc:
-#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AQS/vocs/AQS_20230601_20230701.nc
-#      chem:
-#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/AirNow/AirNow_20230601_20230701.nc
-#      ish:
-#        observation_template: /gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download/Observations/ISH/ISH-Lite_20230601_20230701.nc
-
 cpl_aqm_parm:
   CPL_AQM: true
 
   USE_AQM_S3_DATA_STAGE: true
   USE_FIX_AQM_S3_DATA_STAGE: false
-  AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download" #tdk:reset
+  AQM_STAGE_DST_DIR: "<path to AQM data>"
 
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true
@@ -167,3 +88,24 @@ cpl_aqm_parm:
   AQM_GEFS_FILE_CYC: '00'
   NEXUS_GRID_FN: grid_spec_793.nc
   NUM_SPLIT_NEXUS: 3
+
+## Optional MELODIES MONET evaluation configuration ================================================
+
+melodies_monet_parm:
+  aqm:
+    active: false  # Set to true to enable MELODIES MONET evaluation
+    models:
+      eval:
+        title: "Evaluation Target"
+        plot_kwargs:
+          color: g
+    scorecards: {}
+    packages:
+      aqs_pm:
+        observation_template: <path to AQM data>/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
+      aqs_voc:
+        observation_template: <path to AQM data>/Observations/AQS/vocs/AQS_20230601_20230701.nc
+      chem:
+        observation_template: <path to AQM data>/Observations/AirNow/AirNow_20230601_20230701.nc
+      ish:
+        observation_template: <path to AQM data>/Observations/ISH/ISH-Lite_20230601_20230701.nc
