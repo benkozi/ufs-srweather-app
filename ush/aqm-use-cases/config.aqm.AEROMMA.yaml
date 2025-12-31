@@ -94,6 +94,7 @@ cpl_aqm_parm:
 melodies_monet_parm:
   aqm:
     active: false  # Set to true to enable MELODIES MONET evaluation
+    no_forecast: false  # The forecast cycle will run
     models:
       eval:
         title: "Evaluation Target"
