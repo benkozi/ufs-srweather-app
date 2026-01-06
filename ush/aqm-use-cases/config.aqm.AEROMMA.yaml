@@ -64,7 +64,7 @@ global:
 cpl_aqm_parm:
   CPL_AQM: true
 
-  USE_AQM_S3_DATA_STAGE: true
+  USE_AQM_S3_DATA_STAGE: false  # Set to true to stage AQM data from S3
   USE_FIX_AQM_S3_DATA_STAGE: false
   AQM_STAGE_DST_DIR: "<path to AQM data>"
 
