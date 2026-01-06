@@ -400,4 +400,12 @@ SRW-AQM provides an optional task group leveraging `MELODIES MONET <https://melo
 How to Run the MM Evaluation
 ------------------------------
 
-To run the evaluation suite, a user will need to follow the steps described in the [aqm-mm-eval](https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval) wiki. An example MM evaluation configuration tuned to the AEROMMA use case is provided at ``ush/aqm-use-cases/config.aqm.AEROMMA.yaml``.
+.. note::
+
+    The AQS PM and AQS VOCs evaluations do not run on Derecho. Set the packages' ``active`` flag to ``false`` (i.e., ``melodies_monet_parm.aqm.packages.aqs_pm.active: false``) when using Derecho.
+
+To run the evaluation suite, a user will need to follow the steps described in the [aqm-mm-eval](https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval) wiki. An example MM evaluation configuration tuned to the AEROMMA use case is provided at ``ush/aqm-use-cases/config.aqm.AEROMMA.yaml``. High-level steps required to run an evaluation using the AEROMMA use case data:
+
+1. Download observational data using ``aqm-data-sync``: https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval#stage-observational-data
+2. Configure observational datasets: https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval#observational-datasets
+3. Activate the evaluation task group by setting ``melodies_monet_parm.aqm.active: true`` and uncommenting ``workflow.taskgroups[parm/wflow/aqm_post_melodies_monet.yaml]``.

@@ -103,10 +103,14 @@ melodies_monet_parm:
     scorecards: {}
     packages:
       aqs_pm:
+        active: true  # Set to false if running on Derecho
         observation_template: <path to AQM data>/Observations/AQS/pm25_spec_daily/AQS_20230601_20230701.nc
       aqs_voc:
+        active: true  # Set to false if running on Derecho
         observation_template: <path to AQM data>/Observations/AQS/vocs/AQS_20230601_20230701.nc
       chem:
+        active: true
         observation_template: <path to AQM data>/Observations/AirNow/AirNow_20230601_20230701.nc
       ish:
+        active: true
         observation_template: <path to AQM data>/Observations/ISH/ISH-Lite_20230601_20230701.nc
