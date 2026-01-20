@@ -7,7 +7,7 @@ Usage: source etc/lmod-setup.sh PLATFORM
 
 OPTIONS:
    PLATFORM - name of machine you are building on
-      (e.g. cheyenne | hera | orion | hercules | wcoss2 )
+      (e.g. derecho | hera | orion | hercules | ursa | wcoss2 )
 EOF_USAGE
    exit 1
 else
@@ -39,10 +39,11 @@ elif [ "$L_MACHINE" = linux ]; then
    module purge
 
 elif [ "$L_MACHINE" = singularity ]; then
-   export BASH_ENV="/usr/share/lmod/lmod/init/bash"
-   source $BASH_ENV
-
-   module purge
+   if [ -f "/usr/share/lmod/lmod/init/bash" ]; then 
+      export BASH_ENV="/usr/share/lmod/lmod/init/bash"
+      source $BASH_ENV
+   fi
+   module reset >/dev/null 2>&1 || true
 
 elif [ "$L_MACHINE" = gaeac5 ]; then
    module reset 

@@ -21,7 +21,7 @@ Quick Start Guide (SRW-AQM)
 
 .. attention::
 
-   These instructions should work smoothly on Hera, Hercules, Derecho, Orion, and Gaea-C6 but users on other systems may need to make additional adjustments.
+   These instructions should work smoothly on Ursa, Hercules, Orion, Derecho, and Gaea-C6 but users on other systems may need to make additional adjustments.
 
 Download the Code
 -------------------
@@ -40,13 +40,13 @@ Users must run the ``checkout_externals`` script to collect (or "check out") the
 Build the SRW App with AQM
 -----------------------------
 
-On Hera and WCOSS2, users can build the SRW App AQM binaries with the following command:
+Users can build the SRW App AQM binaries with the following command:
 
 .. code-block:: console
 
    ./devbuild.sh -p=<machine> -a=ATMAQ
 
-where ``<machine>`` is ``hera``, ``hercules``, ``orion``, ``derecho``, and ``gaeac6``. The ``-a`` argument indicates the configuration/version of the application to build.
+where ``<machine>`` is  ``ursa``, ``hercules``, ``orion``, ``derecho``, and ``gaeac6``. The ``-a`` argument indicates the configuration/version of the application to build.
 
 Building the SRW App with AQM on other machines, including other :srw-wiki:`Level 1 <Supported-Platforms-and-Compilers>` platforms, is not currently guaranteed to work, and users may have to make adjustments to the modulefiles for their system. 
 
@@ -78,7 +78,11 @@ Load the python environment for the workflow:
    module use /path/to/ufs-srweather-app/modulefiles
    module load wflow_<machine>
 
-where ``<machine>`` is ``hera``, ``hercules``, ``orion``, ``derecho``, or ``gaeac6``. The workflow should load on other platforms listed under the ``MACHINE`` variable in :numref:`Section %s <user>`, but users may need to adjust other elements of the process when running on those platforms.
+where ``<machine>`` is ``ursa``, ``hercules``, ``orion``, ``derecho``, or ``gaeac6``. The workflow should load on other platforms listed under the ``MACHINE`` variable in :numref:`Section %s <user>`, but users may need to adjust other elements of the process when running on those platforms.
+
+.. note::
+
+   A limited number of diagnostic fields are output on ``derecho`` due to runtime CMAQ issues.
 
 If the console outputs a message, the user should run the commands specified in the message. For example, if the output says: 
 
@@ -298,7 +302,7 @@ Build the app for AQM:
 
 .. code-block:: console
 
-  ./devbuild.sh -p=hera -a=ATMAQ
+  ./devbuild.sh -p=ursa -a=ATMAQ
 
 
 Add the WE2E test for AQM to the list file:
@@ -314,4 +318,94 @@ Run the WE2E test:
 
 .. code-block:: console
 
-   $ ./run_we2e_tests.py -t my_tests.txt -m hera -a gsd-fv3 -q
+   $ ./run_we2e_tests.py -t my_tests.txt -m ursa -a gsd-fv3 -q
+
+AQM Use Cases
+=============
+
+An AQM "use case" is a scientifically interesting air quality event with preconfigured SRW workflow templates. ICs, LBCs, and fixed files are also staged in the `SRW App Data Bucket <https://registry.opendata.aws/noaa-ufs-shortrangeweather/>`__, and can be downloaded using the `AQM-Eval Data Sync utility <https://github.com/NOAA-EPIC/AQM-Eval?tab=readme-ov-file#installation>`__. If data is downloaded using this utility, setting ``cpl_aqm_parm.USE_AQM_S3_DATA_STAGE = true`` and  ``AQM_STAGE_DST_DIR = <stage_directory>`` will populate the root paths for data dependencies.
+
+.. list-table:: Supported Use Cases
+   :widths: 20 10 20
+   :header-rows: 1
+
+   * - Name
+     - Key
+     - Configuration Template
+   * - `Atmospheric Emissions and Reactions Observed from Megacities to Marine Areas <https://csl.noaa.gov/projects/aeromma/>`__
+     - AEROMMA
+     - ``./ush/aqm-use-cases/config.aqm.AEROMMA.yaml``
+
+.. _acquire-use-case-data:
+
+Acquiring Use Case Data
+---------------------------
+
+AQM data requirements are relatively large. Using the AEROMMA campaign as an example, expect a minimum of ~28 terabytes of storage for the full use case, with ~3 terabytes allocated to fixed files. Hence, use case configurations assume a user will want to evaluate a 48-hour forecast before extending to the recommended use case forecast window. In this situation, download the time-varying data using the data sync utility's ``--snippet`` flag.
+
+.. code-block:: console
+
+   $ DST_DIR=<path to root directory for sync>
+   $ conda run -n aqm-eval --no-capture-output aqm-data-sync time-varying --dst-dir ${DST_DIR} --use-case AEROMMA --snippet
+
+After testing a 48-hour forecast, remove the ``--snippet`` flag to download the full time-varying dataset, or provide a custom end date via the ``--last-cycle-date`` flag.
+
+If you are not on a Tier 1 platform and have not acquired the SRW fixed file data, also download the SRW fixed data using:
+
+.. code-block:: console
+
+   $ # Use the same destination directory as the time-varying data download.
+   $ DST_DIR=<path to root directory for sync>
+   $ conda run -n aqm-eval --no-capture-output aqm-data-sync srw-fixed --dst-dir ${DST_DIR}
+
+Now, setting ``cpl_aqm_parm.USE_FIX_AQM_S3_DATA_STAGE= true`` will adjust fixed files paths to point to the ``AQM_STAGE_DST_DIR``.
+
+.. tip::
+
+   The sync utility is resumable. Re-use the destination directory if a sync operation is canceled, interrupted, or additional temporal data is needed. Synchronization is a one-way sync from the S3 source.
+
+Running a Use Case
+----------------------
+
+Once data is appropriately staged, the use case workflow configuration file may be used like any other SRW workflow configuration file. The preconfigured template assumes users have downloaded data using the data synchronization utility. If not, the user should move any use case-specific settings to the default AQM configuration file (e.g., cycle dates). Assuming the data stage is done correctly for the use case, users should generally focus on updating these configuration variables:
+
+.. list-table:: Important Use Case Configuration Variables
+   :widths: 20 50
+   :header-rows: 1
+
+   * - Configuration Variable
+     - Description
+   * - ``user.MACHINE``
+     - Platform running the workflow.
+   * - ``user.ACCOUNT``
+     - Account holding the core hours.
+   * - ``cpl_aqm_parm.AQM_STAGE_DST_DIR``
+     - Required path to the destination (root) directory of the data synchronization operation.
+   * - ``workflow.DATE_LAST_CYCL``
+     - Defaults to two 24-hour forecast cycles.
+   * - ``cpl_aqm_parm.USE_FIX_AQM_S3_DATA_STAGE``
+     - Defaults to false. Set to true if fixed data was downloaded to the stage directory.
+
+MELODIES MONET (MM) Evaluation
+================================
+
+SRW-AQM provides an optional task group leveraging `MELODIES MONET <https://melodies-monet.readthedocs.io/en/stable/>`__ for model evaluation.
+
+.. epigraph::
+
+    MELODIES MONET is a joint project between NSF NCAR and NOAA to develop a modular framework that integrates existing and future diverse atmospheric chemistry observational datasets with chemistry model results for the evaluation of air quality and atmospheric composition.
+
+    -- MELODIES MONET Documentation
+
+How to Run the MM Evaluation
+------------------------------
+
+.. note::
+
+    The AQS PM and AQS VOCs evaluations do not run on Derecho. Set the packages' ``active`` flag to ``false`` (i.e., ``melodies_monet_parm.aqm.packages.aqs_pm.active: false``) when using Derecho.
+
+To run the evaluation suite, a user will need to follow the steps described in the [aqm-mm-eval](https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval) wiki. An example MM evaluation configuration tuned to the AEROMMA use case is provided at ``ush/aqm-use-cases/config.aqm.AEROMMA.yaml``. High-level steps required to run an evaluation using the AEROMMA use case data:
+
+1. Download observational data using ``aqm-data-sync``: https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval#stage-observational-data
+2. Configure observational datasets: https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90mm%E2%80%90eval#observational-datasets
+3. Activate the evaluation task group by setting ``melodies_monet_parm.aqm.active: true`` and uncommenting ``workflow.taskgroups[parm/wflow/aqm_post_melodies_monet.yaml]``.

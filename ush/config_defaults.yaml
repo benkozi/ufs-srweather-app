@@ -122,6 +122,10 @@ platform:
   # The number of active tasks run simultaneously. For linux/mac setting this
   # to 1 makes sense
   #
+  # CYCLETHROTTLE:
+  # The number of active cycles to run simultaneously. For linux/mac setting this
+  # to 1 makes sense
+  #
   # BUILD_MOD_FN:
   # Name of an alternative build modulefile to use if using an
   # unsupported platform. Is set automatically for supported machines.
@@ -198,6 +202,7 @@ platform:
   WORKFLOW_MANAGER: ""
   NCORES_PER_NODE: ""
   TASKTHROTTLE: 1000
+  CYCLETHROTTLE: 200
   BUILD_MOD_FN: 'build_{{ user.MACHINE|lower() }}_{{ workflow.COMPILER }}'
   WFLOW_MOD_FN: 'wflow_{{ user.MACHINE|lower() }}'
   BUILD_VER_FN: 'build.ver.{{ user.MACHINE|lower() }}'
@@ -410,6 +415,7 @@ platform:
   #-----------------------------------------------------------------------
   #
   EXTRN_MDL_DATA_STORES: ""
+
 #-----------------------------
 # WORKFLOW config parameters
 #-----------------------------
@@ -819,9 +825,9 @@ workflow:
   #
   CCPP_PHYS_SUITE: "FV3_GFS_v16"
   CCPP_PHYS_SUITE_FN: 'suite_{{ workflow.CCPP_PHYS_SUITE }}.xml'
-  CCPP_PHYS_SUITE_IN_CCPP_FP: '{{ user.UFS_WTHR_MDL_DIR }}/FV3/ccpp/suites/{{ workflow.CCPP_PHYS_SUITE_FN }}'
+  CCPP_PHYS_SUITE_IN_CCPP_FP: '{{ user.UFS_WTHR_MDL_DIR }}/UFSATM/ccpp/suites/{{ workflow.CCPP_PHYS_SUITE_FN }}'
   CCPP_PHYS_SUITE_FP: '{{ workflow.EXPTDIR }}/{{ workflow.CCPP_PHYS_SUITE_FN }}'
-  CCPP_PHYS_DIR: '{{ user.UFS_WTHR_MDL_DIR }}/FV3/ccpp/physics/physics/SFC_Models/Land/Noahmp'
+  CCPP_PHYS_DIR: '{{ user.UFS_WTHR_MDL_DIR }}/UFSATM/ccpp/physics/physics/SFC_Models/Land/Noahmp'
   #
   #-----------------------------------------------------------------------
   #
@@ -1875,6 +1881,7 @@ task_run_post:
         nodes: 1
         tasks_per_node: 24
         walltime: 00:15:00
+        exclusive: True
       threads: !int '{{ task_run_post.envvars.OMP_NUM_THREADS_RUN_POST }}'
   #-----------------------------------------------------------------------
   #-----------------------------------------------------------------------
@@ -2039,6 +2046,7 @@ task_plot_allvars:
     batchargs:
       nodes: 1
       tasks_per_node: 1
+      exclusive: True
       walltime: 01:00:00
   #-------------------------------------------------------------------------
   # Path to the reference experiment's COMOUT directory. This is where the GRIB2 files 
@@ -2106,13 +2114,14 @@ task_point_source:
       nodes: 1
       tasks_per_node: 1
       walltime: 00:30:00
+      exclusive: True
   envvars:
     #-------------------------------------------------------------------------------
     # PT_SRC_SUBDIR:
     # Sub-directory structure of point source data under FIXemis.
     # Full path: FIXemis/PT_SRC_SUBDIR
     #-------------------------------------------------------------------------------
-    PT_SRC_SUBDIR: "NEI2016v1/v2023-01-PT"
+    PT_SRC_SUBDIR: "NEMO/NEI2019/v2023-03/PT"
 
 #----------------------------
 # BIAS_CORRECTION_O3 config parameters
@@ -2347,9 +2356,13 @@ verification_resources:
     tasks_per_node: 1
     deterministic:
       gridstat:
+        tasks_per_node: '{{ verification.VX_TASKS }}'
         walltime: 02:00:00
+        memory: '{{ 2 * verification.VX_TASKS }}G'
       pointstat:
+        tasks_per_node: '{{ verification.VX_TASKS }}'
         walltime: 01:00:00
+        memory: '{{ 2 * verification.VX_TASKS }}G'
     ensemble:
       genensprod:
         default:
@@ -2368,11 +2381,11 @@ verification_resources:
       airnow:
         walltime: 00:45:00
       ccpa:
-        walltime: 00:45:00
+        walltime: 02:00:00
       nohrsc:
         walltime: 00:45:00
       mrms:
-        walltime: 00:45:00
+        walltime: 02:00:00
       ndas:
         walltime: 02:00:00
     pb2nc:
@@ -2380,7 +2393,7 @@ verification_resources:
     ascii2nc:
       walltime: 00:30:00
     pcpcombine:
-      ensemble:
+      fcst:
         walltime: 00:30:00
       obs:
         walltime: 00:10:00
@@ -2470,10 +2483,9 @@ verification:
 
   #
   # *_OBS_AVAIL_INTVL_HRS:
-  # Time interval (in hours) at which various types of obs are available on
-  # NOAA's HPSS.
+  # Time interval (in hours) at which various types of obs are available
   #
-  # Note that MRMS files are in fact available every few minutes, but here
+  # Note that MRMS, GOESAOD and GOESADP files are in fact available every few minutes, but here
   # we set the obs availability interval to 1 hour because currently that
   # is the shortest output interval for forecasts, i.e. the forecasts cannot
   # (yet) support sub-hourly output.
@@ -2484,6 +2496,8 @@ verification:
   NDAS_OBS_AVAIL_INTVL_HRS: 1
   AERONET_OBS_AVAIL_INTVL_HRS: 1
   AIRNOW_OBS_AVAIL_INTVL_HRS: 1
+  GOESAOD_OBS_AVAIL_INTVL_HRS: 1
+  GOESADP_OBS_AVAIL_INTVL_HRS: 1
   #
   # *_OBS_DIR:
   # Base directory in which observation files needed by verification tasks are
@@ -2508,6 +2522,8 @@ verification:
   NDAS_OBS_DIR: "{{ workflow.EXPTDIR }}/obs_data/ndas"
   AERONET_OBS_DIR: "{{ workflow.EXPTDIR }}/obs_data/aeronet"
   AIRNOW_OBS_DIR: "{{ workflow.EXPTDIR }}/obs_data/airnow"
+  GOESAOD_OBS_DIR: "{{ workflow.EXPTDIR }}/obs_data/goesaod"
+  GOESADP_OBS_DIR: "{{ workflow.EXPTDIR }}/obs_data/goesadp"
   #
   # OBS_[CCPA|NOHRSC|MRMS|NDAS]_FN_TEMPLATES:
   # File name templates for various obs types.  These are meant to be used
@@ -2607,9 +2623,11 @@ verification:
   OBS_NDAS_FN_TEMPLATES: [ 'SFCandUPA', 'prepbufr.ndas.{valid?fmt=%Y%m%d%H}' ]
   OBS_AERONET_FN_TEMPLATES: [ 'AOD', '{valid?fmt=%Y%m%d}/{valid?fmt=%Y%m%d}.lev15' ]
   # NOTE: for files retrieved from AWS (see OBS_DATA_STORE variable), the
-  # default value should be replaced with
+  # default value for OBS_AIRNOW_FN_TEMPLATES should be replaced with
   # '{valid?fmt=%Y%m%d}/HourlyData_{valid?fmt=%Y%m%d%H}.dat'
   OBS_AIRNOW_FN_TEMPLATES: [ 'PM', '{valid?fmt=%Y%m%d}/HourlyAQObs_{valid?fmt=%Y%m%d%H}.dat' ]
+  OBS_GOESAOD_FN_TEMPLATES: [ 'GOESAOD', '{valid?fmt=%Y%m%d}/OR_ABI-L2-AODF_G16_{valid?fmt=%Y%m%d%H}.nc' ]
+  OBS_GOESADP_FN_TEMPLATES: [ 'GOESADP', '{valid?fmt=%Y%m%d}/OR_ABI-L2-ADPF_G16_{valid?fmt=%Y%m%d%H}.nc' ]
   #
   # REMOVE_RAW_OBS_DIRS
   # Flag specifying whether to remove the "raw" observation directories
@@ -2653,6 +2671,14 @@ verification:
 
   AIRNOW_INPUT_FORMAT: "airnowhourlyaqobs"
 
+  # FCST_SMOKE_TYPE:
+  # Different forecast data have different particulate matter variables that must be verified differently.
+  # Options are:
+  # HRRR: HRRR output contains only PM 2.5 in a variable named MASSDEN.
+  # RRFS: RRFS output contains three MASSDEN variables, one of which is PM 10 and the other two combined
+  #       are summed in PCP Combine task to get total PM 2.5 
+
+  FCST_SMOKE_TYPE: RRFS
   #
   # OBS_DATA_STORE*:
   # Location(s) to retrieve observation data from. Valid values are "aws" and/or "hpss", see
@@ -2664,7 +2690,8 @@ verification:
   OBS_DATA_STORE_NDAS: hpss
   OBS_DATA_STORE_AERONET: hpss
   OBS_DATA_STORE_AIRNOW: hpss
-
+  OBS_DATA_STORE_GOESAOD: aws
+  OBS_DATA_STORE_GOESADP: aws
   #
   # OBS_NDAS_SFCandUPA_FN_TEMPLATE_PB2NC_OUTPUT: 
   # METplus template for the names of the NetCDF files generated by the
@@ -2673,7 +2700,7 @@ verification:
   # observed surface (SFC) and upper-air (UPA) fields in NetCDF format
   # (instead of NDAS's native prepbufr format).
   #
-  OBS_NDAS_SFCandUPA_FN_TEMPLATE_PB2NC_OUTPUT: '${OBS_NDAS_FN_TEMPLATES[1]}.nc'
+  OBS_NDAS_SFCandUPA_FN_TEMPLATE_PB2NC_OUTPUT: '{{ verification.OBS_NDAS_FN_TEMPLATES[1] }}.nc'
   #
   # NUM_MISSING_OBS_FILES_MAX:
   # For verification tasks that need observational data, this specifies
@@ -2718,13 +2745,13 @@ verification:
   # METplus template for the name of the subdirectory containing forecast
   # files to use as inputs to the verification tasks.
   #
-  FCST_SUBDIR_TEMPLATE: '{% if user.RUN_ENVIR == "nco" %}${NET_default}.{init?fmt=%Y%m%d?shift=-${time_lag}}/{init?fmt=%H?shift=-${time_lag}}{% else %}{init?fmt=%Y%m%d%H?shift=-${time_lag}}{{ "/${ensmem_name}" if global.DO_ENSEMBLE }}/postprd{% endif %}'
+  FCST_SUBDIR_TEMPLATE: '{% if user.RUN_ENVIR == "nco" %}{{ nco.NET_default }}.{init?fmt=%Y%m%d?shift=-${time_lag}}/{init?fmt=%H?shift=-${time_lag}}{% else %}{init?fmt=%Y%m%d%H?shift=-${time_lag}}{{ "/${ensmem_name}" if global.DO_ENSEMBLE }}/postprd{% endif %}'
   #
   # FCST_FN_TEMPLATE:
   # METplus template for the names of the forecast files to use as inputs
   # to the verification tasks.
   # 
-  FCST_FN_TEMPLATE: '${NET_default}.t{init?fmt=%H?shift=-${time_lag}}z{{ ".${ensmem_name}" if user.RUN_ENVIR == "nco" and global.DO_ENSEMBLE }}.prslev.f{lead?fmt=%HHH?shift=${time_lag}}.{{ task_run_post.envvars.POST_OUTPUT_DOMAIN_NAME }}.grib2'
+  FCST_FN_TEMPLATE: '{{ nco.NET_default }}.t{init?fmt=%H?shift=-${time_lag}}z{{ ".${ensmem_name}" if user.RUN_ENVIR == "nco" and global.DO_ENSEMBLE }}.prslev.f{lead?fmt=%HHH?shift=${time_lag}}.{{ task_run_post.envvars.POST_OUTPUT_DOMAIN_NAME }}.grib2'
   #
   # FCST_FN_TEMPLATE_PCPCOMBINE_OUTPUT:
   # METplus template for the names of the NetCDF files generated by the
@@ -2732,7 +2759,7 @@ verification:
   # forecast output.  These files will contain forecast accumulated
   # precipitation in NetCDF format for various accumulation intervals.
   #
-  FCST_FN_TEMPLATE_PCPCOMBINE_OUTPUT: '${NET_default}.t{init?fmt=%H}z{{ ".${ensmem_name}" if user.RUN_ENVIR == "nco" and global.DO_ENSEMBLE }}.prslev.{{ task_run_post.envvars.POST_OUTPUT_DOMAIN_NAME }}.${FIELD_GROUP}${ACCUM_HH}h.{valid?fmt=%Y%m%d%H?shift=-${ACCUM_HH}H}_to_{valid?fmt=%Y%m%d%H}.nc'
+  FCST_FN_TEMPLATE_PCPCOMBINE_OUTPUT: '{{ nco.NET_default }}.t{init?fmt=%H}z{{ ".${ensmem_name}" if user.RUN_ENVIR == "nco" and global.DO_ENSEMBLE }}.prslev.{{ task_run_post.envvars.POST_OUTPUT_DOMAIN_NAME }}.${FIELD_GROUP}${ACCUM_HH}h.{valid?fmt=%Y%m%d%H?shift=-${ACCUM_HH}H}_to_{valid?fmt=%Y%m%d%H}.nc'
   #
   # VX_NDIGITS_ENSMEM_NAMES:
   # Number of digits to assume/use in the forecast ensemble member identifier
@@ -2753,6 +2780,15 @@ verification:
   # with an error.
   #
   NUM_MISSING_FCST_FILES_MAX: 0
+
+  # Name(s) of the sub-grid(s) of the forecast domain to verify on. Valid grids are found in the MET users
+  # guide (https://metplus.readthedocs.io/projects/met/en/latest/Users_Guide/appendixB.html#grids)
+  # or under ufs-srweather-app/parm/metplus/GRIDNAME.poly
+  VX_MASK: []
+
+  # Number of verification tasks to run in parallel; this works for METplus tools that work on
+  # sequential forecast hours, and so can be run simultaneously.
+  VX_TASKS: 1
 
 #----------------------------
 # CPL_AQM config parameters
@@ -2855,6 +2891,16 @@ cpl_aqm_parm:
   # FIXaqmcanopy:
   # Path to the directory containing AQM canopy files
   #
+  # USE_AQM_S3_DATA_STAGE:
+  # If true, update time-varying data paths to use the UFS-AQM S3 data stage configuration as
+  # downloaded by the AQM Data Sync utility.
+  #
+  # USE_FIX_AQM_S3_DATA_STAGE:
+  # If true, update fixed file data paths to use the UFS-AQM S3 data stage configuration as
+  # downloaded by the AQM Data Sync utility.
+  #
+  # AQM_STAGE_DST_DIR: The root/destination directory containing the UFS-AQM S3 data stage. This
+  # directory is the destination directory for a download operation using the AQM Data Sync utility.
   #-----------------------------------------------------------------------
   #
   CPL_AQM: false
@@ -2900,6 +2946,10 @@ cpl_aqm_parm:
 
   FIXaqmcanopy: '{{ [platform.FIXaqm, "canopy"]|path_join }}'
 
+  USE_AQM_S3_DATA_STAGE: false
+  USE_FIX_AQM_S3_DATA_STAGE: false
+  AQM_STAGE_DST_DIR: null
+
 # AQM Task Resources
 task_pre_post_stat:
   execution:
@@ -2934,6 +2984,7 @@ task_nexus_post_split:
       nodes: 1
       tasks_per_node: 1
       walltime: 00:30:00
+      exclusive: True
 task_fire_emission:
   execution:
     batchargs:
@@ -2961,6 +3012,14 @@ task_aqm_lbcs:
       nodes: 1
       tasks_per_node: 24
       walltime: 00:30:00
+
+# ------------------------------------
+# SRW-AQM MELODIES-MONET Configuration
+# ------------------------------------
+
+melodies_monet_parm:
+  aqm:
+    active: false
 
 #------------------------------
 # Smoke/Dust config parameters

@@ -16,7 +16,7 @@ Usage: source $0 PLATFORM
 
 OPTIONS:
    PLATFORM - name of machine you are on
-      (e.g. cheyenne | hera | jet | orion | wcoss2 )
+      (e.g. derecho | hera | jet | orion | ursa | wcoss2 )
 EOF_USAGE
 }
 
@@ -62,6 +62,7 @@ task failed:
 $has_mu && set +u
 
 if [ ! -z $(command -v conda) ]; then
+  conda deactivate
   conda activate srw_app
 fi
 

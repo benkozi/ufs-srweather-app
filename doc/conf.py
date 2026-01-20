@@ -120,6 +120,7 @@ linkcheck_ignore = [r'https://www\.intel\.com/content/www/us/en/docs/cpp\-compil
                     r'https://glossary.ametsoc.org/.*',
                     r'https://www.axios.com/local/new-orleans/2025/01/21/in-photos-historic-snowstorm-new-orleans-louisiana',
                     r'https://repository.library.noaa.gov/view/noaa/30725',
+                    r'https://sourceforge.net/projects/xming',
                    ]
 
 # Ignore anchor tags for SRW App data bucket. Shows Not Found even when they exist.
@@ -129,6 +130,10 @@ linkcheck_anchors_ignore = [r"current_srw_release_data/",
                             r"experiment-user-cases/.*",
                             r"rrfs_a/*",
                             r"develop-20250321/.*",
+                            r"installation",
+                            r"grids",
+                            "stage-observational-data",
+                            "observational-datasets"
                             ]
 
 linkcheck_allowed_redirects = {r"https://github\.com/ufs-community/ufs-srweather-app/wiki/.*": 

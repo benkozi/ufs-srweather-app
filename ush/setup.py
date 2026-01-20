@@ -4,21 +4,23 @@
 Read in the configuration YAMLs and prepare a self-consistent
 experiment configuration file.
 """
-
 # pylint: disable=too-many-lines, too-many-branches, logging-fstring-interpolation
 
+import base64
 import datetime
+import json
 import logging
 import os
 import re
+import subprocess
 import sys
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
 
-
 from uwtools.api.config import get_ini_config, get_yaml_config, validate
 from uwtools.api.template import render
+from uwtools.config.formats.yaml import YAMLConfig
 
 from link_fix import link_fix
 from python_utils import (
@@ -74,6 +76,9 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
     )
     logging.debug(user_config)
 
+    machine = user_config["user"]["MACHINE"].upper()
+    user_config["user"]["MACHINE"] = machine
+
     # Check user config against experiment schema
     schema = ushdir / "user.jsonschema"
     valid = validate(schema_file=schema, config_data=user_config)
@@ -83,8 +88,6 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
         sys.exit(1)
 
     # Load the machine config file
-    machine = user_config["user"]["MACHINE"].upper()
-    user_config["user"]["MACHINE"] = machine
 
     machine_file = ushdir / "machine" / f"{machine.lower()}.yaml"
 
@@ -146,6 +149,9 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
         expt_basedir = homedir.parent / "expt_dirs" / expt_basedir
     default_config["workflow"]["EXPT_BASEDIR"] = str(Path(expt_basedir).resolve())
 
+    _update_config_for_coupled_aqm_(default_config, homedir)
+    _update_config_for_melodies_monet_(default_config)
+
     # Dereference all Jinja expressions
     default_config.dereference(
         context={
@@ -164,6 +170,127 @@ def load_config_for_setup(ushdir, default_config_path, user_config_path):
         sys.exit(1)
 
     return default_config
+
+
+def _update_config_for_melodies_monet_(default_config: YAMLConfig) -> None:
+    if default_config["melodies_monet_parm"]["aqm"]["active"] is False:
+        logging.debug("MELODIES MONET post-processing for AQM not enabled. Skipping...")
+        return
+
+    def json_to_cli_arg(data: dict) -> str:
+        json_bytes = json.dumps(data).encode("utf-8")
+        return base64.urlsafe_b64encode(json_bytes).decode("ascii")
+
+    def cli_arg_to_json(arg: str) -> dict:
+        json_bytes = base64.urlsafe_b64decode(arg.encode("ascii"))
+        return json.loads(json_bytes.decode("utf-8"))
+
+    logging.debug("Updating configuration for MELODIES MONET post-processing")
+    eval_data = {
+        "workflow": {
+            "EXPT_BASEDIR": default_config["workflow"]["EXPT_BASEDIR"],
+            "EXPT_SUBDIR": default_config["workflow"]["EXPT_SUBDIR"],
+            "DATE_LAST_CYCL_MM": default_config["workflow"]["DATE_LAST_CYCL_MM"],
+            "DATE_FIRST_CYCL": default_config["workflow"]["DATE_FIRST_CYCL"],
+        },
+        "platform": {"FIXshp": default_config["platform"]["FIXshp"]},
+        "user": {"MACHINE": default_config["user"]["MACHINE"]},
+        "melodies_monet_parm": default_config["melodies_monet_parm"],
+    }
+    cli_arg = json_to_cli_arg(eval_data)
+    output = subprocess.check_output(
+        [
+            "conda",
+            "run",
+            "-n",
+            "aqm-eval",
+            "aqm-mm-eval",
+            "srw-task-group",
+            "--srw-data",
+            cli_arg,
+        ]
+    ).decode("utf-8")
+    mm_tasks = cli_arg_to_json(output)
+    default_config["rocoto"]["tasks"].update(mm_tasks)
+    default_config["__mm_runtime__"] = eval_data
+
+
+def _update_config_for_coupled_aqm_(default_config: YAMLConfig, homedir: Path) -> None:
+    cpl_aqm_parm = default_config["cpl_aqm_parm"]
+    if cpl_aqm_parm["CPL_AQM"] is False:
+        logging.debug("CPL_AQM not enabled. Skipping...")
+        return
+
+    logging.debug("Updating configuration for coupled AQM")
+    if default_config["workflow"]["COLDSTART"] is True:
+        # Disable the external AQM ICs task.
+        aqm_coldstart = get_yaml_config(
+            homedir / "parm" / "wflow" / "aqm_coldstart.yaml"
+        )
+        default_config.update_from(aqm_coldstart)
+    if (
+        default_config["cpl_aqm_parm"]["USE_AQM_S3_DATA_STAGE"] is True
+        or default_config["cpl_aqm_parm"]["USE_FIX_AQM_S3_DATA_STAGE"] is True
+    ):
+        # The AQM S3 data stage uses a set of pre-configured paths. This data is assumed to have
+        # been downloaded using the aqm-data-sync utility from the NOAA-EPIC S3 bucket.
+        aqm_stage_dst_dir = Path(
+            default_config["cpl_aqm_parm"]["AQM_STAGE_DST_DIR"]
+        ).resolve(strict=True)
+        logging.debug(f"{aqm_stage_dst_dir=}")
+        if default_config["cpl_aqm_parm"]["USE_AQM_S3_DATA_STAGE"] is True:
+            logging.debug("Using S3 AQM data stage - updating time-varying paths")
+            task_get_extrn_ics = default_config["task_get_extrn_ics"]["envvars"]
+            task_get_extrn_ics["USE_USER_STAGED_EXTRN_FILES"] = True
+            task_get_extrn_ics["EXTRN_MDL_SOURCE_BASEDIR_ICS"] = str(aqm_stage_dst_dir)
+            task_get_extrn_ics["EXTRN_MDL_ICS_OFFSET_HRS"] = 0
+            task_get_extrn_ics["EXTRN_MDL_FILES_ICS"] = [
+                "FV3GFS/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc",
+                "GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc",
+                "GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.sfcanl.nc",
+            ]
+
+            task_get_extrn_lbcs = default_config["task_get_extrn_lbcs"]["envvars"]
+            task_get_extrn_lbcs["USE_USER_STAGED_EXTRN_FILES"] = True
+            task_get_extrn_lbcs["EXTRN_MDL_SOURCE_BASEDIR_LBCS"] = str(
+                aqm_stage_dst_dir
+            )
+            task_get_extrn_lbcs["EXTRN_MDL_LBCS_OFFSET_HRS"] = 0
+            task_get_extrn_lbcs["EXTRN_MDL_FILES_LBCS"] = [
+                "FV3GFS/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.atmf{fcst_hr:03d}.nc",
+                "GFS_SFC_DATA/gfs.{yyyymmdd}/{hh}/atmos/gfs.t{hh}z.sfcf{fcst_hr:03d}.nc",
+                "GEFS_Aerosol/{yyyymmdd}/00/gfs.t00z.atmf{fcst_hr:03d}.nemsio",
+            ]
+
+            cpl_aqm_parm["COMINfire_default"] = str(aqm_stage_dst_dir / "RAVE_fire")
+            cpl_aqm_parm["COMINgefs_default"] = str(aqm_stage_dst_dir / "GEFS_Aerosol")
+            cpl_aqm_parm["NEXUS_GFS_SFC_DIR"] = str(aqm_stage_dst_dir / "GFS_SFC_DATA")
+
+            default_config["workflow"]["WARMSTART_CYCLE_DIR"] = str(
+                aqm_stage_dst_dir
+                / "RESTART/AQMv8_p1"
+                / default_config["workflow"]["WARMSTART_CYCLE_DIR"]
+            )
+        if default_config["cpl_aqm_parm"]["USE_FIX_AQM_S3_DATA_STAGE"] is True:
+            logging.debug("Using S3 AQM data stage - updating fixed file paths")
+            fix_mapping = (
+                ("FIXaer", "fix/fix_aer"),
+                ("FIXgsi", "fix/fix_gsi"),
+                ("FIXgsm", "fix/fix_am"),
+                ("FIXlut", "fix/fix_lut"),
+                ("FIXorg", "fix/fix_orog"),
+                ("FIXsfc", "fix/fix_sfc_climo"),
+                ("FIXshp", "NaturalEarth"),
+                ("FIXemis", "fix/fix_emis"),
+                ("FIXaqm", "fix/fix_aqm_v8/fix/fix_aqm"),
+                ("FIXsmoke", "fix/fix_smoke"),
+                ("FIXupp", "fix/fix_upp"),
+                ("FIXcrtm", "fix/fix_crtm"),
+            )
+            for fix_map in fix_mapping:
+                default_config["platform"][fix_map[0]] = str(
+                    aqm_stage_dst_dir / fix_map[1]
+                )
 
 
 def set_srw_paths(expt_config):
@@ -276,21 +403,6 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
     default_config_fp = os.path.join(ushdir, "config_defaults.yaml")
     user_config_fp = os.path.join(ushdir, user_config_fn)
     expt_config = load_config_for_setup(ushdir, default_config_fp, user_config_fp)
-
-    # Load build settings as a dictionary; will be used later to make
-    # sure the build is consistent with the user settings
-    build_config_fp = Path(expt_config["user"]["EXECdir"], "build_settings.yaml")
-    build_config = get_yaml_config(build_config_fp)
-    logger.debug(f"Read build configuration from {build_config_fp}\n{build_config}")
-
-    # Fail if build machine and config machine are inconsistent
-    if build_config["Machine"].upper() != expt_config["user"]["MACHINE"]:
-        logger.critical(
-            "ERROR: Machine in build settings file != machine specified in config file"
-        )
-        logger.critical(f"build machine: {build_config['Machine']}")
-        logger.critical(f"config machine: {expt_config['user']['MACHINE']}")
-        raise ValueError("Check config settings for correct value for 'machine'")
 
     # Set up some paths relative to the SRW clone
     expt_config["user"].update(
@@ -418,6 +530,23 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                              run_run_fcst
     run_run_post = dict_find(rocoto_tasks, "task_run_post")
 
+    # Load build settings as a dictionary if build was necessary; this will be used to make
+    # sure the build is consistent with the user settings
+    if run_make_grid or run_make_orog or run_make_sfc_climo or run_any_coldstart_task:
+        build_config_fp = Path(expt_config["user"]["EXECdir"], "build_settings.yaml")
+        build_config = get_yaml_config(build_config_fp)
+        logger.debug(f"Read build configuration from {build_config_fp}\n{build_config}")
+
+        # Fail if build machine and config machine are inconsistent
+        if build_config["Machine"].upper() != expt_config["user"]["MACHINE"]:
+            logger.critical(
+                "ERROR: Machine in build settings file != machine specified in config file"
+            )
+            logger.critical(f"build machine: {build_config['Machine']}")
+            logger.critical(f"config machine: {expt_config['user']['MACHINE']}")
+            raise ValueError("Check config settings for correct value for 'machine'")
+
+
     # Necessary tasks are turned on
     pregen_basedir = expt_config["platform"]["DOMAIN_PREGEN_BASEDIR"]
     if pregen_basedir is None and not (
@@ -460,6 +589,11 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
     if remove_memory:
         _remove_tag(rocoto_tasks, "memory")
 
+    # Remove exclusive node usage if not in "platform".yaml
+    exclusive = expt_config["platform"].get("EXCLUSIVE")
+    if not exclusive:
+        _remove_tag(rocoto_tasks, "exclusive")
+
     for part in ["PARTITION_HPSS", "PARTITION_DEFAULT", "PARTITION_FCST"]:
         partition = expt_config["platform"].get(part)
         if not partition:
@@ -491,7 +625,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
 
         rocoto_config["cycledef"].append({
             "attrs": {"group": "cycled_from_second"},
-            "spec": f"{date_second_cycle.strftime('%Y%m%d%H%S')} {date_last_cycl}00 {incr_cycl_freq}", # pylint: disable=line-too-long
+            "spec": f"{date_second_cycle.strftime('%Y%m%d%H%S')} {date_last_cycl}00 {incr_cycl_freq}:00:00", # pylint: disable=line-too-long
             })
     #
     # -----------------------------------------------------------------------
@@ -659,6 +793,14 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         vx_metatasks_all_by_obtype["AIRNOW"] \
         = ["task_get_obs_airnow"]
 
+        vx_field_groups_all_by_obtype["GOESAOD"] = ["GOESAOD"]
+        vx_metatasks_all_by_obtype["GOESAOD"] \
+        = ["task_get_obs_goes_aod"]
+
+        vx_field_groups_all_by_obtype["GOESADP"] = ["GOESADP"]
+        vx_metatasks_all_by_obtype["GOESADP"] \
+        = ["task_get_obs_goes_adp"]
+
         # If there are no field groups specified for verification, remove those
         # tasks that are common to all observation types.
         vx_field_groups = vx_config["VX_FIELD_GROUPS"]
@@ -693,7 +835,7 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
         # -----------------------------------------------------------------------
         #
         if vx_field_groups:
-            obtypes_all = ["CCPA", "NOHRSC", "MRMS", "NDAS"]
+            obtypes_all = ["CCPA", "NOHRSC", "MRMS", "NDAS", "AERONET", "AIRNOW", "GOESAOD"]
             obs_basedir_var_names = [f"{obtype}_OBS_DIR" for obtype in obtypes_all]
             obs_basedirs_dict = {key: vx_config[key] for key in obs_basedir_var_names}
             obs_basedirs_orig = list(obs_basedirs_dict.values())
@@ -734,7 +876,6 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                     },
                 },
             }
-
 
     #
     # -----------------------------------------------------------------------
@@ -1468,13 +1609,6 @@ def setup(ushdir, user_config_fn="config.yaml", debug: bool = False):
                           {lsm_spp_var} = {global_sect[lsm_spp_var]}
                           """
                     )
-
-
-
-
-
-
-
 
         #
         # -----------------------------------------------------------------------
