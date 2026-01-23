@@ -34,6 +34,7 @@ workflow:
     - parm/wflow/aqm_prep.yaml
     - parm/wflow/coldstart.yaml
     - parm/wflow/post.yaml
+#    - parm/wflow/aqm_verify.yaml  # Uncomment to enable AQM verification
 nco:
   envir_default: test_aqm_warmstart
   NET_default: aqm

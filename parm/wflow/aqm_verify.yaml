@@ -1,0 +1,53 @@
+default_aqm_task: &default_aqm
+  account: '&ACCOUNT;'
+  attrs:
+    cycledefs: at_end
+    maxtries: '2'
+  envars: &default_vars
+    GLOBAL_VAR_DEFNS_FP: '&GLOBAL_VAR_DEFNS_FP;'
+    HOMEdir: '&HOMEdir;'
+    envir: '&envir;'
+    model_ver: '&model_ver;'
+    KEEPDATA: '&KEEPDATA;'
+    SENDCOM: '&SENDCOM;'
+    COMROOT: '&COMROOT;'
+    DATAROOT: '&DATAROOT;'
+    DCOMROOT: '&DCOMROOT;'
+    LOGDIR:
+      cyclestr:
+        value:  "&LOGDIR;"
+    PDY:
+      cyclestr:
+        value:  "@Y@m@d"
+    cyc:
+      cyclestr:
+        value:  "@H"
+    subcyc:
+      cyclestr:
+        value:  "@M"
+    SLASH_ENSMEM_SUBDIR: '&SLASH_ENSMEM_SUBDIR;'
+  native: '{{ platform.SCHED_NATIVE_CMD }}'
+  partition: '{{ "&PARTITION_DEFAULT;" if platform.get("PARTITION_DEFAULT") }}'
+  queue: '&QUEUE_DEFAULT;'
+
+task_aqm_verify:
+  <<: *default_aqm
+  command: '&LOAD_MODULES_RUN_TASK; "aqm_verify" "&HOMEdir;/jobs/JSRW_AQM_VERIFY"'
+  native: '{% if platform.get("SCHED_NATIVE_CMD_HPSS") %}{{ platform.SCHED_NATIVE_CMD_HPSS }}{% else %}{{ platform.SCHED_NATIVE_CMD}}{% endif %}'
+  partition: '{{ "&PARTITION_HPSS;" if platform.get("PARTITION_HPSS") }}'
+  join:
+    cyclestr:
+      value:  '&LOGDIR;/{{ jobname }}_@Y@m@d@H&LOGEXT;'
+  envars:
+    <<: *default_vars
+    nprocs: '1'
+    # Set to the YAML verification path for aqm-verify:
+    #  See https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90verify
+    AQM_VERIFY_YAML_PATH: null
+  nodes: '1'
+  walltime: '00:10:00'
+  memory: 2G
+  dependency:
+    taskdep:
+      attrs:
+        task: run_fcst_mem000
