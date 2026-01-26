@@ -44,7 +44,7 @@ task_aqm_verify:
     # Set to the YAML verification path for aqm-verify:
     #  See https://github.com/NOAA-EPIC/AQM-Eval/wiki/aqm%E2%80%90verify
     AQM_VERIFY_YAML_PATH: null
-  nodes: '1'
+  nodes: '1:ppn=1'
   walltime: '00:10:00'
   memory: 2G
   dependency:
