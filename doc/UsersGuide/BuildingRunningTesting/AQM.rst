@@ -335,6 +335,9 @@ An AQM "use case" is a scientifically interesting air quality event with preconf
    * - `Atmospheric Emissions and Reactions Observed from Megacities to Marine Areas <https://csl.noaa.gov/projects/aeromma/>`__
      - AEROMMA
      - ``./ush/aqm-use-cases/config.aqm.AEROMMA.yaml``
+   * - `Fall Ozone`
+     - FALL_OZONE
+     - ``./ush/aqm-use-cases/config.aqm.FALL_OZONE.yaml``
 
 .. _acquire-use-case-data:
 
