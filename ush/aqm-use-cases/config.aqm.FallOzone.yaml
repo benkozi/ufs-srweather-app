@@ -2,10 +2,8 @@ metadata:
   description: config for SRW-AQM, AQM_NA_13km, Fall Ozone
 user:
   RUN_ENVIR: community
-  MACHINE: gaeac6 #tdk:revert
-#  MACHINE: HERA
-  ACCOUNT: bil-fire8
-#  ACCOUNT: an_account
+  MACHINE: HERA
+  ACCOUNT: an_account
 workflow:
   USE_CRON_TO_RELAUNCH: true
   CRON_RELAUNCH_INTVL_MNTS: 3
@@ -15,7 +13,7 @@ workflow:
   DATE_FIRST_CYCL: '2023090112'
   DATE_LAST_CYCL:  '2023090212'
   DATE_LAST_CYCL_MM:  '2023090212'  # Only used when MM evaluation is active
-#  DATE_LAST_CYCL:  '2023113012'  # Last cycle date for AEROMMA with all data staged
+#  DATE_LAST_CYCL:  '2023113012'  # Last cycle date for Fall Ozone with all data staged
   INCR_CYCL_FREQ: 24
   FCST_LEN_HRS: 24
   PREEXISTING_DIR_METHOD: rename
@@ -65,11 +63,9 @@ global:
 cpl_aqm_parm:
   CPL_AQM: true
 
-  USE_AQM_S3_DATA_STAGE: true  # Set to true to stage AQM data from S3 tdk:revert
-#  USE_AQM_S3_DATA_STAGE: false  # Set to true to stage AQM data from S3
+  USE_AQM_S3_DATA_STAGE: false  # Set to true to stage AQM data from S3
   USE_FIX_AQM_S3_DATA_STAGE: false
-  AQM_STAGE_DST_DIR: "/gpfs/f6/bil-fire8/scratch/Benjamin.Koziol/data/aqm-use-case-download"
-#  AQM_STAGE_DST_DIR: "<path to AQM data>"
+  AQM_STAGE_DST_DIR: "<path to AQM data>"
 
   DO_AQM_CHEM_LBCS: true
   DO_AQM_GEFS_LBCS: true
