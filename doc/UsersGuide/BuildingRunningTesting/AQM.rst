@@ -263,7 +263,7 @@ The pre-processing tasks for air quality modeling (AQM) are shown in :numref:`Ta
    * - nexus_post_split
      - Concatenates the NEXUS emissions information into a single netCDF file (needed for the forecast) if NEXUS was split into multiple jobs using the ``NUM_SPLIT_NEXUS`` variable.
    * - fire_emission
-     - Converts both satellite-retrieved gas and aerosol species emissions (RAVE) from mass (kg) to emissions rates (kg/m2/s) and creates 3-day hourly model-ready fire emissions input files.
+     - Converts both satellite-retrieved gas and aerosol species emissions (:term:`RAVE`) from mass (kg) to emissions rates (kg/m2/s) and creates 3-day hourly model-ready fire emissions input files.
    * - point_source
      - Aggregates the anthropogenic point source sectors of the National Emission Inventory (NEI) into a ready-to-input point-source emission file based on the weekday/weekend/holiday patterns of each sector and the date/time of the simulation.
    * - aqm_ics
@@ -333,7 +333,7 @@ An AQM "use case" is a scientifically interesting air quality event with preconf
      - Key
      - Configuration Template
    * - `Atmospheric Emissions and Reactions Observed from Megacities to Marine Areas <https://csl.noaa.gov/projects/aeromma/>`__
-     - AEROMMA
+     - :term:`AEROMMA`
      - ``./ush/aqm-use-cases/config.aqm.AEROMMA.yaml``
    * - `Fall Ozone`
      - FALL_OZONE
@@ -392,7 +392,7 @@ Once data is appropriately staged, the use case workflow configuration file may 
 MELODIES MONET (MM) Evaluation
 ================================
 
-SRW-AQM provides an optional task group leveraging `MELODIES MONET <https://melodies-monet.readthedocs.io/en/stable/>`__ for model evaluation.
+SRW-AQM provides an optional task group leveraging :term:`MELODIES MONET` (`documentation <https://melodies-monet.readthedocs.io/en/stable/>`__) for model evaluation.
 
 .. epigraph::
 
